@@ -1,0 +1,39 @@
+name: 俳句の裾野 つぶやき
+on:
+  schedule:
+    # 時刻は UTC（日本時間 = UTC + 9時間）。GitHubの都合で、数分〜数十分おくれることがあります
+    # 句会の時間割：毎晩20時「夜8時だよ、全員集合」。土・日は朝10時の回も
+    - cron: '0 22 * * *'      # 毎朝 7:00  今日の兼題・機能紹介（定例句会のご案内つき）
+    - cron: '0 10 * * *'      # 19:00  20時の定例句会まで「あと1時間」（毎日）
+    - cron: '0 0 * * 0,6'     # 9:00   10時の回まで「あと1時間」（土日だけ）
+    - cron: '0 11 * * *'      # 20:00  「はじまりました」（変数 TEI_POSTS に start を入れたときだけ投稿）
+    - cron: '0 1 * * 0,6'     # 10:00  同上（土日だけ）
+    - cron: '30 12 * * *'     # 21:30  20時の回の「参加は〇人でした。ありがとうございました」
+    - cron: '30 2 * * 0,6'    # 11:30  10時の回のお礼（土日だけ）
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: '1 なら投稿せず文面だけ確認'
+        default: '1'
+      kind:
+        description: 'auto（いまの時刻で決める）/ daily / announce / start / thanks'
+        default: 'auto'
+jobs:
+  tweet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: つぶやく
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          INCLUDE_LINK: ${{ vars.INCLUDE_LINK }}
+          TEI_POSTS: ${{ vars.TEI_POSTS }}
+          KIND: ${{ github.event.inputs.kind || 'auto' }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || '0' }}
+        run: node post.js
