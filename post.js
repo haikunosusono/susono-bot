@@ -68,19 +68,30 @@ function fitTags(variants, link, tagStr) {
 function slotLabel(s) { const d = new Date(s.date + 'T00:00:00Z'); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日' + s.h + '時'; }
 function announceText(slot, t) {
   const head = '【' + whenText(slot.start - t) + '】' + slot.h + '時から、だれでも句会（定例）', theme = 'お題は「当季雑詠」。いまの季節のことばで、自由に一句。',
-    info = '受付中です（はじまる1時間前から）。見学もできます。ひとりなら、ボットが加わります。', warn = 'ほかの人の句や選評の、無断の公開は禁止です。';
-  return [[head, theme, info, warn], [head, theme, '受付中です。見学もできます。', warn], [head, 'お題は「当季雑詠」。受付中です。見学もできます。', warn]].map(v => v.join('\n'));
+    info = '投句は、いつでも受付中（定刻でしめきり）。見学もできます。ひとりなら、ボットが加わります。', warn = 'ほかの人の句や選評の、無断の公開は禁止です。';
+  return [[head, theme, info, warn], [head, theme, '投句は受付中。見学もできます。', warn], [head, 'お題は「当季雑詠」。投句は受付中。見学もできます。', warn]].map(v => v.join('\n'));
 }
 function startText(slot) {
   const head = '【はじまりました】' + slot.h + '時の、だれでも句会（定例）', a = 'お題は「当季雑詠」。いま、披講・点付けがはじまっています。見学もできます。', w = 'ほかの人の句や選評の、無断の公開は禁止です。';
   return [[head, a, w], [head, 'お題は「当季雑詠」。見学もできます。', w]].map(v => v.join('\n'));
 }
+function teiNextLines(slot) {
+  const next = slotsAround(slot.start + 1).filter(x => x.start > slot.start).slice(0, 2);
+  const nm = x => (x.date === slot.date ? 'きょう' : 'あす') + (x.h < 12 ? 'あさ' : '') + x.h + '時';
+  const l1 = next.length ? 'さっそく、つぎの定例句会がオープンしています。つぎは、' + nm(next[0]) + 'にひらきます。お題は「当季雑詠」。' : '';
+  const l2 = 'いまからでも、投句を受け付けています。ふらりと一句、お待ちしています。お時間になりましたら、ご着席を。';
+  const l3 = next[1] ? nm(next[1]) + 'の回にも、ぜひご参加を。' : '';
+  return { l1, l2, l3 };
+}
+function noshowText(slot) {
+  const n = teiNextLines(slot), head = (slot.h < 12 ? 'けさ' : '今夜') + 'の定例句会は、おやすみでした。';
+  return [[head, n.l1, n.l2, n.l3], [head, n.l1, n.l2], [head, n.l1, 'いまからでも、投句を受け付けています。']].map(v => v.filter(Boolean).join('\n'));
+}
 function thanksText(slot, humans, bots) {
   const who = bots ? humans + '人（ほかにボット' + bots + '名）' : humans + '人';
-  const tail = humans >= 5 ? 'にぎやかな句会でした。' : humans >= 2 ? 'みなさんの句が、ならびました。' : 'ひとりでも、ボットと3句で、ひらけました。';
-  const next = slotsAround(slot.start + 1).find(s => s.start > slot.start);
-  const nextH = next ? ((next.date === slot.date ? 'きょう' : 'あす') + next.h + '時に、また') : 'また';
-  return [['【ありがとうございました】' + slotLabel(slot) + '、だれでも句会（定例）の参加は、' + who + 'でした。', tail + nextH + 'お会いしましょう。'].join('\n'), '【ありがとうございました】' + slotLabel(slot) + '、参加は' + who + 'でした。また、お会いしましょう。'];
+  const n = teiNextLines(slot);
+  const head = '【ありがとうございました】' + slotLabel(slot) + 'の定例句会は、終了しました。参加は、' + who + 'でした。';
+  return [[head, n.l1, n.l2, n.l3], [head, n.l1, n.l2], [head, n.l1, 'いまからでも、投句を受け付けています。'], [head, n.l1]].map(v => v.filter(Boolean).join('\n'));
 }
 async function fetchPub(sid) {
   const url = 'https://firestore.googleapis.com/v1/projects/' + PROJECT + '/databases/(default)/documents/pub/' + sid;
@@ -123,8 +134,7 @@ async function buildAny() {
   else if (kind === 'start') body = startText(slot);
   else {
     const pub = await fetchPub(slot.sid);
-    if (!pub || !pub.humans) return { d: slot.date, kind, text: '', skip: slotLabel(slot) + 'の定例句会は、ひらかれなかったようです（参加の記録がありません）。お礼は出しません' };
-    body = thanksText(slot, pub.humans, pub.bots);
+    body = (!pub || !pub.humans) ? noshowText(slot) : thanksText(slot, pub.humans, pub.bots);
   }
   return { d: slot.date, kind, text: fitTags(body, link, TEI_TAGS), skip: '' };
 }
