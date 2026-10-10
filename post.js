@@ -12,9 +12,9 @@ const URL_ = 'haikunosusono.web.app';
 const TAGS = '#俳句の裾野 #チームすその #俳句 #haiku #俳筋力 #俳句初心者';
 const TEI_TAGS = '#俳句の裾野 #チームすその #俳句 #句会 #当季雑詠';
 const PROJECT = process.env.FB_PROJECT || 'haikunosusono';
-// 朝10時の回は、いったんお休み中。もどすときは [10, 22] に
-const TEI_HOURS = [22];
-const TEI_LINE = 'きょうの定例句会は、夜10時から（当季雑詠・見学OK）';
+// 時間割：毎晩20時「夜8時だよ、全員集合」。土日は朝10時も。変えるときはここと tweet.yml の時刻を
+function hoursFor(jd) { const w = new Date(jd * 86400000).getUTCDay(); return (w === 0 || w === 6) ? [10, 20] : [20]; }
+function teiLine(d) { const w = new Date(d + 'T00:00:00Z').getUTCDay(); return (w === 0 || w === 6) ? 'きょうの定例句会は、朝10時と夜8時（当季雑詠・見学OK）' : 'きょうの定例句会は、夜8時から（当季雑詠・見学OK）'; }
 
 const FEATURES = [
   ['俳筋力トレーニングルーム', '毎日ランダムに兼題が出ます。漢字・カタカナ・テーマの3つがひとまわり。一句つくって、手ごたえ（会心・ふつう・直したい）を残せます。記録は自分だけが見られます。'],
@@ -33,7 +33,7 @@ function nowMs() { return process.env.FORCE_NOW ? Date.parse(process.env.FORCE_N
 function pad(n) { return (n < 10 ? '0' : '') + n; }
 function slotsAround(t) {
   const jd = Math.floor((t + 9 * 3600000) / 86400000), out = [];
-  for (let d = jd - 1; d <= jd + 1; d++) for (const h of TEI_HOURS) {
+  for (let d = jd - 1; d <= jd + 1; d++) for (const h of hoursFor(d)) {
     const iso = new Date(d * 86400000).toISOString().slice(0, 10);
     out.push({ start: d * 86400000 - 9 * 3600000 + h * 3600000, h, date: iso, sid: 't' + iso.replace(/-/g, '') + '-' + pad(h) });
   }
@@ -78,7 +78,8 @@ function startText(slot) {
 function thanksText(slot, humans, bots) {
   const who = bots ? humans + '人（ほかにボット' + bots + '名）' : humans + '人';
   const tail = humans >= 5 ? 'にぎやかな句会でした。' : humans >= 2 ? 'みなさんの句が、ならびました。' : 'ひとりでも、ボットと3句で、ひらけました。';
-  const nextH = TEI_HOURS.length > 1 ? (slot.h === TEI_HOURS[0] ? TEI_HOURS[1] + '時に、また' : 'あす' + TEI_HOURS[0] + '時に、また') : 'あす' + TEI_HOURS[0] + '時に、また';
+  const next = slotsAround(slot.start + 1).find(s => s.start > slot.start);
+  const nextH = next ? ((next.date === slot.date ? 'きょう' : 'あす') + next.h + '時に、また') : 'また';
   return [['【ありがとうございました】' + slotLabel(slot) + '、だれでも句会（定例）の参加は、' + who + 'でした。', tail + nextH + 'お会いしましょう。'].join('\n'), '【ありがとうございました】' + slotLabel(slot) + '、参加は' + who + 'でした。また、お会いしましょう。'];
 }
 async function fetchPub(sid) {
@@ -100,7 +101,7 @@ function menuText(m) {
   if (m.s === 'k') lines.push('今日は「' + m.t + '」を句によみこんで（この文字をいれて）句をつくってみようというお題です');
   if (m.s === 't') lines.push('今日は「' + m.t + '」を句によみこんで（この音をいれて）句をつくってみようというお題です');
   if (m.s === 'm') lines.push('今日のテーマは「' + m.t + '」' + (m.h ? '（' + m.h + '）' : '') + '。ここから想像をふくらませて、句をつくってみようというお題です');
-  lines.push('', TEI_LINE);
+  lines.push('', teiLine(jstDate()));
   return lines.join('\n');
 }
 function featureText(n) {
