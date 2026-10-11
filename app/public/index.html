@@ -123,6 +123,17 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .tmr-bar i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width 1s linear; }
 .host { display: flex; gap: 10px; align-items: flex-start; }
 .hav { flex: none; width: 2.4rem; height: 2.4rem; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-weight: 700; border: 1px solid var(--line); }
+.hav.hi { background: #ffe3ec; color: #c2456f; border-color: #f6b9cc; }
+.hav.be { background: #e3e8f7; color: #3a4a8c; border-color: #b4bfe6; }
+.hav.ha { background: #fff2c4; color: #9a6a00; border-color: #efd37a; }
+.qchips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+.nbcard { background: linear-gradient(135deg, #fff4f7, #fffaf0); border: 1.5px solid #f6c9d6; border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.nbcard h3 { margin: 0; font-size: 1.05rem; }
+.nbcard ol { margin: 0; padding-left: 1.3em; line-height: 1.8; }
+.menu summary { cursor: pointer; font-weight: 700; }
+.mgrp { margin-top: 10px; display: grid; gap: 4px; }
+.mgrp > b { font-size: .8rem; color: var(--ink-soft); }
+.newsi.line { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
 .hbub { min-width: 0; flex: 1; background: var(--paper); border: 1px solid var(--line); border-radius: 4px 14px 14px 14px; padding: 10px 14px; display: flex; flex-direction: column; gap: 4px; }
 .hbub .hn { font-size: .78rem; color: var(--ink-soft); }
 .hbub p { margin: 0; line-height: 1.7; }
@@ -611,7 +622,7 @@ h3.sec { font-size: 1rem; }
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12e';
+  var APP_VER = 'v2026.10.12k';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -986,28 +997,27 @@ h3.sec { font-size: 1rem; }
     return v;
   }
   /* 講評のにぎやかし（オリジナルキャラ）：
-     紅先生＝審査員ばりの的確な指摘＋かならずひとつほめる／ひなた＝やさしくほめまくるフォロー役／はま吉＝ときどき顔を出すつっこみ */
-  var PERSONAS_ = window.PERSONAS_ = { benico: '紅先生（赤ペン・ボット）', hinata: 'ひなた（ほめ・ボット）', hamakichi: 'ダー浜（つっこみ司会・ボット）' };
+     松風主宰＝「こんな視点・型を入れると、さらによくなります」＋いいところをひとつほめる／ひなた＝やさしくほめまくるフォロー役／はま吉＝ときどき顔を出すつっこみ */
+  var PERSONAS_ = window.PERSONAS_ = { benico: '松風主宰（俳句の先生・ボット）', hinata: 'ひなた（ほめ・ボット）', hamakichi: 'ダー浜（つっこみ司会・ボット）' };
   var BENI_SAYS = [
-    { t: '中七が、すこしゆるんでいます。一語しぼりなさい。……ただ、下五の着地はみごと。ここは審査員泣かせです。', part: '調べ' },
-    { t: '季語がうごきませんか。近い季語と入れかえて、音読でくらべなさい。……素材の目のつけどころは、一級品です。', part: '季語' },
-    { t: '語順を再考。いちばん強いことばは、さいごに置くと光ります。……発想そのものは、ほめます。', part: '言葉選び' },
-    { t: '切れ字はひと句にひとつ。だぶったら赤ペンです。……それでも、景の大きさは買います。', part: '切れ・余韻' },
-    { t: '説明しすぎです。七音ぶん、読者にゆだねなさい。……素直な詠みぶりは、この句の美点です。', part: '切れ・余韻' },
-    { t: '上五の助詞をもう一度。「や」にすると、景がぱっとひらくことがあります。……着想は満点です。', part: '調べ' },
-    { t: '三段切れになっていませんか。五・七・五がぶつ切りだと、流れが止まります。……ことばの体力は、じゅうぶんあります。', part: '調べ' },
-    { t: '季語と中身が、つきすぎです。もうすこし離すと、句がひろがります。……観察の目は、確かですよ。', part: '取り合わせ' },
-    { t: '散文的。「〜ので」「〜して」の理屈は、俳句にはいりません。……でも、言いたい景はちゃんとある。惜しい！', part: '言葉選び' },
-    { t: '動詞が多すぎます。ひとつにしぼると、映像がくっきりします。……素材えらびは、よいのです。', part: '言葉選び' },
-    { t: '気持ちのことばを、ものに言わせなさい。「うれしい」と書かずに、うれしさを見せる。……それができたら、化けますよ。', part: '発想' },
-    { t: '映像が見えるか、が勝負です。カメラをどこに置くか決めなさい。……この句、カメラの位置はもう悪くない。', part: '景色' },
-    { t: '字余りは、ねらいなら武器。なんとなく、なら赤ペンです。音読して確かめなさい。……度胸は買います。', part: '調べ' },
-    { t: '固有名詞は、効けば強い。この句では、効いているほうです。おみごと。', part: '言葉選び' }
+    { t: '「どこから見ているか」の視点を入れると、さらによくなります。たとえば、近くの一点にカメラを寄せてみる。……下五の着地は、すっと決まっていていいですね。', part: '景色' },
+    { t: '季語を近いものに入れかえて、音読でくらべてみる手もあります。句の表情がかわって、新しい発見があるかも。……素材の目のつけどころが、すてきです。', part: '季語' },
+    { t: '語順をひっくり返す型もあります。いちばん強いことばをさいごに置くと、余韻がのびます。……発想そのものが、のびのびしていていいですね。', part: '言葉選び' },
+    { t: '切れ字をひとつ入れる型にすると、景がひらくことがあります。「や」「かな」など、試してみては。……景の大きさが、気持ちいいです。', part: '切れ・余韻' },
+    { t: '説明を一歩ひかえて、読者にゆだねる型もおすすめです。さらに余白がうまれます。……素直な詠みぶりは、この句の美点ですね。', part: '切れ・余韻' },
+    { t: '上五を名詞で切って、体言止めにする型もあります。ぐっと映像が立ちます。……ことばの体力が、じゅうぶんありますね。', part: '調べ' },
+    { t: '季語と中身を、すこし離す「取り合わせ」の型も試してみてください。句がもうひとまわり、ひろがります。……観察の目が、確かですね。', part: '取り合わせ' },
+    { t: '「〜ので」「〜して」の理屈をほどいて、景だけを並べる型にすると、さらによくなります。……言いたい景が、ちゃんと見えるのがいいですね。', part: '言葉選び' },
+    { t: '動詞をひとつにしぼる型もあります。映像がくっきりします。……素材えらびが、よいですね。', part: '言葉選び' },
+    { t: '気持ちのことばを、ものに言わせる視点を入れてみましょう。「うれしい」と書かずに、うれしさを見せる。……それができたら、きっと化けますよ。', part: '発想' },
+    { t: '「音」や「におい」の視点を足すと、さらに立体的になります。……カメラの位置は、もう悪くないですね。', part: '景色' },
+    { t: '字余りは、ねらいなら武器になります。音読して、いちばん気持ちいい形をさがしてみるのもいいですね。……度胸のある詠みぶりです。', part: '調べ' },
+    { t: '固有名詞が、この句ではよく効いています。いいですね。もし季節の動きも添えるなら、時間の視点を入れてもおもしろいです。', part: '言葉選び' }
   ];
   var HINATA_SAYS = [
     { t: 'わたしは大好きです！ 声に出して読むと、気持ちいいんです、この句。', part: '調べ' },
     { t: 'ここまで景がうかぶ句、なかなかないですよ。じんわりします。', part: '景色' },
-    { t: '紅先生はきびしいけれど、わたしはまるごと好きです。今日いちばんの出会いでした。', part: '発想' },
+    { t: '主宰はきびしいけれど、わたしはまるごと好きです。今日いちばんの出会いでした。', part: '発想' },
     { t: 'ことばのえらびかたが、やさしいですね。読んだあと、すこしあったかくなります。', part: '言葉選び' },
     { t: 'この目のつけどころ、まねできません。つぎの句も、ぜったい読みたいです。', part: '発想' },
     { t: '季語がそっと効いていて、すてきです。季節のにおいがしました。', part: '季語' }
@@ -1018,6 +1028,80 @@ h3.sec { font-size: 1rem; }
     { t: 'なんでやねん！……とつっこみつつ、じわじわ来るやつやこれ。', part: '発想' },
     { t: '五七五きっちりそろえて、真面目か！ ……ええ句や。知らんけど。', part: '調べ' }
   ];
+  /* ---- 松風主宰の「かたち読み」：句の型を読みとって、「こう読めます／こうするとさらによくなります」を伝える ---- */
+  var KG_ALL_ = null;
+  function kgAll() {
+    if (KG_ALL_) return KG_ALL_;
+    var seen = {}, out = [];
+    function add(w) { w = String(w || '').replace(/(や|かな)$/, ''); if (w.length >= 2 && !seen[w]) { seen[w] = 1; out.push(w); } }
+    try { Object.keys(KIGO).forEach(function (m) { KIGO[m].forEach(add); }); } catch (_) {}
+    try { Object.keys(TK_KIGO5).forEach(function (se) { Object.keys(TK_KIGO5[se]).forEach(function (mo) { TK_KIGO5[se][mo].forEach(add); }); }); } catch (_) {}
+    ['春の雨', 'かき氷', '炬燵', '秋の暮', '天の川', '五月雨', '時雨', '木枯', '朝顔', '花野', '初雪', '蛙', '桜', '雪', '月', '露', '霜', '蝉', '蛍'].forEach(add);
+    out.sort(function (a, b) { return b.length - a.length; });
+    return (KG_ALL_ = out);
+  }
+  function kuKata(raw) {
+    var t = String(raw || '').replace(/《[^》]*》/g, '').replace(/[\s　]/g, '');
+    if (t.length < 5) return null;
+    var kg = null, idx = -1, all = kgAll();
+    for (var i = 0; i < all.length; i++) { var k = t.indexOf(all[i]); if (k >= 0) { kg = all[i]; idx = k; break; } }
+    var pos = null;
+    if (kg) { var r = idx / t.length; pos = idx + kg.length >= t.length - 2 ? 'shimo' : r < 0.25 ? 'kami' : 'naka'; }
+    var last = t.charAt(t.length - 1), cut = null;
+    if (/かな$/.test(t)) cut = 'kana'; else if (/けり$/.test(t)) cut = 'keri';
+    else if (/^.{2,7}や/.test(t) || /や[^　]{4,}/.test(t)) cut = 'ya';
+    else if (/[一-龥ァ-ヶ]$/.test(last)) cut = 'taigen';
+    var view = [];
+    if (/音|声|鳴|響|ひびき|ざわ|こえ|ねいろ|鐘|笛/.test(t)) view.push('聴覚');
+    if (/香|匂|におい|かおり/.test(t)) view.push('嗅覚');
+    if (/冷|寒|温|ぬく|あたた|熱|風|肌|ひんやり/.test(t)) view.push('触覚・体感');
+    if (/赤|青|白|黄|紅|緑|金|銀|黒|影|光|灯|色/.test(t)) view.push('視覚（色・光）');
+    var kana = /^[ぁ-んァ-ヶー]+$/.test(t) ? t.replace(/[ゃゅょャュョぁぃぅぇぉァィゥェォ]/g, '').length : 0;
+    var onoma = /([ぁ-んァ-ヶ]{2})\1/.test(t) || /(ぽつ|さら|ころ|ゆら|ふわ|ひら|きら|ざわ)/.test(t);
+    var num = /ひとつ|ふたつ|みっつ|一|二|三|四|五|六|七|八|九|十|ひとり|ふたり/.test(t);
+    var simile = /ごとし|ように|みたい|のごと/.test(t);
+    var nk = 0; if (kg) { var rest = t.replace(kg, ''); kgAll().some(function (w) { if (w !== kg && w.length >= 2 && rest.indexOf(w) >= 0 && kg.indexOf(w) < 0) { nk = 1; return true; } return false; }); }
+    return { t: t, idx: idx, kg: kg, pos: pos, cut: cut, view: view, kana: kana, onoma: onoma, num: num, simile: simile, nk: nk };
+  }
+  function kataComment(raw, seed) {
+    var k = kuKata(raw); if (!k) return null;
+    var a = [], b = [], c = [], part = '取り合わせ';
+    if (k.kg && k.pos === 'shimo') { a.push('この句は、季語「' + k.kg + '」を下五に置いた、取り合わせのかたちですね。フレーズで景を見せて、さいごに季語で受ける、すわりのよい型です。'); b.push('季語を上五に移して「' + k.kg + 'や」と切る型にしてみると、はじまりの景がひらいて、読みの印象がかわります。'); }
+    else if (k.kg && k.pos === 'kami') { a.push('この句は、季語「' + k.kg + '」を上五に置いて、景をつづける型ですね。まず季節の空気を差し出す、はじまりの強い型です。'); b.push('季語を下五に回す型にすると、余韻がのこって、句にしずけさが出ることもあります。'); part = '季語'; }
+    else if (k.kg) { a.push('季語「' + k.kg + '」が、句の中ほどにあるかたちですね。季語とまわりのことばの距離が近く、ひとつにまとまりやすい型です。'); b.push('季語を上五か下五に出して、そこで切る型にすると、場面の切りかわりが生まれて、さらによくなります。'); part = '切れ・余韻'; }
+    else { a.push('この句は、季語がどれか、まだはっきり見えないかたちですね。'); b.push('歳時記から、気分にあう季語をひとつ選んで、5音にそえる「取り合わせ」の型にすると、一句がぐっと立ちます。'); part = '季語'; }
+    if (k.cut === 'ya') c.push('「や」で切れているのが、いいですね。ここで景がひらいて、二つの景が響きあいます。');
+    else if (k.cut === 'kana') c.push('「かな」の詠嘆で終わるのが、いいですね。余韻がやわらかく残ります。');
+    else if (k.cut === 'keri') c.push('「けり」で言い切るのが、いいですね。きっぱりと、句が閉まります。');
+    else if (k.cut === 'taigen') c.push('体言止めで終わっているのが、いいですね。映像がそこで、ぽんと立ちます。');
+    else if (k.kg && k.pos !== 'naka') c.push('季語のところで、ひと呼吸おいて読めるのが、いいですね。景と季語のあいだに、余白がうまれています。');
+    else c.push('ことばがなめらかに流れていくのが、いいですね。ひとつづきの「一句一章」の読み心地です。');
+    if (k.view.length) c.push('「' + k.view[0] + '」の視点が入っているのも、すてきです。');
+    else b.push('「音」や「におい」の視点をひとつ足すと、さらに立体的になります。');
+    /* ひとこと学び：句の特徴から、ひとつだけ */
+    var L = [];
+    if (k.kana >= 14 && k.kana <= 16) L.push('音数は' + k.kana + '音で、すこし字足らず。字足らずは、「間（ま）」としてはたらくと光りますが、むずかしい技です。五七五にそろえる型も試してみてください。');
+    if (k.kana === 17) L.push('五七五の17音ぴったりで、調べが整っていますね。');
+    if (k.kana >= 18 && k.kana <= 20) L.push('音数は' + k.kana + '音で、字余りですね。字余りは、強調したいことばがきわだつ技。プラスマイナス三音までが目安です。ねらいなら、武器になります。');
+    if (k.onoma) L.push('くり返しの音（オノマトペ）が、耳にのこります。声に出して読むと、さらにたのしくなりますね。');
+    if (k.num) L.push('数のことば（ひとつ・ふたり…）があるのは、いい視点ですね。数は、景をきゅっと具体にして、さびしさやにぎやかさも見せてくれます。');
+    if (k.simile) L.push('たとえ（比喩）の型ですね。季語そのものをたとえると「一物仕立て」に近づいて、むずかしくなります。取り合わせと比べてみるのもおすすめです。');
+    if (k.nk) L.push('季語がもうひとつありそうです（季重なり）。どちらを主役にするか決めると、句の焦点がさだまります。');
+    if (!k.cut || k.cut === 'taigen') L.push('省略したぶん、読む人が景を補ってくれます。これが「余韻」。ことばを足しすぎないのも、型のひとつです。');
+    var lr = L.length ? L[hash(String(seed || '') + 'L') % L.length] : '';
+    var cuts = '';
+    if (k.kg && (k.pos === 'kami' || k.pos === 'shimo')) {
+      var kgS = k.kg, seed2 = k.pos === 'kami' ? k.t.slice(k.idx + k.kg.length) : k.t.slice(0, k.idx);
+      kgS = k.pos === 'kami' ? k.t.slice(0, k.idx + k.kg.length) : k.t.slice(k.idx);
+      if (seed2.length >= 3) {
+        var tane = '「' + seed2 + '」は、日常のひと場面を見せてくれます。', kgc = '「' + kgS + '」は、季節の空気をぱっと映します。';
+        cuts = k.pos === 'kami' ? '【カット1】' + kgc + '【カット2】' + tane : '【カット1】' + tane + '【カット2】' + kgc;
+        cuts += '【全体】2つのカットが切りかわる、そのへだたりが面白さです。';
+      }
+    }
+    if (cuts) { a = [a.join('').split('。')[0] + '。']; lr = ''; c = c.slice(0, 1); }
+    return { t: cuts + a.join('') + b.join('') + c.join('') + lr, part: part };
+  }
   function teiBotComments(s) {
     var ids = Object.keys(s.entries || {}), bots = ids.filter(function (k) { return s.entries[k] && s.entries[k].bot; }), out = {}, n = 0;
     ids.filter(function (k) { return !(s.entries[k] && s.entries[k].bot); }).forEach(function (eid) {
@@ -1025,8 +1109,8 @@ h3.sec { font-size: 1rem; }
         var sy = botSay(s.id + eid + b, false); n++;
         out['cb' + n] = { eid: eid, uid: b, text: sy.text, tone: 'やさしく', part: [sy.part], at: Date.now() + n };
       });
-      var bz = BENI_SAYS[hash(s.id + eid + 'b') % BENI_SAYS.length]; n++;
-      out['cp' + n] = { eid: eid, uid: 'benico', text: bz.t, tone: 'きびしく', part: [bz.part], at: Date.now() + 400 + n };
+      var bz = null; try { var ee = s.entries[eid]; bz = kataComment(joinKu(ee).a, s.id + eid); } catch (_) {} if (!bz) bz = BENI_SAYS[hash(s.id + eid + 'b') % BENI_SAYS.length]; n++;
+      out['cp' + n] = { eid: eid, uid: 'benico', text: bz.t, tone: 'ふつう', part: [bz.part], at: Date.now() + 400 + n };
       var hz = HINATA_SAYS[hash(s.id + eid + 'h') % HINATA_SAYS.length]; n++;
       out['cp' + n] = { eid: eid, uid: 'hinata', text: hz.t, tone: 'やさしく', part: [hz.part], at: Date.now() + 800 + n };
       if (hash(s.id + eid + 'm') % 3 === 0) {
@@ -1320,6 +1404,11 @@ h3.sec { font-size: 1rem; }
     }
   }
 
+  var CH_ = { hi: ['ひ', 'ひなた'], be: ['主', '松風主宰'], ha: ['浜', 'ダー浜'] };
+  function charaSay(k, text, sub) {
+    var c = CH_[k] || CH_.hi;
+    return '<div class="host"><span class="hav ' + k + '" aria-hidden="true">' + c[0] + '</span><div class="hbub"><span class="hn">' + c[1] + '</span><p>' + text + '</p>' + (sub ? '<small>' + sub + '</small>' : '') + '</div></div>';
+  }
   function hostSay(text, sub) {
     return '<div class="host"><span class="hav" aria-hidden="true">蛙</span><div class="hbub"><span class="hn">司会（蛙）</span><p>' + text + '</p>' + (sub ? '<small>' + sub + '</small>' : '') + '</div></div>';
   }
@@ -1646,7 +1735,8 @@ h3.sec { font-size: 1rem; }
     } catch (e) {}
   }
   function vContact() {
-    var h = '<h2 class="sec">📮 運営者へ ご意見・ご要望・報告<small>ボットと運営者が返信します</small></h2><p class="note">困りごと・不具合・気になったこと・ほしい機能を、運営者にだけ届けます。ほかの参加者には見えません。<button class="link" data-act="page" data-p="faq">よくある質問</button>も見てみてください。</p>';
+    var h = '<h2 class="sec">📮 運営者へ ご意見・ご要望・報告<small>ボットと運営者が返信します</small></h2>' + charaSay('hi', 'ここは、運営者にだけ届くポストです。こんな機能がほしい、ここが使いにくい、ふしぎなことがある……どんな小さなことでも、うれしいです。ほかの参加者には見えません。', '<button class="link" data-act="page" data-p="faq">よくある質問</button>も、のぞいてみてください。') +
+      '<div class="qchips" role="group" aria-label="書き出しの例">' + [['req', 'こんな機能がほしいです。'], ['req', 'ここが使いにくいです。'], ['gen', '不具合かもしれません。'], ['gen', 'これは、どうすればいいですか？']].map(function (q, i) { return '<button class="chip fit" data-act="inqstart" data-i="' + i + '">' + esc(q[1]) + '</button>'; }).join('') + '</div>';
     h += '<div class="panel"><div class="field"><label>種類</label><div class="row">' +
       [['req', 'ご意見・ご要望'], ['gen', '一般のお問い合わせ'], ['rights', '権利侵害の申告']].map(function (k) { return '<button class="chip fit' + (inq.kind === k[0] ? ' on' : '') + '" data-act="inqkind" data-v="' + k[0] + '" aria-pressed="' + (inq.kind === k[0]) + '">' + k[1] + '</button>'; }).join('') + '</div></div>' +
       '<div class="field"><label for="iq-name">お名前（任意）</label><input type="text" id="iq-name" data-f="iq-name" maxlength="30" value="' + esc(inq.name) + '" placeholder="俳号でもかまいません"></div>' +
@@ -1657,7 +1747,7 @@ h3.sec { font-size: 1rem; }
     if (inqs.length) {
       h += '<h2 class="sec">いままでのやりとり</h2>' + inqs.map(function (q) {
         return '<div class="panel"><span class="note">' + (q.kind === 'rights' ? '権利侵害の申告' : q.kind === 'req' ? 'ご意見・ご要望' : '一般のお問い合わせ') + ' ・ ' + esc(ago(q.at)) + '</span><p style="margin:0;white-space:pre-wrap">' + esc(q.text) + '</p>' +
-          hostSay(esc(q.reply || '返信を準備しています。'), '').replace('司会（蛙）', 'ボットの返信') + (myRep['r' + q.at] ? '<div class="opreply"><b>運営者からの返信（' + esc(ago(myRep['r' + q.at].at)) + '）</b>' + esc(myRep['r' + q.at].text) + '</div>' : '');
+          charaSay('hi', esc(q.reply || '返信を準備しています。'), '').replace('ひなた</span>', 'ひなた（ボットの返信）</span>') + (myRep['r' + q.at] ? '<div class="opreply"><b>運営者からの返信（' + esc(ago(myRep['r' + q.at].at)) + '）</b>' + esc(myRep['r' + q.at].text) + '</div>' : '');
       }).join('');
     }
     return h;
@@ -2901,6 +2991,7 @@ h3.sec { font-size: 1rem; }
   var NEWS_KINDS = ['NHK俳句の兼題', '俳句大会・締切', '吟行へのいざない', '句友づくり', 'コツ', '本・出版', '句会・イベント', 'お知らせ'];
   function okUrl(u) { u = String(u || '').trim(); return /^https?:\/\/[^\s<>"]+$/.test(u) ? u : ''; }
   function newsDate(n) { var d = new Date((n.at || 0) + 9 * 3600000); return (d.getUTCMonth() + 1) + '/' + d.getUTCDate(); }
+  function newsLine(n) { return '<div class="newsi line"><span class="nk">' + esc(n.kind || 'お知らせ') + '</span><button class="link" data-act="page" data-p="news"><b>' + esc(n.title || '') + '</b></button> <time>' + newsDate(n) + '</time></div>'; }
   function newsItem(n, full) {
     var body = String(n.body || ''); if (!full && body.length > 70) body = body.slice(0, 70) + '…';
     return '<div class="newsi"><span class="nk">' + esc(n.kind || 'お知らせ') + '</span><b>' + esc(n.title || '') + '</b> <time>' + newsDate(n) + '</time>' + (body ? '<div style="white-space:pre-wrap">' + esc(body) + '</div>' : '') + (okUrl(n.url) ? (/^https?:\/\/haikunosusono\.(web\.app|firebaseapp\.com)\/?$/.test(okUrl(n.url)) ? '<div class="actions"><button class="btn" data-act="page" data-p="contact">ご意見・ご要望を送る（お問い合わせ）</button></div>' : '<div><a href="' + esc(okUrl(n.url)) + '" target="_blank" rel="noopener">リンクをひらく</a></div>') : '') + (full && isAdmin ? '<div><button class="link" data-act="nw-del" data-id="' + esc(n.id) + '">この投稿を消す</button></div>' : '') + '</div>';
@@ -2955,11 +3046,37 @@ h3.sec { font-size: 1rem; }
     });
     return items.length ? '<h2 class="sec">いま、句会が開かれています<small>だれでも句会は、見学もできます</small></h2><ul class="list">' + items.join('') + '</ul>' : '';
   }
+  function mb(act, extra, label) { return '<button class="chip fit" data-act="' + act + '"' + extra + '>' + label + '</button>'; }
+  function vMenu() {
+    function pg(p, label) { return mb('page', ' data-p="' + p + '"', label); }
+    var g = function (t, items) { return '<div class="mgrp"><b>' + t + '</b><div class="row">' + items.join('') + '</div></div>'; };
+    return '<details class="panel menu"><summary>☰ メニュー・機能まとめ</summary>' +
+      g('つくる', [mb('tk-start', '', '🧩 句づくり'), pg('stock', '📒 ストッ句')]) +
+      g('まなぶ', [mb('tut', '', '🌱 チュートリアル'), pg('about', 'できること'), pg('hints', '句会の評のヒント'), pg('manner', '句のあつかい・マナー'), pg('faq', 'よくある質問')]) +
+      g('じぶん', [pg('my', 'マイページ'), pg('archive', '句会アーカイブ')]) +
+      g('声をとどける', [pg('contact', '📮 ご意見・ご要望'), pg('terms', '利用規約'), pg('privacy', 'プライバシー')]) +
+      '</details>';
+  }
   function reqBox() { return '<div class="panel"><b>📮 ご意見・ご要望</b><p class="note">「こんな機能がほしい」「ここが使いにくい」など、なんでもどうぞ。みなさんの声から、新しい機能が生まれています。</p><div class="actions"><button class="btn primary" data-act="page" data-p="contact">要望フォームをひらく</button></div></div>'; }
+  /* ---- 初心者へのおさそい（しばらくたってから・まだ句が少ない人だけ） ---- */
+  function nbFirst() { try { var v = parseInt(localStorage.getItem('ikku-first') || '0', 10); if (!v) { v = Date.now(); localStorage.setItem('ikku-first', String(v)); } return v; } catch (_) { return Date.now(); } }
+  function nbShow() {
+    if (!myId) return false;
+    var first = nbFirst();
+    try { var off = parseInt(localStorage.getItem('ikku-nb-off') || '0', 10); if (off && Date.now() - off < 7 * 86400000) return false; } catch (_) {}
+    return (mine || []).length < 3 && Date.now() - first >= 20 * 3600000;
+  }
+  function vBeginner() {
+    if (!nbShow()) return '';
+    return '<section class="nbcard" aria-label="はじめての一句"><h3>🌱 はじめの一句、詠んでみませんか？</h3>' +
+      charaSay('hi', 'まだ句が少ないみなさんへ。むずかしく考えなくて大丈夫。「見たこと」に季語をひとつ添えるだけで、俳句になります。', '') +
+      '<ol><li>チュートリアルで、型を2分でのぞく</li><li>句づくりで、フレーズと季語から一句</li><li>できた句を、ふらっと句会や定例句会へ</li></ol>' +
+      '<div class="actions"><button class="btn primary" data-act="tut">チュートリアルを見る</button><button class="btn" data-act="tk-start">🧩 句づくりで一句</button><button class="btn" data-act="page" data-p="about">できることのまとめ</button><button class="link" data-act="nb-off">しばらく出さない</button></div></section>';
+  }
   function vNews() {
     var tip = TIPS[((dayNum() % TIPS.length) + TIPS.length) % TIPS.length];
     var h = '<div class="daytip"><b>今日のコツ</b>　' + esc(tip) + '</div>';
-    if (news.length) h += news.slice(0, 3).map(function (n) { return newsItem(n, false); }).join('') + '<div class="actions"><button class="link" data-act="page" data-p="news">裾野だより（' + news.length + '件）をすべて見る</button></div>';
+    if (news.length) h += news.slice(0, 3).map(function (n) { return newsLine(n); }).join('') + '<div class="actions"><button class="link" data-act="page" data-p="news">裾野だより（' + news.length + '件）をすべて見る</button></div>';
     return h + reqBox();
   }
   function vNewsPage() {
@@ -3007,7 +3124,7 @@ h3.sec { font-size: 1rem; }
       var st = streak();
       body = '<div class="top"><div><h1 class="brand">俳句の裾野</h1><div class="tagline">俳句の筋力トレーニング</div><div class="date">' + esc(fullLabel(n)) + '<span class="ver">' + APP_VER + '</span></div></div>' + '<div class="topr">' + (st > 0 ? '<span class="streak">連続 ' + st + '日</span>' : '') + '<button class="link" data-act="yoko" aria-pressed="' + yoko + '">' + (yoko ? '縦書きで見る' : '横書きで見る') + '</button><button class="link" data-act="tut">チュートリアル</button></div></div>' +
         (window.fbLogout && myId ? '<div class="who-bar"><span>ログイン中：<b>' + esc(haigo.trim() || (window.fbUserEmail || '')) + '</b>' + (haigo.trim() && window.fbUserEmail ? '<small>（' + esc(window.fbUserEmail) + '）</small>' : '') + '</span><button class="btn small" data-act="fblogout">ログアウト</button></div>' : '') +
-        vGuest() + vLive() + vStats() + vMemoQ(false) + vNews() + '<nav class="foot" aria-label="マイメニュー"><button class="link" data-act="page" data-p="about">できること</button><button class="link" data-act="page" data-p="my">マイページ</button><button class="link" data-act="page" data-p="stock">ストッ句</button><button class="link" data-act="page" data-p="archive">句会アーカイブ</button><button class="link" data-act="page" data-p="hints">句会の評のヒント</button></nav>' +
+        vGuest() + vLive() + vStats() + vMemoQ(false) + vBeginner() + vNews() + vMenu() +
         vRooms() + (tab === 'solo' ? vDeck() : '') + (tab === 'diary' ? vDiary() : tab === 'solo' ? vSolo() : tab === 'bot' ? vBotRoom() : tab === 'gohyo' ? vGohyo() : tab === 'flat' ? vFlat() : vTogether()) + vFooter();
       if (dbState === 'none') body += '<p class="note">保存先につながっていません。ページを読みこみなおしてください。</p>';
     }
@@ -3157,7 +3274,9 @@ h3.sec { font-size: 1rem; }
         '<p>夏井いつき先生がすすめる、初心者の型です。17音を、<b>季語（5音）</b>と、季語と関係のない<b>フレーズ（12音）</b>に分けて、組み合わせます。12音のフレーズは「俳句のタネ」とよばれます。順番は、どちらが先でもかまいません。</p>' +
         '<div class="formula"><span class="fp">季語（5音）</span><span>＋</span><span class="fq">季語と関係ないフレーズ（12音）</span><span>＝ 一句</span></div>' +
         toriBox() +
-        '<ul><li>フレーズ（タネ）には、季語を入れないのがコツ。</li><li>1〜2音あまっても大丈夫。先にタネをつくり、あとから季語を探してもOK。</li><li>ふだんの話しことばで、かまいません。</li></ul>';
+        '<ol><li><b>タネを探す</b>：5音＋7音でも、7音＋5音でもOK。ふとつぶやいたことばや、日記の一節でも。5音のものを見つけて、7音で説明してみるのも手です。</li><li><b>季語を入れない</b>：出来事・記憶・ものなど、他の人が思いつきにくいことを、なんでも。1音多くても少なくても大丈夫。</li><li><b>季語をあわせる</b>：タネに似合う季節の5音の季語を選びます。上五でも下五でも、タネのリズムにぴったりくるほうへ。</li><li><b>一行で書く</b>：五・七・五の間をあけずに、一行で書いて完成です。</li></ol>' +
+        '<div class="tip">4音の季語は、「や」をつけて5音にして、上五に置けます。例：春風や、ひまわりや、満月や、こがらしや。</div>' +
+        '<div class="tip">俳句を作るために、先に感動する必要はありません。日常の小さなつぶやきが、季語の力で一句になります。話しことばでも大丈夫。俳句に「やってはいけないこと」はありません。</div>';
     },
     function () {
       return th('俳句のタネをみつけたら ②', '初心者は、季語をひとつに') +
@@ -3247,6 +3366,7 @@ h3.sec { font-size: 1rem; }
         '<p>選評は、句について、感じたことを伝えるひとことです。上手・下手を決めるのではなく、読んで心が動いたところを返します。</p>' +
         '<ul><li>1. 口調（やさしく・ふつう・きびしく）をえらぶ。</li><li>2. 「どういうところを」を、ボタンでえらぶ。</li><li>3. ひとこと書く。よいところ1つ、気になるところ1つ、が目安です。</li></ul>' +
         '<p>読みについては「読み・ルビ」を選んで、「ルビなしでも読めますよ」のように書きます。</p>' +
+        '<div class="tip"><b>書くときの3ステップ</b><br>① どんな景が見えたか（情景）<br>② 季語や助詞・切れ字などが、どうはたらいているか（効果）<br>③ 自分がどう感じたか。「〜ということばから、〜が伝わってきた」と、根拠もそえて。</div>' +
         '<div class="tip">「いいな」の一言も、立派な選評です。</div>';
     },
     function () {
@@ -3404,6 +3524,7 @@ h3.sec { font-size: 1rem; }
     }
     if (act === 'tab') { fromArch = false; tab = t.dataset.t; if (editing && mineById[editing] && ((mineById[editing].series === 'd') !== (tab === 'diary'))) editing = null; render(); }
     else if (act === 'tut') { openTut(0); }
+    else if (act === 'nb-off') { try { localStorage.setItem('ikku-nb-off', String(Date.now())); } catch (_) {} render(); }
     else if (act === 'tutk') { openTut(0, 'kukai'); }
     else if (act === 'tutn') { openTut(0, 'nakama'); }
     else if (act === 'kigo') { if (!showKigo) markFirst('f_kigo'); showKigo = !showKigo; render(); }
@@ -3475,6 +3596,7 @@ h3.sec { font-size: 1rem; }
     else if (act === 'inq-seen') { if (!isAdmin || !db) return; var sp = { seen: {} }; sp.seen[t.dataset.key] = true; db.doc('inquiries/' + t.dataset.uid).update(sp).catch(failMsg); }
     else if (act === 'fblogout') { if (window.fbLogout) window.fbLogout(); }
     else if (act === 'fbgate') { try { if (window.fbShowGate) window.fbShowGate(); } catch (_) {} }
+    else if (act === 'inqstart') { var qq = [['req', 'こんな機能がほしいです。'], ['req', 'ここが使いにくいです。'], ['gen', '不具合かもしれません。'], ['gen', 'これは、どうすればいいですか？']][parseInt(t.dataset.i, 10) || 0]; inq.kind = qq[0]; if (!String(inq.text || '').trim()) inq.text = qq[1] + '\n'; render(); }
     else if (act === 'inqkind') { inq.kind = t.dataset.v; render(); }
     else if (act === 'inqsend') {
       if (inq.busy) return;
