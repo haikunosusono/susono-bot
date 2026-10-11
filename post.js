@@ -12,14 +12,23 @@ const URL_ = 'haikunosusono.web.app';
 const TAGS = '#俳句の裾野 #チームすその #俳句 #haiku #俳筋力 #俳句初心者';
 const TEI_TAGS = '#俳句の裾野 #チームすその #俳句 #句会 #当季雑詠';
 const PROJECT = process.env.FB_PROJECT || 'haikunosusono';
-// 時間割：毎晩20時「夜8時だよ、全員集合」。土日は朝10時も。変えるときはここと tweet.yml の時刻を
-function hoursFor(jd) { const w = new Date(jd * 86400000).getUTCDay(); return (w === 0 || w === 6) ? [10, 20] : [20]; }
-function teiLine(d) { const w = new Date(d + 'T00:00:00Z').getUTCDay(); return (w === 0 || w === 6) ? 'きょうの定例句会は、朝10時と夜8時（当季雑詠・見学OK）' : 'きょうの定例句会は、夜8時から（当季雑詠・見学OK）'; }
+// 時間割：毎晩21時「いつもの句会」＋23時「おかわり句会」。土・日・祝日は10時・13時・15時の「いつもの休日句会」も。
+// 変えるときは、ここと tweet.yml の時刻を。祝日の表は、年がかわったら足す（アプリ本体 index.html の JP_HOL と同じ）
+const JP_HOL = new Set(['2026-01-01', '2026-01-12', '2026-02-11', '2026-02-23', '2026-03-20', '2026-04-29', '2026-05-03', '2026-05-04', '2026-05-05', '2026-05-06', '2026-07-20', '2026-08-11', '2026-09-21', '2026-09-22', '2026-09-23', '2026-10-12', '2026-11-03', '2026-11-23',
+  '2027-01-01', '2027-01-11', '2027-02-11', '2027-02-23', '2027-03-21', '2027-03-22', '2027-04-29', '2027-05-03', '2027-05-04', '2027-05-05', '2027-07-19', '2027-08-11', '2027-09-20', '2027-09-23', '2027-10-11', '2027-11-03', '2027-11-23']);
+function dayOff(jd) { const w = new Date(jd * 86400000).getUTCDay(); return w === 0 || w === 6 || JP_HOL.has(new Date(jd * 86400000).toISOString().slice(0, 10)); }
+function hoursFor(jd) { return dayOff(jd) ? [10, 13, 15, 21, 23] : [21, 23]; }
+function slotName(h) { return h === 21 ? 'いつもの句会' : h === 23 ? 'おかわり句会' : h === 10 ? 'いつもの休日句会（あさ）' : h === 13 ? 'いつもの休日句会（昼から）' : h === 15 ? 'いつもの休日句会（おやつどき）' : '定例句会'; }
+function teiLine(d) {
+  const jd = Math.floor(Date.parse(d + 'T00:00:00Z') / 86400000);
+  return dayOff(jd) ? 'きょうの定例句会（デモ）は、10時・13時・15時・21時・23時の5回（当季雑詠・見学OK）'
+    : 'きょうの定例句会（デモ）は、21時「いつもの句会」と23時「おかわり句会」（当季雑詠・見学OK）';
+}
 
 const FEATURES = [
   ['俳筋力トレーニングルーム', '毎日ランダムに兼題が出ます。漢字・カタカナ・テーマの3つがひとまわり。一句つくって、手ごたえ（会心・ふつう・直したい）を残せます。記録は自分だけが見られます。'],
   ['俳句の初心者部屋', '一日一句、日記のように。むずかしい兼題なしで、今日の一句をつくれます。'],
-  ['だれでも句会（定例）', '毎晩10時（22時）に、みんなで句会。お題は当季雑詠。見学もできます。ひとりのときは、ボットが加わります。'],
+  ['だれでも句会（定例・デモ）', '毎晩9時（21時）の「いつもの句会」と、11時（23時）の「おかわり句会」。土日祝は、10時・13時・15時も。お題は当季雑詠。見学もできます。ひとりのときは、ボットが加わります。'],
   ['ひとりで句会', '自分と、ボット2〜4名の句会。出す・選ぶ・語らうを、3分ほどで。句はストッ句に残り、参加にも数えられます。'],
   ['縦書き一行の表示', '句は縦一行で、ゆったり読めます。句読点も一字あけも、そのまま。横書きへの切りかえもできます。'],
   ['バッジとトロフィー', '句をつくる、続ける、句会に出る。そのたびにバッジが増えます。はじめの一歩のバッジもあります。'],
@@ -39,13 +48,17 @@ function slotsAround(t) {
   }
   return out;
 }
-// いまの時刻から、どのつぶやきか：開始前100分以内=announce／開始から45分=start／開始の60分後〜6時間=thanks／それ以外=daily
+// いまの時刻から、どのつぶやきか：開始前100分以内=announce／開始から45分=start／開始の60分後〜3時間=thanks。
+// 毎時 :25 をすぎていたら、お礼（thanks）をさきに見る（22:30 は、23時の予告ではなく、21時のお礼）。
+// どれでもないとき：朝7時台だけ daily（きょうの兼題）、それ以外は投稿しない（none）
 function autoKind(t) {
-  const L = slotsAround(t);
-  for (const s of L) if (t < s.start && s.start - t <= 100 * 60000) return { kind: 'announce', slot: s };
-  for (const s of L) if (t >= s.start && t - s.start < 45 * 60000) return { kind: 'start', slot: s };
-  for (const s of L.slice().reverse()) if (t - s.start >= 60 * 60000 && t - s.start <= 3 * 3600000) return { kind: 'thanks', slot: s };
-  return { kind: 'daily', slot: null };
+  const L = slotsAround(t), jm = new Date(t + 9 * 3600000).getUTCMinutes(), jh = new Date(t + 9 * 3600000).getUTCHours();
+  const ann = () => { for (const s of L) if (t < s.start && s.start - t <= 100 * 60000) return { kind: 'announce', slot: s }; return null; };
+  const stt = () => { for (const s of L) if (t >= s.start && t - s.start < 45 * 60000) return { kind: 'start', slot: s }; return null; };
+  const thx = () => { for (const s of L.slice().reverse()) if (t - s.start >= 60 * 60000 && t - s.start <= 3 * 3600000) return { kind: 'thanks', slot: s }; return null; };
+  const order = jm >= 25 ? [thx, stt, ann] : [ann, stt, thx];
+  for (const f of order) { const r = f(); if (r) return r; }
+  return jh === 7 ? { kind: 'daily', slot: null } : { kind: 'none', slot: null };
 }
 function slotFor(kind, t) {
   const L = slotsAround(t);
@@ -67,30 +80,30 @@ function fitTags(variants, link, tagStr) {
 }
 function slotLabel(s) { const d = new Date(s.date + 'T00:00:00Z'); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日' + s.h + '時'; }
 function announceText(slot, t) {
-  const head = '【' + whenText(slot.start - t) + '】' + slot.h + '時から、だれでも句会（定例）', theme = 'お題は「当季雑詠」。いまの季節のことばで、自由に一句。',
+  const head = '【' + whenText(slot.start - t) + '】' + slot.h + '時から「' + slotName(slot.h) + '」（だれでも句会・定例デモ）', theme = 'お題は「当季雑詠」。いまの季節のことばで、自由に一句。',
     info = '投句は、いつでも受付中（定刻でしめきり）。見学もできます。ひとりなら、ボットが加わります。', warn = 'ほかの人の句や選評の、無断の公開は禁止です。';
   return [[head, theme, info, warn], [head, theme, '投句は受付中。見学もできます。', warn], [head, 'お題は「当季雑詠」。投句は受付中。見学もできます。', warn]].map(v => v.join('\n'));
 }
 function startText(slot) {
-  const head = '【はじまりました】' + slot.h + '時の、だれでも句会（定例）', a = 'お題は「当季雑詠」。いま、披講・点付けがはじまっています。見学もできます。', w = 'ほかの人の句や選評の、無断の公開は禁止です。';
+  const head = '【はじまりました】' + slot.h + '時の「' + slotName(slot.h) + '」（だれでも句会・定例デモ）', a = 'お題は「当季雑詠」。いま、披講・点付けがはじまっています。見学もできます。', w = 'ほかの人の句や選評の、無断の公開は禁止です。';
   return [[head, a, w], [head, 'お題は「当季雑詠」。見学もできます。', w]].map(v => v.join('\n'));
 }
 function teiNextLines(slot) {
   const next = slotsAround(slot.start + 1).filter(x => x.start > slot.start).slice(0, 2);
-  const nm = x => (x.date === slot.date ? 'きょう' : 'あす') + (x.h < 12 ? 'あさ' : '') + x.h + '時';
+  const nm = x => (x.date === slot.date ? 'きょう' : 'あす') + (x.h < 12 ? 'あさ' : '') + x.h + '時「' + slotName(x.h) + '」';
   const l1 = next.length ? 'さっそく、つぎの定例句会がオープンしています。つぎは、' + nm(next[0]) + 'にひらきます。お題は「当季雑詠」。' : '';
   const l2 = 'いまからでも、投句を受け付けています。ふらりと一句、お待ちしています。お時間になりましたら、ご着席を。';
   const l3 = next[1] ? nm(next[1]) + 'の回にも、ぜひご参加を。' : '';
   return { l1, l2, l3 };
 }
 function noshowText(slot) {
-  const n = teiNextLines(slot), head = (slot.h < 12 ? 'けさ' : '今夜') + 'の定例句会は、おやすみでした。';
+  const n = teiNextLines(slot), head = (slot.h < 12 ? 'けさ' : slot.h < 17 ? 'きょう昼' : '今夜') + slot.h + '時の「' + slotName(slot.h) + '」は、おやすみでした。';
   return [[head, n.l1, n.l2, n.l3], [head, n.l1, n.l2], [head, n.l1, 'いまからでも、投句を受け付けています。']].map(v => v.filter(Boolean).join('\n'));
 }
 function thanksText(slot, humans, bots) {
   const who = bots ? humans + '人（ほかにボット' + bots + '名）' : humans + '人';
   const n = teiNextLines(slot);
-  const head = '【ありがとうございました】' + slotLabel(slot) + 'の定例句会は、終了しました。参加は、' + who + 'でした。';
+  const head = '【ありがとうございました】' + slotLabel(slot) + '「' + slotName(slot.h) + '」は、終了しました。参加は、' + who + 'でした。';
   return [[head, n.l1, n.l2, n.l3], [head, n.l1, n.l2], [head, n.l1, 'いまからでも、投句を受け付けています。'], [head, n.l1]].map(v => v.filter(Boolean).join('\n'));
 }
 async function fetchPub(sid) {
@@ -124,6 +137,7 @@ async function buildAny() {
   let kind = want, slot = null;
   if (want === 'auto') { const a = autoKind(t); kind = a.kind; slot = a.slot; }
   else if (want !== 'daily') slot = slotFor(want, t);
+  if (kind === 'none') return { d: jstDate(), kind, text: '', skip: 'この時刻に合う定例句会がないので、投稿しません' };
   if (kind === 'daily') return Object.assign({ skip: '' }, build());
   const on = (process.env.TEI_POSTS || 'announce,thanks').split(',').map(x => x.trim());
   if (!on.includes(kind)) return { d: jstDate(), kind, text: '', skip: kind + ' は TEI_POSTS に入っていないので、投稿しません' };
