@@ -1,0 +1,58 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function mine(uid) { return signedIn() && request.auth.uid == uid; }
+
+    // 句会：ログインした人なら、だれでも読める・出せる・点をつけられる。消すのは不可
+    match /kukai/{sid} {
+      allow read, create, update: if signedIn();
+      allow delete: if false;
+    }
+    // ミニ合評ルーム：句会と同じ
+    match /gohyo/{rid} {
+      allow read, create, update: if signedIn();
+      allow delete: if false;
+    }
+    // 定例句会の参加人数だけの、公開の小さな記録（Xのお礼つぶやき用）。
+    // だれでも読める。ログインした人が、1回だけ作れる（あとから書きかえ・消去は不可）。句や名前は入らない
+    match /pub/{sid} {
+      allow read: if true;
+      allow create: if signedIn()
+        && sid.matches('t[0-9]{8}-[0-9]{2}')
+        && request.resource.data.keys().hasOnly(['humans', 'bots', 'slot', 'date', 'at'])
+        && request.resource.data.humans is int && request.resource.data.humans >= 1 && request.resource.data.humans <= 500
+        && request.resource.data.bots is int && request.resource.data.bots >= 0 && request.resource.data.bots <= 5;
+      allow update, delete: if false;
+    }
+    // ストッ句・マイページ・お問い合わせの控え：本人だけ
+    match /data/users/{uid}/{doc} {
+      allow read, write: if mine(uid);
+    }
+    // お問い合わせ（運営者はコンソールで読む）
+    function admin() { return signedIn() && request.auth.token.email == 'hattyam@gmail.com'; }
+    match /inquiries/{uid} {
+      allow read, write: if mine(uid) || admin();
+    }
+    // 広場の統計（仲間の人数・今日来た人・句の数）：ログインした人なら読める
+    // 広場だより：全員が読める。書くのは運営者だけ
+    match /news/{id} {
+      allow read: if signedIn();
+      allow create, update, delete: if admin();
+    }
+    match /members/{uid} {
+      allow read: if signedIn();
+      allow write: if mine(uid);
+    }
+    match /stats/{id} {
+      allow read: if signedIn();
+      allow create, update: if signedIn();
+      allow delete: if false;
+    }
+    // いまひらいている人の印
+    match /presence/{uid} {
+      allow read: if signedIn();
+      allow write: if mine(uid);
+    }
+  }
+}
