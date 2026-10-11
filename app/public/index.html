@@ -130,6 +130,14 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .nbcard { background: linear-gradient(135deg, #fff4f7, #fffaf0); border: 1.5px solid #f6c9d6; border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
 .nbcard h3 { margin: 0; font-size: 1.05rem; }
 .nbcard ol { margin: 0; padding-left: 1.3em; line-height: 1.8; }
+.chkl { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+.chkl li { display: flex; gap: 8px; align-items: flex-start; line-height: 1.6; }
+.chkl li.tip2 { background: #fff7e6; border-radius: 10px; padding: 6px 8px; }
+.tcourse { margin: 0; font-size: .8rem; font-weight: 700; color: var(--accent); }
+.ladder { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 10px; }
+.lstep { display: flex; gap: 10px; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 10px 12px; }
+.lstep .ln { flex: none; width: 1.8rem; height: 1.8rem; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.lstep p { margin: 4px 0 6px; line-height: 1.65; }
 .menu summary { cursor: pointer; font-weight: 700; }
 .mgrp { margin-top: 10px; display: grid; gap: 4px; }
 .mgrp > b { font-size: .8rem; color: var(--ink-soft); }
@@ -622,7 +630,7 @@ h3.sec { font-size: 1rem; }
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12k';
+  var APP_VER = 'v2026.10.12q';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1083,6 +1091,7 @@ h3.sec { font-size: 1rem; }
     if (k.kana >= 14 && k.kana <= 16) L.push('音数は' + k.kana + '音で、すこし字足らず。字足らずは、「間（ま）」としてはたらくと光りますが、むずかしい技です。五七五にそろえる型も試してみてください。');
     if (k.kana === 17) L.push('五七五の17音ぴったりで、調べが整っていますね。');
     if (k.kana >= 18 && k.kana <= 20) L.push('音数は' + k.kana + '音で、字余りですね。字余りは、強調したいことばがきわだつ技。プラスマイナス三音までが目安です。ねらいなら、武器になります。');
+    if (EMO_RE.test(k.t)) L.push('気持ちのことば（「' + k.t.match(EMO_RE)[0] + '」）を、ものや景にいわせる型にすると、読む人の想像がふくらみます。');
     if (k.onoma) L.push('くり返しの音（オノマトペ）が、耳にのこります。声に出して読むと、さらにたのしくなりますね。');
     if (k.num) L.push('数のことば（ひとつ・ふたり…）があるのは、いい視点ですね。数は、景をきゅっと具体にして、さびしさやにぎやかさも見せてくれます。');
     if (k.simile) L.push('たとえ（比喩）の型ですね。季語そのものをたとえると「一物仕立て」に近づいて、むずかしくなります。取り合わせと比べてみるのもおすすめです。');
@@ -1101,6 +1110,61 @@ h3.sec { font-size: 1rem; }
     }
     if (cuts) { a = [a.join('').split('。')[0] + '。']; lr = ''; c = c.slice(0, 1); }
     return { t: cuts + a.join('') + b.join('') + c.join('') + lr, part: part };
+  }
+  /* ---- できあがった句の、5つのチェックポイント ---- */
+  var EMO_RE = /美しい|うつくしい|きれい|綺麗|悲しい|かなしい|楽しい|たのしい|うれしい|嬉しい|さびしい|淋しい|寂しい|すばらしい|素晴らしい|感動|幸せ|しあわせ|つらい|苦しい|愛しい/;
+  var CLICHE_ = ['青い空', '青空', '白い雲', '美しい花', 'きれいな花', '赤い夕日', '青い海', '美しい空', '澄んだ空', 'きれいな空'];
+  function kuCheck(raw) {
+    var t = String(raw || '').replace(/《[^》]*》/g, '').replace(/[\s　]/g, ''), out = [];
+    if (t.length < 5) return out;
+    var all = kgAll(), found = [], rest = t;
+    all.forEach(function (w) { if (rest.indexOf(w) >= 0) { found.push(w); rest = rest.split(w).join('□'); } });
+    out.push(found.length === 1 ? { ok: 1, h: '季語', m: '季語「' + found[0] + '」がひとつ。季節感もそろっているか、歳時記でもたしかめてみましょう。' }
+      : found.length >= 2 ? { ok: 0, h: '季語', m: '季語がふたつありそうです（' + found.slice(0, 2).join('・') + '）。焦点がぼけることがあります。どちらを主役にするか、決めてみましょう。' }
+      : { ok: 0, h: '季語', m: '季語が見つかりませんでした。歳時記で、季節にあう季語をひとつ入れてみましょう。（リストにないだけのこともあります）' });
+    var cuts = 0; if (/かな$/.test(t)) cuts++; if (/けり$/.test(t)) cuts++; if (/^.{2,7}や/.test(t)) cuts++;
+    out.push(cuts >= 2 ? { ok: 0, h: '切れ字', m: '「や」「かな」「けり」が重なっているかもしれません。切れ字は、ひと句にひとつが基本です。' }
+      : { ok: 1, h: '切れ字', m: cuts === 1 ? '切れ字がひとつで、すっきりしています。' : '切れ字はなし。なめらかに読める句です。「や」「かな」を入れる型も、試せます。' });
+    var kana = /^[ぁ-んァ-ヶー]+$/.test(t) ? t.replace(/[ゃゅょャュョぁぃぅぇぉァィゥェォ]/g, '').length : 0;
+    out.push(kana ? (kana >= 16 && kana <= 18 ? { ok: 1, h: 'リズム', m: kana + '音で、五七五の調べにおさまっています。声に出して読んでも、心地よいか確かめましょう。' } : { ok: 0, h: 'リズム', m: kana + '音です。字余り・字足らずは、ねらいなら武器。声に出して、その必然性があるか考えてみましょう。' })
+      : { ok: 1, h: 'リズム', m: '声に出して、指を折って数えてみましょう。五七五から大きく外れていないか、心地よく読めるか、が目安です。' });
+    out.push(EMO_RE.test(t) ? { ok: 0, h: '主観・説明', m: '気持ちのことば（「' + t.match(EMO_RE)[0] + '」など）が入っています。ものや映像にいわせる型にすると、読む人の想像がふくらみます。' }
+      : { ok: 1, h: '主観・説明', m: '気持ちを直接書かず、景やものでみせています。' });
+    var cl = CLICHE_.filter(function (w) { return t.indexOf(w) >= 0; });
+    out.push(cl.length ? { ok: 0, h: 'ありふれた表現', m: '「' + cl[0] + '」は、よく見かける表現です。自分だけの角度（色の濃さ・形・音など）で、ひとことかえられないでしょうか。' }
+      : { ok: 1, h: 'ありふれた表現', m: 'ありふれた言いまわしは、見当たりません。自分だけの視点を大事に。' });
+    return out;
+  }
+  function kuCheck2(raw) {
+    var t = String(raw || '').replace(/《[^》]*》/g, '').replace(/[\s　]/g, ''), o = [];
+    if (t.length < 5) return o;
+    var last = t.charAt(t.length - 1);
+    o.push(/[一-龥ァ-ヶ]$/.test(last) ? { ok: 1, h: '結びの形', m: '名詞で止めて（体言止め）、余韻をのこしています。' } : { ok: 1, h: '結びの形', m: '結びの形は「' + last + '」。名詞で止める型（体言止め）にすると、余韻が変わるかもしれません。くらべてみましょう。' });
+    var no = (t.match(/の/g) || []).length;
+    o.push(no >= 3 ? { ok: 0, h: '助詞', m: '「の」が' + no + '回あります。くり返しで響きが重くなっていないか、声に出して確かめましょう。' } : { ok: 1, h: '助詞', m: '「の」「に」などの助詞に、重なりすぎはなさそうです。' });
+    var kj = (t.match(/[一-龥]/g) || []).length, hira = /[ぁ-ん]{9,}/.test(t);
+    o.push(kj / t.length > 0.65 ? { ok: 0, h: '表記', m: '漢字が多めで、すこし固い見た目です。ひらがなに開くと、やわらかくなることも。' } : hira ? { ok: 0, h: '表記', m: 'ひらがなが長くつづいています。漢字をまぜると、意味が取りやすくなることも。' } : { ok: 1, h: '表記', m: '漢字とひらがなのバランスは、よさそうです。' });
+    o.push(/こと|もの(?!さし)|ところ|感じ|何か|なにか/.test(t) ? { ok: 0, h: '抽象語', m: '「' + t.match(/こと|もの(?!さし)|ところ|感じ|何か|なにか/)[0] + '」のような、ぼんやりしたことばがあります。具体的なモノの名前におきかえられないでしょうか。' } : { ok: 1, h: '抽象語', m: '具体的なことばで、映像が立ちそうです。' });
+    o.push(/ごとし|ように|みたい|のごと|のような/.test(t) ? { ok: 0, h: 'たとえ', m: '「〜のよう」のたとえが入っています。たとえを使わず、事実や別の具体的な描写だけで言えないか、試してみましょう。' } : { ok: 1, h: 'たとえ', m: 'たとえに頼らず、見えたものを書いています。' });
+    o.push(/私|僕|俺|わたし|ぼく|おれ|あたし|わたくし/.test(t) ? { ok: 0, h: '「私」', m: '「' + t.match(/私|僕|俺|わたし|ぼく|おれ|あたし|わたくし/)[0] + '」が登場しています。「私」を省くと、だれの風景にもなって、ひろがることがあります。ここは「私」が必要でしょうか。' } : { ok: 1, h: '「私」', m: '作者が出てこないぶん、読む人の風景になりやすい句です。' });
+    return o;
+  }
+  var ASK_ = ['カメラワーク：遠景から、急にアップになっていませんか？ 視点の動きは、なめらかですか。', '取り合わせ：2つの要素が、おたがいを引き立てあっていますか。予想外の奥行きはありますか。', '既視感：「秋の夕暮れはさびしい」のような、だれでも思いつく感想で終わっていませんか。一歩ふみこんだ発見は？', '寝かせる：半日〜数日おいて読みなおしても、同じように新鮮ですか。', 'だれが読んでも：自分だけの思い出や前提に頼りすぎて、ほかの人には伝わらない内輪の表現になっていませんか。', 'そぎ落とす：書かなくても通じることば、重なっている描写を削って、シンプルにできませんか。'];
+  function chkLi(x) { return '<li class="' + (x.ok ? 'ok' : 'tip2') + '"><span>' + (x.ok ? '✅' : '💡') + '</span><div><b>' + x.h + '</b>　' + esc(x.m) + '</div></li>'; }
+  function checkBox(text) {
+    var r = kuCheck(text); if (!r.length) return '';
+    var t = String(text || '').replace(/《[^》]*》/g, '').replace(/[\s　]/g, '');
+    var kg = r[0], rh = r[2], emo = r[3], ab = kuCheck2(text)[3];
+    var kana = /^[ぁ-んァ-ヶー]+$/.test(t) ? t.replace(/[ゃゅょャュョぁぃぅぇぉァィゥェォ]/g, '').length : 0;
+    var three = [
+      { ok: kg.ok && (!kana || (kana >= 15 && kana <= 19)) ? 1 : 0, h: '① 五・七・五と、取り合わせ', m: (kana ? kana + '音。' : '') + '多少の字余り・字足らずは、初心者は気にしなくて大丈夫。「季語」と「季語と関係ないフレーズ」が、つかずはなれずの距離になっているか、声に出して読んでみましょう。' },
+      { ok: kg.ok, h: '② 季語と季感', m: kg.m },
+      { ok: emo.ok && ab.ok ? 1 : 0, h: '③ 情景・気持ちが浮かぶか', m: emo.ok && ab.ok ? '見えるものを書いています。目をとじて、映像がうかぶか、たしかめましょう。' : (!emo.ok ? emo.m : ab.m) }
+    ];
+    var more = kuCheck2(text);
+    return '<div class="panel chk5"><b>✅ 完成した句のチェック</b><p class="note">まずは、この3つ。ぜんぶ一度にそろえなくて大丈夫です。</p><ul class="chkl">' + three.map(chkLi).join('') + '</ul>' +
+      '<details class="deep"><summary>もっとくわしく（5つのポイント）</summary><ul class="chkl">' + r.map(chkLi).join('') + '</ul></details>' +
+      '<details class="deep"><summary>さらに深く推敲する</summary><p class="note">まずは「映像がハッキリ見えるか」と「声に出したときのリズム」の2つを中心に。</p><ul class="chkl">' + more.map(chkLi).join('') + '</ul><b>自分に問いかけてみよう</b><ul class="chkl">' + ASK_.map(function (q) { return '<li><span>❓</span><div>' + esc(q) + '</div></li>'; }).join('') + '</ul></details></div>';
   }
   function teiBotComments(s) {
     var ids = Object.keys(s.entries || {}), bots = ids.filter(function (k) { return s.entries[k] && s.entries[k].bot; }), out = {}, n = 0;
@@ -1822,8 +1886,16 @@ h3.sec { font-size: 1rem; }
     return h;
   }
   function vAbout() {
-    return '<h2 class="sec">このアプリでできること<small>試作版</small></h2><div class="panel legal">' +
-      '<p>「俳句の裾野」は、俳句の筋力トレーニングと、仲間との句会を、スマホひとつで楽しむための小さな場です。5つの部屋があります。ここは練習の場で、ここで作った句は、未発表のあつかいです（くわしくは「句のあつかい・マナー」）。チュートリアルでは、俳句の基礎をさらっと見られます。</p>' +
+    var L = function (n, ico, t, tag, p, btns) { return '<li class="lstep"><span class="ln">' + n + '</span><div><b>' + ico + ' ' + t + '</b> <small>' + tag + '</small><p>' + p + '</p><div class="actions">' + btns + '</div></div></li>'; };
+    var ladder = '<h2 class="sec">はじめの一歩から、段階的に<small>裾野から、すこしずつ</small></h2><ol class="ladder">' +
+      L(1, '🌱', 'はじめの一句をつくる', '登録前でもOK・約3分', '「見たこと」の12音に、5音の季語をそえるだけ。気軽に何句でも。思いついた句材は「おもいつ句」にメモ。', '<button class="btn primary" data-act="tk-start">🧩 句づくりで一句</button><button class="btn" data-act="tut">一句つくれるチュートリアル</button>') +
+      L(2, '💪', 'ひとりで鍛える', '毎日・自分だけの記録', '毎日の兼題で俳筋力トレーニング。ボットと小さな「ひとりで句会」で、選ぶ・語らうを練習。', '<button class="btn" data-act="tab" data-t="solo">俳筋トレ部屋へ</button><button class="btn" data-act="tab" data-t="bot">ひとりで句会へ</button>') +
+      L(3, '🍡', 'みんなで詠む', '見学もOK', '3人そろえば始まる「ふらっと句会」と、平日21時・23時／土日祝10・13・15時の「定例句会」。講評は一句ずつ、ゆっくり。', '<button class="btn" data-act="tab" data-t="flat">ふらっと句会へ</button><button class="btn" data-act="tab" data-t="together">定例句会へ</button>') +
+      L(4, '🍵', '仲間と句会', '合言葉で集まる', '合言葉や招待リンクで、メンバーだけの句会。題・選の種類・回数も、自分たちで決められます。', '<button class="btn" data-act="tab" data-t="gohyo">仲間と句会へ</button>') +
+      L(5, '🔍', 'さらに深める', 'じっくり・ゆっくり', '切れ字・字余り・カットの読みかた、深い推敲のヒント。ストッ句に残した句を、あとから推敲。', '<button class="btn" data-act="tutd">さらに深くチュートリアル</button><button class="btn" data-act="page" data-p="stock">ストッ句へ</button><button class="btn" data-act="page" data-p="hints">評のヒント</button>') +
+      '</ol>';
+    return ladder + '<h2 class="sec">このアプリでできること<small>くわしく</small></h2><div class="panel legal">' +
+      '<p>「俳句の裾野」は、俳句の筋力トレーニングと、仲間との句会を、スマホひとつで楽しむための小さな場です。部屋は、初心者部屋・俳筋力トレーニング部屋・ひとりで句会・ふらっと句会・だれでも句会（定例）・仲間と句会、の6つ。ここは練習の場で、ここで作った句は、未発表のあつかいです（くわしくは「句のあつかい・マナー」）。チュートリアルでは、俳句の基礎をさらっと見られます。</p>' +
       '<h3>1. 俳句の初心者部屋（一日一句・日記のように）</h3><p>お題はありません。今日の気づきや気分を、一日一句、日記のように残す部屋です。テーマに合わない句でも、季語がなくても、字余りでも大丈夫。記録は自分だけが見られます。</p>' +
       '<h3>2. 俳筋力トレーニング部屋</h3><p>今日の兼題（お題）から、俳句をつくる練習です。漢字（季語ではない字）を詠み込む、カタカナを詠み込む、テーマで詠む（発想をとばす）の3つが、ひとまわりします。手ごたえ（かんぺき・まあまあ・ふつう・あとで推敲）をつけて「ストッ句」に残し、続けた日数が「連続」で数えられます。はじめての方は「俳筋トレ体験（1分）」からどうぞ。</p>' +
       '<h3>3. ひとりで句会</h3><p>自分と、ボット（2〜4名）で、小さな句会をひらきます。自分の一句を出して、ボットの句と並べ、出す→選ぶ→語らう→作者オープンまでを、3分ほどで。招待も見学もありません。何度でもでき、出した句は「ストッ句」に残り、参加した句会として数えられます。「句会のしかた」で、選評とは、予選とは、も見られます。</p>' +
@@ -1991,7 +2063,7 @@ h3.sec { font-size: 1rem; }
       h += '<div class="field"><label>季語をかえて、ためす</label><div class="row">' + TK_MOODS.map(function (k) { return '<button class="chip fit' + (t.mood === k ? ' on' : '') + '" data-act="tk-pick" data-k="mood" data-v="' + esc(k) + '">' + esc(k) + '</button>'; }).join('') + '</div><div class="row">' + kigoC.map(function (k) { return '<button class="chip fit' + (t.kigo === k ? ' on' : '') + '" data-act="tk-pick" data-k="kigo" data-v="' + esc(k) + '">' + esc(k) + '</button>'; }).join('') + '</div></div></div>';
       var d = { a: tkText(), b: '', c: '' };
       h += hostSay('できあがりです。この一句は、あなたの今日から生まれました。', t.saved ? 'ストッ句に残しました（「あとで推敲」付き）。いつでも直せます。' : (!myId ? '登録すると、できた句を「ストッ句」に残せます。' : ''));
-      h += '<div class="tan">' + ku(d) + '</div>';
+      h += '<div class="tan">' + ku(d) + '</div>' + checkBox(String(d.a || '') + String(d.b || '') + String(d.c || ''));
       h += myId ? '<div class="actions"><button class="btn primary" data-act="tk-save"' + (t.saved ? ' disabled' : '') + '>' + (t.saved ? 'ストッ句に残しました' : 'ストッ句に残す（あとで推敲）') + '</button><button class="btn" data-act="tk-copy">この句をひかえる（コピー）</button></div>'
         : '<div class="actions"><button class="btn primary" data-act="fbgate">登録してはじめる（メールだけ・無料）</button><button class="btn" data-act="tk-copy">この句をひかえる（コピー）</button></div>';
       h += '<div class="actions"><button class="btn" data-act="tk-again">はじめから</button><button class="btn" data-act="tk-end">とじる</button></div>';
@@ -3052,7 +3124,7 @@ h3.sec { font-size: 1rem; }
     var g = function (t, items) { return '<div class="mgrp"><b>' + t + '</b><div class="row">' + items.join('') + '</div></div>'; };
     return '<details class="panel menu"><summary>☰ メニュー・機能まとめ</summary>' +
       g('つくる', [mb('tk-start', '', '🧩 句づくり'), pg('stock', '📒 ストッ句')]) +
-      g('まなぶ', [mb('tut', '', '🌱 チュートリアル'), pg('about', 'できること'), pg('hints', '句会の評のヒント'), pg('manner', '句のあつかい・マナー'), pg('faq', 'よくある質問')]) +
+      g('まなぶ', [mb('tut', '', '🌱 一句つくれるチュートリアル'), mb('tutd', '', '🔍 さらに深くチュートリアル'), pg('about', 'できること'), pg('hints', '句会の評のヒント'), pg('manner', '句のあつかい・マナー'), pg('faq', 'よくある質問')]) +
       g('じぶん', [pg('my', 'マイページ'), pg('archive', '句会アーカイブ')]) +
       g('声をとどける', [pg('contact', '📮 ご意見・ご要望'), pg('terms', '利用規約'), pg('privacy', 'プライバシー')]) +
       '</details>';
@@ -3295,12 +3367,19 @@ h3.sec { font-size: 1rem; }
         '<div class="tip">声に出して、五・七・五で読んでみましょう。どこが「見える」か、探してみてください。</div>';
     },
     function () {
-      return th('俳句のタネをみつけたら ④', '上級者テクニック「一物仕立て」') +
+      return th('さらに深く', '上級者テクニック「一物仕立て」') +
         '<p>季語のことだけで、一句を詠む型です。季語がもともと持っている情報（柿なら「秋・甘い・赤い実」など）は、書きません。</p>' +
         '<div class="exbox"><div class="tan pv">' + ku({ a: '鶏頭の', b: '十四五本も', c: 'ありぬべし' }, [true, false, false]) + '</div>' +
         '<div class="tip">正岡子規の名句。鶏頭だけを見て詠んでいます。</div></div>' +
         '<p>つくりかたは、とにかく観察。色・形・音・におい・さわった感じ・時間の変化。例：「柿ひとつへたの周りの色が濃い」</p>' +
         '<div class="tip">初心者は、取り合わせから、俳句の筋肉（俳筋力）をつけましょう。一物仕立ては、慣れてからの挑戦です。</div>';
+    },
+    function () {
+      return th('俳句のタネをみつけたら ④', '完成した句をチェックしよう') +
+        '<p>句ができたら、チェック。「直す」ためではなく、「もっとよくなるヒント」を見つける時間です。まずは、この3つ。</p>' +
+        '<ol><li><b>五・七・五</b>になっているか（多少の字余り・字足らずは、初心者は気にしない）。季語と、季語に関係ないフレーズが、つかずはなれずか。</li><li><b>季語</b>がしっかり入っているか。季感があるか。</li><li><b>情景・気持ち</b>が思い浮かぶか。</li></ol><p class="note">もっとくわしく見たいときの、5つのポイントです。</p>' +
+        '<ol class="chk5t"><li><b>季語</b>：ひとつだけ入っているか。季節感にズレはないか。（取り合わせの技法は別）</li><li><b>切れ字</b>：「や・かな・けり」が効いているか。重なっていないか。</li><li><b>リズム</b>：声に出して心地よいか。字余り・字足らずは、ねらいがあるか。</li><li><b>主観・説明</b>：「美しい」「悲しい」と書きすぎていないか。映像で見せられないか。</li><li><b>ありふれた表現</b>：「青い空」など、よくある言いまわしになっていないか。自分だけの角度は？</li></ol>' +
+        '<div class="tip">「句づくり」の完成画面で、自動でチェックしてくれます（3つ → 5つ → さらに深く、の順にひらけます）。</div>';
     },
     function () {
       return th('俳句の表記 ①', '縦に書く。一字あけしない') +
@@ -3347,6 +3426,49 @@ h3.sec { font-size: 1rem; }
         tref(POSTS, 5) + '<p class="note">募集の条件や締め切りは、各サイトで確かめてください。</p>';
     }
   ];
+  /* ---- 2コースに分ける：「一句つくれる」と「さらに深く」 ---- */
+  (function () {
+    var A = TSETS.basic;
+    var deepNew = [
+      function () {
+        return th('さらに深く ①', '切れ字と体言止め') +
+          '<p>句のなかの「切れ」は、読む人の頭のなかでカットが切りかわるところです。</p>' +
+          '<ul><li><b>や</b>：そこで切って、景をひらく。上五に置くことが多い。</li><li><b>かな</b>：しみじみと終わる、やわらかな余韻。</li><li><b>けり</b>：きっぱりと言いおさめる。</li><li><b>体言止め</b>：名詞で終えて、映像をぽんと立たせる。</li></ul>' +
+          '<div class="tip">切れ字は、ひと句にひとつが基本。かさなると、感動の中心がぼやけます。</div>';
+      },
+      function () {
+        return th('さらに深く ②', '字余り・字足らず') +
+          '<p>基本は五七五ですが、ずらすことも技のひとつです。強調したいことばを際立たせるときに効きます。</p>' +
+          '<ul><li>プラスマイナス三音までが目安。初心者は、一音からためして。</li><li>上五の字余りは、全体の違和感がやわらぎます。</li><li>中七が八音になる「中八」は、バランスがとりにくいので、避けたい形。</li><li>字足らずは、成功しにくい上級の技。</li></ul>' +
+          '<div class="tip">言葉の都合でしかたなく、ではなく、ねらいがあるか。声に出して確かめましょう。</div>';
+      },
+      function () {
+        return th('さらに深く ③', '句を「カット」で読む') +
+          '<p>取り合わせの句は、カメラのカットがパッと切りかわるように読みます。</p>' +
+          '<div class="exbox"><div class="tan pv">' + ku({ a: 'かき氷', b: 'きみの舌だけ', c: '青くなる' }, [true, false, false]) + '</div><div class="tip"><b>カット1</b>「かき氷」：夏の暑さと、ひんやりした甘さ。<br><b>カット2</b>「きみの舌だけ青くなる」：ブルーハワイを食べた友だちの舌。<br><b>全体</b>：2つのカットが切りかわって、夏のはしゃいだ空気が見えてきます。</div></div>' +
+          '<p class="note">オリジナルの例句です。</p>';
+      },
+      function () {
+        return th('さらに深く ④', '鑑賞文を書く3ステップ') +
+          '<ol><li><b>情景</b>：どんな景色や状況が浮かぶかを、自分のことばで書く。</li><li><b>効果</b>：季語が季節感や雰囲気をどう作っているか。助詞・切れ字・色や音の対比が、どんな効果を生んでいるか。</li><li><b>感じたこと</b>：どう心に響いたか。「〜ということばから、〜が伝わってくる」と、根拠もそえて。</li></ol>' +
+          '<div class="tip">「きれいだと思った」だけで終わらせず、俳句のどこからそう感じたかを、セットで。</div>';
+      },
+      function () {
+        return th('さらに深く ⑤', 'もっと深く推敲する') +
+          '<p>基本の3つ（五七五・季語・情景）のあと、もうひと段、磨きたいときのヒントです。</p>' +
+          '<ul><li><b>表現</b>：体言止めの効果／「の」「に」の重なり／漢字とひらがなのバランス／「こと」「もの」などの抽象語。</li><li><b>映像・構造</b>：カメラワーク（遠景から急にアップになっていないか）／取り合わせの響きあい／「〜のよう」のたとえに頼らない。</li><li><b>独自性</b>：「私」は必要か／ありがちな感想で終わっていないか／書いてすぐでなく、時間をおいて読みなおす。</li></ul>' +
+          '<div class="tip">ぜんぶ一度にそろえなくて大丈夫。まずは「映像がハッキリ見えるか」と「声に出したときのリズム」の2つから。</div>';
+      }
+    ];
+    var ready = function () {
+      return th('おしまい', 'さて、一句つくってみませんか？') +
+        '<p>ここまで読めば、準備はできています。むずかしく考えなくて大丈夫。</p>' +
+        '<ol><li>今日あったことを、ひとこと（タネ）</li><li>12音にととのえる</li><li>気分にあう季語（5音）をえらぶ</li></ol>' +
+        '<div class="tip">約3分で、一句できあがります。下のボタンで、ひとつずつ案内します。</div>';
+    };
+    TSETS.basic = [A[0], A[1], A[2], A[4], A[5], A[6], A[8], ready];
+    TSETS.deep = [A[3], A[7]].concat(deepNew).concat([A[9], A[10], A[11], A[12], A[13], A[14], A[15]]);
+  })();
   /* ---- 句会のしかた（初心者向け句会部屋のチュートリアル） ---- */
   TSETS.kukai = [
     function () {
@@ -3469,9 +3591,9 @@ h3.sec { font-size: 1rem; }
     var last = TS().length - 1, dts = '';
     for (var i = 0; i <= last; i++) dts += '<button type="button" data-t="go" data-i="' + i + '" class="' + (i === tut.step ? 'on' : '') + '" aria-label="' + (i + 1) + '/' + (last + 1) + '"' + (i === tut.step ? ' aria-current="step"' : '') + '><i></i></button>';
     tutEl.innerHTML = addRuby('<div class="tutwrap"><div class="tprog"><div class="tdots">' + dts + '</div><button class="link" data-t="close">' + (tut.step === last ? '閉じる' : 'あとで見る') + '</button></div>' +
-      '<article class="tcard">' + TS()[tut.step]() + '</article>' +
+      (tut.set === 'basic' || tut.set === 'deep' ? '<p class="tcourse">' + (tut.set === 'basic' ? '🌱 一句つくれるコース' : '🔍 さらに深くコース') + '</p>' : '') + '<article class="tcard">' + TS()[tut.step]() + '</article>' +
       '<div class="tnav">' + (tut.step > 0 ? '<button class="btn" data-t="prev">前へ</button>' : '') +
-      (tut.step < last ? '<button class="btn primary" data-t="next">次へ</button>' : (tut.set === 'kukai' ? '<button class="btn primary" data-t="wdemo">ひとりで句会をはじめる</button>' : '<button class="btn primary" data-t="close">はじめる</button>')) + '</div></div>');
+      (tut.step < last ? '<button class="btn primary" data-t="next">次へ</button>' : (tut.set === 'kukai' ? '<button class="btn primary" data-t="wdemo">ひとりで句会をはじめる</button>' : tut.set === 'basic' ? '<button class="btn" data-t="deep">さらに深くへ</button><button class="btn primary" data-t="tk">🧩 さあ、一句つくってみる</button>' : '<button class="btn primary" data-t="close">はじめる</button>')) + '</div></div>');
     tutEl.hidden = false; tutEl.scrollTop = 0;
     var hd = document.getElementById('tut-title'); if (hd && hd.focus) hd.focus();
   }
@@ -3501,6 +3623,8 @@ h3.sec { font-size: 1rem; }
       if (a === 'next') { tut.step = Math.min(TS().length - 1, tut.step + 1); renderTut(); }
       else if (a === 'prev') { tut.step = Math.max(0, tut.step - 1); renderTut(); }
       else if (a === 'nokg') { try { localStorage.setItem('ikku-tei-nokg', '1'); } catch (_) {} renderTut(); }
+      else if (a === 'deep') { openTut(0, 'deep'); }
+      else if (a === 'tk') { closeTut(); trial = null; demo = null; tkStart(); render(); try { window.scrollTo(0, 0); } catch (_) {} }
       else if (a === 'ex') { tut.ex = parseInt(t.dataset.i, 10) || 0; renderTut(); }
       else if (a === 'go') { tut.step = Math.max(0, Math.min(TS().length - 1, parseInt(t.dataset.i, 10) || 0)); renderTut(); }
       else if (a === 'close') { if (tut && tut.step >= TS().length - 1) markFirst('f_tut'); closeTut(); }
@@ -3522,8 +3646,9 @@ h3.sec { font-size: 1rem; }
       if (!sessions.some(function (x) { return x.id === hsid; }) && db) db.collection('kukai').doc(hsid).get().then(function (d) { if (d && d.exists) { var o = d.data() || {}; o.id = d.id; kExtra[hsid] = o; } render(); }).catch(function () { render(); });
       render(); try { window.scrollTo(0, 0); } catch (_) {} return;
     }
-    if (act === 'tab') { fromArch = false; tab = t.dataset.t; if (editing && mineById[editing] && ((mineById[editing].series === 'd') !== (tab === 'diary'))) editing = null; render(); }
+    if (act === 'tab') { fromArch = false; page = ''; tab = t.dataset.t; if (editing && mineById[editing] && ((mineById[editing].series === 'd') !== (tab === 'diary'))) editing = null; render(); }
     else if (act === 'tut') { openTut(0); }
+    else if (act === 'tutd') { openTut(0, 'deep'); }
     else if (act === 'nb-off') { try { localStorage.setItem('ikku-nb-off', String(Date.now())); } catch (_) {} render(); }
     else if (act === 'tutk') { openTut(0, 'kukai'); }
     else if (act === 'tutn') { openTut(0, 'nakama'); }
@@ -3630,7 +3755,7 @@ h3.sec { font-size: 1rem; }
     else if (act === 'demo-fin') { if (demo.my.toku < 0 || demo.my.nami < 0) return; markFirst('f_demo'); demoFin(); render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'demo-stock') { demo = null; tab = 'solo'; render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'demo-end') { demo = null; render(); }
-    else if (act === 'tk-start') { trial = null; demo = null; tkStart(); render(); try { window.scrollTo(0, 0); } catch (_) {} }
+    else if (act === 'tk-start') { trial = null; demo = null; page = ''; tkStart(); render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'tk-end') { tsuku = null; render(); }
     else if (act === 'tk-again') { tkStart(); tsuku.step = 1; render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'tk-go') { tsuku.step = 1; render(); }
