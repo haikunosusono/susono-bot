@@ -610,7 +610,7 @@ h3.sec { font-size: 1rem; }
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.11j';
+  var APP_VER = 'v2026.10.12a';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -3040,6 +3040,20 @@ h3.sec { font-size: 1rem; }
     { who: '一茶', kg: '雀の子', d: { a: '雀の子', b: 'そこのけそこのけ', c: 'お馬が通る' }, m: [true, false, false], tip: '小林一茶の名句。季語は「雀の子」。「お馬が通る」のにぎやかな声が取り合わされて、たのしい気分の句です。' },
     { who: '芭蕉', kg: '秋深し', d: { a: '秋深き', b: '隣は何を', c: 'する人ぞ' }, m: [true, false, false], tip: '松尾芭蕉の名句。季語は「秋深し」。深まる秋に、となりの人のくらしへ思いをはせる気持ちが取り合わされています。' }
   ];
+  /* 現代のことばの例句（このアプリのオリジナル。実在の俳人の句ではありません） */
+  var GENDAI = [
+    { kg: '春の雨', d: { a: '春の雨', b: '傘のふたりが', c: '遠まわり' }, m: [true, false, false], tip: '季語は「春の雨」。ひとつの傘にふたり、という場面が、あたたかい雨の気分とよく合います。「遠まわり」の一語で、まだ帰りたくない気持ちが見えてきます。' },
+    { kg: 'かき氷', d: { a: 'かき氷', b: 'きみの舌だけ', c: '青くなる' }, m: [true, false, false], tip: '季語は「かき氷」。ブルーハワイを食べた友だちの舌を見つけた、たのしい発見の句です。気持ちは書かず、見えたものだけを書いています。' },
+    { kg: '秋の暮', d: { a: 'コンビニの', b: '灯がまぶしくて', c: '秋の暮' }, m: [false, false, true], tip: '季語は「秋の暮」で、うしろに置いています。ひとりの帰り道、コンビニの明るさにほっとする。さびしい季語と、明るい灯の取り合わせです。' },
+    { kg: '炬燵', d: { a: 'こたつから', b: '出られぬ父の', c: '長電話' }, m: [true, false, false], tip: '季語は「炬燵」。あたたかい炬燵から動けないまま、電話がつづくお父さん。くすっと笑える、家のなかの一場面です。' }
+  ];
+  function gendaiBox() {
+    var i = Math.max(0, Math.min(GENDAI.length - 1, tut.ex || 0)), e = GENDAI[i];
+    return '<div class="row exsel" role="group" aria-label="例句をえらぶ">' + GENDAI.map(function (x, k) {
+      return '<button class="chip fit' + (k === i ? ' on' : '') + '" data-t="ex" data-i="' + k + '" aria-pressed="' + (k === i) + '" aria-label="例句（季語：' + esc(x.kg) + '）">' + esc(x.kg) + '</button>';
+    }).join('') + '</div>' +
+    '<div class="exbox"><div class="tan pv">' + ku(e.d, e.m) + '</div><div class="tip">' + e.tip + '</div></div>';
+  }
   function toriBox() {
     var i = Math.max(0, Math.min(TORI.length - 1, tut.ex || 0)), e = TORI[i];
     return '<div class="row exsel" role="group" aria-label="名句をえらぶ">' + TORI.map(function (x, k) {
@@ -3149,7 +3163,15 @@ h3.sec { font-size: 1rem; }
         '<p>今月（' + kigoMonth() + '月）の季語のヒント</p>' + kigoChips();
     },
     function () {
-      return th('俳句のタネをみつけたら ③', '上級者テクニック「一物仕立て」') +
+      return th('俳句のタネをみつけたら ③', 'いまのことばで読んでみよう') +
+        '<p>俳句は、むかしのことばだけではありません。ふだんのことばで、毎日の小さな場面を詠んでいいのです。季語のボタンをおして、読んでみましょう。</p>' +
+        gendaiBox() +
+        '<ul><li><b>見えたものを書く</b>：うれしい・かなしいは書かず、ものや場面で伝える。</li><li><b>季語は、気分をそえる</b>：同じ場面でも、季語がかわれば句の気分もかわる。</li></ul>' +
+        '<p class="note">これらは、このアプリの練習用に作ったオリジナルの例句です。</p>' +
+        '<div class="tip">声に出して、五・七・五で読んでみましょう。どこが「見える」か、探してみてください。</div>';
+    },
+    function () {
+      return th('俳句のタネをみつけたら ④', '上級者テクニック「一物仕立て」') +
         '<p>季語のことだけで、一句を詠む型です。季語がもともと持っている情報（柿なら「秋・甘い・赤い実」など）は、書きません。</p>' +
         '<div class="exbox"><div class="tan pv">' + ku({ a: '鶏頭の', b: '十四五本も', c: 'ありぬべし' }, [true, false, false]) + '</div>' +
         '<div class="tip">正岡子規の名句。鶏頭だけを見て詠んでいます。</div></div>' +
