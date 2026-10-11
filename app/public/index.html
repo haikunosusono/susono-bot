@@ -611,7 +611,7 @@ h3.sec { font-size: 1rem; }
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12c';
+  var APP_VER = 'v2026.10.12d';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -2953,16 +2953,17 @@ h3.sec { font-size: 1rem; }
     });
     return items.length ? '<h2 class="sec">いま、句会が開かれています<small>だれでも句会は、見学もできます</small></h2><ul class="list">' + items.join('') + '</ul>' : '';
   }
+  function reqBox() { return '<div class="panel"><b>📮 ご意見・ご要望</b><p class="note">「こんな機能がほしい」「ここが使いにくい」など、なんでもどうぞ。みなさんの声から、新しい機能が生まれています。</p><div class="actions"><button class="btn primary" data-act="page" data-p="contact">要望フォームをひらく</button></div></div>'; }
   function vNews() {
     var tip = TIPS[((dayNum() % TIPS.length) + TIPS.length) % TIPS.length];
     var h = '<div class="daytip"><b>今日のコツ</b>　' + esc(tip) + '</div>';
     if (news.length) h += news.slice(0, 3).map(function (n) { return newsItem(n, false); }).join('') + '<div class="actions"><button class="link" data-act="page" data-p="news">裾野だより（' + news.length + '件）をすべて見る</button></div>';
-    return h;
+    return h + reqBox();
   }
   function vNewsPage() {
     var h = '<h2 class="sec">裾野だより<small>俳句のコツ・本・句会・NHK俳句の兼題など</small></h2>';
-    if (!news.length) return h + '<div class="empty"><p>まだお知らせはありません。</p></div>';
-    return h + news.map(function (n) { return newsItem(n, true); }).join('');
+    if (!news.length) return h + '<div class="empty"><p>まだお知らせはありません。</p></div>' + reqBox();
+    return h + news.map(function (n) { return newsItem(n, true); }).join('') + reqBox();
   }
   function vNewsForm() {
     var h = '<div class="panel"><b>裾野だよりを投稿する</b><p class="note">投稿は、ログインした全員に見えます。NHK俳句の兼題、本、句会の案内などを、短く書いてください。</p><div class="row" role="group" aria-label="種類">' + NEWS_KINDS.map(function (k) { return '<button class="chip fit' + (nf.kind === k ? ' on' : '') + '" data-act="nw-kind" data-v="' + esc(k) + '" aria-pressed="' + (nf.kind === k) + '">' + esc(k) + '</button>'; }).join('') + '</div>' +
