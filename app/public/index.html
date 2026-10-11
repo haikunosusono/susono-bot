@@ -611,7 +611,7 @@ h3.sec { font-size: 1rem; }
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12b';
+  var APP_VER = 'v2026.10.12c';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -2901,7 +2901,7 @@ h3.sec { font-size: 1rem; }
   function newsDate(n) { var d = new Date((n.at || 0) + 9 * 3600000); return (d.getUTCMonth() + 1) + '/' + d.getUTCDate(); }
   function newsItem(n, full) {
     var body = String(n.body || ''); if (!full && body.length > 70) body = body.slice(0, 70) + '…';
-    return '<div class="newsi"><span class="nk">' + esc(n.kind || 'お知らせ') + '</span><b>' + esc(n.title || '') + '</b> <time>' + newsDate(n) + '</time>' + (body ? '<div style="white-space:pre-wrap">' + esc(body) + '</div>' : '') + (okUrl(n.url) ? '<div><a href="' + esc(okUrl(n.url)) + '" target="_blank" rel="noopener">リンクをひらく</a></div>' : '') + (full && isAdmin ? '<div><button class="link" data-act="nw-del" data-id="' + esc(n.id) + '">この投稿を消す</button></div>' : '') + '</div>';
+    return '<div class="newsi"><span class="nk">' + esc(n.kind || 'お知らせ') + '</span><b>' + esc(n.title || '') + '</b> <time>' + newsDate(n) + '</time>' + (body ? '<div style="white-space:pre-wrap">' + esc(body) + '</div>' : '') + (okUrl(n.url) ? (/^https?:\/\/haikunosusono\.(web\.app|firebaseapp\.com)\/?$/.test(okUrl(n.url)) ? '<div class="actions"><button class="btn" data-act="page" data-p="contact">ご意見・ご要望を送る（お問い合わせ）</button></div>' : '<div><a href="' + esc(okUrl(n.url)) + '" target="_blank" rel="noopener">リンクをひらく</a></div>') : '') + (full && isAdmin ? '<div><button class="link" data-act="nw-del" data-id="' + esc(n.id) + '">この投稿を消す</button></div>' : '') + '</div>';
   }
   function vMemoQ(full) {
     if (!myId) return '';
