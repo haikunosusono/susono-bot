@@ -630,7 +630,7 @@ h3.sec { font-size: 1rem; }
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12q';
+  var APP_VER = 'v2026.10.12r';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1283,10 +1283,11 @@ h3.sec { font-size: 1rem; }
     else if (s.status !== 'done' && cur < 3) h += '<p class="note">オープンは、' + hm(begin + tot * 60000) + ' ごろの見こみです（早く進むこともあります）。</p>';
     return h + '</div>';
   }
+  function recvSay(on) { return on ? hostSay('ご投句、たしかに頂戴しました。ひらくまで、作者はないしょです。', '定刻までなら、何度でも直せます。') : ''; }
   function teiComposer(s) {
     var me = s.entries && s.entries[myId];
     var d = drafts['s:' + s.id] || (drafts['s:' + s.id] = joinKu(me));
-    var h = '<div class="panel"><div class="field"><label for="f-haigo">俳号（あとから変えられます）</label><input type="text" id="f-haigo" data-f="haigo" maxlength="20" value="' + esc(haigo) + '" placeholder="句会で名乗る名前"></div>';
+    var h = recvSay(me) + '<div class="panel"><div class="field"><label for="f-haigo">俳号（あとから変えられます）</label><input type="text" id="f-haigo" data-f="haigo" maxlength="20" value="' + esc(haigo) + '" placeholder="句会で名乗る名前"></div>';
     h += oneBox('g-a', 'ga', 'gcnt-a', d.a);
     h += rubyBar() + '<div class="tan pv" id="gpv">' + ku(d) + '</div><p class="chk no" id="gchk"></p>';
     h += '<button class="btn primary" data-act="rsubmit">' + (me ? '句を直す' : 'この句を出して、参加する') + '</button><p class="note">定刻までなら、何度でも直せます。出した句は、「ストッ句」にも残ります。</p></div>';
@@ -1412,7 +1413,7 @@ h3.sec { font-size: 1rem; }
   function composer(s) {
     var me = s.entries && s.entries[myId];
     var d = drafts['s:' + s.id] || (drafts['s:' + s.id] = joinKu(me));
-    var h = '<div class="panel"><div class="field"><label for="f-haigo">俳号（あとから変えられます）</label><input type="text" id="f-haigo" data-f="haigo" maxlength="20" value="' + esc(haigo) + '" placeholder="句会で名乗る名前"></div>';
+    var h = recvSay(me) + '<div class="panel"><div class="field"><label for="f-haigo">俳号（あとから変えられます）</label><input type="text" id="f-haigo" data-f="haigo" maxlength="20" value="' + esc(haigo) + '" placeholder="句会で名乗る名前"></div>';
     h += oneBox('g-a', 'ga', 'gcnt-a', d.a);
     h += rubyBar() + '<div class="tan pv" id="gpv">' + ku(d) + '</div><p class="chk no" id="gchk"></p>';
     h += '<button class="btn primary" data-act="rsubmit">' + (me ? '句を直す' : 'この句を出して、参加する') + '</button>' + maner('s') + '</div>';
@@ -1444,7 +1445,7 @@ h3.sec { font-size: 1rem; }
     if (!myId || !inSeat) return h + '<p class="note">即吟中です。いまは見学中です。</p>';
     var d = drafts['s:' + s.id] || (drafts['s:' + s.id] = joinKu(mineIn));
     h += '<p class="lead">全員が出すか、時間が来ると選句に進みます。作者の名前は披講まで伏せられます。</p>';
-    h += '<div class="panel"><div class="field"><label for="f-haigo">俳号</label><input type="text" id="f-haigo" data-f="haigo" maxlength="20" value="' + esc(haigo) + '" placeholder="句会で名乗る名前"></div>';
+    h += recvSay(mineIn) + '<div class="panel"><div class="field"><label for="f-haigo">俳号</label><input type="text" id="f-haigo" data-f="haigo" maxlength="20" value="' + esc(haigo) + '" placeholder="句会で名乗る名前"></div>';
     h += oneBox('g-a', 'ga', 'gcnt-a', d.a);
     h += rubyBar() + '<div class="tan pv" id="gpv">' + ku(d) + '</div><p class="chk no" id="gchk"></p>';
     h += '<button class="btn primary" data-act="gsubmit">' + (mineIn ? '句を直す' : 'この句を出す') + '</button>' + maner('s');
