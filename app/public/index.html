@@ -668,7 +668,7 @@ h3.sec { font-size: 1rem; }
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12z4';
+  var APP_VER = 'v2026.10.12z5';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1592,7 +1592,10 @@ h3.sec { font-size: 1rem; }
     var st = teiState(), out = [];
     if (st.kind === 'wait') return out;
     var sl = st.slot, s = st.s, mi = s && s.entries && s.entries[myId];
-    if (st.kind === 'accept') out.push('<li><button class="sess" data-act="tei-go" data-sid="' + sl.sid + '"><span class="row2"><span class="kd">定例句会（デモ） ' + esc(teiLabel(sl)) + '（当季雑詠）</span><span class="pill st-gathering">受付中</span></span><span class="row2 sub"><span>はじまるまで ' + cdSpan(sl.start) + '</span><span>' + teiHumans(s) + '人の句</span><span class="me">' + (mi ? 'ひらく' : '句を出す・見学') + '</span></span></button></li>');
+    if (st.kind === 'accept') { var nh0 = teiHumans(s), far = sl.start - Date.now() > 3 * 3600000;
+      out.push('<li><button class="sess" data-act="tei-go" data-sid="' + sl.sid + '"><span class="row2"><span class="kd">次の定例句会（デモ）　' + esc(teiLabel(sl)) + '</span><span class="pill st-gathering">' + (mi ? '提出ずみ' : '投句 受付中') + '</span></span>' +
+        '<span class="row2 sub"><span>' + (far ? '開始は ' + esc(mdLabel(sl.dn)) + ' ' + sl.h + '時（あと ' + cdSpan(sl.start) + '）' : 'はじまるまで ' + cdSpan(sl.start)) + '</span><span>' + (nh0 ? (mi ? (nh0 === 1 ? 'いまは、あなたの句だけ' : 'あなたをふくめ ' + nh0 + '人') : nh0 + '人が提出ずみ') : 'まだ、だれも出していません') + '</span></span>' +
+        '<span class="row2 sub"><span class="me">' + (mi ? '句を見直す・取り消す ›' : '一句出して、参加する ›') + '</span></span></button></li>'); }
     else if (st.kind === 'live') out.push('<li><button class="sess" data-act="tei-go" data-sid="' + sl.sid + '"><span class="row2"><span class="kd">' + (mi ? 'あなたの句会が、進行中です' : 'いま、定例句会が進行中です') + '</span>' + pill(s.status, s) + '</span><span class="row2 sub"><span>' + esc(teiLabel(sl)) + '（当季雑詠）　' + count(s) + '句</span><span class="me">' + (mi ? 'ひらく' : '見学もどうぞ') + '</span></span></button></li>');
     return out;
   }
@@ -3311,7 +3314,8 @@ h3.sec { font-size: 1rem; }
       var mi = kInvolved(x);
       items.push('<li><button class="sess" data-act="live-k" data-sid="' + esc(x.id) + '"><span class="row2"><span class="kd">' + (mi ? 'あなたの句会が、進行中です' : 'いま、定例句会が進行中です') + '</span>' + pill(x.status, x) + '</span><span class="row2 sub"><span>' + kaidai(x) + '　' + count(x) + '句</span><span class="me">' + (mi ? 'ひらく' : '見学もどうぞ') + '</span></span></button></li>');
     });
-    return items.length ? '<h2 class="sec">いま、句会が開かれています<small>定例句会は、見学もできます</small></h2><ul class="list">' + items.join('') + '</ul>' : '';
+    var live = items.some(function (x) { return !/次の定例句会/.test(x); });
+    return items.length ? '<h2 class="sec">' + (live ? 'いま、句会が開かれています<small>定例句会は、見学もできます</small>' : '次の句会に、一句どうぞ<small>開始の時刻に、このアプリをひらくと、部屋に入れます</small>') + '</h2><ul class="list">' + items.join('') + '</ul>' : '';
   }
   function mb(act, extra, label) { return '<button class="chip fit" data-act="' + act + '"' + extra + '>' + label + '</button>'; }
   function vMenu() {
@@ -3389,7 +3393,7 @@ h3.sec { font-size: 1rem; }
       body = '<div class="actions"><button class="link" data-act="page" data-p="">← もどる</button></div>' + pageView();
     } else {
       var st = streak();
-      body = '<div class="top"><div><h1 class="brand">俳句の裾野</h1><div class="tagline">俳句の筋力トレーニング</div><div class="date">' + esc(fullLabel(n)) + '<span class="ver">' + APP_VER + '</span></div></div>' + '<div class="topr">' + (st > 0 ? '<span class="streak">連続 ' + st + '日</span>' : '') + '<button class="link" data-act="yoko" aria-pressed="' + yoko + '">' + (yoko ? '縦書きで見る' : '横書きで見る') + '</button><button class="link" data-act="tut">チュートリアル</button></div></div>' +
+      body = '<div class="top"><div><h1 class="brand">俳句の裾野</h1><div class="tagline">俳句の筋力トレーニング</div><div class="date">' + esc(fullLabel(n)) + '<span class="ver">' + APP_VER + '</span></div></div>' + '<div class="topr">' + (st > 0 ? '<span class="streak">連続 ' + st + '日</span>' : '') + '<button class="link" data-act="yoko" aria-pressed="' + yoko + '">' + (yoko ? '縦書きで見る' : '横書きで見る') + '</button><button class="link" data-act="tut">俳句はじめての人へ（チュートリアル）</button></div></div>' +
         (window.fbLogout && myId ? '<div class="who-bar"><span>ログイン中：<b>' + esc(haigo.trim() || (window.fbUserEmail || '')) + '</b>' + (haigo.trim() && window.fbUserEmail ? '<small>（' + esc(window.fbUserEmail) + '）</small>' : '') + '</span><button class="btn small" data-act="fblogout">ログアウト</button></div>' : '') +
         vGuest() + vLive() + vStats() + vMemoQ(false) + vBeginner() + vNews() + vMenu() +
         vRooms() + (tab === 'solo' ? vDeck() : '') + (tab === 'diary' ? vDiary() : tab === 'solo' ? vSolo() : tab === 'bot' ? vBotRoom() : tab === 'gohyo' ? vGohyo() : tab === 'flat' ? vFlat() : vTogether()) + vFooter();
