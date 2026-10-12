@@ -188,7 +188,7 @@ body.yoko .tcard .tan { min-height: 0; }
 .tag { font-size: .72rem; font-weight: 700; padding: .05em .6em; border-radius: 99px; background: var(--muted-soft); color: var(--ink-soft); white-space: nowrap; }
 .tag.n { background: var(--warn-soft); color: var(--warn); }
 .tag.k { background: var(--accent-soft); color: var(--accent); }
-.pick { display: flex; gap: 6px; }
+.pick { display: flex; gap: 6px; flex-wrap: wrap; }
 .pick .chip small { display: block; font-size: .68rem; font-weight: 400; color: var(--ink-soft); line-height: 1.3; }
 .pick .chip.on small { color: inherit; opacity: .85; }
 .res { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px 16px; padding-block: 16px; border-top: 1px solid var(--line); }
@@ -741,7 +741,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12z27';
+  var APP_VER = 'v2026.10.12z29';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -2301,7 +2301,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       '<h3>2. 俳筋力トレーニング部屋</h3><p>今日の兼題（お題）から、俳句をつくる練習です。漢字（季語ではない字）を詠み込む、カタカナを詠み込む、テーマで詠む（発想をとばす）の3つが、ひとまわりします。手ごたえ（かんぺき・まあまあ・ふつう・あとで推敲）をつけて「ストッ句」に残し、続けた日数が「連続」で数えられます。はじめての方は「俳筋トレ体験（1分）」からどうぞ。</p>' +
       '<h3>3. ひとりで句会</h3><p>自分と、ボット（2〜4名）で、小さな句会をひらきます。自分の一句を出して、ボットの句と並べ、出す→選ぶ→語らう→作者オープンまでを、3分ほどで。招待も見学もありません。何度でもでき、出した句は「ストッ句」に残り、参加した句会として数えられます。「句会のしかた」で、選評とは、予選とは、も見られます。</p>' +
       '<h3>4. 定例句会（デモ）</h3><p>平日は、夜9時（21時）の「だれでも句会」と、夜11時（23時）の「おかわり句会」と、夜中1時（25時）の「よなよな句会」。土・日・祝日は、あさ10時の「おはよう句会」・13時の「こんにちは句会」・15時の「おやつの句会」です（休日の夜はおやすみ）。お題は「当季雑詠」（いまの季節を自由に）。投句はいつでもでき、定刻でしめきり。定刻になると、自動ではじまります。ひとりのときは、ボット2名が加わります。はじめから終わりまで、だれでも見学できます（ほかの人の句や選評を、本人の了解なしに公開することは禁止です）。披講・点付け（特選1・並選1・予選、約10分）→ 合評（一句ずつ、コメントを入力）→ 得点と作者オープン、と進み、最高点の人に句碑のトロフィーが贈られます。3句で、定刻から約25分。毎回、はじめに進行のチュートリアルが開きます。出した句は「ストッ句」に、参加は「句会アーカイブ」に残ります。</p>' +
-      '<h3>5. 仲間と句会（合言葉で集まる・自由な設定）</h3><p>合言葉か招待リンクで集まる、メンバー限定の句会です（見学はできません）。題はひとり1題（ランダムに引く・候補から選ぶ・当季雑詠や雑詠も可）、またはボットが出します。ふつうは1回の戦につきひとり1句（何句でもにも変えられます）。だれが出して、だれがまだか、パスかが画面でわかり、全員そろうと幹事に「では、すすめてください」の合図が出ます。選の種類（特選1・並選3・予選／秀句1・佳作3・予選／天・地・人・並・予選）と、それぞれの句数・点数は幹事が決められ、途中でも変えられます（変えると全員に「可変タイム」のお知らせ）。進行は幹事のボタンか、タイマーで自動。回数の上限（3〜10回戦）や「何時まで」も決められます。点は回をまたいで通算され、まわし終える（または幹事が句会をとじる）と、通算トップが句会優勝。トロフィーがマイページに飾られます。部屋には、参加者だけの「こそこそ話」もあります。</p>' +
+      '<h3>5. 仲間と句会（合言葉で集まる・自由な設定）</h3><p>合言葉か招待リンクで集まる、メンバー限定の句会です（はじまったあとに来た人は、見学で入って、あとから参加もできます）。題はひとり1題（ランダムに引く・候補から選ぶ・当季雑詠や雑詠も可）、またはボットが出します。ふつうは1回の戦につきひとり1句（何句でもにも変えられます）。だれが出して、だれがまだか、パスかが画面でわかり、全員そろうと幹事に「では、すすめてください」の合図が出ます。選の種類（特選1・並選3・予選／秀句1・佳作3・予選／天・地・人・並・予選）と、それぞれの句数・点数は幹事が決められ、途中でも変えられます（変えると全員に「可変タイム」のお知らせ）。進行は幹事のボタンか、タイマーで自動。回数の上限（3〜10回戦）や「何時まで」も決められます。点は回をまたいで通算され、まわし終える（または幹事が句会をとじる）と、通算トップが句会優勝。トロフィーがマイページに飾られます。部屋には、参加者だけの「こそこそ話」もあります。</p>' +
       '<h3>句会アーカイブ</h3><p>参加した句会（終わったものも）が残り、結果をいつでもひらけます。参加した人だけが見られます。</p>' +
       '<h3>マイページ・ストッ句</h3><p>俳号、お住まい、句歴、X・Instagram のアカウント名を入れておけます。ストッ句（自分の句の記録）は自分だけが見られ、「あとで推敲」の句は、あとから推敲できます。</p>' +
       '<h3>句会の評のヒント</h3><p>選評を書くときの見どころ（視点・語順・切れ字・助詞・季語・取り合わせ・オリジナリティ・音数・ルビ）を、例つきでまとめてあります。</p>' +
@@ -2555,8 +2555,11 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function gcur() { for (var i = 0; i < gRooms.length; i++) if (gRooms[i].id === gCur) return gRooms[i]; return gExtra[gCur] || null; }
   function nest(path, v) { var o = {}, c = o; for (var i = 0; i < path.length - 1; i++) { c[path[i]] = {}; c = c[path[i]]; } c[path[path.length - 1]] = v; return o; }
   function gWrite(id, patch) { queue = queue.then(function () { return db.doc('gohyo/' + id).update(patch); }).catch(failMsg); return queue; }
-  function gMembers(r) { return Object.keys(r.members || {}); }
+  /* 見学（途中参加）：はじまったあとに来た人は「見学」で入れる。見られる・こそこそ話はできる。題・句・選・選評は、次の回から */
+  function gMembers(r) { return Object.keys(r.members || {}).filter(function (u) { return !(r.members[u] && r.members[u].watch); }); }
   function gIsMember(r) { return !!(r.members && r.members[myId]); }
+  function gIsWatcher(r) { return !!(r.members && r.members[myId] && r.members[myId].watch); }
+  function gActive(r) { return gIsMember(r) && !gIsWatcher(r); }
   /* 幹事は何人にでもできる。r.hosts（{uid:true}）があればそれ、なければ、ひらいた人だけ */
   function gHostSet(r) { return r && r.hosts ? Object.keys(r.hosts).filter(function (u) { return r.hosts[u]; }) : (r && r.host ? [r.host] : []); }
   function gIsHostUid(r, u) { return !!u && gHostSet(r).indexOf(u) >= 0; }
@@ -2690,7 +2693,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   }
   function gNextRound(r) {
     var st = r.st || {}, ref = db.collection('gohyo').doc(), mem = {};
-    gMembers(r).forEach(function (u) { mem[u] = { haigo: gHaigo(r, u), at: Date.now() }; });
+    Object.keys(r.members || {}).forEach(function (u) { mem[u] = { haigo: gHaigo(r, u), at: Date.now() }; });
     var hp0 = {}; gHostSet(r).forEach(function (u) { hp0[u] = true; });
     var data = { name: r.name, host: r.host, hosts: hp0, createdAt: Date.now(), round: (r.round || 1) + 1, prev: r.id, st: st, status: 'open', phaseAt: Date.now(), daiIdx: 0, members: mem, dai: {}, entries: {}, votes: {}, cmts: {} };
     ref.set(data).then(function () { gWrite(r.id, { next: ref.id }); gCur = ref.id; render(); toast((data.round) + '回目をひらきました'); }).catch(function () { toast('ひらけませんでした'); });
@@ -2759,7 +2762,10 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
         '<div class="howto"><b>仲間と句会です</b><span>ひらいた人のリンクから、メンバーだけが参加します。参加すると、この部屋の題・句・選評が見られます。はじまったあとは、あとから入ることも、見学することもできません。</span></div>' +
         '<div class="panel"><p>幹事：' + esc(hs.join('・')) + '　／　いま' + gMembers(r).length + '人が集まっています。</p><div class="actions"><button class="btn primary" data-act="g-join">この句会に参加する</button></div></div>' + maner('s');
     }
-    return gBack() + '<p class="lead">この句会は、仲間と句会です。参加している人だけが見られます。見学はできません。</p>';
+    if (r.status === 'done') return gBack() + '<p class="lead">この句会は、終わっています。参加していた人だけが見られます。</p>';
+    return gBack() + '<h2 class="sec">' + esc(r.name) + '<small>' + (r.round || 1) + '回目 ・ 進行中</small></h2>' +
+      '<div class="howto"><b>はじまったあとに来ました</b><span>この回は「見学」で入れます。句や選評は見られ、こそこそ話もできます。入ったあと「見学をやめて、参加する」を押すと、この回から加われます。</span></div>' +
+      '<div class="panel"><p>いま' + gMembers(r).length + '人が参加しています。</p><div class="actions"><button class="btn primary" data-act="g-watch">見学で入る（あとから参加もできます）</button></div></div>' + maner('s');
   }
   function vGohyo() {
     if (gCur) {
@@ -2768,7 +2774,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       if (!gCanOpen(r) || (r.hidden && !isAdmin)) return gGate(r);
       return vGRoom(r);
     }
-    var h = '<h2 class="sec">仲間と句会<small>合言葉で集まる・招待制・見学なし</small></h2>';
+    var h = '<h2 class="sec">仲間と句会<small>合言葉で集まる・招待制</small></h2>';
     h += '<div class="howto"><b>メンバー限定の、袋回し式の句会です</b><span>合言葉か招待リンクで仲間が集まり、題を出し合って投句。全句をひらいて選と合評をし、作者をオープン。点はくりこして、まわし終えたら、通算トップが句会優勝です。題の出し方、ひとり1句か何句でもか、進行、回数、選の種類と点は、ルームごとに決められます。</span><span class="chips2"><i>合言葉で集まる</i><i>見学なし</i><i>幹事が進行</i><i>点はくりこし</i><i>こそこそ話つき</i></span></div>';
     h += '<div class="bigsel"><button class="bigbtn' + (gJoin === 'enter' ? ' on' : '') + '" data-act="g-mode" data-v="enter"><b>部屋に入る</b><small>合言葉をお持ちの方</small></button><button class="bigbtn' + (gJoin === 'make' ? ' on' : '') + '" data-act="g-mode" data-v="make"><b>部屋をつくる</b><small>あたらしく設える</small></button></div>';
     if (gJoin === 'enter') {
@@ -2779,7 +2785,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
         gSettings(gSet, true) + '<div class="actions"><button class="btn primary" data-act="g-create">この設定でひらく</button></div>';
     }
     h += '<div class="actions"><button class="btn" data-act="tutn">まわしかた（チュートリアル）</button></div>';
-    h += '<p class="note">見え方：この一覧に出るのは、参加している句会だけです。見学はできません。合言葉か、ひらいた人のリンクから、集まり中のあいだに参加します。終わった句会は、この一覧から消えて、「句会アーカイブ」に残ります。幹事は、ルームの中から句会を消せます。</p>' + maner('s');
+    h += '<p class="note">見え方：この一覧に出るのは、参加している句会だけです。合言葉か、ひらいた人のリンクから参加します。はじまったあとに来た人は、見学で入って、「見学をやめて、参加する」で加われます。終わった句会は、この一覧から消えて、「句会アーカイブ」に残ります。幹事は、ルームの中から句会を消せます。</p>' + maner('s');
     var list = gRooms.slice().sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); }).filter(function (x) { return !x.next && gCanSee(x); });
     if (!list.length) h += '<div class="empty"><p>参加している句会は、ありません。仲間に合言葉かリンクをもらうか、最初のひとつをひらいてみましょう。</p></div>';
     else h += '<ul class="list">' + list.map(function (x) {
@@ -2802,13 +2808,14 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (!gMine(r)) h += '<p class="note">運営者として見ています。</p>';
     h += gTimerBar(r);
     h += gWhoBar(r);
+    if (gIsWatcher(r) && r.status !== 'done') h += '<div class="panel joinbox"><b>👀 いまは見学中です</b><p class="note">' + (r.status === 'ku' || r.status === 'open' ? 'いまから参加すると、この回の句を出せます。' : r.status === 'sel' ? 'いまから参加すると、この回の選に加われます（句は、次の回から）。' : 'いまから参加すると、この回の選評に加われます（句は、次の回から）。') + '</p><div class="actions"><button class="btn primary" data-act="g-unwatch">見学をやめて、参加する</button></div></div>';
     if (r.status === 'sel' || r.status === 'go') {
       var gy = false; try { gy = !localStorage.getItem('ikku-yaku-g'); } catch (_) {}
       if (gYakuShow || (gy && r.status === 'go')) h += yakuCard('g');
       else h += '<p class="note"><button class="link" data-act="g-yaku-open">みっつのおやくそく（評のまえに）</button></p>';
     }
     if (r.status === 'open') h += vGOpen(r, st, mem, host);
-    else if (r.status === 'ku') h += vGKu(r, st, mem, host);
+    else if (r.status === 'ku') h += vGKu(r, st, mem && !gIsWatcher(r), host);
     else if (r.status === 'sel') h += vGSel(r, st, mem, host);
     else h += vGGo(r, st, mem, host, r.status === 'done');
     h += vGChat(r);
@@ -2862,7 +2869,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var h = hostSay((one ? 'この戦は、ひとり1句です。' : '何句でもどうぞ。') + (turn ? ('題は1つずつ回ります。いまの題は「' + esc((dais[idx] || {}).t || '') + '」（' + (idx + 1) + '/' + dais.length + '）。' + (st.adv === 'timer' ? '時間がくると次の題へ。' : '幹事が「次の題へ」で進めます。'))
       : ('題は' + dais.length + '題。どの題で詠んでもかまいません。' + (st.adv === 'timer' ? '時間がくると、全句をひらきます。' : '全員が出すかパスすると、幹事が全句をひらきます。'))), gEnts(r).length + '句が集まっています（作者は伏せられています）。');
     h += '<div class="panel"><b>題</b><div class="chips2">' + dais.map(function (d, i) { return '<i' + (turn && i === idx ? ' class="on"' : '') + '>' + esc(d.t) + (d.hint ? '（ヒント：' + esc(d.hint) + '）' : '') + '</i>'; }).join('') + '</div></div>';
-    if (!mem) return h + '<p class="note">このルームには参加していないので、投句はできません。</p>';
+    if (!mem) return h + '<p class="note">' + (gIsWatcher(r) ? '👀 見学中です。上の「見学をやめて、参加する」で、この回から句を出せます。' : 'このルームには参加していないので、投句はできません。') + '</p>';
     if (!gDraft.dai || !show.some(function (d) { return d.id === gDraft.dai; })) gDraft.dai = show.length ? show[0].id : '';
     if (!(one && mine.length)) {
       h += '<div class="panel"><div class="field"><label for="g-sdai">題をえらぶ</label><select id="g-sdai" data-f="g-sdai">' + show.map(function (d) { return '<option value="' + esc(d.id) + '"' + (gDraft.dai === d.id ? ' selected' : '') + '>' + esc(d.t) + '</option>'; }).join('') + '</select></div>';
@@ -2886,13 +2893,14 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     h += hikoBar() + '<div class="board">' + list.map(function (e, i) {
       var own = e.uid === myId, d = (r.dai || {})[e.dai], btns = '';
       var vk = ''; kinds.forEach(function (k) { if ((my[k.k] || []).indexOf(e.id) >= 0) vk = k; });
-      if (mem && !own) btns = '<div class="pick">' + kinds.map(function (k) {
+      if (mem && !gIsWatcher(r) && !own) btns = '<div class="pick">' + kinds.map(function (k) {
         var on = (my[k.k] || []).indexOf(e.id) >= 0;
         return '<button class="chip ' + (k.pts >= 2 ? 'toku' : k.pts === 1 ? 'nami' : 'yo') + (on ? ' on' : '') + '" data-act="g-vote" data-k="' + k.k + '" data-eid="' + esc(e.id) + '" aria-pressed="' + on + '"' + (fin ? ' disabled' : '') + '>' + (on ? '✓ ' : '') + esc(k.name) + '</button>';
       }).join('') + '</div>';
       return '<article class="slip' + (own ? ' own' : '') + (vk ? ' v-' + (vk.pts >= 2 ? 'toku' : vk.pts === 1 ? 'nami' : 'yo') : '') + '"><div class="no"><span class="k">' + gNo(i) + '</span><span>' + esc(d ? d.t : '') + (own ? ' 🪶' : '') + '</span></div><div class="tan">' + ku(e) + '</div>' + btns + '</article>';
     }).join('') + '</div>';
-    if (mem) {
+    if (mem && gIsWatcher(r)) h += '<p class="note">👀 見学中です。上の「見学をやめて、参加する」で、この回の選に加われます。</p>';
+    if (mem && !gIsWatcher(r)) {
       h += '<div class="sbar"><div class="srow">' + kinds.map(function (k) { return '<span class="cnt2' + (k.max && cnt[k.k] >= k.max ? ' full' : '') + '">' + esc(k.name) + ' ' + cnt[k.k] + (k.max ? '/' + k.max : '') + '</span>'; }).join('') +
         '<button class="btn primary" data-act="g-fin"' + (fin ? ' disabled' : '') + '>' + (fin ? '選び終えました' : '選を終了') + '</button></div><p class="note">' + (fin ? '幹事が選をひらくのを待っています。' : '選び終えたら「選を終了」。') + '</p></div>';
     }
@@ -2947,7 +2955,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       var key = gAikKey(gAik); if (!key) { toast('合言葉を入れてください'); return; }
       var found = gAikFind(key);
       if (!found) { gJoin = 'make'; gNew = true; gAikNew = key; render(); toast('その合言葉の部屋は、まだありません。この合言葉で、部屋をつくれます'); return; }
-      if (found.status !== 'open' && !gMine(found)) { toast('この合言葉の句会は、もうはじまっています（途中からは入れません）'); return; }
+      if (found.status === 'done' && !gMine(found)) { toast('この合言葉の句会は、もう終わっています'); return; }
       gCur = found.id; gJoin = ''; render(); gTutOnce(); try { window.scrollTo(0, 0); } catch (_) {}
     }
     else if (act === 'g-create') gCreate();
@@ -2981,7 +2989,13 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     }
     else if (act === 'g-copy') { if (!r) return; var lk = gInvite(r); try { navigator.clipboard.writeText(lk).then(function () { markFirst('f_invite'); toast('リンクをコピーしました'); }, function () { toast('リンクを長押しでコピーしてください'); }); } catch (e) { toast('リンクを長押しでコピーしてください'); } }
     else if (act === 'g-join') { if (!r || !ready() || r.hidden || r.status !== 'open') return; if (!haigo.trim()) { toast('マイページで俳号を決めてから、参加してください'); return; } gWrite(r.id, nest(['members', myId], { haigo: haigo.trim(), at: Date.now() })).then(function () { gTutOnce(); }); }
-    else if (act === 'g-dai-save') { if (!r || !ready() || !gIsMember(r)) return; var dt = String(gDaiText || '').trim(); if (!dt) { toast('題を入れてください'); return; } gWrite(r.id, nest(['dai', myId], { t: dt.slice(0, 12), by: myId, at: ((r.dai || {})[myId] || {}).at || Date.now() })).then(function () { gDaiText = ''; toast('題を出しました'); }); }
+    else if (act === 'g-unwatch') {
+      if (!r || !ready() || !gIsWatcher(r) || r.status === 'done') return;
+      if (!haigo.trim()) { toast('マイページで俳号を決めてから、参加してください'); return; }
+      gWrite(r.id, nest(['members', myId], { haigo: haigo.trim(), at: Date.now(), watch: false })).then(function () { toast('参加しました。' + (r.status === 'ku' || r.status === 'open' ? 'この回の句を出せます' : r.status === 'sel' ? 'この回の選に加われます' : 'この回の選評に加われます')); });
+    }
+    else if (act === 'g-watch') { if (!r || !ready() || r.hidden || r.status === 'open' || r.status === 'done') return; if (!haigo.trim()) { toast('マイページで俳号を決めてから、入ってください'); return; } gWrite(r.id, nest(['members', myId], { haigo: haigo.trim(), at: Date.now(), watch: true })).then(function () { toast('見学で入りました。「見学をやめて、参加する」で、いつでも加われます'); }); }
+    else if (act === 'g-dai-save') { if (!r || !ready() || !gActive(r)) return; var dt = String(gDaiText || '').trim(); if (!dt) { toast('題を入れてください'); return; } gWrite(r.id, nest(['dai', myId], { t: dt.slice(0, 12), by: myId, at: ((r.dai || {})[myId] || {}).at || Date.now() })).then(function () { gDaiText = ''; toast('題を出しました'); }); }
     else if (act === 'g-dai-rand') { gDaiText = gDaiRand(); render(); }
     else if (act === 'g-dai-cands') { gDaiCand = gDaiMakeCands(); render(); }
     else if (act === 'g-dai-pick') { gDaiText = t.dataset.v || ''; render(); }
@@ -2997,7 +3011,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       gWrite(r.id, { hosts: hp2 }).then(function () { toast(hd === myId ? '幹事をおりました' : gHaigo(r, hd) + 'さんを幹事からはずしました'); });
     }
     else if (act === 'g-post') {
-      if (!r || !ready() || !gIsMember(r) || r.status !== 'ku') return;
+      if (!r || !ready() || !gActive(r) || r.status !== 'ku') return;
       var a = kt(gDraft.a, 'a'), b = kt(gDraft.b, 'b'), c = kt(gDraft.c, 'c');
       if (!(a || b || c)) { toast('句を入れてください'); return; }
       if (((r.st || {}).kuPer || 'free') === 'one' && gEnts(r).some(function (e) { return e.uid === myId; })) { toast('この戦は、ひとり1句です。出しなおすときは、いまの句を「消す」でけしてから'); return; }
@@ -3006,10 +3020,10 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       if (r.pass && r.pass[myId]) patch.pass = {}, patch.pass[myId] = null;
       gWrite(r.id, patch).then(function () { markFirst('f_join'); gDraft.a = gDraft.b = gDraft.c = ''; toast('出しました'); render(); });
     }
-    else if (act === 'g-pass') { if (!r || !ready() || !gIsMember(r) || r.status !== 'ku') return; var pv0 = !!(r.pass && r.pass[myId]); gWrite(r.id, nest(['pass', myId], pv0 ? null : true)).then(function () { toast(pv0 ? 'パスをとりけしました' : 'この戦は、パスにしました'); }); }
+    else if (act === 'g-pass') { if (!r || !ready() || !gActive(r) || r.status !== 'ku') return; var pv0 = !!(r.pass && r.pass[myId]); gWrite(r.id, nest(['pass', myId], pv0 ? null : true)).then(function () { toast(pv0 ? 'パスをとりけしました' : 'この戦は、パスにしました'); }); }
     else if (act === 'g-del') { if (!r || r.status !== 'ku') return; gWrite(r.id, nest(['entries', t.dataset.eid], null)); }
     else if (act === 'g-vote') {
-      if (!r || !ready() || !gIsMember(r) || r.status !== 'sel') return;
+      if (!r || !ready() || !gActive(r) || r.status !== 'sel') return;
       var my = JSON.parse(JSON.stringify((r.votes || {})[myId] || {})); if (my.fin) return;
       markFirst('f_vote');
       var kk = t.dataset.k, eid2 = t.dataset.eid, kinds = gKinds(r), kd = kinds.filter(function (x) { return x.k === kk; })[0];
@@ -3019,10 +3033,10 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       if (had.indexOf(eid2) < 0) { if (kd.max && had.length >= kd.max) { toast(kd.name + 'は' + kd.max + '句までです'); return; } ch[kk] = had.concat([eid2]); }
       gWrite(r.id, nest(['votes', myId], ch));
     }
-    else if (act === 'g-fin') { if (!r || !gIsMember(r)) return; gWrite(r.id, nest(['votes', myId, 'fin'], true)); }
+    else if (act === 'g-fin') { if (!r || !gActive(r)) return; gWrite(r.id, nest(['votes', myId, 'fin'], true)); }
     else if (act === 'g-tag') { var te0 = t.dataset.eid, tv0 = t.dataset.v, tl0 = gCmTag[te0] || (gCmTag[te0] = []), ti0 = tl0.indexOf(tv0); if (ti0 >= 0) tl0.splice(ti0, 1); else tl0.push(tv0); render(); }
     else if (act === 'g-cm') {
-      if (!r || !ready() || !gIsMember(r)) return; var e3 = t.dataset.eid, tx = String(gCm[e3] || '').trim(), tgs = (gCmTag[e3] || []).slice(0, 6);
+      if (!r || !ready() || !gActive(r)) return; var e3 = t.dataset.eid, tx = String(gCm[e3] || '').trim(), tgs = (gCmTag[e3] || []).slice(0, 6);
       if (!tx && !tgs.length) { toast('ボタンをえらぶか、ひとことを入れてください'); return; }
       gCm[e3] = ''; gCmTag[e3] = []; markFirst('f_cm'); gWrite(r.id, nest(['cmts', 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5)], { eid: e3, uid: myId, text: tx.slice(0, 140), tags: tgs, at: Date.now() }));
     }
