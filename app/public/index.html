@@ -552,6 +552,15 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
 .fold.yk{border-color:var(--line);color:inherit;font-size:1.2rem}
 .tmr-ku{font-family:var(--serif);font-size:1rem;padding:6px 2px 0;color:#444}
 .stagefold .res.stage .tan,.stagefold .res.stage .meta,.stagefold .stagebadge{display:none}
+
+.avi{width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;display:inline-grid;place-items:center;flex:none}
+.avi.avt{background:var(--accent-soft);color:var(--accent);font-family:var(--serif);font-weight:700;font-size:.9rem}
+.avi.big{width:64px;height:64px;font-size:1.6rem}
+.avrow{align-items:center;gap:12px}
+.setrow{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.setrow .row{flex:none;flex-wrap:nowrap}
+.note.right{text-align:right}
+.bio{display:block;margin-top:2px}
 </style>
 </head>
 <body>
@@ -732,7 +741,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12z22';
+  var APP_VER = 'v2026.10.12z23';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1792,6 +1801,52 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     { lb: '❓ 作者に質問', ch: ['どうしてこの季語に？', 'どうしてこの語順に？', 'この場面はどこで？', 'いちばん見せたかったのは？', 'この切れは、ねらい？', 'この字余りは、ねらい？', '「わたし」は、どこにいる？', 'この一語、別の候補はあった？', '実景？ それとも想像？', 'タイトル（前書き）をつけるなら？'] }
   ];
   var cmReply = {}, cmEdit = {}, rxOpen = {}, typedAt = {}, qOpen = {}, qMore = {}, askSel = {}, askTone = {}, askOpen = {}, stageFold = false;
+  /* プロフィール（アイコン・ひとこと）：members/{uid} に置く。アイコンは小さな画像（base64）で、ほかの参加者にも見える */
+  var memMap = {}, avDraft = null, bioDraft = null;
+  function memOf(uid) { return memMap[uid] || {}; }
+  function avOf(uid, name) {
+    var m = memOf(uid), ch = String(name || '?').replace(/（.*$/, '').charAt(0) || '?';
+    if (m.av) return '<img class="avi" src="' + esc(m.av) + '" alt="">';
+    return '<span class="avi avt">' + esc(ch) + '</span>';
+  }
+  function avResize(file, cb) {
+    try {
+      var rd = new FileReader();
+      rd.onload = function () {
+        var im = new Image();
+        im.onload = function () {
+          var S = 96, c = document.createElement('canvas'); c.width = S; c.height = S;
+          var x = c.getContext('2d'), w = im.width, h = im.height, m = Math.min(w, h);
+          x.drawImage(im, (w - m) / 2, (h - m) / 2, m, m, 0, 0, S, S);
+          var q = 0.8, out = c.toDataURL('image/jpeg', q);
+          while (out.length > 9000 && q > 0.3) { q -= 0.1; out = c.toDataURL('image/jpeg', q); }
+          cb(out);
+        };
+        im.onerror = function () { cb(null); };
+        im.src = rd.result;
+      };
+      rd.readAsDataURL(file);
+    } catch (_) { cb(null); }
+  }
+  function profSave2() {
+    if (!db || !myId) { toast('ログインすると保存できます'); return; }
+    var o = { haigo: haigo.trim(), bio: String(bioDraft == null ? (memOf(myId).bio || '') : bioDraft).slice(0, 200), at2: Date.now() };
+    if (avDraft) o.av = avDraft; if (avDraft === '') o.av = '';
+    db.collection('members').doc(myId).set(o, { merge: true }).then(function () { avDraft = null; bioDraft = null; toast('プロフィールを保存しました'); render(); }).catch(function () { toast('保存できませんでした'); });
+  }
+  function vProfile() {
+    var m = memOf(myId), av = avDraft != null ? avDraft : (m.av || ''), bio = bioDraft != null ? bioDraft : (m.bio || '');
+    var h = '<div class="panel"><b>プロフィールを編集</b><p class="note">俳号を変えると、これからの句会での表示名が変わります。アイコンとプロフィール文は、ほかの参加者にも見えます（作者がオープンになったあと）。</p>';
+    h += '<div class="field"><label>アイコン</label><div class="row avrow">' + (av ? '<img class="avi big" src="' + esc(av) + '" alt="">' : '<span class="avi avt big">' + esc(String(haigo || '?').charAt(0)) + '</span>') + '<label class="btn small" for="p-avfile">画像を選ぶ</label><input type="file" id="p-avfile" accept="image/*" data-f="p-avfile" hidden>' + (av ? '<button class="link" data-act="av-clear">消す</button>' : '') + '</div><p class="note">写真は、小さく切りとって保存します（正方形・96px）。アイコンは、ほかの参加者にも表示されます。</p></div>';
+    h += '<div class="field"><label for="p-bio">プロフィール文</label><textarea id="p-bio" data-f="p-bio" maxlength="200" rows="3" placeholder="自己紹介や好きな句など（任意）">' + esc(bio) + '</textarea><p class="note right">' + bio.length + ' / 200</p></div>';
+    h += '<div class="actions"><button class="btn primary" data-act="prof-save">保存する</button></div></div>';
+    /* 設定 */
+    h += '<div class="panel"><b>設定</b>';
+    h += '<div class="setrow"><div><b>アーカイブ表示</b><p class="note">自分の句と選評を、終わった句会のアーカイブで、ほかの参加者に見せるかどうか。これからの表示に適用します。</p></div><div class="row"><button class="chip fit' + (!m.arcHide ? ' on' : '') + '" data-act="set-arc" data-v="0">' + (!m.arcHide ? '✓ ' : '') + '表示（おすすめ）</button><button class="chip fit' + (m.arcHide ? ' on' : '') + '" data-act="set-arc" data-v="1">' + (m.arcHide ? '✓ ' : '') + '非表示</button></div></div>';
+    h += '<div class="setrow"><div><b>開始リマインド</b><p class="note">一句を出した句会の、はじまる15分前に、スマホの通知でお知らせします。' + (pushSupported() ? '' : '（この端末では、ホーム画面に追加すると使えます）') + '</p></div><div class="row"><button class="chip fit' + (pushOn ? ' on' : '') + '" data-act="pushtog">' + (pushOn ? '✓ オン' : 'オン') + '</button><button class="chip fit' + (!pushOn ? ' on' : '') + '" data-act="pushtog">' + (!pushOn ? '✓ オフ' : 'オフ') + '</button></div></div>';
+    h += '</div>';
+    return h;
+  }
   /* 自分のコメントの色：既定は赤。マイページでえらべる */
   var MINE_COLORS = [['red', '#c65a3a', '赤（既定）'], ['green', '#1f7a63', '緑'], ['blue', '#3b6ea8', '青'], ['purple', '#7b5ea7', '紫'], ['gold', '#b8902e', '金'], ['light', '#fdf1ec', 'うすい']];
   function mineColor() { var v = 'red'; try { v = localStorage.getItem('ikku-mine') || 'red'; } catch (_) {} return v; }
@@ -1867,7 +1922,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       if (c.anon) who = opened ? '✎ 作者 ' + esc(nameOf(s, c.uid)) : '✎ 作者（名前は結果発表まで伏せます）' + (own ? '＝あなた' : '');
       var pc = isRe && c.re ? (s.comments || {})[c.re] : null, quote = '';
       if (pc) { var pwho = opened ? nameOf(s, pc.uid) : (pc.uid === myId ? 'あなた' : (PERSONAS_[pc.uid] ? personaName(s, pc.uid) : '選者')); quote = '<div class="cmquote">↳ ' + esc(pwho) + ': ' + esc(String(pc.text || '').slice(0, 22)) + (String(pc.text || '').length > 22 ? '…' : '') + '</div>'; }
-      return '<div class="cmi' + (isRe ? ' reply' : '') + (isBot ? ' chara' : '') + (own ? ' own' : '') + (c.anon ? ' anon' : '') + '"><b>' + who + '</b>' + (isBot ? '<span class="cmtag bot">ボットのコメント例</span>' : '') + (c.jiku ? '<span class="cmtag jiku">🪶 自句自解</span>' : '') + quote +
+      return '<div class="cmi' + (isRe ? ' reply' : '') + (isBot ? ' chara' : '') + (own ? ' own' : '') + (c.anon ? ' anon' : '') + '">' + (opened && !isBot && !c.anon ? avOf(c.uid, nameOf(s, c.uid)) : '') + '<b>' + who + '</b>' + (isBot ? '<span class="cmtag bot">ボットのコメント例</span>' : '') + (c.jiku ? '<span class="cmtag jiku">🪶 自句自解</span>' : '') + quote +
         (c.tone ? '<span class="cmtag' + (c.tone === 'きびしく' ? ' kb' : '') + '">' + esc(c.tone) + '</span>' : '') +
         (c.part || []).map(function (q) { return '<span class="cmtag">' + esc(q) + '</span>'; }).join('') + esc(c.text) + (c.ed ? ' <small class="note">（編集済み）</small>' : '') +
         '<div class="cmact">' + chips +
@@ -1896,7 +1951,9 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     function art(e, isCur, num) {
       var t = T[e.id];
       var mineC = cms.filter(function (c) { return c.eid === e.id; });
-      var who = opened ? '<span class="haigo">' + esc(e.haigo) + '</span>' : '<span class="note">作者は？</span>';
+      var hidden = s.status === 'done' && e.id !== myId && !!(memOf(e.id).arcHide);
+      if (hidden) return '<article class="res"><div class="tan note">（作者の希望により、アーカイブでは非表示です）</div></article>';
+      var who = opened ? avOf(e.id, e.haigo) + '<span class="haigo">' + esc(e.haigo) + '</span>' + (memOf(e.id).bio ? '<small class="note bio">' + esc(String(memOf(e.id).bio).slice(0, 60)) + '</small>' : '') : '<span class="note">作者は？</span>';
       var sel = opened
         ? '<span><b>特選</b> ' + (t.toku.length ? t.toku.map(function (u) { return esc(nameOf(s, u)); }).join('、') : '—') + '</span><span><b>並選</b> ' + (t.nami.length ? t.nami.map(function (u) { return esc(nameOf(s, u)); }).join('、') : '—') + '</span><span><b>予選</b> ' + (t.yo.length ? t.yo.map(function (u) { return esc(nameOf(s, u)); }).join('、') : '—') + '</span>'
         : '<span><b>特選</b> ' + t.toku.length + '票</span><span><b>並選</b> ' + t.nami.length + '票</span><span><b>予選</b> ' + t.yo.length + '票</span>';
@@ -2185,6 +2242,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var thisY = new Date().getFullYear(), h = '<h2 class="sec">マイページ<small>自分だけが見られます</small></h2>';
     h += '<div class="howto"><b>ストッ句 ' + mine.length + '句' + (streak() > 0 ? '・連続 ' + streak() + '日' : '') + (kureki() ? '・句歴 ' + esc(kureki()) : '') + '</b><span>ここに入れたことは、ほかの人には見えません。句会で名乗るのは、俳号だけです。</span></div>';
     h += vMyStats() + vHistLink() + '<p class="note maner">' + MANER.p + ' <button class="link" data-act="page" data-p="manner">句のあつかいとマナー</button></p>';
+    h += vProfile();
     h += '<div class="panel"><div class="field"><label for="p-haigo">俳号（いつでも変えられます）</label><input type="text" id="p-haigo" data-f="haigo" maxlength="20" value="' + esc(haigo) + '" placeholder="句会で名乗る名前"></div>';
     h += vMineColor();
     h += '<div class="field"><label for="p-pref">お住まい（都道府県・海外）</label><select id="p-pref" data-f="p-pref"><option value="">えらばない</option>' + PREFS.map(function (x) { return '<option' + (prof.pref === x ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select></div>';
@@ -4257,6 +4315,9 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       askSel[ae] = []; askOpen[ae] = false;
       write(sa.id, { comments: ao }).then(function () { toast('作者として、出しました（名前は伏せたまま）'); });
     }
+    else if (act === 'prof-save') profSave2();
+    else if (act === 'av-clear') { avDraft = ''; render(); }
+    else if (act === 'set-arc') { if (!db || !myId) { toast('ログインすると使えます'); return; } var ah = t.dataset.v === '1'; db.collection('members').doc(myId).set({ arcHide: ah }, { merge: true }).then(function () { toast(ah ? 'アーカイブで、非表示にします' : 'アーカイブで、表示します'); }).catch(function () {}); }
     else if (act === 'mine-color') { try { localStorage.setItem('ikku-mine', t.dataset.v); } catch (_) {} applyMine(); toast('色をかえました'); render(); }
     else if (act === 'stage-fold') { stageFold = !stageFold; try { localStorage.setItem('ikku-fold', stageFold ? '1' : '0'); } catch (_) {} render(); }
     else if (act === 'cm-more') { qMore[t.dataset.eid] = !qMore[t.dataset.eid]; qOpen[t.dataset.eid] = true; render(); }
@@ -4307,6 +4368,8 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function onInput(e) {
     var t = e.target, f = t.dataset && t.dataset.f; if (!f) return;
     if (f.indexOf('g-') === 0) { gInput(f, t); return; }
+    if (f === 'p-avfile') { var fl = t.files && t.files[0]; if (!fl) return; avResize(fl, function (out) { if (!out) { toast('画像を読めませんでした'); return; } avDraft = out; render(); }); return; }
+    if (f === 'p-bio') { bioDraft = t.value; var pc = document.querySelector('.right'); if (pc) pc.textContent = t.value.length + ' / 200'; return; }
     if (f === 'haigo') {
       haigo = t.value; try { localStorage.setItem('ikku-haigo', haigo); } catch (_) {}
       if (e.type === 'change') saveProf();
@@ -4361,6 +4424,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     try {
       var mc = db.collection('members');
       if (mc && mc.onSnapshot) unsubs.push(mc.onSnapshot(function (s) {
+        try { memMap = {}; s.docs.forEach(function (d) { memMap[d.id] = d.data() || {}; }); } catch (_) {}
         var t0 = todayStartJST(); stat.members = s.docs.length; stat.joined = s.docs.filter(function (d) { var o = d.data() || {}; return (o.at || 0) >= t0; }).length; if (!page) render();
       }, function () {}));
       var g = db.doc('stats/global'); if (g && g.onSnapshot) unsubs.push(g.onSnapshot(function (d) { var o = (d && d.data && d.data()) || {}; stat.ku = o.ku || 0; if (!page) render(); }, function () {}));
