@@ -709,7 +709,7 @@ h3.sec { font-size: 1rem; }
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12z17';
+  var APP_VER = 'v2026.10.12z20';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1763,14 +1763,14 @@ h3.sec { font-size: 1rem; }
   var K_QCM = ['いいな', '景が見えます', '季語が効いています', '声に出して読みたい', 'むすびが好きです', '発想がすてき'];
   /* コメントのきっかけ：感想 → ポイント（いい・気になる） → 質問。ひとつ押せば、そのまま送れる。文に足してから送ってもいい */
   var K_QGROUPS = [
-    { lb: '💬 感想', ch: ['ここがすき', 'ここがおもしろい', 'いいな', '景が見えます', '声に出して読みたい', 'しみじみします'] },
-    { lb: '👍 いいところ', ch: ['語順がいい', '季語がたっている', '季語と中身の取り合わせがいい', 'むすびが決まっている', '切れが効いている', '音の調べがいい'] },
-    { lb: '🔍 気になる', ch: ['語順を入れかえたら？', '季語がすこし弱いかも', '季語が二つあるかも', '説明っぽいところがあるかも', '字余りが気になる', '上五を切ったら？'] },
-    { lb: '❓ 作者に質問', ch: ['どうしてこの季語に？', 'どうしてこの語順に？', 'この場面はどこで？', 'いちばん見せたかったのは？'] }
+    { lb: '💬 感想', ch: ['ここがすき', 'ここがおもしろい', 'いいな', '景が見えます', '声に出して読みたい', 'しみじみします', '音が聞こえます', 'においがします', '自分の暮らしと重なります', 'はっとしました', 'くすっとしました', '余韻がのこります'] },
+    { lb: '👍 いいところ', ch: ['語順がいい', '季語がたっている', '季語と中身の取り合わせがいい', 'つかずはなれずの距離がいい', 'むすびが決まっている', '切れが効いている', '音の調べがいい', '省略が効いている', '具体的なものが見える', '動詞がひとつで、すっきり', '固有名詞が効いている', '数字が効いている', 'オノマトペが生きている', '比喩が新しい', 'カメラの位置がいい', '一字空けが効いている', '字余りがねらいどおり', '口語がいきいきしている'] },
+    { lb: '🔍 気になる', ch: ['語順を入れかえたら？', '季語がすこし弱いかも', '季語が動くかも（別の季語でも成り立つ？）', '季語が二つあるかも', '季語と中身が近すぎるかも', '季語と中身が離れすぎかも', '説明っぽいところがあるかも', '気持ちのことばを、ものに言わせたら？', '動詞が多いかも', '三段切れになっているかも', '字余りが気になる', '上五を切ったら？', '下五を体言止めにしたら？', '助詞をひとつ変えたら？', 'ありがちな取り合わせかも（類想）', '比喩が少し遠いかも', '読みにくい字があるかも', '音読するとつかえるところが', '一句に材料が多いかも', '視点が途中で変わっているかも'] },
+    { lb: '❓ 作者に質問', ch: ['どうしてこの季語に？', 'どうしてこの語順に？', 'この場面はどこで？', 'いちばん見せたかったのは？', 'この切れは、ねらい？', 'この字余りは、ねらい？', '「わたし」は、どこにいる？', 'この一語、別の候補はあった？', '実景？ それとも想像？', 'タイトル（前書き）をつけるなら？'] }
   ];
-  var cmReply = {}, cmEdit = {}, rxOpen = {}, typedAt = {}, qOpen = {}, askSel = {}, askTone = {}, askOpen = {};
+  var cmReply = {}, cmEdit = {}, rxOpen = {}, typedAt = {}, qOpen = {}, qMore = {}, askSel = {}, askTone = {}, askOpen = {};
   /* 作者のひとこと：講評中、作者が名前を伏せたまま「ここを聞かせて」と、3回まで出せる */
-  var ASK_TOPICS = ['季語を', '語順を', '切れを', '取り合わせを', '一字空けを', '字余り・字足らずを', '景と心の配分を', '読み（ルビ）を', 'その他を'];
+  var ASK_TOPICS = ['季語を', '季語が動くかを', '季重なりを', '語順を', '切れ（切れ字）を', '取り合わせ（つかずはなれず）を', '上五を', '中七を', '下五（むすび）を', '一字空けを', '字余り・字足らずを', '句またがりを', '三段切れを', '動詞の数を', '助詞（て・に・を・は）を', '説明っぽさを', '類想（ありがち）を', '比喩・擬人化を', 'オノマトペを', '固有名詞・数字を', '視点（カメラの位置）を', '景と心の配分を', '文語か口語かを', '読み（ルビ）を', '五感（音・匂い・手ざわり）を', 'その他を'];
   var ASK_TONES = ['やさしく', 'ふだんどおり', '厳しめに'];
   function askCount(s, eid) { var n = 0; Object.keys(s.comments || {}).forEach(function (k) { var c = s.comments[k]; if (c && c.anon && c.eid === eid) n++; }); return n; }
   function askBox(s, e) {
@@ -1897,9 +1897,9 @@ h3.sec { font-size: 1rem; }
           '<div id="halfway" class="cmi hostline" style="display:none"><b>ダー浜（司会）</b>講評がはじまって<b id="hw-el"></b>たったで。のこりは<b id="hw-left"></b>や。まだの人も、ひとことどうぞ。</div>' +
           '<div id="endcnt" class="cmi hostline" style="display:none"><b>ダー浜（司会）</b>講評の時間はここまで。あと<b id="endsec">10</b>秒で、次の句にいくで。<div class="dots10" id="enddots"></div></div>' : '') +
         (isCur && !opened && live && entrant && e.id === myId ? askBox(s, e) : '') +
-        (canC && opened && e.id === myId ? '<p class="note">🪶 <b>作者からひとこと（自句自解）</b>：どうしてこの季語に？ どんな場面？ 質問があれば、ここで答えられます。だまっていても、大丈夫です。</p>' : '') +
+        (canC && opened && e.id === myId ? '<p class="note">🪶 <b>自句自解（作者から）</b>：自分の句のことを、自由に語ってください。どんな場面だったか、どうしてこの季語・この語順にしたか、質問への答え、こめた思い。長くなっても大丈夫。だまっていても、もちろん大丈夫です。</p>' : '') +
         (canC && !opened ? '<p class="note">「ここがすき」だけでも、立派な選評です。気になる点や質問も、ひとつあると、作者の学びになります。 <button class="link" data-act="page" data-p="hints">句会の評のヒント</button></p>' : '') +
-        (canC ? '<details class="qcm' + (qOpen[e.id] ? '" open="' : '') + '"><summary>ことばのヒント（押すと入力欄に入ります・そのまま送ってもOK）</summary>' + K_QGROUPS.map(function (g) { return '<div class="row qcmrow"><span class="lb">' + g.lb + '</span>' + g.ch.map(function (q2) { return '<button class="chip fit" data-act="cm-fill" data-eid="' + esc(e.id) + '" data-v="' + esc(q2) + '">' + esc(q2) + '</button>'; }).join('') + '</div>'; }).join('') + '</details>' : '') +
+        (canC ? '<details class="qcm' + (qOpen[e.id] ? '" open="' : '') + '"><summary>ことばのヒント（押すと入力欄に入ります・そのまま送ってもOK）</summary>' + K_QGROUPS.map(function (g) { var more = !!qMore[e.id], list = more ? g.ch : g.ch.slice(0, 5); return '<div class="row qcmrow"><span class="lb">' + g.lb + '</span>' + list.map(function (q2) { return '<button class="chip fit" data-act="cm-fill" data-eid="' + esc(e.id) + '" data-v="' + esc(q2) + '">' + esc(q2) + '</button>'; }).join('') + '</div>'; }).join('') + '<p class="note"><button class="link" data-act="cm-more" data-eid="' + esc(e.id) + '">' + (qMore[e.id] ? 'すくなく' : 'もっと見る') + '</button></p></details>' : '') +
         (canC ? '<p class="note typing" id="typing-' + esc(e.id) + '">' + typingText(s) + '</p>' : '') +
         (canC && cmEdit[e.id] ? '<p class="note">自分のコメントを編集しています <button class="link" data-act="cm-edit-cancel" data-eid="' + esc(e.id) + '">やめる</button></p>' : '') +
         (canC && cmReply[e.id] && s.comments && s.comments[cmReply[e.id]] ? '<p class="note">「' + esc(String(s.comments[cmReply[e.id]].text || '').slice(0, 14)) + '…」への返信を書いています <button class="link" data-act="cm-re-cancel" data-eid="' + esc(e.id) + '">やめる</button></p>' : '') +
@@ -4226,6 +4226,7 @@ h3.sec { font-size: 1rem; }
       askSel[ae] = []; askOpen[ae] = false;
       write(sa.id, { comments: ao }).then(function () { toast('作者として、出しました（名前は伏せたまま）'); });
     }
+    else if (act === 'cm-more') { qMore[t.dataset.eid] = !qMore[t.dataset.eid]; qOpen[t.dataset.eid] = true; render(); }
     else if (act === 'cm-fill') {
       var fe = t.dataset.eid, fv = String(t.dataset.v || ''), cur2 = String(cmDraft[fe] || '').trim();
       cmDraft[fe] = cur2 ? (cur2.indexOf(fv) >= 0 ? cur2 : cur2 + '。' + fv) : fv; qOpen[fe] = true; render();
