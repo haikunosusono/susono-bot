@@ -468,6 +468,16 @@ h3.sec { font-size: 1rem; }
 .farbox summary::-webkit-details-marker{display:none}
 .farbox summary::after{content:"ひらく ▼";font-weight:400;font-size:.85rem;color:#8a7f6e}
 .farbox[open] summary::after{content:"とじる ▲"}
+
+.sheet-bg{position:fixed;inset:0;background:rgba(40,30,20,.45);z-index:90}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:91;background:#fffdf6;border-radius:22px 22px 0 0;padding:14px 20px calc(22px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto;box-shadow:0 -8px 30px rgba(0,0,0,.2)}
+.sheet-grip{width:44px;height:5px;border-radius:3px;background:#d8d0c0;margin:0 auto 10px}
+.sheet-x{position:absolute;right:14px;top:12px;border:0;background:none;font-size:1.6rem;line-height:1;cursor:pointer;color:inherit}
+.sheet h3{margin:14px 0 6px;font-size:1.1rem}
+.sheet-steps{list-style:none;margin:12px 0;padding:0;display:grid;gap:8px;counter-reset:st}
+.sheet-steps li{counter-increment:st;display:flex;align-items:center;gap:10px;background:#f3eee2;border-radius:12px;padding:10px 12px}
+.sheet-steps li::before{content:counter(st);flex:none;width:26px;height:26px;border-radius:50%;background:#b5452f;color:#fff;display:grid;place-items:center;font-weight:700;font-size:.85rem}
+.sheet-steps i{font-style:normal;flex:none;width:34px;height:34px;border-radius:9px;background:#fff;display:grid;place-items:center}
 </style>
 </head>
 <body>
@@ -1537,7 +1547,9 @@ h3.sec { font-size: 1rem; }
     if (!sup && isIos() && !isStandalone()) h += '<p class="nt-line"><button class="nt-pill" data-act="pushhelp">🔔 iPhoneはホーム画面に追加すると通知が届きます ›</button></p>';
     else h += '<p class="nt-line"><button class="nt-pill' + (pushOn ? ' on' : '') + '" data-act="pushtog" aria-pressed="' + pushOn + '">🔔 ' + (pushOn ? '開始15分前の通知：ON（タップでOFF）' : '開始15分前に、お知らせを受け取る') + '</button></p>';
     if (pushMsg) h += '<p class="note center">' + esc(pushMsg) + '</p>';
-    if (pushHelp) h += '<div class="panel"><p class="note">Safariで、下の共有ボタン（□に↑）を押して「ホーム画面に追加」。できたアイコンからひらいて、もう一度「🔔」を押してください。</p></div>';
+    if (pushHelp) h += '<div class="sheet-bg" data-act="pushhelp"></div><div class="sheet" role="dialog" aria-label="ホーム画面に追加"><div class="sheet-grip"></div><button class="sheet-x" data-act="pushhelp" aria-label="とじる">×</button><h3>ホーム画面に追加すると、通知が届きます</h3><p class="note">iPhoneでは、ホーム画面に追加したアプリからだけ、通知が届きます。</p>' +
+      '<ol class="sheet-steps"><li><i>⬆️</i><span>Safariの共有ボタン（□に↑）を押す</span></li><li><i>➕</i><span>「ホーム画面に追加」を選ぶ</span></li><li><i>🔔</i><span>できたアイコンからひらいて、通知のボタンを押す</span></li></ol>' +
+      '<p class="note">追加したアプリでは、いちどログインし直しが必要なことがあります。</p><button class="btn primary big" data-act="pushhelp">とじる</button></div>';
     var rows = teiSlotsFar(7).filter(function (x) { return x.start > Date.now(); });
     if (rows.length) h += '<p class="nt-line"><button class="nt-link" data-act="calics" data-sid="all">📅 カレンダーに入れる（1週間ぶん・15分前に通知）</button></p>';
     h += vTeiFar();
