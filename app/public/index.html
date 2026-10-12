@@ -633,7 +633,7 @@ h3.sec { font-size: 1rem; }
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12x';
+  var APP_VER = 'v2026.10.12y';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1317,7 +1317,7 @@ h3.sec { font-size: 1rem; }
     var h = recvSay(me) + '<div class="panel"><div class="field"><label for="f-haigo">俳号（あとから変えられます）</label><input type="text" id="f-haigo" data-f="haigo" maxlength="20" value="' + esc(haigo) + '" placeholder="句会で名乗る名前"></div>';
     h += oneBox('g-a', 'ga', 'gcnt-a', d.a);
     h += rubyBar() + '<div class="tan pv" id="gpv">' + ku(d) + '</div><p class="chk no" id="gchk"></p>';
-    h += '<button class="btn primary" data-act="rsubmit">' + (me ? '句を直す' : 'この句を出して、参加する') + '</button><p class="note">定刻までなら、何度でも直せます。出した句は、「ストッ句」にも残ります。</p></div>';
+    h += '<button class="btn primary" data-act="rsubmit">' + (me ? '句を直す' : 'この句を出して、参加する') + '</button>' + (me ? '<button class="btn" data-act="rwithdraw">提出をやめる（取り消す）</button>' : '') + '<p class="note">定刻までなら、何度でも直せます。出した句は、「ストッ句」にも残ります。' + (me ? '「提出をやめる」を押すと、この回への参加を取り消します（句は、ストッ句に残ります）。' : '') + '</p></div>';
     return h;
   }
   function vTeiWait(s) {
@@ -3894,6 +3894,16 @@ h3.sec { font-size: 1rem; }
       fe.value = fe.value.slice(0, p0) + '《》' + fe.value.slice(p0);
       try { fe.focus(); fe.setSelectionRange(p0 + 1, p0 + 1); } catch (_) {}
       onInput({ target: fe, type: 'input' });
+    }
+    else if (act === 'rwithdraw') {
+      var wd = scur(); if (!wd || !ready() || !(wd.entries && wd.entries[myId])) return;
+      if (wd.status !== 'gathering' || (wd.tei && !teiCanSubmit(wd))) { toast('はじまったので、取り消せません'); return; }
+      if (!window.confirm('この回への提出を、やめますか？\n（句は「ストッ句」には残ります）')) return;
+      var FVd = window.firebase && window.firebase.firestore && window.firebase.firestore.FieldValue, wp = {};
+      if (FVd && FVd.delete) wp['entries.' + myId] = FVd.delete();
+      else { var rest = Object.assign({}, wd.entries); delete rest[myId]; wp.entries = rest; }
+      write(wd.id, wp).then(function () { toast('提出を、取り消しました'); });
+      delete drafts['s:' + wd.id]; render();
     }
     else if (act === 'rsubmit') {
       askNotify();
