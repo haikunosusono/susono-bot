@@ -18,7 +18,8 @@ jobs:
           projectId: haikunosusono
           channelId: live
           entryPoint: app
-      - name: Firestoreのルールを反映
+      - name: Firestoreのルールを反映（失敗しても、画面の反映はそのまま）
+        continue-on-error: true
         env:
           SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
