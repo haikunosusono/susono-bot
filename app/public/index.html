@@ -565,6 +565,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
 .setrow .row{flex:none;flex-wrap:nowrap}
 .note.right{text-align:right}
 .bio{display:block;margin-top:2px}
+.fl-big{font-size:1.15rem;line-height:1.8;margin:0}.fl-box{padding:14px}.fl-h{font-size:1.1rem;margin:0 0 10px}.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center}.fl-step{width:92px;text-align:center;padding:10px 4px;border:2px solid var(--line);border-radius:16px;background:#fffdf6;display:flex;flex-direction:column;gap:4px;align-items:center}.fl-ico{font-size:2rem;line-height:1.1}.fl-t{font-size:.95rem;font-weight:700;line-height:1.35}.fl-arr{font-size:1.3rem;color:var(--accent,#1f7a63);font-weight:700}.fl-note{font-size:1rem;line-height:1.7;margin:10px 0 0;color:var(--ink-soft,#555)}.fl-list{font-size:1.05rem;line-height:1.8}.btn.big{font-size:1.1rem;padding:.7em 1.2em}
 </style>
 </head>
 <body>
@@ -745,7 +746,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.13d';
+  var APP_VER = 'v2026.10.13e';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -2147,39 +2148,24 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     ['データを消したいときは？', 'お問い合わせから、内容を書いて送ってください。運営者が確認します。'],
     ['不具合や、ほしい機能があるときは？', 'お問い合わせから、お気軽にお知らせください。運営者に届きます。返事は、このページに表示されます。']
   ];
+  /* 機種ごとの手順を、絵（大きなアイコン）の流れで見せる。文字は大きめに。 */
   function vNotify() {
-    var St = function (t, items) { return '<h3>' + t + '</h3><ol class="sheet-steps">' + items.map(function (x) { return '<li><i>' + x[0] + '</i><span>' + x[1] + '</span></li>'; }).join('') + '</ol>'; };
-    return '<h2 class="sec">スマホ・パソコンの通知のしかた<small>機種ごと</small></h2>' +
-      '<div class="panel"><p class="note">句会の15分前に、通知が届きます。ひとつの機種で設定すれば、そのぶん届きます（機種ごとに、ひとつずつ設定してください）。</p></div>' +
-      '<div class="panel">' +
-      St('📱 iPhone（iOS 16.4以上）', [
-        ['1', 'Safariで、裾野のページをひらく'],
-        ['2', '共有ボタン（□に↑）→「ホーム画面に追加」'],
-        ['3', 'ホーム画面にできた「俳句の裾野」のアイコンから、ひらく（Safariからでは通知は届きません）'],
-        ['4', '定例句会の上の 🔔 を押して、「許可」を選ぶ'],
-        ['5', 'うまくいかないときは、「設定」→「通知」→「俳句の裾野」で、通知を「許可」にする']
-      ]) +
-      St('📱 iPad（iPadOS 16.4以上）', [
-        ['1', 'Safariで、裾野のページをひらく'],
-        ['2', '共有ボタン→「ホーム画面に追加」'],
-        ['3', 'ホーム画面のアイコンから、ひらく'],
-        ['4', '🔔 を押して、「許可」を選ぶ'],
-        ['5', 'うまくいかないときは、「設定」→「通知」→「俳句の裾野」で「許可」にする']
-      ]) +
-      St('🤖 Android（Chrome）', [
-        ['1', 'Chromeで、裾野のページをひらく（ホーム画面への追加は、なくても大丈夫です）'],
-        ['2', '定例句会の上の 🔔 を押して、「許可」を選ぶ'],
-        ['3', 'うまくいかないときは、Chromeの右上の⋮→「設定」→「通知」で、このサイトを「許可」にする'],
-        ['4', 'それでも届かないときは、端末の「設定」→「アプリ」→「Chrome」→「通知」が、オンになっているか確かめる']
-      ]) +
-      St('💻 パソコン（Chrome・Edge）', [
-        ['1', '裾野のページをひらき、定例句会の上の 🔔 を押す'],
-        ['2', '出てきた「許可」を選ぶ'],
-        ['3', 'うまくいかないときは、アドレスバー左の鍵マーク（または設定マーク）→「通知」→「許可」にする']
-      ]) +
-      '</div>' +
-      '<div class="panel"><b>知っておくと安心なこと</b><ul class="faq-ul"><li>通知は、一句を出した句会の、はじまる15分前に届きます。毎回のお知らせ（「毎回（すべての回）」）も選べます。</li><li>止めたいときは、もう一度 🔔 を押せばOFFになります。</li><li>通知の時刻は、数分ずれることがあります。</li><li>届かないときは、まずは機種の通知設定（上の手順）を確かめてください。それでもだめなら、お問い合わせから教えてください。</li></ul></div>' +
-      '<div class="actions"><button class="btn" data-act="page" data-p="faq">よくある質問</button></div>';
+    var flow = function (title, steps, note) {
+      var parts = steps.map(function (x) { return '<div class="fl-step"><span class="fl-ico">' + x[0] + '</span><span class="fl-t">' + x[1] + '</span></div>'; });
+      return '<div class="panel fl-box"><h3 class="fl-h">' + title + '</h3><div class="flow">' + parts.join('<span class="fl-arr" aria-hidden="true">→</span>') + '</div>' + (note ? '<p class="fl-note">' + note + '</p>' : '') + '</div>';
+    };
+    return '<h2 class="sec">スマホ・パソコンの通知<small>機種ごとの、ぬりえみたいな手順</small></h2>' +
+      '<div class="panel"><p class="fl-big">句会の<b>15分前</b>に、お知らせが届きます。<br>お使いの機種の流れを、上から順に、ひとつずつどうぞ。</p></div>' +
+      flow('📱 iPhone（iOS 16.4 以上）', [['🌐', 'Safariで<br>ひらく'], ['⬆️', '共有<br>ボタン'], ['➕', 'ホーム画面<br>に追加'], ['📲', 'できた<br>アイコン'], ['🔔', '🔔を<br>押す'], ['✅', '「許可」<br>を選ぶ']],
+        'ホーム画面のアイコンから、ひらいてください（Safariからでは届きません）。<br>うまくいかないときは、「設定」→「通知」→「俳句の裾野」→「許可」。') +
+      flow('📱 iPad（iPadOS 16.4 以上）', [['🌐', 'Safariで<br>ひらく'], ['⬆️', '共有<br>ボタン'], ['➕', 'ホーム画面<br>に追加'], ['📲', 'できた<br>アイコン'], ['🔔', '🔔を<br>押す'], ['✅', '「許可」<br>を選ぶ']],
+        'iPhoneと同じ流れです。') +
+      flow('🤖 Android（Chrome）', [['🌐', 'Chromeで<br>ひらく'], ['🔔', '🔔を<br>押す'], ['✅', '「許可」<br>を選ぶ']],
+        'うまくいかないときは、Chromeの右上の⋮→「設定」→「通知」で、このサイトを「許可」にしてください。') +
+      flow('💻 パソコン（Chrome・Edge）', [['🌐', '裾野を<br>ひらく'], ['🔔', '🔔を<br>押す'], ['✅', '「許可」<br>を選ぶ']],
+        'うまくいかないときは、アドレスバー左の鍵マーク→「通知」→「許可」。') +
+      '<div class="panel"><b>知っておくと安心なこと</b><ul class="fl-list"><li>通知は、句会をはじめる15分前に届きます。</li><li>止めたいときは、もう一度 🔔 を押せばOFFになります。</li><li>時刻は、数分ずれることがあります。</li><li>届かないときは、まず上の流れを、もう一度ひとつずつ確かめてください。それでもだめなら、お問い合わせから教えてください。</li></ul></div>' +
+      '<div class="actions"><button class="btn big" data-act="page" data-p="faq">よくある質問</button></div>';
   }
   function vFaq() {
     return '<h2 class="sec">よくある質問<small>' + FAQ.length + '件</small></h2><div class="faq">' + FAQ.map(function (x) { return '<details><summary>' + esc(x[0]) + '</summary><p>' + esc(x[1]) + '</p></details>'; }).join('') + '</div><div class="actions"><button class="btn" data-act="page" data-p="contact">お問い合わせをする</button></div>';
