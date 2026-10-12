@@ -745,7 +745,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.13a';
+  var APP_VER = 'v2026.10.13b';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1102,7 +1102,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function teiTutOnce(sid) { var k = 'ikku-tei-' + sid, seen = false; try { seen = !!localStorage.getItem(k); localStorage.setItem(k, '1'); } catch (_) {} if (!seen) openTut(0, 'tei'); }
   function flatFind() { return sessions.filter(function (x) { return x.std === 'flat' && x.status === 'gathering'; }).sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); })[0] || null; }
   function flatMine() { return sessions.filter(function (x) { return x.std === 'flat' && x.status !== 'done' && x.entries && x.entries[myId]; })[0] || null; }
-  function flatDoc() { return { std: 'flat', size: 3, ch: '当季雑詠', series: 'z', date: ds(dayNum()), status: 'gathering', createdAt: Date.now(), entries: {} }; }
+  function flatDoc() { return { std: 'flat', size: 5, ch: '当季雑詠', series: 'z', date: ds(dayNum()), status: 'gathering', createdAt: Date.now(), entries: {} }; }
   function flatEnter() {
     var mine = flatMine(), open = flatFind(), sid;
     if (mine) sid = mine.id;
@@ -1113,11 +1113,12 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (!seen) openTut(0, 'kukai');
     render(); try { window.scrollTo(0, 0); } catch (_) {}
   }
-  /* ふらっと句会：3人そろったら、ボット2名と句をならべて、すぐはじめる */
+  /* ふらっと句会：5席のうち1席はボットが待機中から座り、4人そろったら、すぐはじめる（足りない席はボットで埋める） */
   function flatStart(s) {
-    var es = s.entries || {};
-    var be = teiBotEntries(s, 2), all = Object.assign({}, es, be);
-    write(s.id, { status: 'selecting', selectStart: Date.now(), startedAt: Date.now(), entries: be, votes: teiBotVotes(s, all), bots: 2 });
+    var es = s.entries || {}, need = Math.max(0, (s.size || 5) - Object.keys(es).length);
+    var be = teiBotEntries(s, need), all = Object.assign({}, es, be), patch = { status: 'selecting', selectStart: Date.now(), startedAt: Date.now(), votes: teiBotVotes(s, all), bots: need + Object.keys(es).filter(function (k) { return es[k] && es[k].bot; }).length };
+    Object.keys(be).forEach(function (k) { patch['entries.' + k] = be[k]; });
+    write(s.id, patch);
   }
   function teiSlotsFar(days) { var n = dayNum(), out = []; for (var d = n; d <= n + days; d++) teiHoursFor(d).forEach(function (h) { out.push({ dn: d, h: h, start: teiStartOf(d, h), sid: teiSid(d, h) }); }); return out; }
   function teiEnter(sid, quiet) {
@@ -1496,10 +1497,10 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     }).join('') + '</ol></div>';
   }
   function vFlatLobby() {
-    var h = '', mine = flatMine(), open = flatFind(), f = mine || open, cnt = f ? count(f) : 0, size = f ? f.size : 3, mi = f && f.entries && f.entries[myId];
+    var h = '', mine = flatMine(), open = flatFind(), f = mine || open, cnt = f ? count(f) : 0, size = f ? f.size : 5, mi = f && f.entries && f.entries[myId];
     h += '<div class="panel flatcard"><div class="row2"><h2 class="fc-title">⚡ ふらっと句会</h2><span class="fc-pill">いつでも</span></div>';
-    h += '<p class="fc-desc">3人そろったら、すぐ始まる句会。お題は「当季雑詠」。特選1・並選1、選句は約10分、講評は一句ずつ。</p>';
-    h += '<span class="chips2"><i>3人で始まる</i><i>特選1・並選1</i><i>選句 約10分</i><i>ボット2名つき</i><i>見学OK</i></span>';
+    h += '<p class="fc-desc">4人そろったら、すぐ始まる句会。お題は「当季雑詠」。特選1・並選1、選句は約10分、講評は一句ずつ。</p>';
+    h += '<span class="chips2"><i>4人で始まる</i><i>特選1・並選1</i><i>選句 約10分</i><i>ボット1名つき</i><i>見学OK</i></span>';
     if (f && f.status !== 'gathering') {
       h += '<p class="fc-state">' + (mi ? 'あなたのふらっと句会が、進行中です。' : 'いま、ふらっと句会が進行中です。') + '</p><div class="actions"><button class="btn primary big" data-act="flat-go">' + (mi ? 'ひらく' : '見学する') + '</button></div>';
     } else {
@@ -1507,13 +1508,13 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       h += '<div class="fc-seats" aria-label="' + cnt + '/' + size + '人">'; for (var i = 0; i < size; i++) h += '<span class="' + (i < cnt ? 'on' : '') + '">' + HITO_SVG + '</span>'; h += '</div>';
       h += '<p class="fc-warn">作者は、さいごのオープンまでひみつです。ほかの人の句や選評の無断公開は、きんしです。</p>';
       h += '<div class="actions"><button class="btn primary big" data-act="flat-go">' + (mi ? 'ようすを見る' : '一句出して、席につく') + '</button></div>';
-      h += '<p class="note">3人そろった瞬間に、はじまります。ボット2名と司会のダー浜も加わるので、ひとりでも大丈夫。席についたあとは、ほかのページで遊んでいても、音とお知らせでよびます。</p>';
+      h += '<p class="note">4人そろった瞬間に、はじまります。ボット1名と司会のダー浜も加わるので、ひとりでも大丈夫。席についたあとは、ほかのページで遊んでいても、音とお知らせでよびます。</p>';
     }
     h += '</div>';
     h += maner('t');
     h += '<div class="panel"><b>この句会のルール</b><ul class="tg2">' +
       '<li>お題は「当季雑詠」。ひとり1句です。</li>' +
-      '<li>3人そろったら、すぐはじまります。ボット2名も加わって、5句で。</li>' +
+      '<li>4人そろったら、すぐはじまります。ボット1名も加わって、5句で。</li>' +
       '<li>選句は 特選1・並選1（予選は3つまで）、約10分。全員が選び終えると、早まります。</li>' +
       '<li>講評は、一句ずつ壇上で、約8分ずつ。司会のダー浜が、問いかけでうながします。</li>' +
       '<li>とちゅうで抜けた人がいても、タイマーが進行します。選ばなかったぶんは、なしのまま進みます。</li>' +
@@ -1709,7 +1710,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (s.tei) return vTeiWait(s);
     var me = s.entries && s.entries[myId];
     var h = s.std === 'flat'
-      ? hostSay('ようこそ。3人そろったら、すぐ始めます。いま' + count(s) + '人。わたしとボット2名も、ごいっしょします。', (me ? '句は出ています。そろうまで、ほかの部屋であそんでいて大丈夫。そろったら、音とお知らせでよびます（この画面やタブは、とじないでください）。' : 'お題は「当季雑詠」。いまの季節を、自由に一句どうぞ。'))
+      ? hostSay('ようこそ。ボット1名は、もう席についています。4人そろったら、すぐ始めます。いま' + count(s) + '人。わたしも、ごいっしょします。', (me ? '句は出ています。そろうまで、ほかの部屋であそんでいて大丈夫。そろったら、音とお知らせでよびます（この画面やタブは、とじないでください）。' : 'お題は「当季雑詠」。いまの季節を、自由に一句どうぞ。'))
       : hostSay(s.size + '人そろったら、すぐ始まります。いま' + count(s) + '人。作者の名前は、オープンまで伏せられます。', (me ? '句は出ています。このページを開いたまま、お待ちください。' : '兼題は「' + esc(s.ch) + '」。まず一句をどうぞ。'));
     h += '<div class="bar"><span>' + dots(count(s), s.size) + '</span><span>' + count(s) + '/' + s.size + '句</span></div>';
     h += '<div class="actions"><button class="btn" data-act="invite">仲間をさそう</button></div>';
@@ -4264,9 +4265,9 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       if (!len(gd.a)) { toast('句を入れてください'); return; }
       var ent = { haigo: hg, a: kt(gd.a, 'a'), b: kt(gd.b, 'b'), c: kt(gd.c, 'c'), at: Date.now() };
       var eo = {}; eo[myId] = ent; if (rs.tei) pushListSync(rs.id, true);
-      var okMsg = function () { markFirst('f_join'); toast(already ? '句を直しました' : (rs.tei ? '句を出しました。定刻に、自動ではじまります' : rs.std === 'flat' ? '席につきました。3人そろったら、すぐはじまります' : '句を出しました。人数がそろうのを待ちます')); };
+      var okMsg = function () { markFirst('f_join'); toast(already ? '句を直しました' : (rs.tei ? '句を出しました。定刻に、自動ではじまります' : rs.std === 'flat' ? '席につきました。4人そろったら、すぐはじまります' : '句を出しました。人数がそろうのを待ちます')); };
       if ((rs.tei && !teiFind(rs.id)) || (rs.std === 'flat' && !sessions.some(function (x) { return x.id === rs.id; }))) {
-        var base = Object.assign({}, rs); delete base.id; base.entries = eo;
+        var base = Object.assign({}, rs); delete base.id; base.entries = eo; if (rs.std === 'flat') Object.assign(base.entries, teiBotEntries(rs, 1));
         queue = queue.then(function () { return db.doc('kukai/' + rs.id).set(base, { merge: true }); }).then(okMsg).catch(failMsg);
       } else write(rs.id, { entries: eo }).then(okMsg);
       var rid = 'k-' + rs.id, prev = mineById[rid];
