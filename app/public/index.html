@@ -741,7 +741,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12z29';
+  var APP_VER = 'v2026.10.12z30';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -2868,7 +2868,9 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var show = turn ? [dais[idx]].filter(Boolean) : dais;
     var h = hostSay((one ? 'この戦は、ひとり1句です。' : '何句でもどうぞ。') + (turn ? ('題は1つずつ回ります。いまの題は「' + esc((dais[idx] || {}).t || '') + '」（' + (idx + 1) + '/' + dais.length + '）。' + (st.adv === 'timer' ? '時間がくると次の題へ。' : '幹事が「次の題へ」で進めます。'))
       : ('題は' + dais.length + '題。どの題で詠んでもかまいません。' + (st.adv === 'timer' ? '時間がくると、全句をひらきます。' : '全員が出すかパスすると、幹事が全句をひらきます。'))), gEnts(r).length + '句が集まっています（作者は伏せられています）。');
-    h += '<div class="panel"><b>題</b><div class="chips2">' + dais.map(function (d, i) { return '<i' + (turn && i === idx ? ' class="on"' : '') + '>' + esc(d.t) + (d.hint ? '（ヒント：' + esc(d.hint) + '）' : '') + '</i>'; }).join('') + '</div></div>';
+    h += '<div class="panel"><b>題</b><div class="chips2">' + dais.map(function (d, i) { return '<i' + (turn && i === idx ? ' class="on"' : '') + '>' + esc(d.t) + (d.hint ? '（ヒント：' + esc(d.hint) + '）' : '') + '</i>'; }).join('') + '</div>' +
+      /* 途中から参加した人：まだ題を出していなければ、投句中でも出せる（題は、あとに足される） */
+      (mem && (st.daiBy || 'members') === 'members' && !(r.dai || {})[myId] ? '<div class="field late-dai"><label for="g-dai">あなたの題は、まだです。いまからでも出せます（季語・ことば）</label><div class="row"><input type="text" id="g-dai" data-f="g-dai" maxlength="12" value="' + esc(gDaiText || '') + '" placeholder="例：秋の暮"><button class="chip fit" data-act="g-dai-save">題を出す</button></div><div class="row qbtns"><button class="chip fit" data-act="g-dai-rand">🎲 ランダムに引く</button><button class="chip fit" data-act="g-dai-pick" data-v="当季雑詠">当季雑詠</button></div><p class="note">出した題は、題の列のさいごに足されます' + (turn ? '（題が1つずつ回る設定なので、順番が来たら、みんなが詠みます）' : '') + '。</p></div>' : '') + '</div>';
     if (!mem) return h + '<p class="note">' + (gIsWatcher(r) ? '👀 見学中です。上の「見学をやめて、参加する」で、この回から句を出せます。' : 'このルームには参加していないので、投句はできません。') + '</p>';
     if (!gDraft.dai || !show.some(function (d) { return d.id === gDraft.dai; })) gDraft.dai = show.length ? show[0].id : '';
     if (!(one && mine.length)) {
