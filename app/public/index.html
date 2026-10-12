@@ -745,7 +745,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.13c';
+  var APP_VER = 'v2026.10.13d';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1645,6 +1645,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var sup = pushSupported(), h = '<div class="panel pushbox"><div class="row2"><b>📲 スマホの通知（無料・登録なし）</b><button class="btn small ' + (pushOn ? 'primary' : '') + '" data-act="pushtog" aria-pressed="' + pushOn + '">' + (pushOn ? 'ON（とめる）' : 'OFF（受け取る）') + '</button></div>';
     h += '<p class="note">はじまる15分前に、スマホやパソコンに通知が届きます。いつでもON/OFFできます。</p>';
     if (pushOn) h += '<div class="actions"><button class="btn small ' + (pushAll ? '' : 'primary') + '" data-act="pushmode" data-m="mine">一句を出した回だけ</button><button class="btn small ' + (pushAll ? 'primary' : '') + '" data-act="pushmode" data-m="all">毎回（すべての回）</button></div><p class="botnote">🤖 ONになっています。はじまる15分前に、お知らせします（数分ずれることがあります）。</p>';
+    h += '<p class="note"><button class="link" data-act="page" data-p="notify">iPhone・iPad・Androidの設定のしかた ›</button></p>';
     if (!sup) h += '<p class="note">' + (isIos() && !isStandalone() ? 'iPhoneは、Safariの共有ボタンから「ホーム画面に追加」して、そのアイコンからひらくと、ONにできます。' : 'この端末・ブラウザでは、通知が使えないようです。') + '</p>';
     if (pushMsg) h += '<p class="note">' + esc(pushMsg) + '</p>';
     return h + '</div>';
@@ -2146,6 +2147,40 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     ['データを消したいときは？', 'お問い合わせから、内容を書いて送ってください。運営者が確認します。'],
     ['不具合や、ほしい機能があるときは？', 'お問い合わせから、お気軽にお知らせください。運営者に届きます。返事は、このページに表示されます。']
   ];
+  function vNotify() {
+    var St = function (t, items) { return '<h3>' + t + '</h3><ol class="sheet-steps">' + items.map(function (x) { return '<li><i>' + x[0] + '</i><span>' + x[1] + '</span></li>'; }).join('') + '</ol>'; };
+    return '<h2 class="sec">スマホ・パソコンの通知のしかた<small>機種ごと</small></h2>' +
+      '<div class="panel"><p class="note">句会の15分前に、通知が届きます。ひとつの機種で設定すれば、そのぶん届きます（機種ごとに、ひとつずつ設定してください）。</p></div>' +
+      '<div class="panel">' +
+      St('📱 iPhone（iOS 16.4以上）', [
+        ['1', 'Safariで、裾野のページをひらく'],
+        ['2', '共有ボタン（□に↑）→「ホーム画面に追加」'],
+        ['3', 'ホーム画面にできた「俳句の裾野」のアイコンから、ひらく（Safariからでは通知は届きません）'],
+        ['4', '定例句会の上の 🔔 を押して、「許可」を選ぶ'],
+        ['5', 'うまくいかないときは、「設定」→「通知」→「俳句の裾野」で、通知を「許可」にする']
+      ]) +
+      St('📱 iPad（iPadOS 16.4以上）', [
+        ['1', 'Safariで、裾野のページをひらく'],
+        ['2', '共有ボタン→「ホーム画面に追加」'],
+        ['3', 'ホーム画面のアイコンから、ひらく'],
+        ['4', '🔔 を押して、「許可」を選ぶ'],
+        ['5', 'うまくいかないときは、「設定」→「通知」→「俳句の裾野」で「許可」にする']
+      ]) +
+      St('🤖 Android（Chrome）', [
+        ['1', 'Chromeで、裾野のページをひらく（ホーム画面への追加は、なくても大丈夫です）'],
+        ['2', '定例句会の上の 🔔 を押して、「許可」を選ぶ'],
+        ['3', 'うまくいかないときは、Chromeの右上の⋮→「設定」→「通知」で、このサイトを「許可」にする'],
+        ['4', 'それでも届かないときは、端末の「設定」→「アプリ」→「Chrome」→「通知」が、オンになっているか確かめる']
+      ]) +
+      St('💻 パソコン（Chrome・Edge）', [
+        ['1', '裾野のページをひらき、定例句会の上の 🔔 を押す'],
+        ['2', '出てきた「許可」を選ぶ'],
+        ['3', 'うまくいかないときは、アドレスバー左の鍵マーク（または設定マーク）→「通知」→「許可」にする']
+      ]) +
+      '</div>' +
+      '<div class="panel"><b>知っておくと安心なこと</b><ul class="faq-ul"><li>通知は、一句を出した句会の、はじまる15分前に届きます。毎回のお知らせ（「毎回（すべての回）」）も選べます。</li><li>止めたいときは、もう一度 🔔 を押せばOFFになります。</li><li>通知の時刻は、数分ずれることがあります。</li><li>届かないときは、まずは機種の通知設定（上の手順）を確かめてください。それでもだめなら、お問い合わせから教えてください。</li></ul></div>' +
+      '<div class="actions"><button class="btn" data-act="page" data-p="faq">よくある質問</button></div>';
+  }
   function vFaq() {
     return '<h2 class="sec">よくある質問<small>' + FAQ.length + '件</small></h2><div class="faq">' + FAQ.map(function (x) { return '<details><summary>' + esc(x[0]) + '</summary><p>' + esc(x[1]) + '</p></details>'; }).join('') + '</div><div class="actions"><button class="btn" data-act="page" data-p="contact">お問い合わせをする</button></div>';
   }
@@ -2315,7 +2350,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       '<h3>お問い合わせ</h3><p>ご意見・不具合・権利侵害の申告は「お問い合わせ」から。ボットが定型の返事をし、運営者が内容を確認します。</p>' +
       '<h3>この試作版について</h3><ul><li>メールアドレスとパスワードで登録します。句会でほかの人に見えるのは俳号だけです。</li><li>データは Google の Firebase（東京のサーバー）に保管されます。</li><li>試作中のため、機能や内容は予告なく変わります。大切な句は、手元にも控えてください。</li><li>「みんなで歌会」からひらめきをもらって作りました。</li></ul></div>';
   }
-  function pageView() { return page === 'stock' ? vStock() : page === 'contact' ? vContact() : page === 'terms' ? vTerms() : page === 'my' ? vMy() : page === 'hints' ? vHints() : page === 'admin' ? vAdmin() : page === 'about' ? vAbout() : page === 'news' ? vNewsPage() : page === 'faq' ? vFaq() : page === 'archive' ? vArchive() : page === 'manner' ? vManner() : vPrivacy(); }
+  function pageView() { return page === 'stock' ? vStock() : page === 'contact' ? vContact() : page === 'terms' ? vTerms() : page === 'my' ? vMy() : page === 'hints' ? vHints() : page === 'admin' ? vAdmin() : page === 'about' ? vAbout() : page === 'news' ? vNewsPage() : page === 'faq' ? vFaq() : page === 'notify' ? vNotify() : page === 'archive' ? vArchive() : page === 'manner' ? vManner() : vPrivacy(); }
   function vManner() {
     return '<h2 class="sec">句のあつかいとマナー<small>ここは練習の場です</small></h2>' +
       '<div class="howto"><b>ここで作った句は、「未発表」のあつかいです</b><span>「俳句の裾野」は、俳句を鍛える練習の場です。ここで作った句は、練習の句なので、未発表のあつかいにします。</span></div>' +
@@ -3549,7 +3584,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var g = function (t, items) { return '<div class="mgrp"><b>' + t + '</b><div class="row">' + items.join('') + '</div></div>'; };
     return '<details class="panel menu"><summary>☰ メニュー・機能まとめ</summary>' +
       g('つくる', [mb('tk-start', '', '🧩 句づくり'), pg('stock', '📒 ストッ句')]) +
-      g('まなぶ', [mb('tut', '', '🌱 一句つくれるチュートリアル'), mb('tutd', '', '🔍 さらに深くチュートリアル'), pg('about', 'できること'), pg('hints', '句会の評のヒント'), pg('manner', '句のあつかい・マナー'), pg('faq', 'よくある質問')]) +
+      g('まなぶ', [mb('tut', '', '🌱 一句つくれるチュートリアル'), mb('tutd', '', '🔍 さらに深くチュートリアル'), pg('about', 'できること'), pg('hints', '句会の評のヒント'), pg('manner', '句のあつかい・マナー'), pg('faq', 'よくある質問'), pg('notify', 'スマホの通知のしかた')]) +
       g('じぶん', [pg('my', 'マイページ'), pg('archive', '句会アーカイブ')]) +
       g('声をとどける', [pg('contact', '📮 ご意見・ご要望'), pg('terms', '利用規約'), pg('privacy', 'プライバシー')]) +
       '</details>';
