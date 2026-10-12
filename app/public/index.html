@@ -505,7 +505,22 @@ h3.sec { font-size: 1rem; }
 .rxb i{font-style:normal;font-size:1.5rem}
 .rxb.on{background:var(--tile2)}
 .cmtag.bot{background:#fff;border:1px dashed #c9b97a;color:#8a7f6e}
-.cmi.own{background:#fdf1ec}
+.cmi.own{background:#c65a3a;color:#fff;border-color:#c65a3a;margin-left:12%}
+.cmi.own b,.cmi.own .note,.cmi.own small{color:#fff}
+.cmi.own .cmtag{background:rgba(255,255,255,.22);color:#fff}
+.cmi.own .cmquote{background:rgba(255,255,255,.18);color:#fff;border-left-color:#fff}
+.cmi.own .rxwho{color:#fbe3da}
+.cmi.own .link{color:#fff}
+.cmi.own .chip{background:#fff;color:#333}
+body[data-mine="green"] .cmi.own{background:#1f7a63;border-color:#1f7a63}
+body[data-mine="blue"] .cmi.own{background:#3b6ea8;border-color:#3b6ea8}
+body[data-mine="purple"] .cmi.own{background:#7b5ea7;border-color:#7b5ea7}
+body[data-mine="gold"] .cmi.own{background:#b8902e;border-color:#b8902e}
+body[data-mine="light"] .cmi.own{background:#fdf1ec;color:inherit;border-color:#f0cfc2}
+body[data-mine="light"] .cmi.own b,body[data-mine="light"] .cmi.own .link,body[data-mine="light"] .cmi.own .note,body[data-mine="light"] .cmi.own small{color:inherit}
+body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
+.swatch{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;border:3px solid transparent;cursor:pointer;color:#fff;font-weight:700}
+.swatch[aria-pressed="true"]{border-color:#333}
 .typing{min-height:1.2em;color:#8a7f6e}
 
 .dots10{display:flex;gap:4px;margin-top:8px}
@@ -717,7 +732,7 @@ h3.sec { font-size: 1rem; }
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12z21';
+  var APP_VER = 'v2026.10.12z22';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1777,6 +1792,12 @@ h3.sec { font-size: 1rem; }
     { lb: '❓ 作者に質問', ch: ['どうしてこの季語に？', 'どうしてこの語順に？', 'この場面はどこで？', 'いちばん見せたかったのは？', 'この切れは、ねらい？', 'この字余りは、ねらい？', '「わたし」は、どこにいる？', 'この一語、別の候補はあった？', '実景？ それとも想像？', 'タイトル（前書き）をつけるなら？'] }
   ];
   var cmReply = {}, cmEdit = {}, rxOpen = {}, typedAt = {}, qOpen = {}, qMore = {}, askSel = {}, askTone = {}, askOpen = {}, stageFold = false;
+  /* 自分のコメントの色：既定は赤。マイページでえらべる */
+  var MINE_COLORS = [['red', '#c65a3a', '赤（既定）'], ['green', '#1f7a63', '緑'], ['blue', '#3b6ea8', '青'], ['purple', '#7b5ea7', '紫'], ['gold', '#b8902e', '金'], ['light', '#fdf1ec', 'うすい']];
+  function mineColor() { var v = 'red'; try { v = localStorage.getItem('ikku-mine') || 'red'; } catch (_) {} return v; }
+  function applyMine() { try { document.body.setAttribute('data-mine', mineColor()); } catch (_) {} }
+  applyMine();
+  function vMineColor() { var cur = mineColor(); return '<div class="field"><label>句会での、自分のコメントの色</label><div class="row">' + MINE_COLORS.map(function (c) { return '<button class="swatch" style="background:' + c[1] + (c[0] === 'light' ? ';color:#333;border-color:' + (cur === c[0] ? '#333' : '#e3d9c8') : '') + '" data-act="mine-color" data-v="' + c[0] + '" aria-pressed="' + (cur === c[0]) + '" aria-label="' + c[2] + '" title="' + c[2] + '">' + (cur === c[0] ? '✓' : '') + '</button>'; }).join('') + '</div><p class="note">自分の書いたコメントが、ひと目でわかる色です（自分の画面だけに効きます）。</p></div>'; }
   try { stageFold = localStorage.getItem('ikku-fold') === '1'; } catch (_) {}
   /* 作者のひとこと：講評中、作者が名前を伏せたまま「ここを聞かせて」と、3回まで出せる */
   var ASK_TOPICS = ['季語を', '季語が動くかを', '季重なりを', '語順を', '切れ（切れ字）を', '取り合わせ（つかずはなれず）を', '上五を', '中七を', '下五（むすび）を', '一字空けを', '字余り・字足らずを', '句またがりを', '三段切れを', '動詞の数を', '助詞（て・に・を・は）を', '説明っぽさを', '類想（ありがち）を', '比喩・擬人化を', 'オノマトペを', '固有名詞・数字を', '視点（カメラの位置）を', '景と心の配分を', '文語か口語かを', '読み（ルビ）を', '五感（音・匂い・手ざわり）を', 'その他を'];
@@ -2165,6 +2186,7 @@ h3.sec { font-size: 1rem; }
     h += '<div class="howto"><b>ストッ句 ' + mine.length + '句' + (streak() > 0 ? '・連続 ' + streak() + '日' : '') + (kureki() ? '・句歴 ' + esc(kureki()) : '') + '</b><span>ここに入れたことは、ほかの人には見えません。句会で名乗るのは、俳号だけです。</span></div>';
     h += vMyStats() + vHistLink() + '<p class="note maner">' + MANER.p + ' <button class="link" data-act="page" data-p="manner">句のあつかいとマナー</button></p>';
     h += '<div class="panel"><div class="field"><label for="p-haigo">俳号（いつでも変えられます）</label><input type="text" id="p-haigo" data-f="haigo" maxlength="20" value="' + esc(haigo) + '" placeholder="句会で名乗る名前"></div>';
+    h += vMineColor();
     h += '<div class="field"><label for="p-pref">お住まい（都道府県・海外）</label><select id="p-pref" data-f="p-pref"><option value="">えらばない</option>' + PREFS.map(function (x) { return '<option' + (prof.pref === x ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select></div>';
     h += '<div class="field"><label>句歴（はじめた年月のめやす）</label><div class="row"><select id="p-sy" data-f="p-sy" aria-label="年"><option value="">年</option>';
     for (var y = thisY; y >= 1960; y--) h += '<option value="' + y + '"' + (prof.sy === String(y) ? ' selected' : '') + '>' + y + '年</option>';
@@ -4235,6 +4257,7 @@ h3.sec { font-size: 1rem; }
       askSel[ae] = []; askOpen[ae] = false;
       write(sa.id, { comments: ao }).then(function () { toast('作者として、出しました（名前は伏せたまま）'); });
     }
+    else if (act === 'mine-color') { try { localStorage.setItem('ikku-mine', t.dataset.v); } catch (_) {} applyMine(); toast('色をかえました'); render(); }
     else if (act === 'stage-fold') { stageFold = !stageFold; try { localStorage.setItem('ikku-fold', stageFold ? '1' : '0'); } catch (_) {} render(); }
     else if (act === 'cm-more') { qMore[t.dataset.eid] = !qMore[t.dataset.eid]; qOpen[t.dataset.eid] = true; render(); }
     else if (act === 'cm-fill') {
