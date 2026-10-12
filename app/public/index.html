@@ -488,6 +488,47 @@ h3.sec { font-size: 1rem; }
 .fc-seats span{width:48px;height:48px;border-radius:50%;border:2px dashed #cfc7b8;display:block}
 .fc-seats span.on{border:2px solid #1f7a63;background:#e7f3ee}
 .fc-warn{color:#b5452f;font-weight:700;font-size:.92rem;line-height:1.7}
+
+.yaku2{text-align:center;padding:28px 12px 20px;line-height:1.9}
+.yk-cap{color:#b5452f;letter-spacing:.3em;font-size:.85rem;margin:0}
+.yk-title{font-family:'Shippori Mincho B1',serif;font-size:1.7rem;letter-spacing:.12em;margin:6px 0 10px}
+.yk-knot{margin:0 0 18px}
+.yaku2 p{text-align:left;margin:12px 0}
+.yaku2 b{color:#b5452f;font-weight:700}
+
+.cmact{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
+.cmact .link{font-size:.82rem}
+.rxc{font-size:.82rem;padding:2px 10px}
+.rxadd{font-size:.82rem;padding:2px 10px;margin-left:auto}
+.rxpick{display:flex;gap:4px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:14px;padding:8px;margin-top:6px;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.rxb{border:0;background:none;font:inherit;font-size:.78rem;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 8px;border-radius:10px;cursor:pointer;color:inherit}
+.rxb i{font-style:normal;font-size:1.5rem}
+.rxb.on{background:var(--tile2)}
+.cmtag.bot{background:#fff;border:1px dashed #c9b97a;color:#8a7f6e}
+.cmi.own{background:#fdf1ec}
+.typing{min-height:1.2em;color:#8a7f6e}
+
+.dots10{display:flex;gap:4px;margin-top:8px}
+.dots10 i{width:22px;height:28px;border-radius:6px;background:#f1ece2;display:block}
+.dots10 i.on{background:#b8a04e}
+
+.qcm{margin:6px 0}
+.qcm summary{cursor:pointer;font-size:.85rem;color:#8a7f6e}
+.qcm .qcmrow{margin-top:6px;align-items:center}
+.qcm .lb{font-size:.8rem;color:#8a7f6e;margin-right:4px}
+
+.rxmine{margin-top:6px;background:#fdf1ec;border:1px solid #f0cfc2;border-radius:10px;padding:6px 10px;font-size:.85rem;display:flex;justify-content:space-between;gap:8px}
+
+.cmquote{border-left:3px solid #e2b9ac;background:#f5f1e8;border-radius:6px;padding:4px 10px;margin:4px 0 6px;font-size:.82rem;color:#6f665a}
+
+.cmtag.jiku{background:#eef4ee;color:#1f7a63}
+
+.cmi.anon{background:#fbf6e8;border-color:#e3d3a0;margin-left:14%;text-align:left}
+.askbar{margin:8px 0}
+.askbtn{border-color:#d9c88a;background:#fbf6e8}
+.askbox{border-color:#e3d3a0;background:#fbf6e8}
+
+.rxwho{font-size:.78rem;color:#8a7f6e;margin-top:4px}
 </style>
 </head>
 <body>
@@ -668,7 +709,7 @@ h3.sec { font-size: 1rem; }
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12z5';
+  var APP_VER = 'v2026.10.12z17';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1698,9 +1739,10 @@ h3.sec { font-size: 1rem; }
     }).join('') + '</div>';
     if (entrant) {
       var ok = !!(my.toku || my.nami || yoN > 0);
+      h += '<p class="note center">選び終えたら、下の「選を終了」で講評へ。全員が押すと、時間を待たずに進みます。' + (ok ? '' : 'ぜんぶ使わなくても大丈夫（✓だけでもOK）。') + '</p>';
       h += '<div class="sbar"><div class="srow"><span class="cnt2">✓ ' + yoN + '/3</span><span class="cnt2' + (my.nami ? ' full' : '') + '">○ ' + (my.nami ? 1 : 0) + '/1</span><span class="cnt2' + (my.toku ? ' full' : '') + '">◎ ' + (my.toku ? 1 : 0) + '/1</span>' +
-        (fin ? '<button class="btn" data-act="sunfin">選びなおす</button>' : '<button class="btn primary" data-act="sfin"' + (!ok ? ' disabled' : '') + '>選を終了</button>') + '</div>' +
-        '<p class="note">' + (fin ? '選び終えました。ほかの人を待っています（時間内なら「選びなおす」で変えられます）。全員が終えると、時間を待たずに選評へ進みます。' : ok ? '決めたら「選を終了」。あとから「選びなおす」こともできます。' : '✓○◎の、どれかひとつでもつけると「選を終了」できます。ぜんぶ使わなくても大丈夫（✓だけでもOK）。') + '</p></div>';
+        (fin ? '<button class="btn" data-act="sunfin">✓ 終了済み（取り消す）</button>' : '<button class="btn primary" data-act="sfin"' + (!ok ? ' disabled' : '') + '>選を終了</button>') + '</div>' +
+        '<p class="note center">全員が「選を終了」を押すと講評へ（' + nf + '/' + n + '）' + (fin ? '　※時間内なら「取り消す」で選びなおせます' : '') + '</p></div>';
     }
     if (s.host === myId && !s.tei) h += '<div class="actions"><button class="btn" data-act="close-select">選句を締め切る</button></div>';
     return h;
@@ -1719,14 +1761,42 @@ h3.sec { font-size: 1rem; }
   var yakuOpen = {}, watchAt = {};
   var K_STAMPS = [['🌸', 'すき'], ['👏', 'うまい'], ['😮', 'おどろき'], ['🍵', 'しみじみ']];
   var K_QCM = ['いいな', '景が見えます', '季語が効いています', '声に出して読みたい', 'むすびが好きです', '発想がすてき'];
-  var cmReply = {};
+  /* コメントのきっかけ：感想 → ポイント（いい・気になる） → 質問。ひとつ押せば、そのまま送れる。文に足してから送ってもいい */
+  var K_QGROUPS = [
+    { lb: '💬 感想', ch: ['ここがすき', 'ここがおもしろい', 'いいな', '景が見えます', '声に出して読みたい', 'しみじみします'] },
+    { lb: '👍 いいところ', ch: ['語順がいい', '季語がたっている', '季語と中身の取り合わせがいい', 'むすびが決まっている', '切れが効いている', '音の調べがいい'] },
+    { lb: '🔍 気になる', ch: ['語順を入れかえたら？', '季語がすこし弱いかも', '季語が二つあるかも', '説明っぽいところがあるかも', '字余りが気になる', '上五を切ったら？'] },
+    { lb: '❓ 作者に質問', ch: ['どうしてこの季語に？', 'どうしてこの語順に？', 'この場面はどこで？', 'いちばん見せたかったのは？'] }
+  ];
+  var cmReply = {}, cmEdit = {}, rxOpen = {}, typedAt = {}, qOpen = {}, askSel = {}, askTone = {}, askOpen = {};
+  /* 作者のひとこと：講評中、作者が名前を伏せたまま「ここを聞かせて」と、3回まで出せる */
+  var ASK_TOPICS = ['季語を', '語順を', '切れを', '取り合わせを', '一字空けを', '字余り・字足らずを', '景と心の配分を', '読み（ルビ）を', 'その他を'];
+  var ASK_TONES = ['やさしく', 'ふだんどおり', '厳しめに'];
+  function askCount(s, eid) { var n = 0; Object.keys(s.comments || {}).forEach(function (k) { var c = s.comments[k]; if (c && c.anon && c.eid === eid) n++; }); return n; }
+  function askBox(s, e) {
+    var n = askCount(s, e.id), left = Math.max(0, 3 - n);
+    if (!askOpen[e.id]) return '<div class="askbar"><button class="chip fit askbtn" data-act="ask-open" data-eid="' + esc(e.id) + '">✎ 作者のひとこと <small>あと' + left + '回</small></button><p class="note">いまは聞き役です（作者は話せません）。「ここを聞かせて」だけ、名前を伏せて出せます。</p></div>';
+    var sel = askSel[e.id] || [], tn = askTone[e.id] || 'ふだんどおり';
+    return '<div class="panel askbox"><div class="row2"><b>✎ 作者のひとこと <small class="note">名前を伏せて出ます</small></b><span class="note">あと' + left + '回</span></div>' +
+      '<div class="row qcmrow">' + ASK_TOPICS.map(function (t) { return '<button class="chip fit' + (sel.indexOf(t) >= 0 ? ' on' : '') + '" data-act="ask-sel" data-eid="' + esc(e.id) + '" data-v="' + esc(t) + '" aria-pressed="' + (sel.indexOf(t) >= 0) + '">' + esc(t) + '</button>'; }).join('') + '</div>' +
+      '<div class="row qcmrow"><span class="lb">口調</span>' + ASK_TONES.map(function (t) { return '<button class="chip fit' + (tn === t ? ' on' : '') + '" data-act="ask-tone" data-eid="' + esc(e.id) + '" data-v="' + t + '" aria-pressed="' + (tn === t) + '">' + t + '</button>'; }).join('') + '</div>' +
+      '<div class="row2"><span class="note">いまは聞き役です（作者は話せません）</span><button class="btn primary" data-act="ask-send" data-eid="' + esc(e.id) + '"' + (!sel.length || !left ? ' disabled' : '') + '>作者として送る</button></div>' +
+      '<p class="note"><button class="link" data-act="ask-open" data-eid="' + esc(e.id) + '">たたむ</button></p></div>';
+  }
+  var RX = [['🌸', 'いいね'], ['🥹', 'わかる'], ['💡', 'なるほど'], ['👏', 'おみごと'], ['🤔', '深い'], ['🙋', 'おしえて']];
+  function rxLabel(e) { for (var i = 0; i < RX.length; i++) if (RX[i][0] === e) return RX[i][1]; return ''; }
   var GO_Q = [
     'はじめの五音とおわりの五音、どっちが刺さった？　直感でええで。',
     'この句、どんな景色が見えた？　色とか音とか、あったやろ。',
     '一語だけえらぶなら、どのことばや？　はよ言いたいやろ。',
     '季語、この句のどこを照らしとる？　ちゃんと見てや。',
     '声に出して読んでみ。調べ（リズム）、どうやった？',
-    '自分の暮らしと重なるとこ、あった？　あったら教えてや。'
+    '自分の暮らしと重なるとこ、あった？　あったら教えてや。',
+    'この句、「わたし」が前に出とる感じ？　それとも景だけが、しずかに置かれとる感じ？　ぱっと受けた印象でええで。',
+    '季語と中身、くっつきすぎ？　離れすぎ？　「つかずはなれず」になっとるか、聞かせてや。',
+    '語順、これがいちばんええと思う？　入れかえたらどうなるか、ちょっと想像してみ。',
+    'この句の「カメラ」、どこにある？　近い？　遠い？　作者の目の位置を探してみてや。',
+    'ひとつだけ質問するなら、作者に何を聞きたい？　オープンのあとで答えてもらお。'
   ];
   function goQ(s, i) { var hsh = 0, id = String(s.id || ''); for (var k = 0; k < id.length; k++) hsh = (hsh + id.charCodeAt(k)) % 997; return GO_Q[(hsh + i) % GO_Q.length]; }
   function watchN(s) { var w = s.watch || {}, n = 0; Object.keys(w).forEach(function (u) { if (s.entries && s.entries[u]) return; if (Date.now() - (w[u] || 0) < 600000) n++; }); return n; }
@@ -1738,23 +1808,51 @@ h3.sec { font-size: 1rem; }
       '<li><b>誹謗中傷</b>と受け取られかねない言葉や、句・選評の<b>無断公開</b>は、きんしです。</li></ol>' +
       '<div class="actions"><button class="btn" data-act="' + (g === 'g' ? 'g-yaku-close' : 'yaku-close') + '">わかりました（とじる）</button></div></div>';
   }
+  /* 講評のまえに「みっつのおやくそく」：句を出した人に、いちどだけ（むすぶまで講評は見られない） */
+  function yakuDone() { try { return localStorage.getItem('ikku-yaku') === '1'; } catch (_) { return false; } }
+  function vYakusoku() {
+    return '<div class="yaku2"><p class="yk-cap">講評のまえに</p><h2 class="yk-title">みっつのおやくそく</h2><div class="yk-knot" aria-hidden="true"><svg viewBox="0 0 200 30" width="200" height="30"><path d="M5 18 C 60 18, 80 8, 100 12 S 140 22, 195 15" fill="none" stroke="#c9b97a" stroke-width="3"/><path d="M5 12 C 60 12, 80 22, 100 18 S 140 8, 195 12" fill="none" stroke="#c65a3a" stroke-width="3"/><circle cx="104" cy="10" r="7" fill="none" stroke="#c65a3a" stroke-width="3"/></svg></div>' +
+      '<p>一、句にも、詠んだ人にも、<b>敬意</b>をこめて。気になったところを伝えるときは、<b>ていねいな言葉</b>で。</p>' +
+      '<p>二、一つの句に、<b>ひとつは感想</b>を。ひとことが、詠んだ人の何よりのはげみになります。</p>' +
+      '<p>三、ほかの人の句や選評の<b>無断公開</b>、<b>誹謗中傷</b>と受け取られかねない発言、<b>盗作</b>は、禁止です。くり返すと、参加をお断りすることがあります。</p>' +
+      '<div class="actions center"><button class="btn primary big" data-act="yaku-ok">約束をむすぶ</button></div></div>';
+  }
   function vReveal(s) {
     if (count(s) < 2) return '<p class="lead">句がそろわず、この句会は成立しませんでした。</p>';
+    if (s.entries && s.entries[myId] && !yakuDone()) return vYakusoku();
     var T = tallyS(s);
     var rows = order(s).sort(function (x, y) { return T[y.id].pts - T[x.id].pts; });
     var max = rows.reduce(function (m, r) { return Math.max(m, T[r.id].pts); }, 0);
     var entrant = !!(s.entries && s.entries[myId]);
     var live = s.status === 'reveal', opened = !!s.opened || s.status === 'done';
-    var cms = Object.keys(s.comments || {}).map(function (k) { var o = s.comments[k] || {}; return { k: k, eid: o.eid, uid: o.uid, text: o.text, tone: o.tone, part: o.part, at: o.at, like: o.like, re: o.re || '' }; }).sort(function (x, y) { return (y.at || 0) - (x.at || 0); });
+    var cms = Object.keys(s.comments || {}).map(function (k) { var o = s.comments[k] || {}; return { k: k, eid: o.eid, uid: o.uid, text: o.text, tone: o.tone, part: o.part, at: o.at, like: o.like, rx: o.rx, ed: o.ed, jiku: o.jiku, anon: o.anon, re: o.re || '' }; }).sort(function (x, y) { return (y.at || 0) - (x.at || 0); });
     var idx = Math.min(cmtIdx(s), rows.length), h;
     function cmLine(c, canC, isRe) {
-      var lk = c.like || {}, likes = 0; Object.keys(lk).forEach(function (u) { if (lk[u]) likes++; });
-      var myLk = !!lk[myId], canLike = live && entrant && c.uid !== myId && myId;
-      return '<div class="cmi' + (isRe ? ' reply' : '') + (PERSONAS_[c.uid] ? ' chara' : '') + '"><b>' + (opened ? esc(nameOf(s, c.uid)) + (!PERSONAS_[c.uid] && s.entries && s.entries[c.uid] && s.entries[c.uid].bot ? '（感想担当・ボット）' : '') : (c.uid === myId ? 'あなた' : (PERSONAS_[c.uid] ? personaName(s, c.uid) : (s.entries && s.entries[c.uid] && s.entries[c.uid].bot ? '感想担当・ボット' : '選者')))) + '</b>' +
+      var isBot = !!(PERSONAS_[c.uid] || (s.entries && s.entries[c.uid] && s.entries[c.uid].bot)), own = c.uid === myId;
+      var rx = Object.assign({}, c.rx || {}); Object.keys(c.like || {}).forEach(function (u) { if (c.like[u] && !rx[u]) rx[u] = '🥹'; });
+      var cnt = {}; Object.keys(rx).forEach(function (u) { if (rx[u]) cnt[rx[u]] = (cnt[rx[u]] || 0) + 1; });
+      var canRx = live && entrant && !own && myId, mine = rx[myId] || '';
+      var chips = RX.filter(function (r) { return cnt[r[0]]; }).map(function (r) { return canRx ? '<button class="chip fit rxc' + (mine === r[0] ? ' on' : '') + '" data-act="cm-rx" data-key="' + esc(c.k) + '" data-v="' + r[0] + '">' + r[0] + ' ' + r[1] + ' ' + cnt[r[0]] + '</button>' : '<span class="chip fit rxc">' + r[0] + ' ' + r[1] + ' ' + cnt[r[0]] + '</span>'; }).join('');
+      var who = opened ? esc(nameOf(s, c.uid)) + (!PERSONAS_[c.uid] && isBot ? '（感想担当・ボット）' : '') : (own ? 'あなた' : (PERSONAS_[c.uid] ? personaName(s, c.uid) : (isBot ? '感想担当・ボット' : '選者')));
+      if (c.anon) who = opened ? '✎ 作者 ' + esc(nameOf(s, c.uid)) : '✎ 作者（名前は結果発表まで伏せます）' + (own ? '＝あなた' : '');
+      var pc = isRe && c.re ? (s.comments || {})[c.re] : null, quote = '';
+      if (pc) { var pwho = opened ? nameOf(s, pc.uid) : (pc.uid === myId ? 'あなた' : (PERSONAS_[pc.uid] ? personaName(s, pc.uid) : '選者')); quote = '<div class="cmquote">↳ ' + esc(pwho) + ': ' + esc(String(pc.text || '').slice(0, 22)) + (String(pc.text || '').length > 22 ? '…' : '') + '</div>'; }
+      return '<div class="cmi' + (isRe ? ' reply' : '') + (isBot ? ' chara' : '') + (own ? ' own' : '') + (c.anon ? ' anon' : '') + '"><b>' + who + '</b>' + (isBot ? '<span class="cmtag bot">ボットのコメント例</span>' : '') + (c.jiku ? '<span class="cmtag jiku">🪶 自句自解</span>' : '') + quote +
         (c.tone ? '<span class="cmtag' + (c.tone === 'きびしく' ? ' kb' : '') + '">' + esc(c.tone) + '</span>' : '') +
-        (c.part || []).map(function (q) { return '<span class="cmtag">' + esc(q) + '</span>'; }).join('') + esc(c.text) +
-        (canLike ? ' <button class="chip fit cmlike' + (myLk ? ' on' : '') + '" data-act="cm-like" data-key="' + esc(c.k) + '" aria-pressed="' + myLk + '">🫶 わかる' + (likes ? ' ' + likes : '') + '</button>' : (likes ? ' <span class="cmtag">🫶 わかる ' + likes + '</span>' : '')) +
-        (canC && !isRe ? ' <button class="link cmre" data-act="cm-re" data-eid="' + esc(c.eid) + '" data-key="' + esc(c.k) + '">返信</button>' : '') + '</div>';
+        (c.part || []).map(function (q) { return '<span class="cmtag">' + esc(q) + '</span>'; }).join('') + esc(c.text) + (c.ed ? ' <small class="note">（編集済み）</small>' : '') +
+        '<div class="cmact">' + chips +
+        (canRx ? '<button class="chip fit rxadd" data-act="cm-rxopen" data-key="' + esc(c.k) + '" aria-expanded="' + !!rxOpen[c.k] + '">😌＋</button>' : '') +
+        (canC && !isRe ? '<button class="link cmre" data-act="cm-re" data-eid="' + esc(c.eid) + '" data-key="' + esc(c.k) + '">返信</button>' : '') +
+        (canC && own && live ? '<button class="link cmre" data-act="cm-edit" data-eid="' + esc(c.eid) + '" data-key="' + esc(c.k) + '">編集</button>' : '') + '</div>' +
+        (Object.keys(cnt).length ? '<div class="rxwho">' + RX.filter(function (r) { return cnt[r[0]]; }).map(function (r) { var us = Object.keys(rx).filter(function (u) { return rx[u] === r[0]; }); return r[0] + ' ' + (opened ? us.map(function (u) { return esc(nameOf(s, u)) + (u === myId ? '（あなた）' : ''); }).join('、') : us.length + '人' + (us.indexOf(myId) >= 0 ? '（あなたをふくむ）' : '')); }).join('　') + (opened ? '' : '　<small>名前はオープンのあと</small>') + '</div>' : '') +
+        (mine && canRx ? '<div class="rxmine">' + mine + ' あなたが「' + rxLabel(mine) + '」 <button class="link" data-act="cm-rx" data-key="' + esc(c.k) + '" data-v="' + mine + '">取り消す</button></div>' : '') +
+        (rxOpen[c.k] && canRx ? '<div class="rxpick">' + RX.map(function (r) { return '<button class="rxb' + (mine === r[0] ? ' on' : '') + '" data-act="cm-rx" data-key="' + esc(c.k) + '" data-v="' + r[0] + '"><i>' + r[0] + '</i>' + r[1] + '</button>'; }).join('') + '</div>' : '') + '</div>';
+    }
+    function typingText(s2) {
+      var ty = s2.typing || {}, now = Date.now(), names = [];
+      Object.keys(ty).forEach(function (u) { if (u !== myId && ty[u] && now - ty[u] < 9000) names.push(u); });
+      if (!names.length) return '';
+      return (opened ? names.map(function (u) { return esc(nameOf(s2, u)) + 'さん'; }).join('と') : (names.length === 1 ? 'だれかが' : names.length + '人が')) + '書き込み中 …';
     }
     function cmThread(list, canC) {
       var h2 = '';
@@ -1795,11 +1893,17 @@ h3.sec { font-size: 1rem; }
         (opened && e.id === myId ? '<div>' + cardBtn('k:' + s.id, { text: joinKu(e).a, haigo: e.haigo || haigo, sub: (s.tei ? kName(s) : (SER[s.series] ? SER[s.series].name + '「' + s.ch + '」' : '') + '　定例句会'), badge: '第' + (1 + rows.filter(function (x) { return T[x.id].pts > t.pts; }).length) + '位・特選' + t.toku.length + '・並選' + t.nami.length }) + '</div>' : '') + '</div>' +
         '<div class="cm">' + smRow + cmThread(mineC, canC) +
         (isCur && !opened ? '<div class="cmi hostline"><b>ダー浜（司会）</b>' + esc(goQ(s, num - 1)) + '</div>' : '') +
-        (isCur && !opened ? '<div id="lastmin" class="cmi hostline" style="display:none"><b>ダー浜（司会）</b>のこり1分やで！　最後のひとこと、まとめてや。</div>' : '') +
-        (canC && !opened ? '<p class="note">「いいな」だけでも、立派な選評です。したのボタンひとつでも、じぶんの言葉でも。 <button class="link" data-act="page" data-p="hints">句会の評のヒント</button></p>' : '') +
-        (canC ? '<div class="row qcmrow">' + K_QCM.map(function (q2) { return '<button class="chip fit" data-act="cm-quick" data-eid="' + esc(e.id) + '" data-v="' + esc(q2) + '">' + esc(q2) + '</button>'; }).join('') + '</div>' : '') +
+        (isCur && !opened ? '<div id="lastmin" class="cmi hostline" style="display:none"><b>ダー浜（司会）</b>のこり1分やで！　時間が足りんかったら、下のボタンで。<div><button class="btn primary small" data-act="cm-ext" data-i="' + (num - 1) + '"' + (((s.ext || {})[num - 1] || 0) >= 4 ? ' disabled' : '') + '>⏳ +2分 のばす ' + ((s.ext || {})[num - 1] || 0) + '/4</button></div></div>' +
+          '<div id="halfway" class="cmi hostline" style="display:none"><b>ダー浜（司会）</b>講評がはじまって<b id="hw-el"></b>たったで。のこりは<b id="hw-left"></b>や。まだの人も、ひとことどうぞ。</div>' +
+          '<div id="endcnt" class="cmi hostline" style="display:none"><b>ダー浜（司会）</b>講評の時間はここまで。あと<b id="endsec">10</b>秒で、次の句にいくで。<div class="dots10" id="enddots"></div></div>' : '') +
+        (isCur && !opened && live && entrant && e.id === myId ? askBox(s, e) : '') +
+        (canC && opened && e.id === myId ? '<p class="note">🪶 <b>作者からひとこと（自句自解）</b>：どうしてこの季語に？ どんな場面？ 質問があれば、ここで答えられます。だまっていても、大丈夫です。</p>' : '') +
+        (canC && !opened ? '<p class="note">「ここがすき」だけでも、立派な選評です。気になる点や質問も、ひとつあると、作者の学びになります。 <button class="link" data-act="page" data-p="hints">句会の評のヒント</button></p>' : '') +
+        (canC ? '<details class="qcm' + (qOpen[e.id] ? '" open="' : '') + '"><summary>ことばのヒント（押すと入力欄に入ります・そのまま送ってもOK）</summary>' + K_QGROUPS.map(function (g) { return '<div class="row qcmrow"><span class="lb">' + g.lb + '</span>' + g.ch.map(function (q2) { return '<button class="chip fit" data-act="cm-fill" data-eid="' + esc(e.id) + '" data-v="' + esc(q2) + '">' + esc(q2) + '</button>'; }).join('') + '</div>'; }).join('') + '</details>' : '') +
+        (canC ? '<p class="note typing" id="typing-' + esc(e.id) + '">' + typingText(s) + '</p>' : '') +
+        (canC && cmEdit[e.id] ? '<p class="note">自分のコメントを編集しています <button class="link" data-act="cm-edit-cancel" data-eid="' + esc(e.id) + '">やめる</button></p>' : '') +
         (canC && cmReply[e.id] && s.comments && s.comments[cmReply[e.id]] ? '<p class="note">「' + esc(String(s.comments[cmReply[e.id]].text || '').slice(0, 14)) + '…」への返信を書いています <button class="link" data-act="cm-re-cancel" data-eid="' + esc(e.id) + '">やめる</button></p>' : '') +
-        (canC ? cmTools(e.id) + '<div class="cmrow"><input type="text" id="cm-' + esc(e.id) + '" data-f="cm" data-eid="' + esc(e.id) + '" maxlength="140" placeholder="' + (cmReply[e.id] ? '返信をひとこと' : '選評をひとこと') + '" value="' + esc(cmDraft[e.id] || '') + '"><button class="btn" data-act="comment" data-eid="' + esc(e.id) + '">送る</button></div>' : '') +
+        (canC ? cmTools(e.id) + '<div class="cmrow"><input type="text" id="cm-' + esc(e.id) + '" data-f="cm" data-eid="' + esc(e.id) + '" maxlength="140" placeholder="' + (cmReply[e.id] ? '返信をひとこと' : 'コメントを書いてみましょう') + '" value="' + esc(cmDraft[e.id] || '') + '"><button class="btn" data-act="comment" data-eid="' + esc(e.id) + '">' + (cmEdit[e.id] ? '直す' : '送信') + '</button></div>' : '') +
         '</div></article>';
     }
     var wn = watchN(s), wbadge = wn > 0 ? '<span class="vbadge wbadge">👀 見学中・' + wn + '人</span>' : '';
@@ -3904,6 +4008,7 @@ h3.sec { font-size: 1rem; }
     else if (act === 'open') { fromArch = false; current = t.dataset.sid; showInv = false; render(); }
     else if (act === 'calrec') calDownload('recur', 'haiku-kukai-heijitsu21.ics');
     else if (act === 'calics') { var cs = t.dataset.sid, cl = teiSlotsFar(7).filter(function (x) { return x.start > Date.now() && (cs === 'all' || x.sid === cs); }); if (cl.length) calDownload(cl, cs === 'all' ? 'haiku-kukai-week.ics' : 'haiku-kukai.ics'); }
+    else if (act === 'yaku-ok') { try { localStorage.setItem('ikku-yaku', '1'); } catch (_) {} toast('約束をむすびました。講評へどうぞ'); render(); }
     else if (act === 'pushhelp') { pushHelp = !pushHelp; render(); }
     else if (act === 'pushtog') { if (pushOn) pushTurnOff(); else pushTurnOn(); }
     else if (act === 'pushmode') { pushAll = t.dataset.m === 'all'; try { localStorage.setItem('ikku-push-all', pushAll ? '1' : '0'); } catch (_) {} pushSync(null); render(); }
@@ -4085,10 +4190,16 @@ h3.sec { font-size: 1rem; }
       var eid2 = t.dataset.eid, text = String(cmDraft[eid2] || '').trim(), pts = (cmPart[eid2] || []).slice();
       if (!text && !pts.length) { toast('選評を入れるか、「どういうところを」を選んでください'); return; }
       markFirst('f_cm');
+      if (cmEdit[eid2] && sm.comments && sm.comments[cmEdit[eid2]] && sm.comments[cmEdit[eid2]].uid === myId) {
+        var ek = cmEdit[eid2], ep = { comments: {} }; ep.comments[ek] = { text: text.slice(0, 140), ed: true }; if (pts.length) ep.comments[ek].part = pts;
+        cmDraft[eid2] = ''; cmPart[eid2] = []; cmEdit[eid2] = '';
+        write(sm.id, ep).then(function () { toast('直しました'); }); return;
+      }
       var key = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
       var cobj = {}; cobj[key] = { eid: eid2, uid: myId, text: text.slice(0, 140), tone: cmTone[eid2] || '', part: pts, at: Date.now(), re: cmReply[eid2] || '' };
+      if (eid2 === myId) cobj[key].jiku = true;
       cmDraft[eid2] = ''; cmTone[eid2] = ''; cmPart[eid2] = []; cmReply[eid2] = '';
-      write(sm.id, { comments: cobj });
+      write(sm.id, { comments: cobj }); try { var tp = {}; tp[myId] = null; write(sm.id, { typing: tp }); } catch (_) {}
     }
     else if (act === 'finish') { var sf = scur(); if (sf) write(sf.id, { status: 'done' }); }
     else if (act === 'yaku-close') { var sy = scur(); if (sy) { yakuOpen[sy.id] = false; render(); } }
@@ -4102,6 +4213,24 @@ h3.sec { font-size: 1rem; }
       var cur2 = ((ss2.stamps || {})[se2] || {})[myId];
       write(ss2.id, nest(['stamps', se2, myId], cur2 === sv2 ? null : sv2));
     }
+    else if (act === 'ask-open') { askOpen[t.dataset.eid] = !askOpen[t.dataset.eid]; render(); }
+    else if (act === 'ask-sel') { var as = askSel[t.dataset.eid] || (askSel[t.dataset.eid] = []), ai = as.indexOf(t.dataset.v); if (ai >= 0) as.splice(ai, 1); else if (as.length < 3) as.push(t.dataset.v); else { toast('3つまでです'); return; } render(); }
+    else if (act === 'ask-tone') { askTone[t.dataset.eid] = t.dataset.v; render(); }
+    else if (act === 'ask-send') {
+      var sa = scur(); if (!sa || !ready() || sa.status !== 'reveal' || sa.opened) return;
+      var ae = t.dataset.eid; if (ae !== myId || !(sa.entries && sa.entries[myId])) return;
+      if (askCount(sa, ae) >= 3) { toast('作者のひとことは、3回までです'); return; }
+      var asel = (askSel[ae] || []).slice(); if (!asel.length) { toast('聞きたいところを、ひとつえらんでください'); return; }
+      var atn = askTone[ae] || 'ふだんどおり', atext = asel.map(function (x) { return x.replace(/を$/, ''); }).join('と') + 'について、聞かせてください。' + (atn === 'やさしく' ? '（やさしめで）' : atn === '厳しめに' ? '（厳しめでも大丈夫です）' : '');
+      var ak = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ao = {}; ao[ak] = { eid: ae, uid: myId, text: atext, tone: '', part: [], at: Date.now(), re: '', anon: true };
+      askSel[ae] = []; askOpen[ae] = false;
+      write(sa.id, { comments: ao }).then(function () { toast('作者として、出しました（名前は伏せたまま）'); });
+    }
+    else if (act === 'cm-fill') {
+      var fe = t.dataset.eid, fv = String(t.dataset.v || ''), cur2 = String(cmDraft[fe] || '').trim();
+      cmDraft[fe] = cur2 ? (cur2.indexOf(fv) >= 0 ? cur2 : cur2 + '。' + fv) : fv; qOpen[fe] = true; render();
+      var fel = document.getElementById('cm-' + fe); if (fel) { fel.focus(); try { fel.setSelectionRange(fel.value.length, fel.value.length); } catch (_) {} }
+    }
     else if (act === 'cm-quick') {
       var sq = scur(); if (!sq || !ready()) return;
       if (!(sq.entries && sq.entries[myId])) return;
@@ -4114,6 +4243,25 @@ h3.sec { font-size: 1rem; }
     }
     else if (act === 'cm-re') { cmReply[t.dataset.eid] = t.dataset.key; render(); var el2 = document.getElementById('cm-' + t.dataset.eid); if (el2) { try { el2.focus(); } catch (_) {} } }
     else if (act === 'cm-re-cancel') { cmReply[t.dataset.eid] = ''; render(); }
+    else if (act === 'cm-ext') {
+      var sx = scur(); if (!sx || !ready() || sx.status !== 'reveal' || sx.opened) return;
+      if (!(sx.entries && sx.entries[myId])) { toast('のばせるのは、句を出した人です'); return; }
+      var xi = Number(t.dataset.i), xn = (sx.ext || {})[xi] || 0; if (xn >= 4) { toast('この句は、もうのばせません'); return; }
+      var xp = { cmtShift: (sx.cmtShift || 0) - 120000 }; xp.ext = {}; xp.ext[xi] = xn + 1;
+      write(sx.id, xp).then(function () { toast('2分、のばしました'); });
+    }
+    else if (act === 'cm-rxopen') { rxOpen[t.dataset.key] = !rxOpen[t.dataset.key]; render(); }
+    else if (act === 'cm-rx') {
+      var sr = scur(); if (!sr || !ready()) return;
+      if (!(sr.entries && sr.entries[myId])) { toast('リアクションは、句を出した人が押せます'); return; }
+      var rk = t.dataset.key, rc = (sr.comments || {})[rk]; if (!rc || rc.uid === myId) return;
+      var cur = (rc.rx || {})[myId] || ((rc.like || {})[myId] ? '🥹' : ''), nv = cur === t.dataset.v ? '' : t.dataset.v;
+      rxOpen[rk] = false;
+      var rp = nest(['comments', rk, 'rx', myId], nv || null); if (rc.like && rc.like[myId]) rp.comments[rk].like = {}, rp.comments[rk].like[myId] = null;
+      write(sr.id, rp);
+    }
+    else if (act === 'cm-edit') { var ec = (scur() || {}).comments || {}, eo = ec[t.dataset.key]; if (!eo) return; cmEdit[t.dataset.eid] = t.dataset.key; cmDraft[t.dataset.eid] = eo.text || ''; cmReply[t.dataset.eid] = ''; render(); var el3 = document.getElementById('cm-' + t.dataset.eid); if (el3) el3.focus(); }
+    else if (act === 'cm-edit-cancel') { cmEdit[t.dataset.eid] = ''; cmDraft[t.dataset.eid] = ''; render(); }
     else if (act === 'cm-like') {
       var sl = scur(); if (!sl || !ready()) return;
       if (!(sl.entries && sl.entries[myId])) { toast('「わかる」は、句を出した人が押せます'); return; }
@@ -4144,7 +4292,7 @@ h3.sec { font-size: 1rem; }
     else if (f === 'nw-title') nf.title = t.value;
     else if (f === 'nw-body') nf.body = t.value;
     else if (f === 'nw-url') nf.url = t.value;
-    else if (f === 'cm') cmDraft[t.dataset.eid] = t.value;
+    else if (f === 'cm') { cmDraft[t.dataset.eid] = t.value; var st3 = scur(); if (st3 && myId && db && st3.entries && st3.entries[myId] && t.value && Date.now() - (typedAt[st3.id] || 0) > 4000) { typedAt[st3.id] = Date.now(); try { write(st3.id, nest(['typing', myId], Date.now())); } catch (_) {} } }
     else if (f === 'ga' || f === 'gb' || f === 'gc') {
       var gs = scur(), gdr = gs && drafts['s:' + gs.id];
       if (gdr) { gdr[f.charAt(1)] = t.value; touched['s:' + gs.id] = 1; updateGForm(); }
@@ -4237,7 +4385,10 @@ h3.sec { font-size: 1rem; }
       var oc = document.getElementById('oclock'); if (oc) oc.textContent = fmt(oleft);
       var ob = document.getElementById('obar'); if (ob) ob.style.width = (oleft / cmtSecS(s) * 100).toFixed(1) + '%';
       if (ob) ob.style.background = oleft <= 60 ? 'var(--accent2)' : '';
-      var lm = document.getElementById('lastmin'); if (lm) lm.style.display = oleft <= 60 ? '' : 'none';
+      var lm = document.getElementById('lastmin'); if (lm) lm.style.display = oleft <= 60 && oleft > 10 ? '' : 'none';
+      var hw = document.getElementById('halfway'); if (hw) { var tot = cmtSecS(s), el = tot - oleft, half = Math.floor(tot / 2), showHw = el >= half && el < half + 60 && oleft > 60; hw.style.display = showHw ? '' : 'none'; if (showHw) { var fm = function (x) { return (x >= 60 ? Math.floor(x / 60) + '分' : '') + (x % 60 ? (x % 60) + '秒' : ''); }; var h1 = document.getElementById('hw-el'), h2 = document.getElementById('hw-left'); if (h1) h1.textContent = fm(el); if (h2) h2.textContent = fm(oleft); } }
+      var ec = document.getElementById('endcnt'); if (ec) { ec.style.display = oleft <= 10 ? '' : 'none'; if (oleft <= 10) { var es = document.getElementById('endsec'); if (es) es.textContent = oleft; var ed = document.getElementById('enddots'); if (ed) { var dd = ''; for (var di = 0; di < 10; di++) dd += '<i class="' + (di < 10 - oleft ? 'on' : '') + '"></i>'; ed.innerHTML = dd; } } }
+      try { var tps = document.querySelectorAll('.typing'); for (var ti = 0; ti < tps.length; ti++) { var ty = s.typing || {}, nn = 0, now2 = Date.now(); Object.keys(ty).forEach(function (u) { if (u !== myId && ty[u] && now2 - ty[u] < 9000) nn++; }); if (!nn) tps[ti].textContent = ''; } } catch (_) {}
       if (yakuOpen[s.id] === undefined && cmtElapsed(s) >= 45000 && document.querySelector('.yaku')) { yakuOpen[s.id] = false; render(); return; }
     }
     if (myId && db && s.status !== 'done' && s.status !== 'gathering' && !(s.entries && s.entries[myId])) {
