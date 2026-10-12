@@ -633,7 +633,7 @@ h3.sec { font-size: 1rem; }
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12u';
+  var APP_VER = 'v2026.10.12v';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1126,7 +1126,17 @@ h3.sec { font-size: 1rem; }
       }
     }
     if (cuts) { a = [a.join('').split('。')[0] + '。']; lr = ''; c = c.slice(0, 1); }
-    return { t: cuts + a.join('') + b.join('') + c.join('') + lr, part: part };
+    /* 選評の作法：①まず受け止める ②読者として何が見えたかを返す ③いいところ ④提案は「もしよければ」と小さく ⑤ひと言でしめる */
+    var OPEN = ['ご投句、たしかに受け取りました。', 'この一句、まっすぐ届きましたよ。', 'ひとつの作品として、ていねいに読ませていただきました。', 'よく詠んでくださいました。', 'まずは、この句に出会えてよかったです。'];
+    var op = OPEN[hash(String(seed || '') + 'O') % OPEN.length], seeing = '';
+    if (k.t.length >= 5) {
+      var SEE = ['読んで、「' + k.t.slice(0, Math.min(k.t.length, 8)) + (k.t.length > 8 ? '…' : '') + '」の景が、ふっと目にうかびました。', 'ことばのむこうに、作者の見た一瞬の景があるように読めました。', '作者のいる場所の空気まで、少し伝わってきます。'];
+      seeing = SEE[hash(String(seed || '') + 'S') % SEE.length];
+    }
+    var koyu = /(ない|ちゃ|てる|じゃん|だよ|かも|よね|ねえ|たい|だった|んだ)/.test(k.t) ? '口語のことばが生きているのも、いまの俳句らしくてすてきです。' : '';
+    var clos = ['句の読み方はひとつではありません。これは、あなたの一句として受け止めました。', '直すというより、「こんな見かたもあるかな」くらいに、気楽に受け取ってくださいね。', 'どんな句も、詠んだその日の記録。次の一句も楽しみにしています。'];
+    var cl = clos[hash(String(seed || '') + 'C') % clos.length];
+    return { t: op + seeing + cuts + a.join('') + koyu + c.join('') + (b.length ? 'もしよければ、' + b.join('').replace(/^。/, '') : '') + lr + cl, part: part };
   }
   /* ---- できあがった句の、5つのチェックポイント ---- */
   var EMO_RE = /美しい|うつくしい|きれい|綺麗|悲しい|かなしい|楽しい|たのしい|うれしい|嬉しい|さびしい|淋しい|寂しい|すばらしい|素晴らしい|感動|幸せ|しあわせ|つらい|苦しい|愛しい/;
