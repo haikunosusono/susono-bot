@@ -633,7 +633,7 @@ h3.sec { font-size: 1rem; }
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12v';
+  var APP_VER = 'v2026.10.12w';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -997,8 +997,9 @@ h3.sec { font-size: 1rem; }
     var be = teiBotEntries(s, 2), all = Object.assign({}, es, be);
     write(s.id, { status: 'selecting', selectStart: Date.now(), startedAt: Date.now(), entries: be, votes: teiBotVotes(s, all), bots: 2 });
   }
+  function teiSlotsFar(days) { var n = dayNum(), out = []; for (var d = n; d <= n + days; d++) teiHoursFor(d).forEach(function (h) { out.push({ dn: d, h: h, start: teiStartOf(d, h), sid: teiSid(d, h) }); }); return out; }
   function teiEnter(sid, quiet) {
-    var sl = teiSlots().filter(function (x) { return x.sid === sid; })[0]; if (!sl) return;
+    var sl = teiSlots().concat(teiSlotsFar(14)).filter(function (x) { return x.sid === sid; })[0]; if (!sl) return;
     if (!teiFind(sid)) { var v = teiDoc(sl); v.id = sid; v.entries = {}; kExtra[sid] = v; }
     current = sid; showNew = false; showInv = false; tab = 'together'; page = '';
     if (!quiet) teiTutOnce(sid);
@@ -1284,8 +1285,7 @@ h3.sec { font-size: 1rem; }
   /* 投句はいつでも。ただし、定刻をすぎたら出せない。ほかの回が開催中のあいだも、お休み */
   function teiCanSubmit(s) {
     if (!s || !s.tei || s.status !== 'gathering' || Date.now() >= s.startAt) return false;
-    var st = teiState();
-    return !(st.kind === 'live' && st.slot && st.slot.sid !== s.id);
+    return true;
   }
   function revealPatch(s) {
     var p = { status: 'reveal', revealAt: Date.now() };
@@ -1416,11 +1416,39 @@ h3.sec { font-size: 1rem; }
       });
       h += '<details class="panel"><summary>📅 きょうの時間割を見る' + (teiDayOff(n0) ? '（休日は3回）' : '（2回）') + '</summary><ul class="tg2 ttable">' + rows2.join('') + '</ul></details>';
     })();
+    h += vTeiFar() + vMailBox();
     var shown = st.slot ? st.slot.sid : '', up = teiSlots().filter(function (x) { return x.start > t && x.sid !== shown; }).slice(0, 3);
     if (up.length) h += '<div class="panel"><b>このあとの予定</b><ul class="tg2">' + up.map(function (x) { return '<li>' + esc(teiLabel(x)) + '</li>'; }).join('') + '</ul></div>';
     h += '<div class="actions"><button class="btn" data-act="tutt">進行のしかた（チュートリアル）</button><button class="btn" data-act="page" data-p="archive">句会アーカイブ</button></div>';
     h += '<p class="note">終わった句会は、ここから消えて、「句会アーカイブ」に残ります（参加した人だけが見られます）。仲間だけで詠みたいときは「仲間と句会」、ひとりで練習したいときは「ひとりで句会」へ。</p>';
     return h;
+  }
+  /* 開始のお知らせメール：ON/OFF（しくみ先行。送信の設定ができしだい、ここで選んだ人に届く） */
+  var mailOn = false, mailLoaded = false;
+  try { mailOn = localStorage.getItem('ikku-mail') === '1'; } catch (_) {}
+  function mailLoad() {
+    if (mailLoaded || !db || !myId) return; mailLoaded = true;
+    try { db.collection('data/users/' + myId).doc('notify').get().then(function (d) { if (d && d.exists) { var v = !!d.data().mail; if (v !== mailOn) { mailOn = v; try { localStorage.setItem('ikku-mail', v ? '1' : '0'); } catch (_) {} render(); } } }).catch(function () {}); } catch (_) {}
+  }
+  function mailSet(v) {
+    mailOn = v; try { localStorage.setItem('ikku-mail', v ? '1' : '0'); } catch (_) {}
+    if (db && myId) db.collection('data/users/' + myId).doc('notify').set({ notify: 1, mail: v, email: window.fbUserEmail || '', lead: 15, at: Date.now() }).catch(function () {});
+    toast(v ? '開始のお知らせメールを、ONにしました' : 'OFFにしました'); render();
+  }
+  function vMailBox() {
+    mailLoad();
+    var em = window.fbUserEmail || '';
+    return '<div class="panel mailbox"><div class="row2"><b>🔔 開始15分前の、お知らせメール</b><button class="btn small ' + (mailOn ? 'primary' : '') + '" data-act="mailtog" aria-pressed="' + mailOn + '">' + (mailOn ? 'ON（とめる）' : 'OFF（受け取る）') + '</button></div>' +
+      '<p class="note">一句を出した回の、はじまる15分前に、メールでお知らせします。いつでもON/OFFできます。' + (em ? '送り先：' + esc(em) : (myId ? '' : 'ログインすると使えます。')) + '</p>' +
+      (mailOn ? '<p class="botnote">🤖 ONを受けつけました。メールの送信は、いま準備中です。準備ができしだい、届きはじめます。</p>' : '') + '</div>';
+  }
+  function vTeiFar() {
+    var t = Date.now(), shown = teiState().slot ? teiState().slot.sid : '', rows = teiSlotsFar(7).filter(function (x) { return x.start > t && x.sid !== shown; }).slice(0, 12);
+    if (!rows.length) return '';
+    return '<details class="panel"><summary>📅 他の日程も見る・先に提出する</summary><p class="note">先の回にも、いまのうちに一句を出しておけます。出したあとも、はじまるまで差しかえ・取り消しは自由です。はじまる時刻にこのアプリをひらいていれば、その回の部屋に入れます。</p><ul class="tg2 farlist">' + rows.map(function (x) {
+      var d = teiFind(x.sid), mi = d && d.entries && d.entries[myId], nh = teiHumans(d);
+      return '<li><b>' + esc(teiLabel(x)) + '</b> <span class="note">' + (nh ? nh + '人の句' : 'まだ0人') + (mi ? '・あなたは提出ずみ' : '') + '</span> <button class="btn small" data-act="tei-go" data-sid="' + x.sid + '">' + (mi ? 'ひらく' : 'この回に出す') + '</button></li>';
+    }).join('') + '</ul></details>';
   }
   function teiLiveItems() {
     var st = teiState(), out = [];
@@ -3732,6 +3760,7 @@ h3.sec { font-size: 1rem; }
     }
     else if (act === 'sback') { current = null; if (fromArch) { fromArch = false; page = 'archive'; } render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'open') { fromArch = false; current = t.dataset.sid; showInv = false; render(); }
+    else if (act === 'mailtog') { if (!myId) { toast('ログインすると使えます'); return; } mailSet(!mailOn); }
     else if (act === 'tei-go') { askNotify(); teiEnter(t.dataset.sid); }
     else if (act === 'flat-go') { askNotify(); flatEnter(); }
     else if (act === 'tutt') { openTut(0, 'tei'); }
