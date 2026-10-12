@@ -741,7 +741,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12z25';
+  var APP_VER = 'v2026.10.12z26';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -794,14 +794,24 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     clearTimeout(tt); tt = setTimeout(function () { el.hidden = true; }, 3200);
   }
   var baseTitle = document.title, tflash = null, prevSt = null, actx = null;
+  /* お知らせの音：やわらかいチャイム（ピロリン♪ 3音＋余韻）。iPhoneでも鳴るよう、タップのあとに音の準備をしておく */
+  function tone(freq, t0, dur, vol) {
+    var o = actx.createOscillator(), g = actx.createGain();
+    o.type = 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(actx.destination); o.start(t0); o.stop(t0 + dur + 0.05);
+  }
   function beep() {
     try {
       actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-      var o = actx.createOscillator(), g = actx.createGain();
-      o.frequency.value = 880; g.gain.value = 0.08; o.connect(g); g.connect(actx.destination);
-      o.start(); o.stop(actx.currentTime + 0.18);
+      if (actx.state === 'suspended') actx.resume();
+      var t = actx.currentTime + 0.02;
+      tone(1046.5, t, 0.5, 0.18); tone(1318.5, t + 0.16, 0.5, 0.18); tone(1568, t + 0.32, 0.9, 0.2);
+      tone(2093, t + 0.32, 0.9, 0.05);
     } catch (e) {}
   }
+  function primeAudio() { try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch (e) {} }
+  document.addEventListener('touchend', primeAudio, { passive: true }); document.addEventListener('click', primeAudio, { passive: true });
   function notify(msg) {
     toast(msg); beep();
     try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) {}
