@@ -741,7 +741,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12z26';
+  var APP_VER = 'v2026.10.12z27';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -2130,7 +2130,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     ['終わった句会は、どこで見られますか？', '「句会アーカイブ」（マイページ・メニューから）に残ります。そこから、結果をいつでもひらけます。参加した人だけが見られます。'],
     ['句会で出した句は、ストッ句に入りますか？', 'はい。定例句会も、仲間と句会も、ひとりで句会も、出した句は、出どころ（句会の名前と題）つきで、ストッ句に自動で入ります。ストッ句から消しても、もう一度は入りません。'],
     ['合言葉って、なんですか？', '仲間と句会の集まり方のひとつです。部屋をつくるときに合言葉を決めると、仲間は「仲間と句会」の「部屋に入る」で、同じ合言葉を入れるだけで、同じ部屋に入れます。部屋の外の人には見えません。仲間うちだけで通じる言葉にしてください。招待リンクでも入れます。'],
-    ['仲間と句会の優勝は、どう決まりますか？', '1回戦ごとに「この回のトップ」が決まり、点は通算にくりこされます。決めた回数（3〜10回戦）をまわし終えるか、幹事が「句会をとじて、優勝を決める」を押すと、通算トップが句会優勝。トロフィーがマイページに飾られます。'],
+    ['仲間と句会の優勝は、どう決まりますか？', '1回戦ごとに「この回のトップ」が決まり、点は通算にくりこされます。決めた回数（1〜10回戦）をまわし終えるか、幹事が「句会をとじて、優勝を決める」を押すと、通算トップが句会優勝。トロフィーがマイページに飾られます。'],
     ['こそこそ話は、だれに見えますか？', 'その部屋の参加者だけです。句会のあいまの、ひそひそにどうぞ。ほかの人の句や選評を、外へ持ち出すことは、こそこそ話でもしないでください。'],
     ['句会を消すには？', '仲間と句会は、幹事が、ルームの中の「この句会を消す」で、みんなの一覧から消せます（確認が一度出ます）。出した句は、それぞれのストッ句に残ります。'],
     ['幹事を、ほかの人にもまかせられますか？', 'はい。仲間と句会のルームの中にある「幹事をふやす・かえる」で、参加している人を、何人でも幹事にできます。幹事は、進行・設定・次の回・句会を消す、ができます。ひらいた人は、ほかの幹事からははずせません。自分から、幹事をおりることはできます。'],
@@ -2743,7 +2743,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     h += '<div class="field"><label>1回の戦で、ひとりが出す句</label>' + chips('kuPer', [['one', '1句ずつ'], ['free', '何句でも']], st.kuPer || 'free') + '</div>';
     h += '<div class="field"><label>進行</label>' + chips('adv', [['host', '幹事がボタンで進める'], ['timer', 'タイマーで自動（ボットが進める）']], st.adv) + '</div>';
     if (st.adv === 'timer') h += '<div class="grid2">' + (st.daiMode === 'turn' ? num('daiMin', '1題あたり（分）', st.daiMin, 1, 120) : num('kuMin', '投句（分）', st.kuMin, 1, 600)) + num('selMin', '選句（分）', st.selMin, 1, 600) + num('goMin', '合評（分）', st.goMin, 1, 600) + '</div>';
-    h += '<div class="field"><label>回数の上限（3〜10回戦、または制限なし）</label><select data-f="g-maxRounds"' + dis + '>' + [[0, '制限なし'], [3, '3回戦'], [4, '4回戦'], [5, '5回戦'], [6, '6回戦'], [7, '7回戦'], [8, '8回戦'], [9, '9回戦'], [10, '10回戦']].map(function (o) { return '<option value="' + o[0] + '"' + (Number(st.maxRounds) === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div>';
+    h += '<div class="field"><label>回数の上限（1〜10回戦、または制限なし）</label><select data-f="g-maxRounds"' + dis + '>' + [[0, '制限なし'], [1, '1回戦（1回で終わり）'], [2, '2回戦'], [3, '3回戦'], [4, '4回戦'], [5, '5回戦'], [6, '6回戦'], [7, '7回戦'], [8, '8回戦'], [9, '9回戦'], [10, '10回戦']].map(function (o) { return '<option value="' + o[0] + '"' + (Number(st.maxRounds) === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div>';
     h += '<div class="field"><label>何時まで</label>' + chips('endMode', [['none', '決めない'], ['mid', '24時（てっぺん）まで'], ['hm', '時刻を決める']], st.endMode) + (st.endMode === 'hm' ? '<input type="time" data-f="g-endHM" value="' + esc(st.endHM || '') + '"' + dis + '>' : '') + '</div>';
     h += '<div class="field"><label>選の種類</label>' + chips('preset', Object.keys(G_PRESETS).map(function (k) { return [k, G_PRESETS[k].name]; }), st.preset) + '</div>';
     h += '<div class="field"><label>それぞれ、何句まで・何点か</label><div class="kinds">' + st.kinds.map(function (k, i) { return '<label class="kind"><span>' + esc(k.name) + '</span><span class="kin"><input type="number" data-f="g-kmax-' + i + '" value="' + k.max + '" min="0" max="99"' + dis + '>句</span><span class="kin"><input type="number" data-f="g-kpts-' + i + '" value="' + k.pts + '" min="0" max="10"' + dis + '>点</span></label>'; }).join('') + '</div><p class="note">句数の「0」は「いくつでも」。点の「0」は「点なし」。数も点も、あとから（途中でも）変えられます。途中で変えると、全員に「可変タイム」のお知らせが出ます。</p></div>';
@@ -3983,7 +3983,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     function () {
       return th('仲間と句会のまわしかた ⑥', '作者オープンと、点のくりこし') +
         '<p>合評がすんだら、作者をオープン。その回のトップが決まります。</p>' +
-        '<ul><li>点は通算にくりこされ、次の回へ。</li><li>決めた回数（3〜10回戦）をまわし終えるか、幹事が「句会をとじる」と、<b>通算トップが句会優勝</b>。トロフィーがマイページに飾られます。</li></ul>';
+        '<ul><li>点は通算にくりこされ、次の回へ。</li><li>決めた回数（1〜10回戦）をまわし終えるか、幹事が「句会をとじる」と、<b>通算トップが句会優勝</b>。トロフィーがマイページに飾られます。</li></ul>';
     },
     function () {
       return th('仲間と句会のまわしかた ⑦', 'こそこそ話') +
