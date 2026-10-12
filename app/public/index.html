@@ -122,7 +122,7 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .legal p, .legal ul { margin: 0; line-height: 1.75; }
 .legal ul { padding-left: 1.2em; }
 .tmr { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 1px 6px rgba(0,0,0,.06); }
-.tmr-row { display: flex; justify-content: space-between; align-items: center; font-size: .9rem; color: var(--ink-soft); }
+.tmr-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; font-size: .9rem; color: var(--ink-soft); }
 .tmr-row b { font-size: 1.4rem; color: var(--accent); font-variant-numeric: tabular-nums; }
 .tmr-bar { height: 6px; background: var(--muted-soft); border-radius: 99px; overflow: hidden; }
 .tmr-bar i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width 1s linear; }
@@ -529,6 +529,14 @@ h3.sec { font-size: 1rem; }
 .askbox{border-color:#e3d3a0;background:#fbf6e8}
 
 .rxwho{font-size:.78rem;color:#8a7f6e;margin-top:4px}
+
+.tmr.stk{position:sticky;top:0;z-index:6;background:var(--paper)}
+.tmr-btns{display:flex;gap:8px;margin-left:auto}
+.fold{width:44px;height:44px;border-radius:50%;border:2px solid #c65a3a;background:#fff;color:#c65a3a;font-size:1.3rem;font-weight:700;cursor:pointer;display:grid;place-items:center;padding:0}
+.fold[aria-pressed="true"]{background:#c65a3a;color:#fff}
+.fold.yk{border-color:var(--line);color:inherit;font-size:1.2rem}
+.tmr-ku{font-family:var(--serif);font-size:1rem;padding:6px 2px 0;color:#444}
+.stagefold .res.stage .tan,.stagefold .res.stage .meta,.stagefold .stagebadge{display:none}
 </style>
 </head>
 <body>
@@ -709,7 +717,7 @@ h3.sec { font-size: 1rem; }
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12z20';
+  var APP_VER = 'v2026.10.12z21';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1768,7 +1776,8 @@ h3.sec { font-size: 1rem; }
     { lb: '🔍 気になる', ch: ['語順を入れかえたら？', '季語がすこし弱いかも', '季語が動くかも（別の季語でも成り立つ？）', '季語が二つあるかも', '季語と中身が近すぎるかも', '季語と中身が離れすぎかも', '説明っぽいところがあるかも', '気持ちのことばを、ものに言わせたら？', '動詞が多いかも', '三段切れになっているかも', '字余りが気になる', '上五を切ったら？', '下五を体言止めにしたら？', '助詞をひとつ変えたら？', 'ありがちな取り合わせかも（類想）', '比喩が少し遠いかも', '読みにくい字があるかも', '音読するとつかえるところが', '一句に材料が多いかも', '視点が途中で変わっているかも'] },
     { lb: '❓ 作者に質問', ch: ['どうしてこの季語に？', 'どうしてこの語順に？', 'この場面はどこで？', 'いちばん見せたかったのは？', 'この切れは、ねらい？', 'この字余りは、ねらい？', '「わたし」は、どこにいる？', 'この一語、別の候補はあった？', '実景？ それとも想像？', 'タイトル（前書き）をつけるなら？'] }
   ];
-  var cmReply = {}, cmEdit = {}, rxOpen = {}, typedAt = {}, qOpen = {}, qMore = {}, askSel = {}, askTone = {}, askOpen = {};
+  var cmReply = {}, cmEdit = {}, rxOpen = {}, typedAt = {}, qOpen = {}, qMore = {}, askSel = {}, askTone = {}, askOpen = {}, stageFold = false;
+  try { stageFold = localStorage.getItem('ikku-fold') === '1'; } catch (_) {}
   /* 作者のひとこと：講評中、作者が名前を伏せたまま「ここを聞かせて」と、3回まで出せる */
   var ASK_TOPICS = ['季語を', '季語が動くかを', '季重なりを', '語順を', '切れ（切れ字）を', '取り合わせ（つかずはなれず）を', '上五を', '中七を', '下五（むすび）を', '一字空けを', '字余り・字足らずを', '句またがりを', '三段切れを', '動詞の数を', '助詞（て・に・を・は）を', '説明っぽさを', '類想（ありがち）を', '比喩・擬人化を', 'オノマトペを', '固有名詞・数字を', '視点（カメラの位置）を', '景と心の配分を', '文語か口語かを', '読み（ルビ）を', '五感（音・匂い・手ざわり）を', 'その他を'];
   var ASK_TONES = ['やさしく', 'ふだんどおり', '厳しめに'];
@@ -1911,12 +1920,12 @@ h3.sec { font-size: 1rem; }
       var ci = Math.min(idx, rows.length - 1);
       var left = Math.max(0, cmtSecS(s) - (Math.floor(cmtElapsed(s) / 1000) % cmtSecS(s)));
       var curRow = rows[ci], ct = T[curRow.id], curOwn = curRow.id === myId;
-      h = '<div class="tmr"><div class="tmr-row"><span class="vbadge">講評 ' + (ci + 1) + '/' + rows.length + '</span>' + wbadge + '<span>この句は 残り <b id="oclock">' + fmt(left) + '</b>　<button class="link" data-act="yaku-open">おやくそく</button></span></div><div class="tmr-bar"><i id="obar" style="width:' + (left / cmtSecS(s) * 100).toFixed(1) + '%"></i></div></div>';
+      h = '<div class="tmr stk"><div class="tmr-row"><span class="vbadge">講評 ' + (ci + 1) + '/' + rows.length + '</span>' + wbadge + '<span>残り <b id="oclock">' + fmt(left) + '</b></span><span class="tmr-btns"><button class="fold" data-act="stage-fold" aria-pressed="' + stageFold + '" aria-label="' + (stageFold ? '句と案内をひろげる' : '句と案内をたたんで、コメントを見る') + '" title="' + (stageFold ? 'ひろげる' : 'たたんで、コメントを見る') + '">' + (stageFold ? '▼' : '▲') + '</button><button class="fold yk" data-act="yaku-open" aria-label="みっつのおやくそく" title="おやくそく">🪢</button></span></div><div class="tmr-bar"><i id="obar" style="width:' + (left / cmtSecS(s) * 100).toFixed(1) + '%"></i></div>' + (stageFold ? '<div class="tmr-ku">' + kuS(curRow) + '</div>' : '') + '</div>';
       var yAuto = yakuOpen[s.id] === undefined && cmtElapsed(s) < 45000;
       if (yAuto || yakuOpen[s.id]) return h + yakuCard();
-      h += hostSay('一句ずつ、壇上にあげて、ゆっくり話しましょう。講評の仕切りは、きびしめ司会のダー浜にまかせます。いま ' + (ci + 1) + ' 句め（全 ' + rows.length + ' 句）。この句は 特選 ' + ct.toku.length + '票・並選 ' + ct.nami.length + '票 を集めました（予選 ' + ct.yo.length + '票）。' + (curOwn ? '<br>いま壇上にあるのは、あなたの句です。作者は、講評のあいだは聞き役です。コメントは書かずに、みんなの言葉をゆっくり受け取りましょう。' : ''), '一句' + (cmtSecS(s) / 60) + '分で、時間が来ると次の句へ進みます。だれかが抜けても、タイマーが進めます。作者は、最後のオープンまで伏せられています。');
-      if (entrant) h += '<div class="actions"><button class="btn" data-act="next-ku">この句をおわって、次へ</button><button class="btn" data-act="open-names">いますぐオープンする</button></div>';
-      h += art(curRow, true, ci + 1);
+      if (!stageFold) h += hostSay('一句ずつ、壇上にあげて、ゆっくり話しましょう。講評の仕切りは、きびしめ司会のダー浜にまかせます。いま ' + (ci + 1) + ' 句め（全 ' + rows.length + ' 句）。この句は 特選 ' + ct.toku.length + '票・並選 ' + ct.nami.length + '票 を集めました（予選 ' + ct.yo.length + '票）。' + (curOwn ? '<br>いま壇上にあるのは、あなたの句です。作者は、講評のあいだは聞き役です。コメントは書かずに、みんなの言葉をゆっくり受け取りましょう。' : ''), '一句' + (cmtSecS(s) / 60) + '分で、時間が来ると次の句へ進みます。だれかが抜けても、タイマーが進めます。作者は、最後のオープンまで伏せられています。');
+      if (entrant && !stageFold) h += '<div class="actions"><button class="btn" data-act="next-ku">この句をおわって、次へ</button><button class="btn" data-act="open-names">いますぐオープンする</button></div>';
+      h += (stageFold ? '<div class="stagefold">' : '') + art(curRow, true, ci + 1) + (stageFold ? '</div>' : '');
       var past = rows.slice(0, ci).reverse();
       if (past.length) h += '<p class="lead">これまでの句（講評ずみ）</p>' + past.map(function (e) { return art(e, false, 0); }).join('');
       if (ci + 1 < rows.length) h += '<p class="note">あと' + (rows.length - ci - 1) + '句、順番に壇上へあがります。</p>';
@@ -4226,6 +4235,7 @@ h3.sec { font-size: 1rem; }
       askSel[ae] = []; askOpen[ae] = false;
       write(sa.id, { comments: ao }).then(function () { toast('作者として、出しました（名前は伏せたまま）'); });
     }
+    else if (act === 'stage-fold') { stageFold = !stageFold; try { localStorage.setItem('ikku-fold', stageFold ? '1' : '0'); } catch (_) {} render(); }
     else if (act === 'cm-more') { qMore[t.dataset.eid] = !qMore[t.dataset.eid]; qOpen[t.dataset.eid] = true; render(); }
     else if (act === 'cm-fill') {
       var fe = t.dataset.eid, fv = String(t.dataset.v || ''), cur2 = String(cmDraft[fe] || '').trim();
