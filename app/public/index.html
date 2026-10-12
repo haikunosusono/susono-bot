@@ -220,6 +220,9 @@ body.yoko .tcard .tan { min-height: 0; }
 .dots { display: inline-flex; gap: 5px; align-items: center; }
 .dots i { width: .65rem; height: .65rem; border-radius: 50%; border: 1.5px solid var(--ink-soft); display: block; }
 .dots i.on { background: var(--accent); border-color: var(--accent); }
+.dots.hito i { width: 1.5rem; height: 1.5rem; border: 0; border-radius: 0; background: none; }
+.dots.hito i svg { width: 100%; height: 100%; fill: none; stroke: var(--ink-soft); stroke-width: 1.6; stroke-dasharray: 2.2 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.dots.hito i.on svg { fill: var(--accent); stroke: var(--accent); stroke-dasharray: none; }
 select { width: 100%; min-height: 44px; padding: .5em .7em; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; font: inherit; color: inherit; }
 .sh { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
 .sh h2 { margin: 0; font-family: var(--serif); font-size: 1.5rem; line-height: 1.4; overflow-wrap: anywhere; text-wrap: balance; }
@@ -485,8 +488,9 @@ h3.sec { font-size: 1rem; }
 .fc-desc{margin:12px 0}
 .fc-state{font-size:1.05rem;margin:16px 0 10px}
 .fc-seats{display:flex;gap:12px;margin:8px 0 14px}
-.fc-seats span{width:48px;height:48px;border-radius:50%;border:2px dashed #cfc7b8;display:block}
-.fc-seats span.on{border:2px solid #1f7a63;background:#e7f3ee}
+.fc-seats span{width:48px;height:48px;display:block}
+.fc-seats span svg{width:100%;height:100%;fill:none;stroke:#b9b09e;stroke-width:1.4;stroke-dasharray:2.4 1.8;stroke-linecap:round;stroke-linejoin:round}
+.fc-seats span.on svg{fill:#1f7a63;stroke:#1f7a63;stroke-dasharray:none}
 .fc-warn{color:#b5452f;font-weight:700;font-size:.92rem;line-height:1.7}
 
 .yaku2{text-align:center;padding:28px 12px 20px;line-height:1.9}
@@ -741,7 +745,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12z30';
+  var APP_VER = 'v2026.10.13a';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1391,9 +1395,11 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     return Math.floor(h / 24) + '日前';
   }
   function fmt(sec) { var m = Math.floor(sec / 60), r = sec % 60; return m + ':' + (r < 10 ? '0' : '') + r; }
+  /* 席の人型：すわった人は塗り、空席は点線 */
+  var HITO_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7.5" r="4.2"/><path d="M4 21c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5"/></svg>';
   function dots(n, size) {
-    var h = '<span class="dots" aria-hidden="true">';
-    for (var i = 0; i < size; i++) h += '<i class="' + (i < n ? 'on' : '') + '"></i>';
+    var h = '<span class="dots hito" aria-hidden="true">';
+    for (var i = 0; i < size; i++) h += '<i class="' + (i < n ? 'on' : '') + '">' + HITO_SVG + '</i>';
     return h + '</span>';
   }
   function pill(st, s) { return '<span class="pill st-' + st + '">' + (st === 'done' && s && s.staleClosed ? '時間切れで閉会' : LABEL[st]) + '</span>'; }
@@ -1498,7 +1504,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       h += '<p class="fc-state">' + (mi ? 'あなたのふらっと句会が、進行中です。' : 'いま、ふらっと句会が進行中です。') + '</p><div class="actions"><button class="btn primary big" data-act="flat-go">' + (mi ? 'ひらく' : '見学する') + '</button></div>';
     } else {
       h += '<p class="fc-state">' + (f && cnt ? (mi ? 'あなたは席についています。あと' + Math.max(0, size - cnt) + '人で、はじまります。' : 'あと' + Math.max(0, size - cnt) + '人で、はじまります。') : 'まだ、だれも並んでいません。最初の一人になりますか。') + '</p>';
-      h += '<div class="fc-seats">'; for (var i = 0; i < size; i++) h += '<span class="' + (i < cnt ? 'on' : '') + '"></span>'; h += '</div>';
+      h += '<div class="fc-seats" aria-label="' + cnt + '/' + size + '人">'; for (var i = 0; i < size; i++) h += '<span class="' + (i < cnt ? 'on' : '') + '">' + HITO_SVG + '</span>'; h += '</div>';
       h += '<p class="fc-warn">作者は、さいごのオープンまでひみつです。ほかの人の句や選評の無断公開は、きんしです。</p>';
       h += '<div class="actions"><button class="btn primary big" data-act="flat-go">' + (mi ? 'ようすを見る' : '一句出して、席につく') + '</button></div>';
       h += '<p class="note">3人そろった瞬間に、はじまります。ボット2名と司会のダー浜も加わるので、ひとりでも大丈夫。席についたあとは、ほかのページで遊んでいても、音とお知らせでよびます。</p>';
