@@ -745,7 +745,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.13b';
+  var APP_VER = 'v2026.10.13c';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1644,7 +1644,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function vPushBox() {
     var sup = pushSupported(), h = '<div class="panel pushbox"><div class="row2"><b>📲 スマホの通知（無料・登録なし）</b><button class="btn small ' + (pushOn ? 'primary' : '') + '" data-act="pushtog" aria-pressed="' + pushOn + '">' + (pushOn ? 'ON（とめる）' : 'OFF（受け取る）') + '</button></div>';
     h += '<p class="note">はじまる15分前に、スマホやパソコンに通知が届きます。いつでもON/OFFできます。</p>';
-    if (pushOn) h += '<div class="actions"><button class="btn small ' + (pushAll ? '' : 'primary') + '" data-act="pushmode" data-m="mine">一句を出した回だけ</button><button class="btn small ' + (pushAll ? 'primary' : '') + '" data-act="pushmode" data-m="all">毎回（すべての回）</button></div><p class="botnote">🤖 ONを受けつけました。通知の送信は、準備ができしだい、はじまります（ずれて、数分おくれることがあります）。</p>';
+    if (pushOn) h += '<div class="actions"><button class="btn small ' + (pushAll ? '' : 'primary') + '" data-act="pushmode" data-m="mine">一句を出した回だけ</button><button class="btn small ' + (pushAll ? 'primary' : '') + '" data-act="pushmode" data-m="all">毎回（すべての回）</button></div><p class="botnote">🤖 ONになっています。はじまる15分前に、お知らせします（数分ずれることがあります）。</p>';
     if (!sup) h += '<p class="note">' + (isIos() && !isStandalone() ? 'iPhoneは、Safariの共有ボタンから「ホーム画面に追加」して、そのアイコンからひらくと、ONにできます。' : 'この端末・ブラウザでは、通知が使えないようです。') + '</p>';
     if (pushMsg) h += '<p class="note">' + esc(pushMsg) + '</p>';
     return h + '</div>';
