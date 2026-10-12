@@ -1,5 +1,5 @@
 name: 俳句の裾野 アプリのデプロイ
-# app/ の中が変わったら、自動で haikunosusono.web.app に反映します。
+# app/ の中が変わったら、自動で haikunosusono.web.app に反映します（画面と、Firestoreのルールの両方）。
 # 動かすには、GitHubのSecretsに FIREBASE_SERVICE_ACCOUNT（Firebaseのサービスアカウントの鍵JSON）が必要です。
 on:
   push:
@@ -18,3 +18,11 @@ jobs:
           projectId: haikunosusono
           channelId: live
           entryPoint: app
+      - name: Firestoreのルールを反映
+        env:
+          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          echo "$SA_JSON" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          cd app && npx --yes firebase-tools@13 deploy --only firestore:rules --project haikunosusono --non-interactive
+          rm -f "$RUNNER_TEMP/sa.json"

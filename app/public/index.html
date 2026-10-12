@@ -478,6 +478,16 @@ h3.sec { font-size: 1rem; }
 .sheet-steps li{counter-increment:st;display:flex;align-items:center;gap:10px;background:#f3eee2;border-radius:12px;padding:10px 12px}
 .sheet-steps li::before{content:counter(st);flex:none;width:26px;height:26px;border-radius:50%;background:#b5452f;color:#fff;display:grid;place-items:center;font-weight:700;font-size:.85rem}
 .sheet-steps i{font-style:normal;flex:none;width:34px;height:34px;border-radius:9px;background:#fff;display:grid;place-items:center}
+
+.flatcard{padding:18px}
+.fc-title{margin:0;font-size:1.35rem}
+.fc-pill{background:#fbe9e3;color:#b5452f;border-radius:999px;padding:5px 14px;font-size:.85rem;font-weight:700}
+.fc-desc{margin:12px 0}
+.fc-state{font-size:1.05rem;margin:16px 0 10px}
+.fc-seats{display:flex;gap:12px;margin:8px 0 14px}
+.fc-seats span{width:48px;height:48px;border-radius:50%;border:2px dashed #cfc7b8;display:block}
+.fc-seats span.on{border:2px solid #1f7a63;background:#e7f3ee}
+.fc-warn{color:#b5452f;font-weight:700;font-size:.92rem;line-height:1.7}
 </style>
 </head>
 <body>
@@ -658,7 +668,7 @@ h3.sec { font-size: 1rem; }
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12z2';
+  var APP_VER = 'v2026.10.12z4';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1397,19 +1407,21 @@ h3.sec { font-size: 1rem; }
     }).join('') + '</ol></div>';
   }
   function vFlatLobby() {
-    var h = '<h2 class="sec">ふらっと句会<small>3人そろえば、すぐ開く</small></h2>';
-    h += '<div class="howto"><b>ふらりと来て、3人そろえば句会</b><span>お題は「当季雑詠」（いまの季節を、自由に）。一句出して席につき、3人そろった瞬間に、はじまります。ボット2名と司会のダー浜も、いつも参加（ぜんぶで5句）。ひとりでも、人が少なくても、ボットがいるので大丈夫。選句のあとは、一句ずつ壇上にあげて、ゆっくり講評。できた句は「ストッ句」に残ります。</span><span class="chips2"><i>いつでも</i><i>3人でひらく</i><i>ボット2名つき</i><i>司会は蛙</i><i>講評はゆっくり</i><i>見学OK</i></span></div>';
-    h += maner('t');
-    var mine = flatMine(), open = flatFind(), f = mine || open;
-    if (f && f.status === 'gathering') {
-      h += '<div class="panel"><div class="row2"><b>いま、席が出ています</b><span class="pill st-gathering">あと' + Math.max(0, f.size - count(f)) + '人</span></div><div class="bar"><span>' + dots(count(f), f.size) + '</span><span>' + count(f) + '/' + f.size + '人</span></div>' +
-        (f.entries && f.entries[myId] ? '<p class="note">あなたは席についています。そろったら、音とお知らせでよびます。ほかの部屋であそんでいて大丈夫です。</p>' : '') +
-        '<div class="actions"><button class="btn primary" data-act="flat-go">' + (f.entries && f.entries[myId] ? 'ようすを見る' : '句を出して、席につく') + '</button></div></div>';
-    } else if (f) {
-      h += '<div class="panel"><div class="row2"><b>' + (f.entries && f.entries[myId] ? 'あなたのふらっと句会が、進行中です' : 'いま、ふらっと句会が進行中です') + '</b>' + pill(f.status, f) + '</div><div class="actions"><button class="btn primary" data-act="flat-go">' + (f.entries && f.entries[myId] ? 'ひらく' : '見学する') + '</button></div></div>';
+    var h = '', mine = flatMine(), open = flatFind(), f = mine || open, cnt = f ? count(f) : 0, size = f ? f.size : 3, mi = f && f.entries && f.entries[myId];
+    h += '<div class="panel flatcard"><div class="row2"><h2 class="fc-title">⚡ ふらっと句会</h2><span class="fc-pill">いつでも</span></div>';
+    h += '<p class="fc-desc">3人そろったら、すぐ始まる句会。お題は「当季雑詠」。特選1・並選1、選句は約10分、講評は一句ずつ。</p>';
+    h += '<span class="chips2"><i>3人で始まる</i><i>特選1・並選1</i><i>選句 約10分</i><i>ボット2名つき</i><i>見学OK</i></span>';
+    if (f && f.status !== 'gathering') {
+      h += '<p class="fc-state">' + (mi ? 'あなたのふらっと句会が、進行中です。' : 'いま、ふらっと句会が進行中です。') + '</p><div class="actions"><button class="btn primary big" data-act="flat-go">' + (mi ? 'ひらく' : '見学する') + '</button></div>';
     } else {
-      h += '<div class="actions"><button class="btn primary" data-act="flat-go">一句出して、席につく（さいしょの1人め）</button></div>';
+      h += '<p class="fc-state">' + (f && cnt ? (mi ? 'あなたは席についています。あと' + Math.max(0, size - cnt) + '人で、はじまります。' : 'あと' + Math.max(0, size - cnt) + '人で、はじまります。') : 'まだ、だれも並んでいません。最初の一人になりますか。') + '</p>';
+      h += '<div class="fc-seats">'; for (var i = 0; i < size; i++) h += '<span class="' + (i < cnt ? 'on' : '') + '"></span>'; h += '</div>';
+      h += '<p class="fc-warn">作者は、さいごのオープンまでひみつです。ほかの人の句や選評の無断公開は、きんしです。</p>';
+      h += '<div class="actions"><button class="btn primary big" data-act="flat-go">' + (mi ? 'ようすを見る' : '一句出して、席につく') + '</button></div>';
+      h += '<p class="note">3人そろった瞬間に、はじまります。ボット2名と司会のダー浜も加わるので、ひとりでも大丈夫。席についたあとは、ほかのページで遊んでいても、音とお知らせでよびます。</p>';
     }
+    h += '</div>';
+    h += maner('t');
     h += '<div class="panel"><b>この句会のルール</b><ul class="tg2">' +
       '<li>お題は「当季雑詠」。ひとり1句です。</li>' +
       '<li>3人そろったら、すぐはじまります。ボット2名も加わって、5句で。</li>' +
@@ -1474,11 +1486,24 @@ h3.sec { font-size: 1rem; }
   }
   function calDownload(list, fname) {
     try {
-      var b = new Blob([calIcs(list)], { type: 'text/calendar;charset=utf-8' }), a = document.createElement('a');
+      var b = new Blob([list === 'recur' ? calRecur() : calIcs(list)], { type: 'text/calendar;charset=utf-8' }), a = document.createElement('a');
       a.href = URL.createObjectURL(b); a.download = fname || 'haiku-kukai.ics'; document.body.appendChild(a); a.click();
       setTimeout(function () { try { document.body.removeChild(a); URL.revokeObjectURL(a.href); } catch (_) {} }, 1500);
       toast('カレンダー用のファイルを保存しました。ひらくと、予定に入ります');
     } catch (_) { toast('うまく保存できませんでした'); }
+  }
+  /* 毎週くりかえし：平日21時「だれでも句会」（祝日は除く）。15分前と開始時刻に通知。休日の回は、1週間ぶんのファイルで */
+  function calRecur() {
+    var d = dayNum(), n = 0; while (n++ < 14 && (teiDayOff(d) || teiStartOf(d, 21) <= Date.now())) d++;
+    var ex = []; Object.keys(JP_HOL).forEach(function (k) { var jd = Math.floor(Date.parse(k + 'T00:00:00Z') / 86400000), w = new Date(jd * 86400000).getUTCDay(); if (w >= 1 && w <= 5 && jd >= d) ex.push(icsTime(teiStartOf(jd, 21))); });
+    var st = teiStartOf(d, 21), desc = '一句を持ち寄るオンライン句会。はじまるまでに一句を出しておくと、時刻に自動で席へご案内します。21:00になったら https://haikunosusono.web.app/ をひらいてください。不要になったら、この予定を削除できます。';
+    var L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//haikunosusono//JP', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT', 'UID:heijitsu21@haikunosusono.web.app', 'DTSTAMP:' + icsTime(Date.now()), 'DTSTART:' + icsTime(st), 'DTEND:' + icsTime(st + 60 * 60000),
+      'RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR'];
+    if (ex.length) L.push('EXDATE:' + ex.join(','));
+    L.push('SUMMARY:俳句の裾野「だれでも句会」（平日21:00）', 'DESCRIPTION:' + desc, 'URL:https://haikunosusono.web.app/',
+      'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:15分後に句会がはじまります', 'TRIGGER:-PT15M', 'END:VALARM',
+      'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:句会がはじまります', 'TRIGGER:PT0S', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR');
+    return L.join('\r\n');
   }
   function calGoogle(x) { return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(calName(x)) + '&dates=' + icsTime(x.start) + '/' + icsTime(x.start + 40 * 60000) + '&details=' + encodeURIComponent('一句を出して、ひらいてください。 https://haikunosusono.web.app/') + '&location=' + encodeURIComponent('https://haikunosusono.web.app/'); }
   function vCalBox() {
@@ -1551,7 +1576,7 @@ h3.sec { font-size: 1rem; }
       '<ol class="sheet-steps"><li><i>⬆️</i><span>Safariの共有ボタン（□に↑）を押す</span></li><li><i>➕</i><span>「ホーム画面に追加」を選ぶ</span></li><li><i>🔔</i><span>できたアイコンからひらいて、通知のボタンを押す</span></li></ol>' +
       '<p class="note">追加したアプリでは、いちどログインし直しが必要なことがあります。</p><button class="btn primary big" data-act="pushhelp">とじる</button></div>';
     var rows = teiSlotsFar(7).filter(function (x) { return x.start > Date.now(); });
-    if (rows.length) h += '<p class="nt-line"><button class="nt-link" data-act="calics" data-sid="all">📅 カレンダーに入れる（1週間ぶん・15分前に通知）</button></p>';
+    if (rows.length) h += '<p class="nt-line"><button class="nt-link" data-act="calrec">📅 カレンダーに入れる（平日21:00・毎週・15分前に通知）</button></p>';
     h += vTeiFar();
     return h;
   }
@@ -1561,7 +1586,7 @@ h3.sec { font-size: 1rem; }
     return '<details class="panel farbox"><summary><span>🗓️ 他の日程も見る</span></summary><p class="note">先の回にも、いまのうちに一句を出しておけます。出したあとも、はじまるまで差しかえ・取り消しは自由です。はじまる時刻にこのアプリをひらいていれば、その回の部屋に入れます。</p><ul class="tg2 farlist">' + rows.map(function (x) {
       var d = teiFind(x.sid), mi = d && d.entries && d.entries[myId], nh = teiHumans(d);
       return '<li><b>' + esc(teiLabel(x)) + '</b> <span class="note">' + (nh ? nh + '人の句' : 'まだ0人') + (mi ? '・あなたは提出ずみ' : '') + '</span> <button class="btn small" data-act="tei-go" data-sid="' + x.sid + '">' + (mi ? 'ひらく' : 'この回に出す') + '</button></li>';
-    }).join('') + '</ul>' + (pushOn ? '<div class="actions"><button class="btn small ' + (pushAll ? '' : 'primary') + '" data-act="pushmode" data-m="mine">通知：出した回だけ</button><button class="btn small ' + (pushAll ? 'primary' : '') + '" data-act="pushmode" data-m="all">通知：毎回</button></div>' : '') + '<p class="note"><button class="link" data-act="calics" data-sid="' + rows[0].sid + '">次の回だけ、カレンダーへ</button>　<a class="link" target="_blank" rel="noopener" href="' + esc(calGoogle(rows[0])) + '">Googleカレンダーへ</a></p>' + vMailBox() + '</details>';
+    }).join('') + '</ul>' + (pushOn ? '<div class="actions"><button class="btn small ' + (pushAll ? '' : 'primary') + '" data-act="pushmode" data-m="mine">通知：出した回だけ</button><button class="btn small ' + (pushAll ? 'primary' : '') + '" data-act="pushmode" data-m="all">通知：毎回</button></div>' : '') + '<p class="note"><button class="link" data-act="calics" data-sid="' + rows[0].sid + '">次の回だけ、カレンダーへ</button>　<button class="link" data-act="calics" data-sid="all">1週間ぶん（休日の回も）</button>　<a class="link" target="_blank" rel="noopener" href="' + esc(calGoogle(rows[0])) + '">Googleカレンダーへ</a></p>' + vMailBox() + '</details>';
   }
   function teiLiveItems() {
     var st = teiState(), out = [];
@@ -3873,6 +3898,7 @@ h3.sec { font-size: 1rem; }
     }
     else if (act === 'sback') { current = null; if (fromArch) { fromArch = false; page = 'archive'; } render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'open') { fromArch = false; current = t.dataset.sid; showInv = false; render(); }
+    else if (act === 'calrec') calDownload('recur', 'haiku-kukai-heijitsu21.ics');
     else if (act === 'calics') { var cs = t.dataset.sid, cl = teiSlotsFar(7).filter(function (x) { return x.start > Date.now() && (cs === 'all' || x.sid === cs); }); if (cl.length) calDownload(cl, cs === 'all' ? 'haiku-kukai-week.ics' : 'haiku-kukai.ics'); }
     else if (act === 'pushhelp') { pushHelp = !pushHelp; render(); }
     else if (act === 'pushtog') { if (pushOn) pushTurnOff(); else pushTurnOn(); }
