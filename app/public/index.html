@@ -458,6 +458,16 @@ h3.sec { font-size: 1rem; }
 .cardv img { max-width: min(92vw, 520px); max-height: 62vh; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,.5); }
 .cardv .cbtns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 .cardv .cnote { color: #e8e4da; font-size: .85rem; text-align: center; max-width: 30em; line-height: 1.7; }
+
+.nt-first{color:#b5452f;font-weight:700;text-align:center;font-size:.95rem;margin:14px 0 8px;line-height:1.6}
+.nt-line{text-align:center;margin:10px 0}
+.nt-pill{border:1px solid #e3d9c8;background:#fffdf6;border-radius:999px;padding:9px 18px;font:inherit;font-size:.92rem;cursor:pointer;color:inherit}
+.nt-pill.on{background:#e7f3ee;border-color:#9bc9b8}
+.nt-link{background:none;border:0;font:inherit;font-size:.92rem;color:inherit;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.farbox summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-weight:700;list-style:none}
+.farbox summary::-webkit-details-marker{display:none}
+.farbox summary::after{content:"ひらく ▼";font-weight:400;font-size:.85rem;color:#8a7f6e}
+.farbox[open] summary::after{content:"とじる ▲"}
 </style>
 </head>
 <body>
@@ -638,7 +648,7 @@ h3.sec { font-size: 1rem; }
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12z';
+  var APP_VER = 'v2026.10.12z2';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1322,7 +1332,7 @@ h3.sec { font-size: 1rem; }
     var h = recvSay(me) + '<div class="panel"><div class="field"><label for="f-haigo">俳号（あとから変えられます）</label><input type="text" id="f-haigo" data-f="haigo" maxlength="20" value="' + esc(haigo) + '" placeholder="句会で名乗る名前"></div>';
     h += oneBox('g-a', 'ga', 'gcnt-a', d.a);
     h += rubyBar() + '<div class="tan pv" id="gpv">' + ku(d) + '</div><p class="chk no" id="gchk"></p>';
-    h += '<button class="btn primary" data-act="rsubmit">' + (me ? '句を直す' : 'この句を出して、参加する') + '</button>' + (me ? '<button class="btn" data-act="rwithdraw">提出をやめる（取り消す）</button>' : '') + '<p class="note">定刻までなら、何度でも直せます。出した句は、「ストッ句」にも残ります。' + (me ? '「提出をやめる」を押すと、この回への参加を取り消します（句は、ストッ句に残ります）。' : '') + '</p></div>';
+    h += '<button class="btn primary" data-act="rsubmit">' + (me ? '句を直す' : 'この句を出して、参加する') + '</button>' + (me ? '<p class="center"><button class="link" data-act="rwithdraw">提出をやめる（取り消す）</button></p>' : '') + '<p class="note">定刻までなら、何度でも直せます。出した句は、「ストッ句」にも残ります。' + (me ? '「提出をやめる」を押すと、この回への参加を取り消します（句は、ストッ句に残ります）。' : '') + '</p></div>';
     return h;
   }
   function vTeiWait(s) {
@@ -1421,7 +1431,7 @@ h3.sec { font-size: 1rem; }
       });
       h += '<details class="panel"><summary>📅 きょうの時間割を見る' + (teiDayOff(n0) ? '（休日は3回）' : '（2回）') + '</summary><ul class="tg2 ttable">' + rows2.join('') + '</ul></details>';
     })();
-    h += vTeiFar() + vCalBox() + vPushBox() + vMailBox();
+    h += vNotice();
     var shown = st.slot ? st.slot.sid : '', up = teiSlots().filter(function (x) { return x.start > t && x.sid !== shown; }).slice(0, 3);
     if (up.length) h += '<div class="panel"><b>このあとの予定</b><ul class="tg2">' + up.map(function (x) { return '<li>' + esc(teiLabel(x)) + '</li>'; }).join('') + '</ul></div>';
     h += '<div class="actions"><button class="btn" data-act="tutt">進行のしかた（チュートリアル）</button><button class="btn" data-act="page" data-p="archive">句会アーカイブ</button></div>';
@@ -1469,7 +1479,7 @@ h3.sec { font-size: 1rem; }
   }
   /* スマホ通知（Web Push）：句を出した回（または毎回）の、はじまる15分前に届く */
   var VAPID_PUB = 'BAkyv8J-yNlH2PIRuLSfLcE_yfeAbcZrpyHD85DcLr7MxqOj_qQngT-S6d0c4lfrETLBn_bVAmXHNKV0K4Doh4o';
-  var pushOn = false, pushAll = false, pushMsg = '';
+  var pushOn = false, pushAll = false, pushMsg = '', pushHelp = false;
   try { pushOn = localStorage.getItem('ikku-push') === '1'; pushAll = localStorage.getItem('ikku-push-all') === '1'; } catch (_) {}
   function pushSupported() { return !!(window.isSecureContext && 'serviceWorker' in navigator && 'PushManager' in window && window.Notification); }
   function isIos() { return /iphone|ipad|ipod/i.test(navigator.userAgent); }
@@ -1521,13 +1531,25 @@ h3.sec { font-size: 1rem; }
       '<p class="note">一句を出した回の、はじまる15分前に、メールでお知らせします。いつでもON/OFFできます。' + (em ? '送り先：' + esc(em) : (myId ? '' : 'ログインすると使えます。')) + '</p>' +
       (mailOn ? '<p class="botnote">🤖 ONを受けつけました。メールの送信は、いま準備中です。準備ができしだい、届きはじめます。</p>' : '') + '</div>';
   }
+  /* 通知まわりを、すっきり一列に：はじめての方へ／🔔／📅／他の日程（ひらく） */
+  function vNotice() {
+    var h = '<p class="nt-first">はじめての方へ: 通知をオンにしておくと、受付の時刻にお知らせが届きます</p>', sup = pushSupported();
+    if (!sup && isIos() && !isStandalone()) h += '<p class="nt-line"><button class="nt-pill" data-act="pushhelp">🔔 iPhoneはホーム画面に追加すると通知が届きます ›</button></p>';
+    else h += '<p class="nt-line"><button class="nt-pill' + (pushOn ? ' on' : '') + '" data-act="pushtog" aria-pressed="' + pushOn + '">🔔 ' + (pushOn ? '開始15分前の通知：ON（タップでOFF）' : '開始15分前に、お知らせを受け取る') + '</button></p>';
+    if (pushMsg) h += '<p class="note center">' + esc(pushMsg) + '</p>';
+    if (pushHelp) h += '<div class="panel"><p class="note">Safariで、下の共有ボタン（□に↑）を押して「ホーム画面に追加」。できたアイコンからひらいて、もう一度「🔔」を押してください。</p></div>';
+    var rows = teiSlotsFar(7).filter(function (x) { return x.start > Date.now(); });
+    if (rows.length) h += '<p class="nt-line"><button class="nt-link" data-act="calics" data-sid="all">📅 カレンダーに入れる（1週間ぶん・15分前に通知）</button></p>';
+    h += vTeiFar();
+    return h;
+  }
   function vTeiFar() {
     var t = Date.now(), shown = teiState().slot ? teiState().slot.sid : '', rows = teiSlotsFar(7).filter(function (x) { return x.start > t && x.sid !== shown; }).slice(0, 12);
     if (!rows.length) return '';
-    return '<details class="panel"><summary>📅 他の日程も見る・先に提出する</summary><p class="note">先の回にも、いまのうちに一句を出しておけます。出したあとも、はじまるまで差しかえ・取り消しは自由です。はじまる時刻にこのアプリをひらいていれば、その回の部屋に入れます。</p><ul class="tg2 farlist">' + rows.map(function (x) {
+    return '<details class="panel farbox"><summary><span>🗓️ 他の日程も見る</span></summary><p class="note">先の回にも、いまのうちに一句を出しておけます。出したあとも、はじまるまで差しかえ・取り消しは自由です。はじまる時刻にこのアプリをひらいていれば、その回の部屋に入れます。</p><ul class="tg2 farlist">' + rows.map(function (x) {
       var d = teiFind(x.sid), mi = d && d.entries && d.entries[myId], nh = teiHumans(d);
       return '<li><b>' + esc(teiLabel(x)) + '</b> <span class="note">' + (nh ? nh + '人の句' : 'まだ0人') + (mi ? '・あなたは提出ずみ' : '') + '</span> <button class="btn small" data-act="tei-go" data-sid="' + x.sid + '">' + (mi ? 'ひらく' : 'この回に出す') + '</button></li>';
-    }).join('') + '</ul></details>';
+    }).join('') + '</ul>' + (pushOn ? '<div class="actions"><button class="btn small ' + (pushAll ? '' : 'primary') + '" data-act="pushmode" data-m="mine">通知：出した回だけ</button><button class="btn small ' + (pushAll ? 'primary' : '') + '" data-act="pushmode" data-m="all">通知：毎回</button></div>' : '') + '<p class="note"><button class="link" data-act="calics" data-sid="' + rows[0].sid + '">次の回だけ、カレンダーへ</button>　<a class="link" target="_blank" rel="noopener" href="' + esc(calGoogle(rows[0])) + '">Googleカレンダーへ</a></p>' + vMailBox() + '</details>';
   }
   function teiLiveItems() {
     var st = teiState(), out = [];
@@ -3840,6 +3862,7 @@ h3.sec { font-size: 1rem; }
     else if (act === 'sback') { current = null; if (fromArch) { fromArch = false; page = 'archive'; } render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'open') { fromArch = false; current = t.dataset.sid; showInv = false; render(); }
     else if (act === 'calics') { var cs = t.dataset.sid, cl = teiSlotsFar(7).filter(function (x) { return x.start > Date.now() && (cs === 'all' || x.sid === cs); }); if (cl.length) calDownload(cl, cs === 'all' ? 'haiku-kukai-week.ics' : 'haiku-kukai.ics'); }
+    else if (act === 'pushhelp') { pushHelp = !pushHelp; render(); }
     else if (act === 'pushtog') { if (pushOn) pushTurnOff(); else pushTurnOn(); }
     else if (act === 'pushmode') { pushAll = t.dataset.m === 'all'; try { localStorage.setItem('ikku-push-all', pushAll ? '1' : '0'); } catch (_) {} pushSync(null); render(); }
     else if (act === 'mailtog') { if (!myId) { toast('ログインすると使えます'); return; } mailSet(!mailOn); }
