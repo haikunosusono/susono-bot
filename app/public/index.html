@@ -741,7 +741,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.12z23';
+  var APP_VER = 'v2026.10.12z24';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -3592,7 +3592,11 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
         vRooms() + (tab === 'solo' ? vDeck() : '') + (tab === 'diary' ? vDiary() : tab === 'solo' ? vSolo() : tab === 'bot' ? vBotRoom() : tab === 'gohyo' ? vGohyo() : tab === 'flat' ? vFlat() : vTogether()) + vFooter();
       if (dbState === 'none') body += '<p class="note">保存先につながっていません。ページを読みこみなおしてください。</p>';
     }
+    /* こそこそ話：描きなおしても、いちばん下（最新）に。読み返し中（上にスクロール中）なら、その位置を保つ */
+    var ch0 = app.querySelector('.chat'), chKeep = null;
+    if (ch0) { var atBottom = ch0.scrollHeight - ch0.scrollTop - ch0.clientHeight < 24; chKeep = atBottom ? 'bottom' : ch0.scrollTop; }
     app.innerHTML = addRuby('<div class="wrap">' + body + '</div>');
+    var ch1 = app.querySelector('.chat'); if (ch1) { try { ch1.scrollTop = chKeep === 'bottom' || chKeep === null ? ch1.scrollHeight : chKeep; } catch (_) {} }
     if (trial) updateTrial(); else if (tsuku) { } else if (demo) updateDemo(); else if (!page) { if (tab === 'solo' || tab === 'diary') updateForm(); else updateGForm(); }
     if (aid || adf) {
       var el = aid ? document.getElementById(aid) : null;
