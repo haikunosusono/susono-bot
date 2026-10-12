@@ -1,0 +1,29 @@
+name: 俳句の裾野 スマホ通知
+# はじまる15分前に、通知ONの人へ届ける。時刻は UTC（日本時間 = UTC + 9時間）。GitHubの都合で、数分おくれることがあります
+on:
+  schedule:
+    - cron: '45 0 * * *'    # 9:45   10時の回（土日祝のみ）
+    - cron: '45 3 * * *'    # 12:45  13時の回（同上）
+    - cron: '45 5 * * *'    # 14:45  15時の回（同上）
+    - cron: '45 11 * * *'   # 20:45  21時の回（平日）
+    - cron: '45 13 * * *'   # 22:45  23時の回（平日）
+    - cron: '45 15 * * *'   # 24:45  25時の回（平日）
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: '1 なら送らず、対象だけ確認'
+        default: '1'
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install web-push@3.6.7 --no-save
+      - name: 通知を送る
+        env:
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || '0' }}
+        run: node push.js

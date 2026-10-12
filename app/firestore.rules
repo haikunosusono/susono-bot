@@ -25,6 +25,13 @@ service cloud.firestore {
         && request.resource.data.bots is int && request.resource.data.bots >= 0 && request.resource.data.bots <= 5;
       allow update, delete: if false;
     }
+    // スマホ通知の宛先（Web Push）。通知を送るプログラムが読むため、読みは公開。書けるのは本人だけ。
+    // 中身は「通知の宛先」と「出した回のid」だけ（句・名前・メールは入らない）。宛先は、こちらの秘密鍵がないと送れない
+    match /pushq/{uid} {
+      allow read: if true;
+      allow create, update: if mine(uid) && request.resource.data.keys().hasOnly(['sub', 'on', 'all', 'sids', 'at']);
+      allow delete: if mine(uid);
+    }
     // ストッ句・マイページ・お問い合わせの控え：本人だけ
     match /data/users/{uid}/{doc} {
       allow read, write: if mine(uid);
