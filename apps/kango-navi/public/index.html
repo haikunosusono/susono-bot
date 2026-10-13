@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>看護計画ナビ v9.12</title>
+<title>看護計画ナビ v9.13</title>
 <style>
   :root{
     --ink:#1f3a5f; --text:#22303f; --paper:#f4f6f8; --card:#fff; --line:#d7dee6;
@@ -343,7 +343,7 @@
 
 <header>
   <div class="app-title">
-    <span>看護計画ナビ <small>v9.12</small></span>
+    <span>看護計画ナビ <small>v9.13</small></span>
     <span>
       <button class="hbtn" id="btnUserMgr2">👤 利用者</button>
       <button class="hbtn" id="btnOkuri">📱 申し送り</button>
@@ -1990,6 +1990,7 @@
 <div id="toast"></div>
 <div id="printArea"></div>
 
+<script>window.KANGO_FB_DEFAULT={"apiKey":"AIzaSyBooghRjeJqnrUb7Hynm5xp0MIVQ62Dn90","authDomain":"kirameki-kango.firebaseapp.com","projectId":"kirameki-kango","appId":"1:381755975476:web:b794c124196fcec6bda761"};</script>
 <script>
 /* ================= マスタデータ ================= */
 const FACILITY = "社会福祉法人永熊会　特養養護老人ホームきらめき";
@@ -9816,6 +9817,8 @@ function fbStat(msg){ const e=document.getElementById("fbStatus"); if(e) e.textC
 function loadFbCfg(){
   if(window.KANGO_FB){ fbCfg=window.KANGO_FB; return; }
   try{ const t=JSON.parse(localStorage.getItem(FBKEY)); if(t&&t.projectId) fbCfg=t; }catch(e){}
+  /* kango-navi.web.app 用：はじめて開いた端末にも、同じクラウドの設定を入れておく（設定を消せば、ふつうに消える） */
+  if(!fbCfg && window.KANGO_FB_DEFAULT && !localStorage.getItem(FBKEY+"_cleared")){ fbCfg=window.KANGO_FB_DEFAULT; try{ localStorage.setItem(FBKEY, JSON.stringify(fbCfg)); }catch(e){} }
 }
 function loadScript(src){ return new Promise((ok,ng)=>{ const sc=document.createElement("script"); sc.src=src; sc.onload=ok; sc.onerror=()=>ng(new Error("load fail "+src)); document.head.appendChild(sc); }); }
 async function fbInit(){
@@ -9949,7 +9952,7 @@ if(!VIEWER){
       const obj=Function("return ("+t+")")();
       if(!obj.projectId||!obj.apiKey) throw new Error("projectId か apiKey が読み取れません");
       const cfg={apiKey:obj.apiKey,authDomain:obj.authDomain,projectId:obj.projectId,appId:obj.appId||""};
-      localStorage.setItem(FBKEY,JSON.stringify(cfg));
+      localStorage.setItem(FBKEY,JSON.stringify(cfg)); try{ localStorage.removeItem(FBKEY+"_cleared"); }catch(e){}
       fbStat("✅ 設定を保存しました。接続しています…");
       toast("設定を保存しました。接続します");
       if(!fbReady){ fbInit(); } else { $("#fbLoginBox").style.display="block"; }
@@ -9958,7 +9961,7 @@ if(!VIEWER){
       toast("設定の形式が違います: "+e.message);
     }
   });
-  $("#fbCfgClear").addEventListener("click",()=>{ localStorage.removeItem(FBKEY); $("#fbCfg").value=""; $("#fbLoginBox").style.display="none"; fbStat("未設定（ローカル保存のみ）。再読み込みで反映"); });
+  $("#fbCfgClear").addEventListener("click",()=>{ localStorage.removeItem(FBKEY); try{ localStorage.setItem(FBKEY+"_cleared","1"); }catch(e){} $("#fbCfg").value=""; $("#fbLoginBox").style.display="none"; fbStat("未設定（ローカル保存のみ）。再読み込みで反映"); });
   $("#fbUidCopy").addEventListener("click",()=>{ const v=$("#fbUid").value; if(!v){ toast("まだ接続していません"); return; } navigator.clipboard?.writeText(v).then(()=>toast("端末IDをコピーしました"),()=>{ $("#fbUid").select(); toast("長押しでコピーしてください"); }); });
   $("#fbPush").addEventListener("click",()=>cloudPush(false));
   $("#fbPull").addEventListener("click",()=>cloudPull(false));
