@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ニンニン句帳 v1.3</title>
+<style>
+:root{
+  --paper:#faf6ee;
+  --card:#fffdf8;
+  --ink:#2e2a24;
+  --sub:#8a8072;
+  --line:#e6ddcc;
+  --beni:#a83c2c;
+  --beni-dark:#8c2f22;
+  --ai:#2c4a6e;
+  --gold:#b08a3e;
+  --ok:#3d6b4f;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+body{
+  font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",serif;
+  background:var(--paper);
+  color:var(--ink);
+  padding-bottom:24px;
+  line-height:1.6;
+}
+.sans{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
+
+/* ヘッダ */
+header{
+  padding:14px 16px 10px;
+  display:flex;align-items:baseline;gap:8px;
+  background:var(--paper);
+}
+header h1{font-size:1.3rem;font-weight:600;letter-spacing:.05em}
+header .tagline{font-size:.7rem;color:var(--sub)}
+header .today{margin-left:auto;font-size:.72rem;color:var(--sub)}
+
+main{padding:12px 14px 20px;max-width:560px;margin:0 auto}
+.tabpage{display:none}
+.tabpage.active{display:block}
+
+/* 下部タブ */
+nav{
+  position:sticky;top:0;z-index:30;
+  background:var(--card);
+  border-bottom:1px solid var(--line);
+  display:flex;
+}
+nav button{
+  flex:1;background:none;border:none;
+  font-family:inherit;font-size:.8rem;color:var(--sub);
+  padding:12px 0 10px;position:relative;cursor:pointer;white-space:nowrap;
+}
+nav button.on{color:var(--beni);font-weight:600}
+nav button.on::after{
+  content:"";position:absolute;left:25%;right:25%;bottom:6px;
+  height:2px;background:var(--beni);border-radius:2px;
+}
+
+/* カード */
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:12px 14px;
+  margin-bottom:10px;
+  box-shadow:0 1px 2px rgba(90,70,40,.05);
+}
+.card.tappable:active{background:#f6efe2}
+
+/* 締切カード */
+.dl-card{display:flex;gap:12px;align-items:flex-start}
+.dl-count{
+  min-width:52px;text-align:center;
+  border:2px solid var(--beni);border-radius:8px;
+  padding:3px 4px 5px;color:var(--beni);
+  flex-shrink:0;
+}
+.dl-count .lbl{font-size:.55rem;display:block;line-height:1.2}
+.dl-count .num{font-size:1.4rem;font-weight:700;line-height:1.1}
+.dl-count.far{border-color:var(--ai);color:var(--ai)}
+.dl-count.past{border-color:var(--sub);color:var(--sub)}
+.dl-body{flex:1;min-width:0}
+.dl-body .name{font-size:1rem;font-weight:600}
+.dl-body .meta{font-size:.75rem;color:var(--sub);margin-top:2px}
+.chips{margin-top:7px;display:flex;gap:6px;flex-wrap:wrap}
+.chip{
+  font-size:.68rem;border:1px solid var(--line);border-radius:5px;
+  padding:1px 7px;color:var(--sub);background:#fff;
+}
+.chip.blue{border-color:var(--ai);color:var(--ai)}
+.chip.red{border-color:var(--beni);color:var(--beni);background:var(--beni);color:#fff}
+
+/* 検索・フィルタ */
+.searchrow{display:flex;gap:8px;margin-bottom:10px}
+.searchrow input{
+  flex:1;font-family:inherit;font-size:.9rem;
+  border:1px solid var(--line);border-radius:8px;
+  padding:9px 12px;background:#fff;color:var(--ink);
+}
+.searchrow input:focus{outline:2px solid var(--gold)}
+.btn-add{
+  background:var(--beni);color:#fff;border:none;border-radius:8px;
+  font-family:inherit;font-size:.9rem;padding:9px 14px;cursor:pointer;
+  flex-shrink:0;
+}
+.btn-add:active{background:var(--beni-dark)}
+.filterrow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.f-chip{
+  font-family:inherit;font-size:.78rem;
+  border:1px solid var(--line);border-radius:14px;
+  padding:3px 12px;background:#fff;color:var(--sub);cursor:pointer;
+}
+.f-chip.on{background:var(--beni);border-color:var(--beni);color:#fff}
+.f-chip.season.on{background:var(--ai);border-color:var(--ai)}
+.countline{font-size:.75rem;color:var(--sub);text-align:right;margin-bottom:6px}
+
+/* 句カード */
+.ku-text{font-size:1.05rem;letter-spacing:.04em;line-height:1.7}
+.ku-meta{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.badge{
+  font-size:.66rem;border-radius:5px;padding:1px 7px;
+  border:1px solid var(--line);color:var(--sub);
+}
+.badge.kigo{border-color:var(--ai);color:var(--ai)}
+.badge.res-win{border-color:var(--beni);color:var(--beni);font-weight:600}
+.badge.res-top{background:var(--beni);border-color:var(--beni);color:#fff;font-weight:600}
+.badge.res-out{border-color:var(--sub);color:var(--sub)}
+.badge.res-wait{border-color:var(--gold);color:var(--gold)}
+.ku-dest{font-size:.7rem;color:var(--sub);margin-left:auto}
+
+/* 投句先カード */
+.dest-name{font-size:1rem;font-weight:600;display:flex;align-items:center;gap:8px}
+.dest-type{
+  font-size:.65rem;border:1px solid var(--line);border-radius:4px;
+  padding:0 6px;color:var(--sub);font-weight:400;
+}
+.dest-senja{font-size:.78rem;color:var(--ai);margin-top:3px}
+.dest-stats{font-size:.8rem;color:var(--sub);margin-top:4px}
+.dest-stats b{color:var(--beni);font-weight:600}
+
+/* 句会 */
+.kukai-head{display:flex;align-items:center;gap:8px}
+.kukai-head .name{font-size:1rem;font-weight:600;flex:1}
+.btn-mini{
+  font-family:inherit;font-size:.72rem;border:1px solid var(--line);
+  border-radius:6px;background:#fff;color:var(--sub);
+  padding:3px 10px;cursor:pointer;flex-shrink:0;
+}
+.btn-mini:active{background:#f0e9db}
+.cred-row{display:flex;align-items:center;gap:8px;margin-top:7px;font-size:.85rem}
+.cred-row .lbl{color:var(--sub);font-size:.72rem;min-width:60px}
+.cred-row .val{flex:1;letter-spacing:.03em;word-break:break-all}
+.cred-row .val.none{color:var(--sub)}
+.btn-open{
+  display:block;width:100%;margin-top:11px;
+  font-family:inherit;font-size:.9rem;
+  background:var(--ai);color:#fff;border:none;border-radius:8px;
+  padding:10px 0;cursor:pointer;letter-spacing:.08em;
+}
+.btn-open:disabled{opacity:.45}
+.btn-open:active{background:#22374f}
+
+/* 歳時記 */
+.kigo-grid{display:flex;flex-wrap:wrap;gap:7px}
+.kigo-chip{
+  font-family:inherit;font-size:.92rem;
+  border:1px solid var(--line);border-radius:6px;
+  background:#fff;color:var(--ink);
+  padding:6px 10px;cursor:pointer;letter-spacing:.05em;
+}
+.kigo-chip:active{background:var(--beni);color:#fff;border-color:var(--beni)}
+.kigo-note{font-size:.72rem;color:var(--sub);margin:8px 0 12px;line-height:1.7}
+.link-kigosai{
+  display:block;text-align:center;margin:12px 0;
+  font-size:.85rem;color:var(--ai);text-decoration:underline;
+}
+
+/* モーダル */
+.overlay{
+  display:none;position:fixed;inset:0;z-index:50;
+  background:rgba(40,30,20,.45);
+  overflow-y:auto;padding:24px 14px 40px;
+}
+.overlay.show{display:block}
+.modal{
+  background:var(--card);border-radius:12px;
+  max-width:520px;margin:0 auto;padding:18px 16px 20px;
+}
+.modal h2{font-size:1.05rem;margin-bottom:14px;color:var(--beni)}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:.75rem;color:var(--sub);margin-bottom:4px}
+.field input,.field select,.field textarea{
+  width:100%;font-family:inherit;font-size:1rem;
+  border:1px solid var(--line);border-radius:8px;
+  padding:9px 12px;background:#fff;color:var(--ink);
+}
+.field textarea{min-height:64px;line-height:1.6}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--gold)}
+.modal-btns{display:flex;gap:8px;margin-top:16px}
+.modal-btns button{
+  flex:1;font-family:inherit;font-size:.95rem;
+  border-radius:8px;padding:11px 0;cursor:pointer;border:1px solid var(--line);
+  background:#fff;color:var(--sub);
+}
+.modal-btns .primary{background:var(--beni);border-color:var(--beni);color:#fff}
+.btn-danger{
+  width:100%;margin-top:10px;font-family:inherit;font-size:.85rem;
+  background:none;border:1px solid var(--sub);border-radius:8px;
+  color:var(--sub);padding:9px 0;cursor:pointer;
+}
+.btn-danger.confirm{border-color:var(--beni);color:var(--beni);font-weight:600}
+
+/* その他 */
+.other-sec{margin-bottom:20px}
+.other-sec h3{font-size:.9rem;color:var(--beni);margin-bottom:8px}
+.other-sec p{font-size:.82rem;color:var(--sub);line-height:1.8}
+.other-sec textarea{
+  width:100%;font-family:monospace;font-size:.72rem;
+  border:1px solid var(--line);border-radius:8px;padding:8px;
+  min-height:90px;background:#fff;color:var(--ink);
+}
+.other-btns{display:flex;gap:8px;margin-top:8px}
+.other-btns button{
+  flex:1;font-family:inherit;font-size:.85rem;
+  border:1px solid var(--line);border-radius:8px;
+  background:#fff;color:var(--ink);padding:9px 0;cursor:pointer;
+}
+.empty{
+  text-align:center;color:var(--sub);font-size:.85rem;
+  padding:36px 10px;line-height:2;
+}
+.toast{
+  position:fixed;left:50%;bottom:80px;transform:translateX(-50%);
+  background:var(--ink);color:#fff;font-size:.8rem;
+  padding:8px 18px;border-radius:20px;z-index:60;
+  opacity:0;transition:opacity .3s;pointer-events:none;
+  font-family:"Hiragino Kaku Gothic ProN",sans-serif;
+}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="appTitle">ニンニン句帳</h1>
+  <span class="tagline">作句・投句のきろく</span>
+  <span class="today" id="todayLabel"></span>
+</header>
+
+<nav>
+  <button class="on" data-page="shimekiri" onclick="switchTab('shimekiri')">締切</button>
+  <button data-page="kucho" onclick="switchTab('kucho')">句帳</button>
+  <button data-page="dest" onclick="switchTab('dest')">投句先</button>
+  <button data-page="kukai" onclick="switchTab('kukai')">句会</button>
+  <button data-page="saijiki" onclick="switchTab('saijiki')">歳時記</button>
+  <button data-page="other" onclick="switchTab('other')">その他</button>
+</nav>
+
+<main>
+
+<!-- ========== 締切 ========== -->
+<section class="tabpage active" id="page-shimekiri">
+  <div class="searchrow">
+    <input type="text" id="dlSearch" placeholder="締切を検索" oninput="renderDeadlines()">
+    <button class="btn-add" onclick="openDlModal()">＋ 締切</button>
+  </div>
+  <div class="filterrow">
+    <button class="f-chip on" id="dlShowFuture" onclick="toggleDlPast(false)">これから</button>
+    <button class="f-chip" id="dlShowPast" onclick="toggleDlPast(true)">過去も表示</button>
+  </div>
+  <div id="dlList"></div>
+</section>
+
+<!-- ========== 句帳 ========== -->
+<section class="tabpage" id="page-kucho">
+  <div class="searchrow">
+    <input type="text" id="kuSearch" placeholder="句・季語・メモを検索" oninput="renderKu()">
+    <button class="btn-add" onclick="openKuModal()">＋ 句</button>
+  </div>
+  <div class="filterrow" id="seasonFilter"></div>
+  <div class="filterrow" id="statusFilter"></div>
+  <div class="countline" id="kuCount"></div>
+  <div id="kuList"></div>
+</section>
+
+<!-- ========== 投句先 ========== -->
+<section class="tabpage" id="page-dest">
+  <div class="searchrow">
+    <input type="text" id="destSearch" placeholder="投句先を検索" oninput="renderDests()">
+    <button class="btn-add" onclick="openDestModal()">＋ 投句先</button>
+  </div>
+  <div id="destList"></div>
+</section>
+
+<!-- ========== 句会 ========== -->
+<section class="tabpage" id="page-kukai">
+  <div class="searchrow">
+    <input type="text" id="kukaiSearch" placeholder="句会を検索" oninput="renderKukai()">
+    <button class="btn-add" onclick="openKukaiModal()">＋ 句会</button>
+  </div>
+  <p class="kigo-note">夏雲システムなどの句会のログイン情報をまとめておけます。この端末の中にだけ保存されます。</p>
+  <div id="kukaiList"></div>
+</section>
+
+<!-- ========== 歳時記 ========== -->
+<section class="tabpage" id="page-saijiki">
+  <div class="searchrow">
+    <input type="text" id="kigoSearch" placeholder="季語を検索（よみでも可）" oninput="renderKigo()">
+  </div>
+  <div class="filterrow" id="kigoSeasonFilter"></div>
+  <p class="kigo-note">内蔵は主要季語のみ。季語をタップすると「きごさい歳時記」の検索ページが開きます。傍題・詳しい解説はきごさいで。</p>
+  <div class="kigo-grid" id="kigoGrid"></div>
+  <a class="link-kigosai" id="kigosaiLink" href="https://kigosai.sub.jp/" target="_blank" rel="noopener">きごさい歳時記を開く →</a>
+</section>
+
+<!-- ========== その他 ========== -->
+<section class="tabpage" id="page-other">
+  <div class="other-sec">
+    <h3>句帳の名前</h3>
+    <p>この句帳の名前を変えられます。</p>
+    <div class="searchrow" style="margin-top:6px">
+      <input type="text" id="appNameInput" placeholder="ニンニン句帳">
+      <button class="btn-add" onclick="saveAppName()">変更</button>
+    </div>
+  </div>
+  <div class="other-sec">
+    <h3>データのバックアップ</h3>
+    <p>記録はこの端末のブラウザ内にだけ保存されます。機種変更やブラウザの履歴削除で消えるため、ときどき下のボタンで書き出してLINEのKeepメモなどに貼っておくのがおすすめです。</p>
+    <div class="other-btns">
+      <button onclick="exportData()">書き出す（コピー）</button>
+      <button onclick="importData()">貼り付けて復元</button>
+    </div>
+    <textarea id="backupArea" placeholder="書き出すとここにデータが出ます。復元するときは保存しておいたデータをここに貼ってから「貼り付けて復元」を押してください。"></textarea>
+  </div>
+  <div class="other-sec">
+    <h3>句の一覧をテキストでコピー</h3>
+    <p>句帳の内容を読みやすいテキストにしてコピーします。推敲の相談やAIチェックに貼るときに。</p>
+    <div class="other-btns">
+      <button onclick="copyKuText()">句帳をテキストコピー</button>
+    </div>
+  </div>
+  <div class="other-sec">
+    <h3>このアプリについて</h3>
+    <p><span id="aboutName">ニンニン句帳</span> v1.3<br>締切・句帳・投句先・句会・歳時記の記録をひとつに。データは端末内のみ・通信なし（きごさいへのリンクを除く）。</p>
+  </div>
+</section>
+
+</main>
+
+
+<!-- 句モーダル -->
+<div class="overlay" id="kuOverlay">
+  <div class="modal">
+    <h2 id="kuModalTitle">句を追加</h2>
+    <div class="field"><label>句</label><textarea id="kuText" placeholder="ここに一句"></textarea></div>
+    <div class="field"><label>季語</label><input type="text" id="kuKigo" placeholder="例：天の川"></div>
+    <div class="field"><label>季節</label>
+      <select id="kuSeason">
+        <option>春</option><option>夏</option><option>秋</option><option>冬</option><option>新年</option><option>無季</option>
+      </select>
+    </div>
+    <div class="field"><label>投句先</label><select id="kuDest" onchange="autoSenja()"></select></div>
+    <div class="field"><label>選者の先生</label><input type="text" id="kuSenja" placeholder="投句先を選ぶと自動で入ります"></div>
+    <div class="field"><label>兼題・お題</label><input type="text" id="kuKadai" placeholder="例：新米"></div>
+    <div class="field"><label>状態・結果</label>
+      <select id="kuStatus">
+        <option>候補</option><option>投句済</option>
+        <option>天</option><option>地</option><option>人</option>
+        <option>入選</option><option>佳作</option><option>並選</option>
+        <option>選外</option>
+      </select>
+    </div>
+    <div class="field"><label>メモ</label><textarea id="kuMemo" placeholder="推敲メモ・実景のことなど"></textarea></div>
+    <div class="modal-btns">
+      <button onclick="closeKuModal()">とじる</button>
+      <button class="primary" onclick="saveKu()">保存する</button>
+    </div>
+    <button class="btn-danger" id="kuDelete" onclick="deleteKu(this)" style="display:none">この句を削除</button>
+  </div>
+</div>
+
+<!-- 締切モーダル -->
+<div class="overlay" id="dlOverlay">
+  <div class="modal">
+    <h2 id="dlModalTitle">締切を追加</h2>
+    <div class="field"><label>投句先</label><select id="dlDest"></select></div>
+    <div class="field"><label>兼題・お題・回</label><input type="text" id="dlKadai" placeholder="例：天の川"></div>
+    <div class="field"><label>締切日</label><input type="date" id="dlDate"></div>
+    <div class="field"><label>メモ（放送日など）</label><input type="text" id="dlNote" placeholder="例：8/21放送"></div>
+    <div class="modal-btns">
+      <button onclick="closeDlModal()">とじる</button>
+      <button class="primary" onclick="saveDl()">保存する</button>
+    </div>
+    <button class="btn-danger" id="dlDelete" onclick="deleteDl(this)" style="display:none">この締切を削除</button>
+  </div>
+</div>
+
+<!-- 投句先モーダル -->
+<div class="overlay" id="destOverlay">
+  <div class="modal">
+    <h2 id="destModalTitle">投句先を追加</h2>
+    <div class="field"><label>名前</label><input type="text" id="destName" placeholder="例：俳句ポスト365"></div>
+    <div class="field"><label>選者の先生</label><input type="text" id="destSenja" placeholder="例：夏井いつき"></div>
+    <div class="field"><label>種類</label>
+      <select id="destType">
+        <option>ネット</option><option>ラジオ</option><option>テレビ</option><option>句会</option><option>誌上</option><option>その他</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button onclick="closeDestModal()">とじる</button>
+      <button class="primary" onclick="saveDest()">保存する</button>
+    </div>
+    <button class="btn-danger" id="destDelete" onclick="deleteDest(this)" style="display:none">この投句先を削除</button>
+  </div>
+</div>
+
+<!-- 句会モーダル -->
+<div class="overlay" id="kukaiOverlay">
+  <div class="modal">
+    <h2 id="kukaiModalTitle">句会を追加</h2>
+    <div class="field"><label>句会名</label><input type="text" id="kkName" placeholder="例：夏雲句会"></div>
+    <div class="field"><label>ログインページのURL</label><input type="url" id="kkUrl" placeholder="https://ntgm.nolimbre.com/…" inputmode="url"></div>
+    <div class="field"><label>俳号（ID）</label><input type="text" id="kkId" placeholder="例：猪子石ニンニン"></div>
+    <div class="field"><label>パスワード</label><input type="text" id="kkPw" placeholder="この端末内にのみ保存"></div>
+    <div class="modal-btns">
+      <button onclick="closeKukaiModal()">とじる</button>
+      <button class="primary" onclick="saveKukai()">保存する</button>
+    </div>
+    <button class="btn-danger" id="kukaiDelete" onclick="deleteKukai(this)" style="display:none">この句会を削除</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+/* ============ データ ============ */
+const LSKEY = "hachi-kucho-v1";
+const WIN_STATUSES = ["天","地","人","入選","佳作","並選"];
+const SUBMITTED = ["投句済","天","地","人","入選","佳作","並選","選外"];
+
+function defaultData(){
+  return {
+    ku: [],
+    dests: [
+      {id:"d1", name:"俳句ポスト365", type:"ネット", senja:"夏井いつき"},
+      {id:"d2", name:"一句一遊", type:"ラジオ", senja:"夏井いつき"},
+      {id:"d3", name:"俳句道場", type:"テレビ", senja:"家藤正人"},
+      {id:"d4", name:"俳句生活", type:"ネット", senja:"夏井いつき"},
+      {id:"d5", name:"文芸選評", type:"ラジオ", senja:""}
+    ],
+    deadlines: [],
+    kukai: []
+  };
+}
+let data;
+try{
+  data = JSON.parse(localStorage.getItem(LSKEY)) || defaultData();
+}catch(e){ data = defaultData(); }
+if(!data.kukai){
+  data.kukai = [];
+  /* 旧・夏雲句会管理アプリのデータが同じ端末にあれば引き継ぐ */
+  try{
+    const old = JSON.parse(localStorage.getItem("natsugumo_kukai_v1"));
+    if(Array.isArray(old)) data.kukai = old.map(k=>({id:k.key||("m"+Math.random().toString(36).slice(2,8)), name:k.name||"", url:k.url||"", hai:k.id||"", pw:k.pw||""}));
+  }catch(e){}
+}
+function save(){
+  try{ localStorage.setItem(LSKEY, JSON.stringify(data)); }
+  catch(e){ toast("保存できませんでした"); }
+}
+function uid(){ return "x" + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function esc(s){ return (s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+/* ============ タブ ============ */
+function switchTab(name){
+  document.querySelectorAll(".tabpage").forEach(p=>p.classList.remove("active"));
+  document.getElementById("page-"+name).classList.add("active");
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on", b.dataset.page===name));
+  window.scrollTo(0,0);
+}
+
+/* ============ 締切 ============ */
+let dlShowPast = false;
+function toggleDlPast(v){
+  dlShowPast = v;
+  document.getElementById("dlShowFuture").classList.toggle("on", !v);
+  document.getElementById("dlShowPast").classList.toggle("on", v);
+  renderDeadlines();
+}
+function destName(id){ const d = data.dests.find(x=>x.id===id); return d ? d.name : "（投句先なし）"; }
+function daysLeft(dateStr){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d = new Date(dateStr + "T00:00:00");
+  return Math.round((d - today) / 86400000);
+}
+function fmtMD(dateStr){ const d = new Date(dateStr+"T00:00:00"); return (d.getMonth()+1)+"/"+d.getDate(); }
+function renderDeadlines(){
+  const q = document.getElementById("dlSearch").value.trim();
+  let list = data.deadlines.slice();
+  list.sort((a,b)=> a.date < b.date ? -1 : 1);
+  if(!dlShowPast) list = list.filter(dl => daysLeft(dl.date) >= 0);
+  if(q) list = list.filter(dl => (destName(dl.destId)+dl.kadai+(dl.note||"")).includes(q));
+  const el = document.getElementById("dlList");
+  if(list.length===0){
+    el.innerHTML = '<div class="empty">締切はまだありません。<br>「＋ 締切」から追加できます。</div>';
+    return;
+  }
+  el.innerHTML = list.map(dl=>{
+    const n = daysLeft(dl.date);
+    const cls = n < 0 ? "past" : (n <= 5 ? "" : "far");
+    const numLabel = n < 0 ? "済" : n;
+    const toko = data.ku.filter(k => k.deadlineId===dl.id && SUBMITTED.includes(k.status)).length;
+    const koho = data.ku.filter(k => k.deadlineId===dl.id && k.status==="候補").length;
+    return `<div class="card tappable dl-card" onclick="openDlModal('${dl.id}')">
+      <div class="dl-count ${cls}"><span class="lbl">あと</span><span class="num">${numLabel}</span><span class="lbl">${n<0?"":"日"}</span></div>
+      <div class="dl-body">
+        <div class="name">${esc(destName(dl.destId))}</div>
+        <div class="meta">「${esc(dl.kadai)}」${dl.note?" "+esc(dl.note):""}　締切 ${fmtMD(dl.date)}</div>
+        <div class="chips">
+          <span class="chip ${toko>0?'red':''}">投句 ${toko}句</span>
+          <span class="chip ${koho>0?'blue':''}">候補 ${koho}句</span>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+let editingDl = null;
+function fillDestSelect(sel, includeNone){
+  sel.innerHTML = (includeNone ? '<option value="">（投句先なし）</option>' : "") +
+    data.dests.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join("");
+}
+function openDlModal(id){
+  editingDl = id || null;
+  fillDestSelect(document.getElementById("dlDest"), false);
+  const del = document.getElementById("dlDelete");
+  del.style.display = id ? "block" : "none";
+  del.classList.remove("confirm"); del.textContent = "この締切を削除";
+  document.getElementById("dlModalTitle").textContent = id ? "締切を編集" : "締切を追加";
+  if(id){
+    const dl = data.deadlines.find(x=>x.id===id);
+    document.getElementById("dlDest").value = dl.destId;
+    document.getElementById("dlKadai").value = dl.kadai;
+    document.getElementById("dlDate").value = dl.date;
+    document.getElementById("dlNote").value = dl.note || "";
+  }else{
+    document.getElementById("dlKadai").value = "";
+    document.getElementById("dlDate").value = "";
+    document.getElementById("dlNote").value = "";
+  }
+  document.getElementById("dlOverlay").classList.add("show");
+}
+function closeDlModal(){ document.getElementById("dlOverlay").classList.remove("show"); }
+function saveDl(){
+  const kadai = document.getElementById("dlKadai").value.trim();
+  const date = document.getElementById("dlDate").value;
+  if(!date){ toast("締切日を入れてください"); return; }
+  if(editingDl){
+    const dl = data.deadlines.find(x=>x.id===editingDl);
+    dl.destId = document.getElementById("dlDest").value;
+    dl.kadai = kadai; dl.date = date;
+    dl.note = document.getElementById("dlNote").value.trim();
+  }else{
+    data.deadlines.push({
+      id: uid(),
+      destId: document.getElementById("dlDest").value,
+      kadai, date,
+      note: document.getElementById("dlNote").value.trim()
+    });
+  }
+  save(); closeDlModal(); renderAll(); toast("保存しました");
+}
+function deleteDl(btn){
+  if(!btn.classList.contains("confirm")){
+    btn.classList.add("confirm"); btn.textContent = "もう一度押すと削除します"; return;
+  }
+  data.ku.forEach(k=>{ if(k.deadlineId===editingDl) k.deadlineId = ""; });
+  data.deadlines = data.deadlines.filter(x=>x.id!==editingDl);
+  save(); closeDlModal(); renderAll(); toast("削除しました");
+}
+
+/* ============ 句帳 ============ */
+let seasonSel = "すべて";
+let statusSel = "すべて";
+const SEASONS = ["すべて","春","夏","秋","冬","新年","無季"];
+const STATUS_FILTERS = ["すべて","候補","投句済","入選あり","選外"];
+function statusBadgeClass(s){
+  if(s==="天"||s==="地"||s==="人") return "res-top";
+  if(WIN_STATUSES.includes(s)) return "res-win";
+  if(s==="選外") return "res-out";
+  if(s==="投句済") return "res-wait";
+  return "";
+}
+function renderKuFilters(){
+  document.getElementById("seasonFilter").innerHTML = SEASONS.map(s=>
+    `<button class="f-chip season ${seasonSel===s?'on':''}" onclick="seasonSel='${s}';renderKuFilters();renderKu()">${s}</button>`).join("");
+  document.getElementById("statusFilter").innerHTML = STATUS_FILTERS.map(s=>
+    `<button class="f-chip ${statusSel===s?'on':''}" onclick="statusSel='${s}';renderKuFilters();renderKu()">${s}</button>`).join("");
+}
+function renderKu(){
+  const q = document.getElementById("kuSearch").value.trim();
+  let list = data.ku.slice().reverse();
+  if(seasonSel!=="すべて") list = list.filter(k=>k.season===seasonSel);
+  if(statusSel==="候補") list = list.filter(k=>k.status==="候補");
+  else if(statusSel==="投句済") list = list.filter(k=>k.status==="投句済");
+  else if(statusSel==="入選あり") list = list.filter(k=>WIN_STATUSES.includes(k.status));
+  else if(statusSel==="選外") list = list.filter(k=>k.status==="選外");
+  if(q) list = list.filter(k=>(k.text+k.kigo+(k.memo||"")+(k.kadai||"")+(k.senja||"")).includes(q));
+  document.getElementById("kuCount").textContent = list.length + "句";
+  const el = document.getElementById("kuList");
+  if(list.length===0){
+    el.innerHTML = '<div class="empty">句はまだありません。<br>「＋ 句」から書きとめられます。</div>';
+    return;
+  }
+  el.innerHTML = list.map(k=>`
+    <div class="card tappable" onclick="openKuModal('${k.id}')">
+      <div class="ku-text">${esc(k.text)}</div>
+      <div class="ku-meta">
+        ${k.kigo?`<span class="badge kigo">${esc(k.kigo)}・${esc(k.season)}</span>`:`<span class="badge">${esc(k.season)}</span>`}
+        <span class="badge ${statusBadgeClass(k.status)}">${esc(k.status)}</span>
+        ${k.kadai?`<span class="badge">「${esc(k.kadai)}」</span>`:""}
+        ${k.senja?`<span class="badge">${esc(k.senja)} 選</span>`:""}
+        <span class="ku-dest">${esc(k.destId?destName(k.destId):"")}</span>
+      </div>
+    </div>`).join("");
+}
+let editingKu = null;
+function openKuModal(id){
+  editingKu = id || null;
+  fillDestSelect(document.getElementById("kuDest"), true);
+  const del = document.getElementById("kuDelete");
+  del.style.display = id ? "block" : "none";
+  del.classList.remove("confirm"); del.textContent = "この句を削除";
+  document.getElementById("kuModalTitle").textContent = id ? "句を編集" : "句を追加";
+  if(id){
+    const k = data.ku.find(x=>x.id===id);
+    document.getElementById("kuText").value = k.text;
+    document.getElementById("kuKigo").value = k.kigo || "";
+    document.getElementById("kuSeason").value = k.season;
+    document.getElementById("kuDest").value = k.destId || "";
+    document.getElementById("kuSenja").value = k.senja || "";
+    document.getElementById("kuKadai").value = k.kadai || "";
+    document.getElementById("kuStatus").value = k.status;
+    document.getElementById("kuMemo").value = k.memo || "";
+  }else{
+    document.getElementById("kuText").value = "";
+    document.getElementById("kuKigo").value = "";
+    document.getElementById("kuSenja").value = "";
+    document.getElementById("kuKadai").value = "";
+    document.getElementById("kuStatus").value = "候補";
+    document.getElementById("kuMemo").value = "";
+  }
+  document.getElementById("kuOverlay").classList.add("show");
+}
+function autoSenja(){
+  const d = data.dests.find(x=>x.id===document.getElementById("kuDest").value);
+  document.getElementById("kuSenja").value = (d && d.senja) ? d.senja : "";
+}
+function closeKuModal(){ document.getElementById("kuOverlay").classList.remove("show"); }
+function findDeadlineFor(destId, kadai){
+  if(!destId) return "";
+  const dl = data.deadlines.find(d => d.destId===destId && (!kadai || d.kadai===kadai));
+  return dl ? dl.id : "";
+}
+function saveKu(){
+  const text = document.getElementById("kuText").value.trim();
+  if(!text){ toast("句を入れてください"); return; }
+  const destId = document.getElementById("kuDest").value;
+  const kadai = document.getElementById("kuKadai").value.trim();
+  const obj = {
+    text,
+    kigo: document.getElementById("kuKigo").value.trim(),
+    season: document.getElementById("kuSeason").value,
+    senja: document.getElementById("kuSenja").value.trim(),
+    destId, kadai,
+    status: document.getElementById("kuStatus").value,
+    memo: document.getElementById("kuMemo").value.trim()
+  };
+  if(editingKu){
+    const k = data.ku.find(x=>x.id===editingKu);
+    Object.assign(k, obj);
+    k.deadlineId = findDeadlineFor(destId, kadai);
+  }else{
+    data.ku.push(Object.assign({id:uid(), created:new Date().toISOString().slice(0,10), deadlineId:findDeadlineFor(destId,kadai)}, obj));
+  }
+  save(); closeKuModal(); renderAll(); toast("保存しました");
+}
+function deleteKu(btn){
+  if(!btn.classList.contains("confirm")){
+    btn.classList.add("confirm"); btn.textContent = "もう一度押すと削除します"; return;
+  }
+  data.ku = data.ku.filter(x=>x.id!==editingKu);
+  save(); closeKuModal(); renderAll(); toast("削除しました");
+}
+
+/* ============ 投句先 ============ */
+function renderDests(){
+  const q = document.getElementById("destSearch").value.trim();
+  let list = data.dests.slice();
+  if(q) list = list.filter(d=>d.name.includes(q));
+  const el = document.getElementById("destList");
+  if(list.length===0){
+    el.innerHTML = '<div class="empty">投句先はまだありません。</div>';
+    return;
+  }
+  el.innerHTML = list.map(d=>{
+    const sub = data.ku.filter(k=>k.destId===d.id && SUBMITTED.includes(k.status));
+    const win = sub.filter(k=>WIN_STATUSES.includes(k.status));
+    const rate = sub.length ? Math.round(win.length / sub.length * 100) : 0;
+    return `<div class="card tappable" onclick="openDestModal('${d.id}')">
+      <div class="dest-name">${esc(d.name)}<span class="dest-type">${esc(d.type)}</span></div>
+      ${d.senja?`<div class="dest-senja">選者：${esc(d.senja)} 先生</div>`:""}
+      <div class="dest-stats">投句 ${sub.length}句 ／ 入選 <b>${win.length}句</b>${sub.length?`（${rate}%）`:""}</div>
+    </div>`;
+  }).join("");
+}
+let editingDest = null;
+function openDestModal(id){
+  editingDest = id || null;
+  const del = document.getElementById("destDelete");
+  del.style.display = id ? "block" : "none";
+  del.classList.remove("confirm"); del.textContent = "この投句先を削除";
+  document.getElementById("destModalTitle").textContent = id ? "投句先を編集" : "投句先を追加";
+  if(id){
+    const d = data.dests.find(x=>x.id===id);
+    document.getElementById("destName").value = d.name;
+    document.getElementById("destSenja").value = d.senja || "";
+    document.getElementById("destType").value = d.type;
+  }else{
+    document.getElementById("destName").value = "";
+    document.getElementById("destSenja").value = "";
+  }
+  document.getElementById("destOverlay").classList.add("show");
+}
+function closeDestModal(){ document.getElementById("destOverlay").classList.remove("show"); }
+function saveDest(){
+  const name = document.getElementById("destName").value.trim();
+  if(!name){ toast("名前を入れてください"); return; }
+  const type = document.getElementById("destType").value;
+  const senja = document.getElementById("destSenja").value.trim();
+  if(editingDest){
+    const d = data.dests.find(x=>x.id===editingDest);
+    d.name = name; d.type = type; d.senja = senja;
+  }else{
+    data.dests.push({id:uid(), name, type, senja});
+  }
+  save(); closeDestModal(); renderAll(); toast("保存しました");
+}
+function deleteDest(btn){
+  if(!btn.classList.contains("confirm")){
+    btn.classList.add("confirm"); btn.textContent = "句が残っていても削除します。もう一度押してください"; return;
+  }
+  data.ku.forEach(k=>{ if(k.destId===editingDest){ k.destId=""; k.deadlineId=""; } });
+  data.deadlines = data.deadlines.filter(x=>x.destId!==editingDest);
+  data.dests = data.dests.filter(x=>x.id!==editingDest);
+  save(); closeDestModal(); renderAll(); toast("削除しました");
+}
+
+/* ============ 句会 ============ */
+function renderKukai(){
+  const q = document.getElementById("kukaiSearch").value.trim();
+  let list = data.kukai.slice();
+  if(q) list = list.filter(k=>(k.name+(k.hai||"")).includes(q));
+  const el = document.getElementById("kukaiList");
+  if(list.length===0){
+    el.innerHTML = '<div class="empty">句会はまだ登録されていません。<br>「＋ 句会」から登録できます。</div>';
+    return;
+  }
+  el.innerHTML = list.map(k=>{
+    const hai = k.hai ? `<span class="val">${esc(k.hai)}</span><button class="btn-mini" onclick="copyCred('${k.id}','hai')">コピー</button>` : '<span class="val none">未登録</span>';
+    const pw  = k.pw  ? `<span class="val">${esc(k.pw)}</span><button class="btn-mini" onclick="copyCred('${k.id}','pw')">コピー</button>` : '<span class="val none">未登録</span>';
+    const open = k.url ? `<button class="btn-open" onclick="window.open(kukaiUrl('${k.id}'),'_blank')">この句会をひらく ▶</button>`
+                       : `<button class="btn-open" disabled>URL未登録</button>`;
+    return `<div class="card">
+      <div class="kukai-head">
+        <span class="name">${esc(k.name)}</span>
+        <button class="btn-mini" onclick="openKukaiModal('${k.id}')">編集</button>
+      </div>
+      <div class="cred-row"><span class="lbl">俳号</span>${hai}</div>
+      <div class="cred-row"><span class="lbl">パスワード</span>${pw}</div>
+      ${open}
+    </div>`;
+  }).join("");
+}
+function kukaiUrl(id){ const k=data.kukai.find(x=>x.id===id); return k?k.url:""; }
+function copyCred(id, field){
+  const k = data.kukai.find(x=>x.id===id);
+  if(k) copyText(field==="hai"?k.hai:k.pw, "コピーしました");
+}
+let editingKukai = null;
+function openKukaiModal(id){
+  editingKukai = id || null;
+  const del = document.getElementById("kukaiDelete");
+  del.style.display = id ? "block" : "none";
+  del.classList.remove("confirm"); del.textContent = "この句会を削除";
+  document.getElementById("kukaiModalTitle").textContent = id ? "句会を編集" : "句会を追加";
+  if(id){
+    const k = data.kukai.find(x=>x.id===id);
+    document.getElementById("kkName").value = k.name;
+    document.getElementById("kkUrl").value = k.url || "";
+    document.getElementById("kkId").value = k.hai || "";
+    document.getElementById("kkPw").value = k.pw || "";
+  }else{
+    ["kkName","kkUrl","kkId","kkPw"].forEach(i=>document.getElementById(i).value="");
+  }
+  document.getElementById("kukaiOverlay").classList.add("show");
+}
+function closeKukaiModal(){ document.getElementById("kukaiOverlay").classList.remove("show"); }
+function saveKukai(){
+  const name = document.getElementById("kkName").value.trim();
+  if(!name){ toast("句会名を入れてください"); return; }
+  let url = document.getElementById("kkUrl").value.trim();
+  if(url && !/^https?:\/\//i.test(url)) url = "https://" + url;
+  const obj = {
+    name, url,
+    hai: document.getElementById("kkId").value.trim(),
+    pw: document.getElementById("kkPw").value
+  };
+  if(editingKukai){
+    Object.assign(data.kukai.find(x=>x.id===editingKukai), obj);
+  }else{
+    data.kukai.push(Object.assign({id:uid()}, obj));
+  }
+  save(); closeKukaiModal(); renderKukai(); toast("保存しました");
+}
+function deleteKukai(btn){
+  if(!btn.classList.contains("confirm")){
+    btn.classList.add("confirm"); btn.textContent = "もう一度押すと削除します"; return;
+  }
+  data.kukai = data.kukai.filter(x=>x.id!==editingKukai);
+  save(); closeKukaiModal(); renderKukai(); toast("削除しました");
+}
+
+/* ============ 歳時記（内蔵：主要季語） ============ */
+const KIGO = {
+"春":[["立春","りっしゅん"],["余寒","よかん"],["春浅し","はるあさし"],["雨水","うすい"],["啓蟄","けいちつ"],["彼岸","ひがん"],["暖か","あたたか"],["麗か","うららか"],["長閑","のどか"],["春の雪","はるのゆき"],["淡雪","あわゆき"],["春時雨","はるしぐれ"],["霞","かすみ"],["朧","おぼろ"],["朧月","おぼろづき"],["陽炎","かげろう"],["東風","こち"],["春一番","はるいちばん"],["風光る","かぜひかる"],["花冷え","はなびえ"],["蛙","かわず"],["燕","つばめ"],["雲雀","ひばり"],["鶯","うぐいす"],["桜","さくら"],["花","はな"],["梅","うめ"],["椿","つばき"],["桃の花","もものはな"],["菜の花","なのはな"],["蒲公英","たんぽぽ"],["土筆","つくし"],["蕨","わらび"],["若草","わかくさ"],["菫","すみれ"],["藤","ふじ"],["山吹","やまぶき"],["木の芽","このめ"],["春の海","はるのうみ"],["春の山","はるのやま"],["山笑ふ","やまわらう"],["雪解","ゆきどけ"],["春の川","はるのかわ"],["卒業","そつぎょう"],["入学","にゅうがく"],["遠足","えんそく"],["花見","はなみ"],["雛祭","ひなまつり"],["蝶","ちょう"],["蜂","はち"],["蚕","かいこ"],["桑","くわ"],["耕","たがやし"],["種蒔","たねまき"],["剪定","せんてい"],["春眠","しゅんみん"],["朝寝","あさね"],["蜆","しじみ"],["桜貝","さくらがい"],["潮干狩","しおひがり"],["磯遊び","いそあそび"],["蛤","はまぐり"],["韮","にら"],["蓬","よもぎ"],["春愁","しゅんしゅう"],["行く春","ゆくはる"],["風船","ふうせん"],["石鹸玉","しゃぼんだま"],["凧","たこ"]],
+"夏":[["立夏","りっか"],["夏めく","なつめく"],["麦の秋","むぎのあき"],["入梅","にゅうばい"],["梅雨","つゆ"],["五月雨","さみだれ"],["夏至","げし"],["短夜","みじかよ"],["炎昼","えんちゅう"],["涼し","すずし"],["夕立","ゆうだち"],["雷","かみなり"],["虹","にじ"],["南風","みなみ"],["青嵐","あおあらし"],["薫風","くんぷう"],["夏の月","なつのつき"],["夏の山","なつのやま"],["滝","たき"],["清水","しみず"],["泉","いずみ"],["噴水","ふんすい"],["夏の海","なつのうみ"],["雲の峰","くものみね"],["蝉","せみ"],["空蝉","うつせみ"],["蛍","ほたる"],["金魚","きんぎょ"],["目高","めだか"],["蟻","あり"],["蚊","か"],["蠅","はえ"],["天道虫","てんとうむし"],["蜘蛛","くも"],["蜥蜴","とかげ"],["青蛙","あおがえる"],["雨蛙","あまがえる"],["海月","くらげ"],["鮎","あゆ"],["鰻","うなぎ"],["新緑","しんりょく"],["若葉","わかば"],["万緑","ばんりょく"],["青葉","あおば"],["葉桜","はざくら"],["紫陽花","あじさい"],["花菖蒲","はなしょうぶ"],["百合","ゆり"],["向日葵","ひまわり"],["薔薇","ばら"],["牡丹","ぼたん"],["夾竹桃","きょうちくとう"],["青田","あおた"],["田植","たうえ"],["早苗","さなえ"],["筍","たけのこ"],["茄子","なす"],["胡瓜","きゅうり"],["メロン","めろん"],["トマト","とまと"],["汗","あせ"],["昼寝","ひるね"],["端居","はしい"],["納涼","のうりょう"],["夜店","よみせ"],["花火","はなび"],["浴衣","ゆかた"],["団扇","うちわ"],["扇","おうぎ"],["蚊帳","かや"],["風鈴","ふうりん"],["冷奴","ひややっこ"],["素麺","そうめん"],["心太","ところてん"],["麦茶","むぎちゃ"],["ソーダ水","そーだすい"],["かき氷","かきごおり"],["ラムネ","らむね"],["水泳","すいえい"],["登山","とざん"],["キャンプ","きゃんぷ"],["帰省","きせい"],["夏休み","なつやすみ"],["祭","まつり"],["神輿","みこし"],["髪洗ふ","かみあらう"],["日焼","ひやけ"],["香水","こうすい"],["熱帯夜","ねったいや"],["毛虫","けむし"]],
+"秋":[["立秋","りっしゅう"],["残暑","ざんしょ"],["新涼","しんりょう"],["秋彼岸","あきひがん"],["夜長","よなが"],["秋の暮","あきのくれ"],["秋深し","あきふかし"],["冷やか","ひややか"],["露","つゆ"],["霧","きり"],["秋晴","あきばれ"],["天高し","てんたかし"],["鰯雲","いわしぐも"],["秋風","あきかぜ"],["野分","のわき"],["台風","たいふう"],["稲妻","いなずま"],["月","つき"],["名月","めいげつ"],["十六夜","いざよい"],["天の川","あまのがわ"],["流星","りゅうせい"],["星月夜","ほしづきよ"],["秋の山","あきのやま"],["山装ふ","やまよそおう"],["花野","はなの"],["案山子","かかし"],["稲","いね"],["稲刈","いねかり"],["新米","しんまい"],["落穂","おちぼ"],["紅葉","もみじ"],["黄落","こうらく"],["銀杏","いちょう"],["柿","かき"],["梨","なし"],["葡萄","ぶどう"],["林檎","りんご"],["栗","くり"],["団栗","どんぐり"],["芋","いも"],["薩摩芋","さつまいも"],["南瓜","かぼちゃ"],["西瓜","すいか"],["唐辛子","とうがらし"],["秋桜","こすもす"],["菊","きく"],["桔梗","ききょう"],["萩","はぎ"],["芒","すすき"],["曼珠沙華","まんじゅしゃげ"],["鶏頭","けいとう"],["朝顔","あさがお"],["芙蓉","ふよう"],["木犀","もくせい"],["竜胆","りんどう"],["鵙","もず"],["雁","かり"],["渡り鳥","わたりどり"],["啄木鳥","きつつき"],["秋刀魚","さんま"],["鰯","いわし"],["鮭","さけ"],["蜻蛉","とんぼ"],["赤蜻蛉","あかとんぼ"],["蟋蟀","こおろぎ"],["鈴虫","すずむし"],["松虫","まつむし"],["蓑虫","みのむし"],["虫","むし"],["月見","つきみ"],["新酒","しんしゅ"],["夜食","やしょく"],["灯火親し","とうかしたし"],["秋思","しゅうし"],["運動会","うんどうかい"],["盆","ぼん"],["踊","おどり"],["墓参","はかまいり"],["俳句甲子園","はいくこうしえん"]],
+"冬":[["立冬","りっとう"],["小春","こはる"],["冬めく","ふゆめく"],["冬至","とうじ"],["寒し","さむし"],["冷たし","つめたし"],["凍る","こおる"],["冴ゆ","さゆ"],["短日","たんじつ"],["年の暮","としのくれ"],["大晦日","おおみそか"],["節分","せつぶん"],["木枯","こがらし"],["北風","きたかぜ"],["時雨","しぐれ"],["霜","しも"],["霜柱","しもばしら"],["氷","こおり"],["氷柱","つらら"],["雪","ゆき"],["初雪","はつゆき"],["吹雪","ふぶき"],["風花","かざはな"],["冬の月","ふゆのつき"],["冬の星","ふゆのほし"],["オリオン","おりおん"],["冬の海","ふゆのうみ"],["冬の山","ふゆのやま"],["山眠る","やまねむる"],["枯野","かれの"],["枯木","かれき"],["冬枯","ふゆがれ"],["落葉","おちば"],["木の葉","このは"],["水仙","すいせん"],["山茶花","さざんか"],["寒椿","かんつばき"],["冬薔薇","ふゆそうび"],["葱","ねぎ"],["大根","だいこん"],["白菜","はくさい"],["蕪","かぶ"],["蜜柑","みかん"],["柚子","ゆず"],["鷹","たか"],["梟","ふくろう"],["鴨","かも"],["白鳥","はくちょう"],["千鳥","ちどり"],["水鳥","みずとり"],["寒雀","かんすずめ"],["鮟鱇","あんこう"],["河豚","ふぐ"],["牡蠣","かき"],["鰤","ぶり"],["鱈","たら"],["冬眠","とうみん"],["熊","くま"],["兎","うさぎ"],["狐","きつね"],["咳","せき"],["風邪","かぜ"],["湯冷め","ゆざめ"],["息白し","いきしろし"],["焚火","たきび"],["炬燵","こたつ"],["火鉢","ひばち"],["ストーブ","すとーぶ"],["毛布","もうふ"],["蒲団","ふとん"],["セーター","せーたー"],["マスク","ますく"],["手袋","てぶくろ"],["襟巻","えりまき"],["湯豆腐","ゆどうふ"],["おでん","おでん"],["熱燗","あつかん"],["焼芋","やきいも"],["煤払","すすはらい"],["数へ日","かぞえび"],["クリスマス","くりすます"],["聖夜","せいや"],["冬休み","ふゆやすみ"],["スケート","すけーと"],["スキー","すきー"],["探梅","たんばい"]],
+"新年":[["新年","しんねん"],["初春","はつはる"],["正月","しょうがつ"],["元日","がんじつ"],["元旦","がんたん"],["三が日","さんがにち"],["松の内","まつのうち"],["初日","はつひ"],["初空","はつぞら"],["初富士","はつふじ"],["初詣","はつもうで"],["初夢","はつゆめ"],["書初","かきぞめ"],["初笑","はつわらい"],["初鏡","はつかがみ"],["若水","わかみず"],["門松","かどまつ"],["注連飾","しめかざり"],["鏡餅","かがみもち"],["雑煮","ぞうに"],["御節","おせち"],["屠蘇","とそ"],["年賀状","ねんがじょう"],["初電話","はつでんわ"],["独楽","こま"],["羽子板","はごいた"],["追羽根","おいばね"],["双六","すごろく"],["歌留多","かるた"],["福笑","ふくわらい"],["獅子舞","ししまい"],["初商","はつあきない"],["仕事始","しごとはじめ"],["七草","ななくさ"],["七草粥","ななくさがゆ"],["小正月","こしょうがつ"],["どんど焼","どんどやき"],["左義長","さぎちょう"],["成人の日","せいじんのひ"],["初句会","はつくかい"],["破魔矢","はまや"],["若菜","わかな"],["初雀","はつすずめ"],["初鴉","はつがらす"],["嫁が君","よめがきみ"]]
+};
+let kigoSeasonSel = "春";
+function renderKigoFilters(){
+  document.getElementById("kigoSeasonFilter").innerHTML =
+    Object.keys(KIGO).map(s=>
+      `<button class="f-chip season ${kigoSeasonSel===s?'on':''}" onclick="kigoSeasonSel='${s}';renderKigoFilters();renderKigo()">${s} ${KIGO[s].length}</button>`
+    ).join("");
+}
+function renderKigo(){
+  const q = document.getElementById("kigoSearch").value.trim();
+  let list;
+  if(q){
+    list = [];
+    Object.keys(KIGO).forEach(s=>{
+      KIGO[s].forEach(k=>{ if(k[0].includes(q)||k[1].includes(q)) list.push(k); });
+    });
+  }else{
+    list = KIGO[kigoSeasonSel];
+  }
+  const grid = document.getElementById("kigoGrid");
+  if(list.length===0){
+    grid.innerHTML = '<div class="empty" style="width:100%">内蔵の季語には見つかりませんでした。<br>下のリンクから、きごさいで検索できます。</div>';
+  }else{
+    grid.innerHTML = list.map(k=>
+      `<button class="kigo-chip" onclick="openKigosai('${k[0]}')" title="${k[1]}">${k[0]}</button>`
+    ).join("");
+  }
+  const link = document.getElementById("kigosaiLink");
+  if(q){
+    link.href = "https://kigosai.sub.jp/?s=" + encodeURIComponent(q);
+    link.textContent = "「" + q + "」をきごさい歳時記で検索 →";
+  }else{
+    link.href = "https://kigosai.sub.jp/";
+    link.textContent = "きごさい歳時記を開く →";
+  }
+}
+function openKigosai(word){
+  window.open("https://kigosai.sub.jp/?s=" + encodeURIComponent(word), "_blank");
+}
+
+/* ============ その他 ============ */
+function exportData(){
+  const txt = JSON.stringify(data);
+  document.getElementById("backupArea").value = txt;
+  copyText(txt, "データをコピーしました。LINEのKeepメモなどに貼って保存を");
+}
+function importData(){
+  const txt = document.getElementById("backupArea").value.trim();
+  if(!txt){ toast("復元するデータを貼ってください"); return; }
+  try{
+    const d = JSON.parse(txt);
+    if(!d.ku || !d.dests) throw new Error();
+    if(!d.kukai) d.kukai = [];
+    data = d; save(); renderAll(); toast("復元しました");
+  }catch(e){ toast("データの形式が読めませんでした"); }
+}
+function copyKuText(){
+  if(data.ku.length===0){ toast("句がまだありません"); return; }
+  const lines = data.ku.map(k=>{
+    let l = k.text;
+    const info = [];
+    if(k.kigo) info.push("季語:" + k.kigo + "(" + k.season + ")");
+    if(k.destId) info.push(destName(k.destId) + (k.kadai ? "「" + k.kadai + "」" : ""));
+    if(k.senja) info.push(k.senja + " 選");
+    info.push(k.status);
+    if(k.memo) info.push("メモ:" + k.memo);
+    return l + "\n　" + info.join(" / ");
+  });
+  copyText(lines.join("\n\n"), "句帳をテキストでコピーしました");
+}
+function copyText(txt, msg){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(()=>toast(msg)).catch(()=>fallbackCopy(txt, msg));
+  }else{ fallbackCopy(txt, msg); }
+}
+function fallbackCopy(txt, msg){
+  const ta = document.createElement("textarea");
+  ta.value = txt; document.body.appendChild(ta);
+  ta.select(); document.execCommand("copy");
+  document.body.removeChild(ta); toast(msg);
+}
+
+/* ============ 句帳の名前 ============ */
+function applyAppName(){
+  const n = data.appName || "ニンニン句帳";
+  document.getElementById("appTitle").textContent = n;
+  document.getElementById("aboutName").textContent = n;
+  document.title = n + " v1.3";
+  document.getElementById("appNameInput").value = data.appName || "";
+}
+function saveAppName(){
+  data.appName = document.getElementById("appNameInput").value.trim();
+  save(); applyAppName(); toast("名前を変えました");
+}
+
+/* ============ 共通 ============ */
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+function renderAll(){
+  renderDeadlines(); renderKuFilters(); renderKu(); renderDests(); renderKukai(); renderKigoFilters(); renderKigo();
+}
+(function init(){
+  const d = new Date();
+  document.getElementById("todayLabel").textContent = d.getFullYear() + "年" + (d.getMonth()+1) + "月" + d.getDate() + "日";
+  renderAll(); applyAppName();
+})();
+</script>
+</body>
+</html>
