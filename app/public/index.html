@@ -746,7 +746,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.13e';
+  var APP_VER = 'v2026.10.13f';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -843,6 +843,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (!db || !myId) return;
     sessions.forEach(function (x) {
       if (x.status === 'done' || flags['x' + x.id]) return;
+      if (x.tei && Date.now() < teiStartMs(x) + TEI_LIVE_MIN * 60000) return;
       var last = Math.max(x.createdAt || 0, x.startAt || 0, x.selectStart || 0, x.revealAt || 0, x.openedAt || 0);
       if (last && Date.now() - last > STALE_MS) { flags['x' + x.id] = 1; write(x.id, { status: 'done', staleClosed: true }); }
     });
@@ -1083,6 +1084,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function teiStartOf(d, h) { return d * 86400000 - 9 * 3600000 + h * 3600000; }
   function teiSid(d, h) { return 't' + ds(d).replace(/-/g, '') + '-' + (h < 10 ? '0' : '') + h; }
   function teiSlots() { var n = dayNum(), out = []; for (var d = n - 1; d <= n + 1; d++) teiHoursFor(d).forEach(function (h) { out.push({ dn: d, h: h, start: teiStartOf(d, h), sid: teiSid(d, h) }); }); return out; }
+  function teiStartMs(s) { try { if (s && s.tei && s.date && s.slot != null) return teiStartOf(dn(s.date), +s.slot); } catch (_) {} return s && s.startAt || 0; }
   function teiFind(sid) { for (var i = 0; i < sessions.length; i++) if (sessions[i].id === sid) return sessions[i]; return null; }
   function teiLabel(sl) { return mdLabel(sl.dn) + '（' + WD[new Date(sl.dn * 86400000).getUTCDay()] + '）' + sl.h + '時「' + teiSlotName(sl.dn, sl.h) + '」'; }
   function teiHumans(s) { return s ? Object.keys(s.entries || {}).filter(function (k) { var e = s.entries[k]; return e && !e.bot; }).length : 0; }
@@ -1356,9 +1358,13 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       /* 定例とふらっとは、見学者の画面でも進行がすすむ（だれかが開いてさえいれば、止まらない） */
       if (!inSeat && !inEntry && !s.tei && s.std !== 'flat') return;
       if (s.tei || s.std === 'flat') inEntry = true;
+      if (s.tei && s.status === 'done' && s.staleClosed && !s.startedAt && !flags['r' + s.id] && Date.now() < teiStartMs(s) + TEI_LIVE_MIN * 60000) {
+        flags['r' + s.id] = 1; write(s.id, { status: 'gathering', staleClosed: false, startAt: teiStartMs(s) });
+      }
       if (s.tei && s.status === 'gathering' && inEntry && !flags['q' + s.id]) {
-        if (Date.now() > s.startAt + TEI_LIVE_MIN * 60000) { flags['q' + s.id] = 1; write(s.id, { status: 'done', staleClosed: true }); }
-        else if (Date.now() >= s.startAt) { flags['q' + s.id] = 1; teiStart(s); }
+        var tst = teiStartMs(s);
+        if (Date.now() > tst + TEI_LIVE_MIN * 60000) { flags['q' + s.id] = 1; write(s.id, { status: 'done', staleClosed: true }); }
+        else if (Date.now() >= tst) { flags['q' + s.id] = 1; teiStart(s); }
       }
       if (!s.tei && s.status === 'gathering' && inEntry && count(s) >= s.size && !flags['q' + s.id]) {
         flags['q' + s.id] = 1;
