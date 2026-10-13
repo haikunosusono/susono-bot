@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ニンニン句帳 v1.3</title>
+<title>ニンニン句帳 v2.2</title>
 <style>
 :root{
   --paper:#faf6ee;
@@ -93,6 +93,17 @@ nav button.on::after{
 }
 .chip.blue{border-color:var(--ai);color:var(--ai)}
 .chip.red{border-color:var(--beni);color:var(--beni);background:var(--beni);color:#fff}
+
+/* 提出済みチェック */
+.btn-done{
+  font-family:inherit;font-size:.72rem;
+  border:1px solid var(--line);border-radius:14px;
+  background:#fff;color:var(--sub);
+  padding:2px 12px;cursor:pointer;margin-left:auto;
+}
+.btn-done.on{background:var(--ok);border-color:var(--ok);color:#fff;font-weight:600}
+.dl-card.done{opacity:.62}
+.dl-card.done .name{text-decoration:line-through;text-decoration-thickness:1px}
 
 /* 検索・フィルタ */
 .searchrow{display:flex;gap:8px;margin-bottom:10px}
@@ -328,6 +339,17 @@ nav button.on::after{
     </div>
   </div>
   <div class="other-sec">
+    <h3>2台同期（Firebase）</h3>
+    <p>設定すると、携帯で登録した句がPCにも自動で反映されます（句・締切・投句先・歳時記・句帳の名前が対象。句会のログイン情報は安全のため各端末内のみ）。設定のしかたはClaudeに聞いてください。</p>
+    <div class="field" style="margin-top:8px"><label>Firebase設定コード（丸ごと貼り付け）</label><textarea id="fbConfig" placeholder="const firebaseConfig = { apiKey: … }; をそのまま貼る"></textarea></div>
+    <div class="field"><label>合言葉（両方の端末で同じものを入力）</label><input type="text" id="syncKeyInput" placeholder="例：ninnin-haiku-8823"></div>
+    <div class="other-btns">
+      <button onclick="saveSyncSettings()">同期を開始</button>
+      <button onclick="stopSync()">同期を停止</button>
+    </div>
+    <p id="syncStatus" style="margin-top:6px">同期：未設定</p>
+  </div>
+  <div class="other-sec">
     <h3>データのバックアップ</h3>
     <p>記録はこの端末のブラウザ内にだけ保存されます。機種変更やブラウザの履歴削除で消えるため、ときどき下のボタンで書き出してLINEのKeepメモなどに貼っておくのがおすすめです。</p>
     <div class="other-btns">
@@ -345,7 +367,7 @@ nav button.on::after{
   </div>
   <div class="other-sec">
     <h3>このアプリについて</h3>
-    <p><span id="aboutName">ニンニン句帳</span> v1.3<br>締切・句帳・投句先・句会・歳時記の記録をひとつに。データは端末内のみ・通信なし（きごさいへのリンクを除く）。</p>
+    <p><span id="aboutName">ニンニン句帳</span> v2.2<br>締切・句帳・投句先・句会・歳時記の記録をひとつに。2台同期対応。データは端末内のみ・通信なし（きごさいへのリンクを除く）。</p>
   </div>
 </section>
 
@@ -404,7 +426,7 @@ nav button.on::after{
   <div class="modal">
     <h2 id="destModalTitle">投句先を追加</h2>
     <div class="field"><label>名前</label><input type="text" id="destName" placeholder="例：俳句ポスト365"></div>
-    <div class="field"><label>選者の先生</label><input type="text" id="destSenja" placeholder="例：夏井いつき"></div>
+    <div class="field"><label>選者の先生</label><input type="text" id="destSenja" placeholder="例：夏井いつき先生（入力したとおりに表示されます）"></div>
     <div class="field"><label>種類</label>
       <select id="destType">
         <option>ネット</option><option>ラジオ</option><option>テレビ</option><option>句会</option><option>誌上</option><option>その他</option>
@@ -468,8 +490,10 @@ if(!data.kukai){
   }catch(e){}
 }
 function save(){
+  data.updatedAt = Date.now();
   try{ localStorage.setItem(LSKEY, JSON.stringify(data)); }
   catch(e){ toast("保存できませんでした"); }
+  if(typeof sync !== "undefined" && sync.on) pushSync();
 }
 function uid(){ return "x" + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 function esc(s){ return (s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
@@ -514,7 +538,7 @@ function renderDeadlines(){
     const numLabel = n < 0 ? "済" : n;
     const toko = data.ku.filter(k => k.deadlineId===dl.id && SUBMITTED.includes(k.status)).length;
     const koho = data.ku.filter(k => k.deadlineId===dl.id && k.status==="候補").length;
-    return `<div class="card tappable dl-card" onclick="openDlModal('${dl.id}')">
+    return `<div class="card tappable dl-card ${dl.done?'done':''}" onclick="openDlModal('${dl.id}')">
       <div class="dl-count ${cls}"><span class="lbl">あと</span><span class="num">${numLabel}</span><span class="lbl">${n<0?"":"日"}</span></div>
       <div class="dl-body">
         <div class="name">${esc(destName(dl.destId))}</div>
@@ -522,10 +546,18 @@ function renderDeadlines(){
         <div class="chips">
           <span class="chip ${toko>0?'red':''}">投句 ${toko}句</span>
           <span class="chip ${koho>0?'blue':''}">候補 ${koho}句</span>
+          <button class="btn-done ${dl.done?'on':''}" onclick="event.stopPropagation();toggleDone('${dl.id}')">${dl.done?'✓ 提出済み':'□ 提出済みにする'}</button>
         </div>
       </div>
     </div>`;
   }).join("");
+}
+function toggleDone(id){
+  const dl = data.deadlines.find(x=>x.id===id);
+  if(!dl) return;
+  dl.done = !dl.done;
+  save(); renderDeadlines();
+  toast(dl.done ? "提出済みにしました" : "未提出に戻しました");
 }
 let editingDl = null;
 function fillDestSelect(sel, includeNone){
@@ -621,7 +653,7 @@ function renderKu(){
         ${k.kigo?`<span class="badge kigo">${esc(k.kigo)}・${esc(k.season)}</span>`:`<span class="badge">${esc(k.season)}</span>`}
         <span class="badge ${statusBadgeClass(k.status)}">${esc(k.status)}</span>
         ${k.kadai?`<span class="badge">「${esc(k.kadai)}」</span>`:""}
-        ${k.senja?`<span class="badge">${esc(k.senja)} 選</span>`:""}
+        ${k.senja?`<span class="badge">${esc(k.senja)}選</span>`:""}
         <span class="ku-dest">${esc(k.destId?destName(k.destId):"")}</span>
       </div>
     </div>`).join("");
@@ -711,7 +743,7 @@ function renderDests(){
     const rate = sub.length ? Math.round(win.length / sub.length * 100) : 0;
     return `<div class="card tappable" onclick="openDestModal('${d.id}')">
       <div class="dest-name">${esc(d.name)}<span class="dest-type">${esc(d.type)}</span></div>
-      ${d.senja?`<div class="dest-senja">選者：${esc(d.senja)} 先生</div>`:""}
+      ${d.senja?`<div class="dest-senja">選者：${esc(d.senja)}</div>`:""}
       <div class="dest-stats">投句 ${sub.length}句 ／ 入選 <b>${win.length}句</b>${sub.length?`（${rate}%）`:""}</div>
     </div>`;
   }).join("");
@@ -903,7 +935,7 @@ function copyKuText(){
     const info = [];
     if(k.kigo) info.push("季語:" + k.kigo + "(" + k.season + ")");
     if(k.destId) info.push(destName(k.destId) + (k.kadai ? "「" + k.kadai + "」" : ""));
-    if(k.senja) info.push(k.senja + " 選");
+    if(k.senja) info.push(k.senja + "選");
     info.push(k.status);
     if(k.memo) info.push("メモ:" + k.memo);
     return l + "\n　" + info.join(" / ");
@@ -922,12 +954,117 @@ function fallbackCopy(txt, msg){
   document.body.removeChild(ta); toast(msg);
 }
 
+/* ============ 2台同期（Firebase Firestore） ============ */
+const SYNC_LS = "ninnin-sync-v1";
+let sync;
+try{ sync = JSON.parse(localStorage.getItem(SYNC_LS)) || {}; }catch(e){ sync = {}; }
+if(!sync.client) sync.client = "c" + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+let fbDoc = null, fbUnsub = null, pushTimer = null, lastPushStamp = 0;
+
+function saveSyncCfg(){ try{ localStorage.setItem(SYNC_LS, JSON.stringify(sync)); }catch(e){} }
+function setSyncStatus(msg){
+  const el = document.getElementById("syncStatus");
+  if(!el) return;
+  if(msg){ el.textContent = "同期：" + msg; return; }
+  const t = new Date();
+  el.textContent = "同期：接続中 ✓（最終 " + t.getHours() + ":" + String(t.getMinutes()).padStart(2,"0") + "）";
+}
+function loadFirebase(cb){
+  if(window.firebase && firebase.firestore){ cb(); return; }
+  const urls = [
+    "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js",
+    "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"
+  ];
+  (function next(i){
+    if(i >= urls.length){ cb(); return; }
+    const sc = document.createElement("script");
+    sc.src = urls[i];
+    sc.onload = ()=>next(i+1);
+    sc.onerror = ()=>{ setSyncStatus("接続できません（ネット環境を確認）"); };
+    document.head.appendChild(sc);
+  })(0);
+}
+function hasContent(){ return (data.ku && data.ku.length>0) || (data.deadlines && data.deadlines.length>0); }
+function startSync(fromButton){
+  if(!sync.config || !sync.key){ if(fromButton) toast("設定コードと合言葉を入れてください"); return; }
+  setSyncStatus("接続中…");
+  loadFirebase(function(){
+    try{
+      if(!firebase.apps.length) firebase.initializeApp(sync.config);
+    }catch(e){ setSyncStatus("設定コードが読めませんでした"); return; }
+    const db = firebase.firestore();
+    fbDoc = db.collection("kucho").doc(sync.key);
+    if(fbUnsub) fbUnsub();
+    fbUnsub = fbDoc.onSnapshot(function(snap){
+      const remote = snap.data();
+      if(!remote){
+        if(hasContent()) pushSync();
+        else setSyncStatus("接続中（データ待ち）");
+        return;
+      }
+      if(remote.client === sync.client && remote.updatedAt === lastPushStamp){ setSyncStatus(); return; }
+      const rT = remote.updatedAt || 0, lT = data.updatedAt || 0;
+      if(rT > lT){
+        try{
+          const rd = JSON.parse(remote.json);
+          rd.kukai = data.kukai || [];   /* 句会情報は端末内のまま */
+          data = rd;
+          localStorage.setItem(LSKEY, JSON.stringify(data));
+          renderAll(); applyAppName();
+        }catch(e){}
+      }else if(lT > rT){
+        pushSync();
+      }
+      setSyncStatus();
+    }, function(err){
+      setSyncStatus("エラー（" + (err.code||"接続失敗") + "）。ルール設定を確認");
+    });
+    sync.on = true; saveSyncCfg();
+    if(fromButton) toast("同期を開始しました");
+  });
+}
+function pushSync(){
+  if(!fbDoc || !sync.on) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(function(){
+    const stripped = Object.assign({}, data);
+    delete stripped.kukai;              /* パスワードはクラウドに置かない */
+    lastPushStamp = data.updatedAt || Date.now();
+    fbDoc.set({ json: JSON.stringify(stripped), updatedAt: lastPushStamp, client: sync.client })
+      .then(function(){ setSyncStatus(); })
+      .catch(function(){ setSyncStatus("送信できませんでした"); });
+  }, 600);
+}
+function saveSyncSettings(){
+  const raw = document.getElementById("fbConfig").value;
+  const key = document.getElementById("syncKeyInput").value.trim();
+  let cfg = null;
+  if(raw.indexOf("設定済み") >= 0 && sync.config){
+    cfg = sync.config;
+  }else{
+    const m = raw.match(/\{[\s\S]*\}/);
+    if(!m){ toast("設定コードを丸ごと貼り付けてください"); return; }
+    try{ cfg = (new Function("return (" + m[0] + ")"))(); }catch(e){ cfg = null; }
+    if(!cfg || !cfg.apiKey || !cfg.projectId){ toast("設定コードの形式が読めませんでした"); return; }
+  }
+  if(key.length < 6){ toast("合言葉は6文字以上にしてください"); return; }
+  if(key.indexOf("/") >= 0){ toast("合言葉に / は使えません"); return; }
+  sync.config = cfg; sync.key = key; saveSyncCfg();
+  startSync(true);
+}
+function stopSync(){
+  if(fbUnsub){ fbUnsub(); fbUnsub = null; }
+  fbDoc = null; sync.on = false; saveSyncCfg();
+  setSyncStatus("停止中");
+  toast("同期を停止しました");
+}
+
 /* ============ 句帳の名前 ============ */
 function applyAppName(){
   const n = data.appName || "ニンニン句帳";
   document.getElementById("appTitle").textContent = n;
   document.getElementById("aboutName").textContent = n;
-  document.title = n + " v1.3";
+  document.title = n + " v2.2";
   document.getElementById("appNameInput").value = data.appName || "";
 }
 function saveAppName(){
@@ -950,6 +1087,9 @@ function renderAll(){
   const d = new Date();
   document.getElementById("todayLabel").textContent = d.getFullYear() + "年" + (d.getMonth()+1) + "月" + d.getDate() + "日";
   renderAll(); applyAppName();
+  if(sync.key) document.getElementById("syncKeyInput").value = sync.key;
+  if(sync.config) document.getElementById("fbConfig").value = "（設定済み。変更するときだけ貼り直してください）";
+  if(sync.on) startSync(false);
 })();
 </script>
 </body>
