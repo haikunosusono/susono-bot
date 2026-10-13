@@ -748,7 +748,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.14d';
+  var APP_VER = 'v2026.10.14e';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -4182,7 +4182,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     else if (act === 'open') { fromArch = false; current = t.dataset.sid; showInv = false; render(); }
     else if (act === 'calrec') calDownload('recur', 'haiku-kukai-heijitsu21.ics');
     else if (act === 'calics') { var cs = t.dataset.sid, cl = teiSlotsFar(7).filter(function (x) { return x.start > Date.now() && (cs === 'all' || x.sid === cs); }); if (cl.length) calDownload(cl, cs === 'all' ? 'haiku-kukai-week.ics' : 'haiku-kukai.ics'); }
-    else if (act === 'yaku-ok') { try { localStorage.setItem('ikku-yaku', '1'); } catch (_) {} toast('約束をむすびました。講評へどうぞ'); render(); }
+    else if (act === 'yaku-ok') { try { localStorage.setItem('ikku-yaku', '1'); } catch (_) {} try { var yc = scur(); if (yc) yakuOpen[yc.id] = false; } catch (_) {} toast('約束をむすびました。講評へどうぞ'); render(); }
     else if (act === 'pushhelp') { pushHelp = !pushHelp; render(); }
     else if (act === 'pushtog') { if (pushOn) pushTurnOff(); else pushTurnOn(); }
     else if (act === 'pushmode') { pushAll = t.dataset.m === 'all'; try { localStorage.setItem('ikku-push-all', pushAll ? '1' : '0'); } catch (_) {} pushSync(null); render(); }
@@ -4567,6 +4567,14 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       if (cmtSeen[s.id] !== undefined && cmtSeen[s.id] !== ci) { cmtSeen[s.id] = ci; if (ci < count(s) && s.entries && s.entries[myId]) notify('次の句の選評です（' + (ci + 1) + '/' + count(s) + '）'); render(); return; }
       cmtSeen[s.id] = ci;
       var oleft = Math.max(0, cmtSecS(s) - (Math.floor(cmtElapsed(s) / 1000) % cmtSecS(s)));
+      /* 書きかけのまま時間切れにならないように：自分がこの句のコメントを書いている途中で残り10秒を切ったら、自動で2分のばす（一句につき1回。全体の上限4回は、ふつうの「のばす」と共通） */
+      try {
+        var cuE = order(s)[ci], cuK = cuE && cmDraft[cuE.id], exN = (s.ext || {})[ci] || 0;
+        if (cuK && String(cuK).trim() && oleft <= 10 && oleft > 0 && exN < 4 && !s.opened && s.entries && s.entries[myId] && !flags['ae' + s.id + ':' + ci]) {
+          flags['ae' + s.id + ':' + ci] = 1; var aep = { cmtShift: (s.cmtShift || 0) - 120000 }; aep.ext = {}; aep.ext[ci] = exN + 1;
+          write(s.id, aep).then(function () { toast('書きかけなので、2分のばしました'); });
+        }
+      } catch (_) {}
       var oc = document.getElementById('oclock'); if (oc) oc.textContent = fmt(oleft);
       var ob = document.getElementById('obar'); if (ob) ob.style.width = (oleft / cmtSecS(s) * 100).toFixed(1) + '%';
       if (ob) ob.style.background = oleft <= 60 ? 'var(--accent2)' : '';
