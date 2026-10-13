@@ -43,11 +43,12 @@ async function listSubs() {
   const subs = (await listSubs()).filter((s) => s.all || s.sids.indexOf(slot.sid) >= 0);
   console.log('通知先:', subs.length + '件');
   if (DRY) { console.log('DRY_RUN：送りません'); return; }
-  if (!process.env.VAPID_PRIVATE_KEY) { console.log('VAPID_PRIVATE_KEY が未設定のため、送りません'); return; }
-  webpush.setVapidDetails('mailto:hattyam@gmail.com', PUB, process.env.VAPID_PRIVATE_KEY);
+  const priv = String(process.env.VAPID_PRIVATE_KEY || '').replace(/[\s"']/g, '');
+  if (!priv) { console.log('VAPID_PRIVATE_KEY が未設定のため、送りません'); return; }
+  try { webpush.setVapidDetails('mailto:hattyam@gmail.com', PUB, priv); } catch (e) { console.log('鍵の形がちがいます（' + priv.length + '文字）:', e.message); return; }
   let ok = 0, ng = 0;
   for (const s of subs) {
-    try { await webpush.sendNotification(s.sub, JSON.stringify({ title: '俳句の裾野', body, url: 'https://haikunosusono.web.app/', tag: slot.sid }), { TTL: 1800 }); ok++; } catch (e) { ng++; }
+    try { await webpush.sendNotification(s.sub, JSON.stringify({ title: '俳句の裾野', body, url: 'https://haikunosusono.web.app/', tag: slot.sid }), { TTL: 1800 }); ok++; } catch (e) { ng++; console.log('失敗:', e.statusCode || '', String(e.body || e.message || '').slice(0, 120)); }
   }
   console.log('送信 成功', ok, '失敗', ng);
 })().catch((e) => { console.error(e); process.exit(1); });
