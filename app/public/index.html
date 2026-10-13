@@ -748,7 +748,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.13n';
+  var APP_VER = 'v2026.10.14a';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1559,12 +1559,13 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (st.kind === 'accept' || st.kind === 'live') h += teiSlotCard(st.slot, st.s, st.kind);
     /* きょうの時間割 */
     (function () {
-      var n0 = dayNum(), rows2 = teiHoursFor(n0).map(function (hh) {
+      /* 句会の「きょう」は、夜中の3時まで前の日のまま（25時の回が前の日の時間割に入るように） */
+      var n0 = (new Date(t + 9 * 3600000).getUTCHours() < 3 ? dayNum() - 1 : dayNum()), rows2 = teiHoursFor(n0).map(function (hh) {
         var start = teiStartOf(n0, hh), sid = teiSid(n0, hh), sdoc = teiFind(sid);
         var state = sdoc && sdoc.status === 'done' ? (sdoc.staleClosed || !sdoc.startedAt ? 'おやすみでした' : '終了') : sdoc && sdoc.status !== 'gathering' ? '進行中' : t >= start ? (sdoc ? '進行中' : 'おやすみでした') : (st.slot && st.slot.sid === sid ? '受付中' : 'これから');
         return '<li class="' + (t >= start && state !== '進行中' && state !== '受付中' ? 'past' : state === '受付中' || state === '進行中' ? 'now' : '') + '"><b>' + hh + '時</b>「' + teiSlotName(n0, hh) + '」<span class="pill st-' + (state === '進行中' ? 'selecting' : state === '受付中' ? 'gathering' : 'done') + '">' + state + '</span></li>';
       });
-      h += '<details class="panel"><summary>📅 きょうの時間割を見る' + (teiDayOff(n0) ? '（休日は3回）' : '（2回）') + '</summary><ul class="tg2 ttable">' + rows2.join('') + '</ul></details>';
+      h += '<details class="panel"><summary>📅 きょうの時間割を見る（' + teiHoursFor(n0).length + '回）</summary><ul class="tg2 ttable">' + rows2.join('') + '</ul></details>';
     })();
     h += vNotice();
     var shown = st.slot ? st.slot.sid : '', up = teiSlots().filter(function (x) { return x.start > t && x.sid !== shown; }).slice(0, 3);
