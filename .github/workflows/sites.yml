@@ -1,0 +1,26 @@
+name: 看護ナビ・句帳のデプロイ
+# sites/ の中が変わったら、kango-navi.web.app と ninnin-kucho.web.app に反映します。
+on:
+  push:
+    branches: [main]
+    paths: ['sites/**']
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: サイトを用意して反映
+        env:
+          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          echo "$SA_JSON" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          cd sites
+          npx --yes firebase-tools@13 hosting:sites:create kango-navi --project haikunosusono --non-interactive || echo "kango-navi は作成ずみ（または作れません）"
+          npx --yes firebase-tools@13 hosting:sites:create ninnin-kucho --project haikunosusono --non-interactive || echo "ninnin-kucho は作成ずみ（または作れません）"
+          npx --yes firebase-tools@13 deploy --only hosting --project haikunosusono --non-interactive
+          rm -f "$RUNNER_TEMP/sa.json"

@@ -1,0 +1,4 @@
+{
+  "projects": { "default": "haikunosusono" },
+  "targets": { "haikunosusono": { "hosting": { "kango": ["kango-navi"], "kucho": ["ninnin-kucho"] } } }
+}

@@ -1,0 +1,6 @@
+{
+  "hosting": [
+    { "target": "kango", "public": "kango-navi", "ignore": ["firebase.json", "**/.*"], "headers": [{ "source": "**", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] }] },
+    { "target": "kucho", "public": "ninnin-kucho", "ignore": ["firebase.json", "**/.*"], "headers": [{ "source": "**", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] }] }
+  ]
+}
