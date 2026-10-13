@@ -746,7 +746,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.13g';
+  var APP_VER = 'v2026.10.13h';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1415,8 +1415,11 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
 
   function hm(t) { var d = new Date(t + 9 * 3600000); return d.getUTCHours() + ':' + ('0' + d.getUTCMinutes()).slice(-2); }
   /* 投句はいつでも。ただし、定刻をすぎたら出せない。ほかの回が開催中のあいだも、お休み */
+  function teiLateOpen(s) { return !!(s && s.tei && s.status === 'selecting' && myId && !(s.entries && s.entries[myId]) && Date.now() < teiStartMs(s) + TEI_LATE_MIN * 60000); }
   function teiCanSubmit(s) {
-    if (!s || !s.tei || s.status !== 'gathering' || Date.now() >= s.startAt) return false;
+    if (!s || !s.tei) return false;
+    if (teiLateOpen(s)) return true;
+    if (s.status !== 'gathering' || Date.now() >= teiStartMs(s)) return false;
     return true;
   }
   function revealPatch(s) {
@@ -1481,7 +1484,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       h += '<p class="nk-cd">はじまるまで、' + cdSpan(sl.start) + '</p>';
       h += '<p class="nk-sub">' + (nh ? nh + '人の句が出ています' : 'まだ、だれも出していません。いちばん乗りをどうぞ') + (mi ? '（あなたは参加中）' : '') + '</p>';
       h += '<div class="actions center"><button class="btn primary big" data-act="tei-go" data-sid="' + sl.sid + '">' + (mi ? '部屋にもどる' : '一句出して、参加する') + '</button></div>';
-      h += '<p class="note center">投句は、いつでも（定刻でしめきり）。見るだけでも入れます。</p>';
+      h += '<p class="note center">投句は、いつでも（定刻でしめきり。始まって10分までは途中参加できます）。見るだけでも入れます。</p>';
       h += '<p class="botnote">🤖 <b>ひとりでも大丈夫。</b>人が3人に満たないときは、ボットが参加して、3句でひらきます。</p>';
     } else {
       h += '<p class="nk-sub">' + LABEL[s.status] + '　' + count(s) + '句</p>';
@@ -1784,6 +1787,12 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       ? (n + '句が、作者を伏せて並んでいます。ほんものの句会とおなじ順番で：① 気になる句に「✓きになる」でしるし（3句まで） → ② そのなかから、すきな一句に「○すき」 → ③ いちばんの一句に「◎いちばん」。自分の句には入れられません。')
       : '披講・点付け中です。いまは見学中です。',
       entrant ? ('ぜんぶ使わなくても大丈夫（✓だけでもOK）。' + nf + '/' + n + '人が、選び終えました。') : '');
+    if (!entrant && teiLateOpen(s)) {
+      var ld = drafts['s:' + s.id] || (drafts['s:' + s.id] = { a: '', b: '', c: '' }), lleft = Math.max(0, Math.ceil((teiStartMs(s) + TEI_LATE_MIN * 60000 - Date.now()) / 60000));
+      h += '<div class="panel joinbox"><b>🚪 始まったばかりです。あと' + lleft + '分なら、途中参加できます</b><p class="note">一句出すと、そのまま点付けに加われます。</p>' +
+        '<div class="field"><label for="f-haigo">俳号</label><input type="text" id="f-haigo" data-f="haigo" maxlength="20" value="' + esc(haigo) + '" placeholder="句会で名乗る名前"></div>' + oneBox('g-a', 'ga', 'gcnt-a', ld.a) +
+        '<button class="btn primary big" data-act="rsubmit">一句出して、途中参加する</button></div>';
+    }
     h += hikoBar() + '<div class="board">' + order(s).map(function (e, i) {
       var own = e.id === myId, btns = '';
       if (entrant && !own) {
@@ -4286,13 +4295,14 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       askNotify();
       var rs = scur(); if (!rs || !ready()) return;
       var gd = drafts['s:' + rs.id] || {}, hg = haigo.trim(), already = rs.entries && rs.entries[myId];
-      if (rs.status !== 'gathering' || (rs.tei && !teiCanSubmit(rs))) { toast('この句会は、もう句を受け付けていません'); return; }
+      var lateIn = rs.tei && teiLateOpen(rs);
+      if ((rs.status !== 'gathering' && !lateIn) || (rs.tei && !teiCanSubmit(rs))) { toast('この句会は、もう句を受け付けていません'); return; }
       if (!rs.tei && !already && count(rs) >= rs.size) { toast('この句会は満員です'); return; }
       if (!hg) { toast('俳号を入れてください'); return; }
       if (!len(gd.a)) { toast('句を入れてください'); return; }
       var ent = { haigo: hg, a: kt(gd.a, 'a'), b: kt(gd.b, 'b'), c: kt(gd.c, 'c'), at: Date.now() };
       var eo = {}; eo[myId] = ent; if (rs.tei) pushListSync(rs.id, true);
-      var okMsg = function () { markFirst('f_join'); toast(already ? '句を直しました' : (rs.tei ? '句を出しました。定刻に、自動ではじまります' : rs.std === 'flat' ? '席につきました。4人そろったら、すぐはじまります' : '句を出しました。人数がそろうのを待ちます')); };
+      var okMsg = function () { markFirst('f_join'); toast(already ? '句を直しました' : (lateIn ? '途中参加しました。点付けへどうぞ' : rs.tei ? '句を出しました。定刻に、自動ではじまります' : rs.std === 'flat' ? '席につきました。4人そろったら、すぐはじまります' : '句を出しました。人数がそろうのを待ちます')); };
       if ((rs.tei && !teiFind(rs.id)) || (rs.std === 'flat' && !sessions.some(function (x) { return x.id === rs.id; }))) {
         var base = Object.assign({}, rs); delete base.id; base.entries = eo; if (rs.std === 'flat') Object.assign(base.entries, teiBotEntries(rs, 1));
         queue = queue.then(function () { return db.doc('kukai/' + rs.id).set(base, { merge: true }); }).then(okMsg).catch(failMsg);
