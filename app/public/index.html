@@ -746,7 +746,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.13h';
+  var APP_VER = 'v2026.10.13i';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1497,7 +1497,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var n = Math.max(5, count(s) + (s.status === 'gathering' ? 2 : 0));
     var cur = s.status === 'gathering' ? 0 : s.status === 'selecting' ? 1 : s.status === 'reveal' ? (s.opened ? 3 : 2) : 3;
     var rows = [
-      ['席につく', '3人そろうまで、いつでも'],
+      ['席につく', '4人そろうまで、いつでも'],
       ['選句', '約' + (FLAT_SEL_SEC / 60) + '分（全員が選び終えれば、早まります）'],
       ['講評', '一句ごとに約' + (FLAT_CMT_SEC / 60) + '分、ゆっくり × ' + n + '句'],
       ['得点・作者オープン', '約' + (CLOSE_SEC / 60) + '分で閉会。句はストッ句へ']
@@ -2334,7 +2334,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var ladder = '<h2 class="sec">はじめの一歩から、段階的に<small>裾野から、すこしずつ</small></h2><ol class="ladder">' +
       L(1, '🌱', 'はじめの一句をつくる', '登録前でもOK・約3分', '「見たこと」の12音に、5音の季語をそえるだけ。気軽に何句でも。思いついた句材は「俳句のタネあつめ」にメモ。', '<button class="btn primary" data-act="tk-start">🧩 句づくりで一句</button><button class="btn" data-act="tut">一句つくれるチュートリアル</button>') +
       L(2, '💪', 'ひとりで鍛える', '毎日・自分だけの記録', '毎日の兼題で俳筋力トレーニング。ボットと小さな「ひとりで句会」で、選ぶ・語らうを練習。', '<button class="btn" data-act="tab" data-t="solo">俳筋トレ部屋へ</button><button class="btn" data-act="tab" data-t="bot">ひとりで句会へ</button>') +
-      L(3, '🍡', 'みんなで詠む', '見学もOK', '3人そろえば始まる「ふらっと句会」と、平日21時・23時・25時／土日祝10・13・15時の「定例句会」。講評は一句ずつ、ゆっくり。', '<button class="btn" data-act="tab" data-t="flat">ふらっと句会へ</button><button class="btn" data-act="tab" data-t="together">定例句会へ</button>') +
+      L(3, '🍡', 'みんなで詠む', '見学もOK', '4人そろえば始まる「ふらっと句会」と、毎日21時・23時・25時（土日祝は10・13・15時も）の「定例句会」。講評は一句ずつ、ゆっくり。', '<button class="btn" data-act="tab" data-t="flat">ふらっと句会へ</button><button class="btn" data-act="tab" data-t="together">定例句会へ</button>') +
       L(4, '🍵', '仲間と句会', '合言葉で集まる', '合言葉や招待リンクで、メンバーだけの句会。題・選の種類・回数も、自分たちで決められます。', '<button class="btn" data-act="tab" data-t="gohyo">仲間と句会へ</button>') +
       L(5, '🔍', 'さらに深める', 'じっくり・ゆっくり', '切れ字・字余り・カットの読みかた、深い推敲のヒント。ストッ句に残した句を、あとから推敲。', '<button class="btn" data-act="tutd">さらに深くチュートリアル</button><button class="btn" data-act="page" data-p="stock">ストッ句へ</button><button class="btn" data-act="page" data-p="hints">評のヒント</button>') +
       '</ol>';
@@ -3631,7 +3631,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var at = Date.now(), o = { kind: nf.kind, title: t, body: String(nf.body || '').trim(), url: okUrl(nf.url), at: at, by: myId };
     db.collection('news').doc('n' + at).set(o).then(function () { nf.title = ''; nf.body = ''; nf.url = ''; toast('投稿しました'); render(); }).catch(failMsg);
   }
-  var ROOMS = [['diary', '🌱 俳句の初心者部屋', 'はじめての一句・チュートリアルつき'], ['solo', '💪 俳筋力トレーニング部屋', 'きょうのテーマ・題詠（漢字・カタカナ）で、一日一句'], ['bot', '🐸 ひとりで句会', '進行になれる・鑑賞力もつける'], ['flat', '🍡 ふらっと句会', '3人そろえば、すぐ開始'], ['together', '🏮 定例句会（デモ）', 'だれでも句会21時・おかわり23時・よなよな25時／休日 おはよう10時・こんにちは13時・おやつの15時'], ['gohyo', '🍵 仲間と句会', '合言葉で集まる・見学なし']];
+  var ROOMS = [['diary', '🌱 俳句の初心者部屋', 'はじめての一句・チュートリアルつき'], ['solo', '💪 俳筋力トレーニング部屋', 'きょうのテーマ・題詠（漢字・カタカナ）で、一日一句'], ['bot', '🐸 ひとりで句会', '進行になれる・鑑賞力もつける'], ['flat', '🍡 ふらっと句会', '4人そろえば、すぐ開始'], ['together', '🏮 定例句会（デモ）', '毎日 だれでも21時・おかわり23時・よなよな25時／土日祝はさらに おはよう10時・こんにちは13時・おやつの15時'], ['gohyo', '🍵 仲間と句会', '合言葉で集まる・見学なし']];
   function vRooms() {
     return '<div class="rooms" role="tablist">' + ROOMS.map(function (r) { return '<button role="tab" data-act="tab" data-t="' + r[0] + '" aria-selected="' + (tab === r[0]) + '"><b>' + r[1] + '</b><small>' + r[2] + '</small></button>'; }).join('') + '</div>';
   }
