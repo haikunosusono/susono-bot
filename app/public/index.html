@@ -477,6 +477,10 @@ h3.sec { font-size: 1rem; }
 .sheet-grip{width:44px;height:5px;border-radius:3px;background:#d8d0c0;margin:0 auto 10px}
 .sheet-x{position:absolute;right:14px;top:12px;border:0;background:none;font-size:1.6rem;line-height:1;cursor:pointer;color:inherit}
 .sheet h3{margin:14px 0 6px;font-size:1.1rem}
+.hg-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#e8e0cc;padding:5px;border-radius:14px;margin-bottom:10px}.hg-tabs button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:10px 4px;background:transparent;color:#6b6254;min-height:44px}.hg-tabs button.on{background:#fff;color:#b5452f}
+.hg-step{display:grid;grid-template-columns:minmax(0,1fr) 130px;gap:10px;align-items:center;background:#f3eee2;border-radius:16px;padding:12px;margin:8px 0}.hg-step svg{width:100%;height:auto;display:block}.hg-step b{font-size:1.05rem;line-height:1.5}.hg-step p{margin:2px 0 0;font-size:.92rem;color:#6b6254}.hg-n{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#b5452f;color:#fff;font-weight:700;margin-right:6px}
+@media(max-width:360px){.hg-step{grid-template-columns:1fr}.hg-step svg{max-width:150px;margin:0 auto}}
+.ring{animation:hgp 1.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}@keyframes hgp{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.18);opacity:.55}}@media(prefers-reduced-motion:reduce){.ring{animation:none}}
 .sheet-steps{list-style:none;margin:12px 0;padding:0;display:grid;gap:8px;counter-reset:st}
 .sheet-steps li{counter-increment:st;display:flex;align-items:center;gap:10px;background:#f3eee2;border-radius:12px;padding:10px 12px}
 .sheet-steps li::before{content:counter(st);flex:none;width:26px;height:26px;border-radius:50%;background:#b5452f;color:#fff;display:grid;place-items:center;font-weight:700;font-size:.85rem}
@@ -748,7 +752,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.15a';
+  var APP_VER = 'v2026.10.15b';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1693,7 +1697,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (pushMsg) h += '<p class="note center">' + esc(pushMsg) + '</p>';
     if (pushHelp) h += '<div class="sheet-bg" data-act="pushhelp"></div><div class="sheet" role="dialog" aria-label="ホーム画面に追加"><div class="sheet-grip"></div><button class="sheet-x" data-act="pushhelp" aria-label="とじる">×</button><h3>ホーム画面に追加すると、通知が届きます</h3><p class="note">iPhoneでは、ホーム画面に追加したアプリからだけ、通知が届きます。</p>' +
       '<ol class="sheet-steps"><li><i>⬆️</i><span>Safariの共有ボタン（□に↑）を押す</span></li><li><i>➕</i><span>「ホーム画面に追加」を選ぶ</span></li><li><i>🔔</i><span>できたアイコンからひらいて、通知のボタンを押す</span></li></ol>' +
-      '<p class="note">追加したアプリでは、いちどログインし直しが必要なことがあります。</p><button class="btn primary big" data-act="pushhelp">とじる</button></div>';
+      '<p class="note">追加したアプリでは、いちどログインし直しが必要なことがあります。</p><button class="btn big" data-act="page" data-p="notify">絵つきの手順を見る</button><button class="btn primary big" data-act="pushhelp">とじる</button></div>';
     var rows = teiSlotsFar(7).filter(function (x) { return x.start > Date.now(); });
     if (rows.length) h += '<p class="nt-line"><button class="nt-link" data-act="calrec">📅 カレンダーに入れる（平日21:00・毎週・15分前に通知）</button></p>';
     h += vTeiFar();
@@ -2179,12 +2183,47 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     ['不具合や、ほしい機能があるときは？', 'お問い合わせから、お気軽にお知らせください。運営者に届きます。返事は、このページに表示されます。']
   ];
   /* 機種ごとの手順を、絵（大きなアイコン）の流れで見せる。文字は大きめに。 */
+  /* ホーム画面に置く方法（絵つき） */
+  var homeOs = (/Android/i.test(navigator.userAgent) ? 'and' : 'ios');
+  var HOME_STEPS = (function () {
+var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#b5452f',tap:'#e08a1e',card:'#ffffff'};
+  function phone(inner){return '<svg viewBox="0 0 150 270" role="img" aria-hidden="true"><rect x="2" y="2" width="146" height="266" rx="22" fill="'+C.ph+'"/><rect x="8" y="10" width="134" height="250" rx="15" fill="'+C.sc+'"/><rect x="56" y="14" width="38" height="5" rx="2.5" fill="'+C.ph+'"/>'+inner+'</svg>';}
+  function t(x,y,s,o){o=o||{};return '<text x="'+x+'" y="'+y+'" font-size="'+(o.s||9)+'" font-weight="'+(o.w||700)+'" fill="'+(o.c||C.ink)+'" text-anchor="'+(o.a||'start')+'" font-family="Zen Maru Gothic,sans-serif">'+s+'</text>';}
+  function hl(cx,cy,rx,ry){return '<ellipse class="ring" cx="'+cx+'" cy="'+cy+'" rx="'+rx+'" ry="'+(ry||rx)+'" fill="none" stroke="'+C.tap+'" stroke-width="3.5"/>';}
+  function lines(y,n){var s='';for(var i=0;i<n;i++)s+='<rect x="18" y="'+(y+i*12)+'" width="'+(i%3==2?60:114)+'" height="5" rx="2.5" fill="'+C.bar+'"/>';return s;}
+  function hero(y){return '<rect x="8" y="'+y+'" width="134" height="40" fill="'+C.ac+'"/>'+t(75,y+25,'俳句の裾野',{c:'#ffffff',a:'middle',s:12,w:900});}
+  function share(cx,cy){return '<rect x="'+(cx-5)+'" y="'+(cy-3)+'" width="10" height="9" rx="1.5" fill="none" stroke="'+C.ac+'" stroke-width="1.6"/><path d="M'+cx+' '+(cy+1)+'V'+(cy-9)+'M'+(cx-3.5)+' '+(cy-5.5)+'L'+cx+' '+(cy-9)+'L'+(cx+3.5)+' '+(cy-5.5)+'" fill="none" stroke="'+C.ac+'" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>';}
+  function icon(x,y,label,main){return '<rect x="'+x+'" y="'+y+'" width="26" height="26" rx="7" fill="'+(main?C.ac:C.bar)+'"/>'+(main?t(x+13,y+18,'句',{c:'#ffffff',a:'middle',s:14,w:900}):'')+t(x+13,y+38,label,{a:'middle',s:6.5,c:C.sub});}
+  function row(y,label,on){return '<rect x="14" y="'+y+'" width="122" height="24" rx="6" fill="'+(on?'#f3eee2':C.card)+'"/>'+t(22,y+16,label,{s:8.5,w:on?900:700});}
+
+  var ios=[
+    {h:'Safariで、ページを開く',p:'ページの住所は、上のコピーのボタンで写せます。',s:phone(hero(24)+lines(76,4)+'<rect x="8" y="214" width="134" height="46" fill="'+C.bar+'"/><rect x="18" y="220" width="114" height="16" rx="8" fill="'+C.card+'"/>'+t(75,232,'haikunosusono.web.app',{a:'middle',s:7})+'<circle cx="30" cy="249" r="3" fill="'+C.sub+'"/><circle cx="75" cy="249" r="3" fill="'+C.sub+'"/><circle cx="120" cy="249" r="3" fill="'+C.sub+'"/>')},
+    {h:'画面の下の「共有」ボタンを押す',p:'四角から、上へ矢印が出ているマークです。',s:phone(hero(24)+lines(76,4)+'<rect x="8" y="214" width="134" height="46" fill="'+C.bar+'"/><rect x="18" y="220" width="114" height="16" rx="8" fill="'+C.card+'"/>'+t(75,232,'haikunosusono.web.app',{a:'middle',s:7})+share(75,252)+hl(75,247,15))},
+    {h:'「ホーム画面に追加」を押す',p:'出てきた一覧を、指で上へ動かすと見つかります。',s:phone('<rect x="8" y="60" width="134" height="200" rx="14" fill="'+C.bar+'"/>'+row(74,'コピー')+row(102,'ブックマークを追加')+row(130,'ホーム画面に追加',1)+row(158,'検索')+row(186,'プリント')+hl(75,142,64,17))},
+    {h:'右上の「追加」を押す',p:'名前は、そのままでだいじょうぶです。',s:phone('<rect x="8" y="10" width="134" height="40" fill="'+C.bar+'"/>'+t(18,36,'キャンセル',{s:7.5,c:C.sub})+t(75,36,'ホーム画面に追加',{a:'middle',s:7.5})+t(132,36,'追加',{a:'end',s:9,c:C.ac,w:900})+hl(124,32,19,12)+'<rect x="55" y="80" width="40" height="40" rx="10" fill="'+C.ac+'"/>'+t(75,108,'句',{c:'#ffffff',a:'middle',s:20,w:900})+t(75,140,'俳句の裾野',{a:'middle',s:9}))},
+    {h:'ホーム画面のアイコンから開く',p:'いつもこのアイコンから入ります。',s:phone(icon(20,40,'時計')+icon(62,40,'写真')+icon(104,40,'天気')+icon(20,96,'メール')+icon(62,96,'俳句の裾野',1)+icon(104,96,'地図')+icon(20,152,'メモ')+icon(62,152,'電話')+icon(104,152,'設定')+hl(75,109,24,24))}
+  ];
+  var and=[
+    {h:'Chromeで、ページを開く',p:'ページの住所は、上のコピーのボタンで写せます。',s:phone('<rect x="8" y="22" width="134" height="30" fill="'+C.bar+'"/><rect x="14" y="28" width="104" height="18" rx="9" fill="'+C.card+'"/>'+t(66,40,'haikunosusono.web.app',{a:'middle',s:7})+'<circle cx="128" cy="31" r="1.6" fill="'+C.ink+'"/><circle cx="128" cy="37" r="1.6" fill="'+C.ink+'"/><circle cx="128" cy="43" r="1.6" fill="'+C.ink+'"/>'+hero(54)+lines(108,4))},
+    {h:'右上の「⋮」を押す',p:'点が、たてに3つならんだマークです。',s:phone('<rect x="8" y="22" width="134" height="30" fill="'+C.bar+'"/><rect x="14" y="28" width="104" height="18" rx="9" fill="'+C.card+'"/>'+t(66,40,'haikunosusono.web.app',{a:'middle',s:7})+'<circle cx="128" cy="31" r="1.6" fill="'+C.ink+'"/><circle cx="128" cy="37" r="1.6" fill="'+C.ink+'"/><circle cx="128" cy="43" r="1.6" fill="'+C.ink+'"/>'+hl(128,37,12)+hero(54)+lines(108,4))},
+    {h:'「ホーム画面に追加」を押す',p:'「アプリをインストール」と出る機種もあります。',s:phone('<rect x="8" y="22" width="134" height="30" fill="'+C.bar+'"/><rect x="40" y="56" width="98" height="150" rx="8" fill="'+C.card+'" stroke="'+C.bar+'" stroke-width="1.5"/>'+t(48,76,'新しいタブ',{s:8.5})+t(48,102,'履歴',{s:8.5})+'<rect x="42" y="110" width="94" height="24" rx="6" fill="#f3eee2"/>'+t(48,126,'ホーム画面に追加',{s:8.5,w:900})+t(48,156,'設定',{s:8.5})+t(48,182,'ヘルプ',{s:8.5})+hl(89,122,50,16))},
+    {h:'「追加」を押す',p:'もういちど「追加」と出たら、それも押します。',s:phone('<rect x="16" y="80" width="118" height="110" rx="16" fill="'+C.card+'" stroke="'+C.bar+'" stroke-width="1.5"/>'+t(75,102,'ホーム画面に追加',{a:'middle',s:8.5,w:900})+'<rect x="26" y="112" width="20" height="20" rx="6" fill="'+C.ac+'"/>'+t(36,127,'句',{c:'#ffffff',a:'middle',s:11,w:900})+t(52,126,'俳句の裾野',{s:8.5})+t(66,172,'キャンセル',{a:'middle',s:8,c:C.sub})+t(116,172,'追加',{a:'middle',s:9,c:C.ac,w:900})+hl(116,168,19,11))},
+    {h:'ホーム画面のアイコンから開く',p:'いつもこのアイコンから入ります。',s:phone(icon(20,40,'時計')+icon(62,40,'写真')+icon(104,40,'天気')+icon(20,96,'メール')+icon(62,96,'俳句の裾野',1)+icon(104,96,'地図')+icon(20,152,'メモ')+icon(62,152,'電話')+icon(104,152,'設定')+hl(75,109,24,24))}
+  ];
+    return { ios: ios, and: and };
+  })();
+  function homeGuide() {
+    var st = HOME_STEPS[homeOs];
+    return '<h2 class="sec">ホーム画面に、このアプリを置く方法<small>絵のとおりに、押してください</small></h2><div class="panel"><div class="hg-tabs"><button class="' + (homeOs === 'ios' ? 'on' : '') + '" data-act="homeos" data-os="ios">iPhone・iPad</button><button class="' + (homeOs === 'and' ? 'on' : '') + '" data-act="homeos" data-os="and">Android</button></div>' +
+      '<p class="note">' + (homeOs === 'ios' ? '<b>かならず「Safari」で開きます。</b>XやLINEの中では置けません。' : '<b>「Chrome」で開きます。</b>機種で言葉が少しちがうことがあります。') + '</p>' +
+      st.map(function (x, i) { return '<div class="hg-step"><div><span class="hg-n">' + (i + 1) + '</span><b>' + x.h + '</b><p>' + x.p + '</p></div>' + x.s + '</div>'; }).join('') + '</div>';
+  }
   function vNotify() {
     var flow = function (title, steps, note) {
       var parts = steps.map(function (x) { return '<div class="fl-step"><span class="fl-ico">' + x[0] + '</span><span class="fl-t">' + x[1] + '</span></div>'; });
       return '<div class="panel fl-box"><h3 class="fl-h">' + title + '</h3><div class="flow">' + parts.join('<span class="fl-arr" aria-hidden="true">→</span>') + '</div>' + (note ? '<p class="fl-note">' + note + '</p>' : '') + '</div>';
     };
-    return '<h2 class="sec">スマホ・パソコンの通知<small>機種ごとの、ぬりえみたいな手順</small></h2>' +
+    return homeGuide() + '<h2 class="sec">スマホ・パソコンの通知<small>機種ごとの、ぬりえみたいな手順</small></h2>' +
       '<div class="panel"><p class="fl-big">句会の<b>15分前</b>に、お知らせが届きます。<br>お使いの機種の流れを、上から順に、ひとつずつどうぞ。</p></div>' +
       flow('📱 iPhone（iOS 16.4 以上）', [['🌐', 'Safariで<br>ひらく'], ['⬆️', '共有<br>ボタン'], ['➕', 'ホーム画面<br>に追加'], ['📲', 'できた<br>アイコン'], ['🔔', '🔔を<br>押す'], ['✅', '「許可」<br>を選ぶ']],
         'ホーム画面のアイコンから、ひらいてください（Safariからでは届きません）。<br>うまくいかないときは、「設定」→「通知」→「俳句の裾野」→「許可」。') +
@@ -4186,6 +4225,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     else if (act === 'calrec') calDownload('recur', 'haiku-kukai-heijitsu21.ics');
     else if (act === 'calics') { var cs = t.dataset.sid, cl = teiSlotsFar(7).filter(function (x) { return x.start > Date.now() && (cs === 'all' || x.sid === cs); }); if (cl.length) calDownload(cl, cs === 'all' ? 'haiku-kukai-week.ics' : 'haiku-kukai.ics'); }
     else if (act === 'yaku-ok') { try { localStorage.setItem('ikku-yaku', '1'); } catch (_) {} try { var yc = scur(); if (yc) yakuOpen[yc.id] = false; } catch (_) {} toast('約束をむすびました。講評へどうぞ'); render(); }
+    else if (act === 'homeos') { homeOs = t.dataset.os === 'and' ? 'and' : 'ios'; render(); }
     else if (act === 'pushhelp') { pushHelp = !pushHelp; render(); }
     else if (act === 'pushtog') { if (pushOn) pushTurnOff(); else pushTurnOn(); }
     else if (act === 'pushmode') { pushAll = t.dataset.m === 'all'; try { localStorage.setItem('ikku-push-all', pushAll ? '1' : '0'); } catch (_) {} pushSync(null); render(); }
