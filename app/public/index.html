@@ -752,7 +752,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.15b';
+  var APP_VER = 'v2026.10.15c';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1890,6 +1890,20 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (avDraft) o.av = avDraft; if (avDraft === '') o.av = '';
     db.collection('members').doc(myId).set(o, { merge: true }).then(function () { avDraft = null; bioDraft = null; toast('プロフィールを保存しました'); render(); }).catch(function () { toast('保存できませんでした'); });
   }
+  var wipeAsk = false, wipeBusy = false;
+  function wipeMine() {
+    if (!db || !myId || wipeBusy) return;
+    wipeBusy = true; render();
+    var uid = myId;
+    db.collection('data/users/' + uid).get().then(function (sn) {
+      var ps = []; sn.forEach(function (d) { ps.push(d.ref.delete()); });
+      ['members/' + uid, 'pushq/' + uid, 'inquiries/' + uid, 'presence/' + uid].forEach(function (p) { ps.push(db.doc(p).delete().catch(function () {})); });
+      return Promise.all(ps);
+    }).then(function () {
+      try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf('ikku-') === 0) localStorage.removeItem(k); }); } catch (_) {}
+      toast('データを消しました'); setTimeout(function () { location.reload(); }, 1200);
+    }).catch(function () { wipeBusy = false; wipeAsk = false; toast('消せませんでした。お問い合わせからお知らせください'); render(); });
+  }
   function vProfile() {
     var m = memOf(myId), av = avDraft != null ? avDraft : (m.av || ''), bio = bioDraft != null ? bioDraft : (m.bio || '');
     var h = '<div class="panel"><b>プロフィールを編集</b><p class="note">俳号を変えると、これからの句会での表示名が変わります。アイコンとプロフィール文は、ほかの参加者にも見えます（作者がオープンになったあと）。</p>';
@@ -1900,6 +1914,8 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     h += '<div class="panel"><b>設定</b>';
     h += '<div class="setrow"><div><b>アーカイブ表示</b><p class="note">自分の句と選評を、終わった句会のアーカイブで、ほかの参加者に見せるかどうか。これからの表示に適用します。</p></div><div class="row"><button class="chip fit' + (!m.arcHide ? ' on' : '') + '" data-act="set-arc" data-v="0">' + (!m.arcHide ? '✓ ' : '') + '表示（おすすめ）</button><button class="chip fit' + (m.arcHide ? ' on' : '') + '" data-act="set-arc" data-v="1">' + (m.arcHide ? '✓ ' : '') + '非表示</button></div></div>';
     h += '<div class="setrow"><div><b>開始リマインド</b><p class="note">一句を出した句会の、はじまる15分前に、スマホの通知でお知らせします。' + (pushSupported() ? '' : '（この端末では、ホーム画面に追加すると使えます）') + '</p></div><div class="row"><button class="chip fit' + (pushOn ? ' on' : '') + '" data-act="pushtog">' + (pushOn ? '✓ オン' : 'オン') + '</button><button class="chip fit' + (!pushOn ? ' on' : '') + '" data-act="pushtog">' + (!pushOn ? '✓ オフ' : 'オフ') + '</button></div></div>';
+    h += '<div class="setrow"><div><b>自分のデータを消す</b><p class="note">ストッ句、マイページ、プロフィール、通知の登録、お問い合わせの控えを、消します。もとには戻せません。句会に出した句は、ほかの人との記録なので残ります。</p>' +
+      (wipeAsk ? '<p class="note"><b>ほんとうに、消しますか？</b></p><div class="row"><button class="btn small primary" data-act="wipe-do"' + (wipeBusy ? ' disabled' : '') + '>' + (wipeBusy ? '消しています…' : 'はい、消す') + '</button><button class="btn small" data-act="wipe-ask">やめる</button></div>' : '<div class="row"><button class="btn small" data-act="wipe-ask">自分のデータを消す</button></div>') + '</div></div>';
     h += '</div>';
     return h;
   }
@@ -2179,7 +2195,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     ['幹事を、ほかの人にもまかせられますか？', 'はい。仲間と句会のルームの中にある「幹事をふやす・かえる」で、参加している人を、何人でも幹事にできます。幹事は、進行・設定・次の回・句会を消す、ができます。ひらいた人は、ほかの幹事からははずせません。自分から、幹事をおりることはできます。'],
     ['ここで作った句は、大会に出せますか？（既発表・未発表）', 'ここは練習の場なので、ここで作った句は、未発表のあつかいです。ただし、自分でXなどに公開した句は、公表したことになる場合があります。既発表の規定は、それぞれの俳句大会の規約によります。募集要項で確かめてから出してください。'],
     ['ほかの人の句を、SNSにのせてもいいですか？', 'いけません。ほかの人の句や選評は、本人の了解なしに、SNSにのせたり、大会などに投句したりしないでください。画面を撮影してのせることも、同じです。'],
-    ['データを消したいときは？', 'お問い合わせから、内容を書いて送ってください。運営者が確認します。'],
+    ['データを消したいときは？', '設定の「自分のデータを消す」から、ご自分で消せます。句会に出した句は、ほかの人との記録なので残ります。それも消したいときは、お問い合わせから、内容を書いて送ってください。運営者が確認します。'],
     ['不具合や、ほしい機能があるときは？', 'お問い合わせから、お気軽にお知らせください。運営者に届きます。返事は、このページに表示されます。']
   ];
   /* 機種ごとの手順を、絵（大きなアイコン）の流れで見せる。文字は大きめに。 */
@@ -4225,6 +4241,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'calrec') calDownload('recur', 'haiku-kukai-heijitsu21.ics');
     else if (act === 'calics') { var cs = t.dataset.sid, cl = teiSlotsFar(7).filter(function (x) { return x.start > Date.now() && (cs === 'all' || x.sid === cs); }); if (cl.length) calDownload(cl, cs === 'all' ? 'haiku-kukai-week.ics' : 'haiku-kukai.ics'); }
     else if (act === 'yaku-ok') { try { localStorage.setItem('ikku-yaku', '1'); } catch (_) {} try { var yc = scur(); if (yc) yakuOpen[yc.id] = false; } catch (_) {} toast('約束をむすびました。講評へどうぞ'); render(); }
+    else if (act === 'wipe-ask') { wipeAsk = !wipeAsk; render(); }
+    else if (act === 'wipe-do') { wipeMine(); }
     else if (act === 'homeos') { homeOs = t.dataset.os === 'and' ? 'and' : 'ios'; render(); }
     else if (act === 'pushhelp') { pushHelp = !pushHelp; render(); }
     else if (act === 'pushtog') { if (pushOn) pushTurnOff(); else pushTurnOn(); }
