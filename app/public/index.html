@@ -753,7 +753,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.16a';
+  var APP_VER = 'v2026.10.16b';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -2630,7 +2630,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function vTrial() {
     var t = trial, d = t.d, h = '<div class="actions"><button class="link" data-act="trial-end">← やめる</button></div><h2 class="sec">俳筋トレ体験<small>ひとりで・約1分・保存しません</small></h2>';
     if (!t.done) {
-      h += hostSay('体験です。お題を一つ出しますので、575で一句どうぞ。出来がよいかどうかは気にせず、まず手を動かしましょう。', '書いた句は、どこにも保存されません。');
+      h += penSay('赤ペン先生です。体験です。お題を一つ出しますので、575で一句どうぞ。出来のよしあしは気にせず、まず手を動かしてみましょう。', '書いた句は、どこにも保存されません。');
       h += '<div class="row">' + [['k', '漢字'], ['t', 'カタカナ'], ['m', 'テーマ']].map(function (x) { return '<button class="chip fit' + (t.series === x[0] ? ' on' : '') + '" data-act="trial-kind" data-v="' + x[0] + '" aria-pressed="' + (t.series === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</div>';
       h += '<div class="panel">' + (t.series === 'm' ? '<p class="lead">「' + esc(t.ch) + '」というお題で一句。</p>' : '<p class="lead">「' + esc(t.ch) + '」を詠み込んで一句。</p>') + (t.hint ? '<p class="note">ヒント：' + esc(t.hint) + '</p>' : '');
       h += oneBox('t-a', 'ta', 'tcnt-a', d.a);
@@ -2639,7 +2639,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     } else {
       var nn = len(d.a + d.b + d.c), ok = Math.abs(nn - 17) <= 3, c = trialChk();
       h += '<div class="tan">' + ku(d) + '</div>';
-      h += hostSay('お疲れさまでした。' + nn + '字の一句です。' + (ok ? '十七字前後に収まっています。' : '十七字から、少し離れています。わざとはずす「破調」なら、それも表現のひとつ。声に出して読んで、リズムを確かめてみましょう。') + (trial.series === 'm' ? '' : (c.cls === 'ok' ? '兼題の字も入っていました。' : '兼題の字は、入りませんでした。')), '本番では、この一句に「かんぺき・まあまあ・ふつう・あとで推敲」をつけて記録に残せます。');
+      h += penSay('おつかれさまでした。◎ ' + nn + '字の一句です。' + (ok ? '十七字前後に収まっています。すてきです。' : '十七字から、少し離れています。わざとはずす「破調」なら、それも表現のひとつ。声に出して読んで、リズムを確かめてみましょう。') + (trial.series === 'm' ? '' : (c.cls === 'ok' ? '兼題の字も入っていました。' : '兼題の字は、入りませんでした。')), '本番では、この一句に「かんぺき・まあまあ・ふつう・あとで推敲」をつけて記録に残せます。');
       h += '<div class="actions"><button class="btn primary" data-act="trial-end">本番へ</button><button class="btn" data-act="trial-again">べつのお題で</button><button class="btn" data-act="demo-start">ひとりで句会も見る</button></div>';
     }
     return h;
@@ -2653,13 +2653,13 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function vDemo() {
     var d = demo, n = d.n, h = '<div class="actions"><button class="link" data-act="demo-end">← やめる</button></div><h2 class="sec">ひとりで句会<small>自分とボット' + n + '名・約3分</small></h2>';
     if (d.step === 0) {
-      h += hostSay('ひとりで句会です。ボットを2〜4名えらんで、あなたの一句といっしょに、小さな句会をひらきます。お題はありません。自由に一句どうぞ。', 'ボットはお相手の自動プログラムです。招待も見学もありません。まよったら、「句をこちらで用意してもらう」もできます。');
+      h += penSay('ひとりで句会です。赤ペン先生もいっしょですよ。ボットを2〜4名えらんで、あなたの一句といっしょに、小さな句会をひらきます。お題はありません。自由に一句どうぞ。', 'ボットはお相手の自動プログラムです。招待も見学もありません。まよったら、「句をこちらで用意してもらう」もできます。');
       h += '<div class="row" role="group" aria-label="ボットの人数">' + [2, 3, 4].map(function (k) { return '<button class="chip fit' + (n === k ? ' on' : '') + '" data-act="demo-n" data-v="' + k + '" aria-pressed="' + (n === k) + '">ボット' + k + '名</button>'; }).join('') + '</div>';
       h += '<div class="chips2"><i>あなた</i>' + TEI_BOTS.slice(0, n).map(function (x) { return '<i>' + esc(x) + '（ボット）</i>'; }).join('') + '</div>';
       h += '<div class="panel">' + oneBox('d-a', 'da', 'dcnt-a', d.d.a) + '<div class="tan pv" id="dpv">' + ku(d.d) + '</div>' + (d.prep ? '<p class="note">こちらで用意した句です。これを、あなたの句としてお預かりします（手直ししても大丈夫です）。</p>' : '<p class="note">季語はひとつ。いまの季節のことばで詠むと、まとまりやすくなります。</p>') + '<button class="btn primary" data-act="demo-go">この句で句会をはじめる</button><div class="actions"><button class="btn" data-act="demo-draw">' + (d.prep ? '🎴 べつの句を引く' : '🎴 句をこちらで用意してもらう') + '</button></div></div>';
       h += '<p class="note">' + (d.prep ? '用意した句のときは、ストッ句には入れません（参加した句会には数えます）。' : '出した句は、「ストッ句」に残り、参加した句会として数えられます。') + '</p>' + maner('p');
     } else if (d.step === 1) {
-      h += hostSay((n + 1) + '句が、作者を伏せて並びました。自分の句には入れられません。気に入った句に、特選1票・並選1票を入れましょう。', '本番では、選に届かなかったけれど心に残った句に、予選（点なし）の印もつけられます。');
+      h += penSay((n + 1) + '句が、作者を伏せて並びました。自分の句には入れられません。気に入った句に、特選1票・並選1票を入れましょう。直感で大丈夫です。', '本番では、選に届かなかったけれど心に残った句に、予選（点なし）の印もつけられます。');
       h += '<div class="board">' + d.ord.map(function (i, r) {
         var own = i === 0, btns = '';
         if (!own) btns = '<div class="pick"><button class="chip toku' + (d.my.toku === i ? ' on' : '') + '" data-act="demo-vote" data-kind="toku" data-i="' + i + '"' + (d.fin ? ' disabled' : '') + '>' + (d.my.toku === i ? '✓ ' : '') + '特選</button><button class="chip nami' + (d.my.nami === i ? ' on' : '') + '" data-act="demo-vote" data-kind="nami" data-i="' + i + '"' + (d.fin ? ' disabled' : '') + '>' + (d.my.nami === i ? '✓ ' : '') + '並選</button></div>';
@@ -2670,13 +2670,13 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       h += '<div class="sbar"><div class="srow"><span class="cnt2' + (d.my.toku >= 0 ? ' full' : '') + '">特選 ' + (d.my.toku >= 0 ? 1 : 0) + '/1</span><span class="cnt2' + (d.my.nami >= 0 ? ' full' : '') + '">並選 ' + (d.my.nami >= 0 ? 1 : 0) + '/1</span><button class="btn primary" data-act="demo-fin"' + (ok ? '' : ' disabled') + '>選を終了</button></div><p class="note">' + (ok ? '決めたら「選を終了」。' : '特選あと' + (d.my.toku >= 0 ? 0 : 1) + '票・並選あと' + (d.my.nami >= 0 ? 0 : 1) + '票 — 使い切ると「選を終了」できます') + '</p></div>';
     } else {
       var R = d.res, rk = R.rank;
-      h += hostSay('みなさん、選び終えました。点の高い句から、選評をどうぞ。…と言っても、ボットの選評は、わたしがお伝えします。', 'あなたの句は、' + (n + 1) + '句中、第' + rk + '位（' + R.pts[0] + '点）でした。');
+      h += penSay('みなさん、選び終えました。点の高い句から、選評をどうぞ。…と言っても、ボットの選評は、わたしがかわりにお伝えしますね。', 'あなたの句は、' + (n + 1) + '句中、第' + rk + '位（' + R.pts[0] + '点）でした。');
       h += '<div class="board1">' + R.order.map(function (i) {
         var k = d.hs[i];
         return '<article class="res"><div class="tan">' + kuS(k) + '</div><div class="meta"><div class="pts">' + R.pts[i] + '<small>点</small></div>' + (R.pts[i] === R.max ? '<span class="crown">最高点</span>' : '') + '<div class="who"><span class="haigo">' + esc(demoName(i)) + '</span></div></div>' +
           '<div class="cm">' + (d.cm[i] || []).map(function (c) { return '<div class="cmi"><b>' + esc(demoName(c.b)) + '</b><span class="cmtag' + (c.tone === 'きびしく' ? ' kb' : '') + '">' + esc(c.tone) + '</span><span class="cmtag">' + esc(c.part) + '</span>' + esc(c.text) + '</div>'; }).join('') + '</div></article>';
       }).join('') + '</div>';
-      h += hostSay('これで、ひとりで句会はおしまいです。いまは、作者の名前を明かしました。本番の「定例句会」では、人どうしで、選評を書き合います。', d.saved ? (d.prep ? '用意した句だったので、ストッ句には入れていません。参加した句会には、数えました。' : 'あなたの句は、「ストッ句」に残りました。参加した句会として、数えられます。') : (!myId ? '登録すると、出した句が「ストッ句」に残り、参加した句会として数えられます。毎晩9時の「定例句会」にも出られます。' : ''));
+      h += penSay('これで、ひとりで句会はおしまいです。いまは、作者の名前を明かしました。本番の「定例句会」では、人どうしで、選評を書き合います。', d.saved ? (d.prep ? '用意した句だったので、ストッ句には入れていません。参加した句会には、数えました。' : 'あなたの句は、「ストッ句」に残りました。参加した句会として、数えられます。') : (!myId ? '登録すると、出した句が「ストッ句」に残り、参加した句会として数えられます。毎晩9時の「定例句会」にも出られます。' : ''));
       h += myId ? '<div class="actions"><button class="btn primary" data-act="demo-again">もう一度（ボット' + n + '名）</button><button class="btn" data-act="demo-stock">ストッ句を見る</button><button class="btn" data-act="demo-end">句会の一覧へ</button></div>'
         : '<div class="actions"><button class="btn primary" data-act="fbgate">登録してはじめる（メールだけ・無料）</button><button class="btn" data-act="demo-again">もう一度（ボット' + n + '名）</button><button class="btn" data-act="demo-end">もどる</button></div>';
     }
