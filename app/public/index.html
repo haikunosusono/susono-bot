@@ -753,7 +753,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.16c';
+  var APP_VER = 'v2026.10.16d';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -2063,7 +2063,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
         (opened && e.id === myId ? '<div>' + cardBtn('k:' + s.id, { text: joinKu(e).a, haigo: e.haigo || haigo, sub: (s.tei ? kName(s) : (SER[s.series] ? SER[s.series].name + '「' + s.ch + '」' : '') + '　定例句会'), badge: '第' + (1 + rows.filter(function (x) { return T[x.id].pts > t.pts; }).length) + '位・特選' + t.toku.length + '・並選' + t.nami.length }) + '</div>' : '') + '</div>' +
         '<div class="cm">' + smRow + cmThread(mineC, canC) +
         (isCur && !opened ? '<div class="cmi hostline"><b>ダー浜（司会）</b>' + esc(goQ(s, num - 1)) + '</div>' : '') +
-        (isCur && !opened ? '<div id="halfway" class="cmi hostline" style="display:none"><b>ダー浜（司会）</b>講評の時間、半分すぎたで。のこりは<b id="hw-left"></b>や。まだの人も、ひとことどうぞ。時間が足りんかったら、下のボタンで。<div><button class="btn primary small" data-act="cm-ext" data-i="' + (num - 1) + '"' + (((s.ext || {})[num - 1] || 0) >= 4 ? ' disabled' : '') + '>⏳ +2分 のばす ' + ((s.ext || {})[num - 1] || 0) + '/4</button></div></div>' : '') +
+        (isCur && !opened ? '<div id="halfway" class="cmi hostline" style="display:none"><b>ダー浜（司会）</b>講評の時間、半分すぎたで。のこりは<b id="hw-left"></b>や（上のタイマーも見てや）。まだの人も、ひとことどうぞ。時間が足りんかったら、下のボタンで。<div><button class="btn primary small" data-act="cm-ext" data-i="' + (num - 1) + '"' + (((s.ext || {})[num - 1] || 0) >= 4 ? ' disabled' : '') + '>⏳ +2分 のばす （あと' + Math.max(0, 4 - ((s.ext || {})[num - 1] || 0)) + '回まで）</button></div></div>' : '') +
         (isCur && !opened && live && entrant && e.id === myId ? askBox(s, e) : '') +
         (canC && opened && e.id === myId ? '<p class="note">🪶 <b>自句自解（作者から）</b>：自分の句のことを、自由に語ってください。どんな場面だったか、どうしてこの季語・この語順にしたか、質問への答え、こめた思い。長くなっても大丈夫。だまっていても、もちろん大丈夫です。</p>' : '') +
         (canC && !opened ? '<p class="note">「ここがすき」だけでも、立派な選評です。気になる点や質問も、ひとつあると、作者の学びになります。 <button class="link" data-act="page" data-p="hints">句会の評のヒント</button></p>' : '') +
@@ -4675,7 +4675,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       var oc = document.getElementById('oclock'); if (oc) oc.textContent = fmt(oleft);
       var ob = document.getElementById('obar'); if (ob) ob.style.width = (oleft / cmtSecS(s) * 100).toFixed(1) + '%';
       if (ob) ob.style.background = oleft <= 60 ? 'var(--accent2)' : '';
-      var hw = document.getElementById('halfway'); if (hw) { var tot = cmtSecS(s), el = tot - oleft, showHw = el >= Math.floor(tot / 2); hw.style.display = showHw ? '' : 'none'; if (showHw) { var h2 = document.getElementById('hw-left'); if (h2) h2.textContent = (oleft >= 60 ? Math.floor(oleft / 60) + '分' : '') + (oleft % 60 ? (oleft % 60) + '秒' : ''); } }
+      var hw = document.getElementById('halfway'); if (hw) { var tot = cmtSecS(s), el = tot - oleft, showHw = el >= Math.floor(tot / 2); hw.style.display = showHw ? '' : 'none'; if (showHw) { var h2 = document.getElementById('hw-left'); if (h2) h2.textContent = oleft > 60 ? 'あと約' + Math.ceil(oleft / 60) + '分' : 'あと1分ほど'; } }
       try { var tps = document.querySelectorAll('.typing'); for (var ti = 0; ti < tps.length; ti++) { var ty = s.typing || {}, nn = 0, now2 = Date.now(); Object.keys(ty).forEach(function (u) { if (u !== myId && ty[u] && now2 - ty[u] < 9000) nn++; }); if (!nn) tps[ti].textContent = ''; } } catch (_) {}
       if (yakuOpen[s.id] === undefined && cmtElapsed(s) >= 45000 && document.querySelector('.yaku')) { yakuOpen[s.id] = false; render(); return; }
     }
