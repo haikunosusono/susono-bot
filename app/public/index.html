@@ -753,7 +753,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.16b';
+  var APP_VER = 'v2026.10.16c';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1218,7 +1218,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (kg) { var r = idx / t.length; pos = idx + kg.length >= t.length - 2 ? 'shimo' : r < 0.25 ? 'kami' : 'naka'; }
     var last = t.charAt(t.length - 1), cut = null;
     if (/かな$/.test(t)) cut = 'kana'; else if (/けり$/.test(t)) cut = 'keri';
-    else if (/^.{2,7}や/.test(t) || /や[^　]{4,}/.test(t)) cut = 'ya';
+    else if (kg && t.charAt(idx + kg.length) === 'や') cut = 'ya';
     else if (/[一-龥ァ-ヶ]$/.test(last)) cut = 'taigen';
     var view = [];
     if (/音|声|鳴|響|ひびき|ざわ|こえ|ねいろ|鐘|笛/.test(t)) view.push('聴覚');
@@ -1238,7 +1238,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (k.kg && k.pos === 'shimo') { a.push('この句は、季語「' + k.kg + '」を下五に置いた、取り合わせのかたちですね。フレーズで景を見せて、さいごに季語で受ける、すわりのよい型です。'); b.push('季語を上五に移して「' + k.kg + 'や」と切る型にしてみると、はじまりの景がひらいて、読みの印象がかわります。'); }
     else if (k.kg && k.pos === 'kami') { a.push('この句は、季語「' + k.kg + '」を上五に置いて、景をつづける型ですね。まず季節の空気を差し出す、はじまりの強い型です。'); b.push('季語を下五に回す型にすると、余韻がのこって、句にしずけさが出ることもあります。'); part = '季語'; }
     else if (k.kg) { a.push('季語「' + k.kg + '」が、句の中ほどにあるかたちですね。季語とまわりのことばの距離が近く、ひとつにまとまりやすい型です。'); b.push('季語を上五か下五に出して、そこで切る型にすると、場面の切りかわりが生まれて、さらによくなります。'); part = '切れ・余韻'; }
-    else { a.push('季語が見当たらない句ですね。無季の句も、自由律の句も、俳句の大きな懐のなかです。'); b.push('季語をそえる「取り合わせ」の型にすると、季節の景がひろがります。無季のまま貫くのも、ひとつの立場です。'); part = '季語'; }
+    else { a.push('ことばの流れが、ひとつの景にまとまっている句ですね。わたしの季語の辞書には、この句の季語がまだ見つかりませんでした（歳時記には、もっとたくさんあります）。季語が入っていたら、ぜひ教えてくださいね。'); part = '言葉選び'; }
     if (k.cut === 'ya') c.push('「や」で切れているのが、いいですね。ここで景がひらいて、二つの景が響きあいます。');
     else if (k.cut === 'kana') c.push('「かな」の詠嘆で終わるのが、いいですね。余韻がやわらかく残ります。');
     else if (k.cut === 'keri') c.push('「けり」で言い切るのが、いいですね。きっぱりと、句が閉まります。');
@@ -1257,7 +1257,6 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (k.onoma) L.push('くり返しの音（オノマトペ）が、耳にのこります。声に出して読むと、さらにたのしくなりますね。');
     if (k.num) L.push('数のことば（ひとつ・ふたり…）があるのは、いい視点ですね。数は、景をきゅっと具体にして、さびしさやにぎやかさも見せてくれます。');
     if (k.simile) L.push('たとえ（比喩）の型ですね。季語そのものをたとえると「一物仕立て」に近づいて、むずかしくなります。取り合わせと比べてみるのもおすすめです。');
-    if (k.nk) L.push('季語がもうひとつありそうです（季重なり）。どちらを主役にするか決めると、句の焦点がさだまります。');
     if (!k.cut || k.cut === 'taigen') L.push('省略したぶん、読む人が景を補ってくれます。これが「余韻」。ことばを足しすぎないのも、型のひとつです。');
     var lr = L.length ? L[hash(String(seed || '') + 'L') % L.length] : '';
     var cuts = '';
@@ -1293,7 +1292,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     all.forEach(function (w) { if (rest.indexOf(w) >= 0) { found.push(w); rest = rest.split(w).join('□'); } });
     out.push(found.length === 1 ? { ok: 1, h: '季語', m: '季語「' + found[0] + '」がひとつ。季節感もそろっているか、歳時記でもたしかめてみましょう。' }
       : found.length >= 2 ? { ok: 0, h: '季語', m: '季語がふたつありそうです（' + found.slice(0, 2).join('・') + '）。焦点がぼけることがあります。どちらを主役にするか、決めてみましょう。' }
-      : { ok: 0, h: '季語', m: '季語が見つかりませんでした。歳時記で、季節にあう季語をひとつ入れる型もあります。（無季の句も、俳句のひとつ。リストにないだけのこともあります）' });
+      : { ok: 0, h: '季語', m: 'わたしの季語の辞書では、見つけられませんでした（辞書は、まだ全部ではありません）。季語が入っていれば、それで大丈夫です。無季の句も、俳句のひとつです。' });
     var cuts = 0; if (/かな$/.test(t)) cuts++; if (/けり$/.test(t)) cuts++; if (/^.{2,7}や/.test(t)) cuts++;
     out.push(cuts >= 2 ? { ok: 0, h: '切れ字', m: '「や」「かな」「けり」が重なっているかもしれません。切れ字は、ひと句にひとつが基本です。' }
       : { ok: 1, h: '切れ字', m: cuts === 1 ? '切れ字がひとつで、すっきりしています。' : '切れ字はなし。なめらかに読める句です。「や」「かな」を入れる型も、試せます。' });
@@ -1353,6 +1352,13 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
         var mz = HAMA_SAYS[hash(s.id + eid + 'z') % HAMA_SAYS.length]; n++;
         out['cp' + n] = { eid: eid, uid: 'hamakichi', text: mz.t, tone: 'ふつう', part: [mz.part], at: Date.now() + 1200 + n };
       }
+    });
+    /* ボットの句にも、松風主宰とひなたが選評（ボットどうしは、ほめ合わない。人がいるときだけ） */
+    if (ids.length > bots.length) bots.forEach(function (eid) {
+      var bz2 = null; try { bz2 = kataComment(joinKu(s.entries[eid]).a, s.id + eid); } catch (_) {} if (!bz2) bz2 = BENI_SAYS[hash(s.id + eid + 'b') % BENI_SAYS.length]; n++;
+      out['cq' + n] = { eid: eid, uid: 'benico', text: bz2.t, tone: 'ふつう', part: [bz2.part], at: Date.now() + 400 + n };
+      var hz2 = HINATA_SAYS[hash(s.id + eid + 'h') % HINATA_SAYS.length]; n++;
+      out['cq' + n] = { eid: eid, uid: 'hinata', text: hz2.t, tone: 'やさしく', part: [hz2.part], at: Date.now() + 800 + n };
     });
     return out;
   }
