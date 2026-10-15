@@ -130,6 +130,7 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .hav { flex: none; width: 2.4rem; height: 2.4rem; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-weight: 700; border: 1px solid var(--line); }
 .hav.hi { background: #ffe3ec; color: #c2456f; border-color: #f6b9cc; }
 .hav.be { background: #e3e8f7; color: #3a4a8c; border-color: #b4bfe6; }
+.hav.pen { background: #ffe4df; color: #c2413a; border-color: #f2b3aa; }
 .hav.ha { background: #fff2c4; color: #9a6a00; border-color: #efd37a; }
 .qchips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
 .nbcard { background: linear-gradient(135deg, #fff4f7, #fffaf0); border: 1.5px solid #f6c9d6; border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
@@ -752,7 +753,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.15e';
+  var APP_VER = 'v2026.10.16a';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1797,6 +1798,10 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function hostSay(text, sub) {
     return '<div class="host"><span class="hav ha" aria-hidden="true">浜</span><div class="hbub"><span class="hn">ダー浜（司会）</span><p>' + text + '</p>' + (sub ? '<small>' + sub + '</small>' : '') + '</div></div>';
   }
+  /* 赤ペン先生：やさしく、たのしく、きびしくなく教える先生（句づくりで登場） */
+  function penSay(text, sub) {
+    return '<div class="host"><span class="hav pen" aria-hidden="true">赤</span><div class="hbub"><span class="hn">赤ペン先生（やさしい先生・ボット）</span><p>' + text + '</p>' + (sub ? '<small>' + sub + '</small>' : '') + '</div></div>';
+  }
   function finCount(s) { return Object.keys(s.votes || {}).filter(function (u) { return s.votes[u] && s.votes[u].fin === true; }).length; }
   function vSelect(s) {
     var entrant = !!(s.entries && s.entries[myId]);
@@ -2553,8 +2558,20 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function tkMoraBadge(v) {
     var n = tkMora(v);
     if (!len(v)) return '';
-    if (n < 0) return '<p class="note">漢字まじりの音数は、こえに出して、ゆびを折ってかぞえてみましょう（小さい「ゃ・ゅ・ょ」は数えません。「っ」「ー」は数えます）。ぜんぶひらがなで書くと、自動でかぞえます。</p>';
-    return '<p class="note">いま <b id="tk-cnt">' + n + '</b> 音です。' + (n === 12 ? '十二音、ぴったりです！' : n >= 11 && n <= 13 ? '十二音にちかいので、だいたい大丈夫です。' : n < 11 ? 'ことばを足して、十二音にちかづけてみましょう。' : 'すこしけずって、十二音にちかづけてみましょう。') + '</p>';
+    if (n < 0) return '<p class="note">漢字まじりのときは、声に出して、指を折ってかぞえてみましょう（小さい「ゃ・ゅ・ょ」は数えません。「っ」「ー」は数えます）。ぜんぶひらがなで書くと、先生が自動でかぞえます。</p>';
+    return '<p class="note">いま <b id="tk-cnt">' + n + '</b> 音です。' + (n === 12 ? '十二音、ぴったり。◎です！' : n >= 11 && n <= 13 ? '十二音にちかいので、だいたい大丈夫です。◎' : n < 11 ? 'ことばをひとつ足すと、もっと気持ちよく読めますよ。' : 'ことばをひとつへらすと、すっきりしますよ。') + '</p>';
+  }
+  /* 赤ペン先生の、やさしいひとこと：◎（いいところ）と、ひとつだけ「ためすなら」 */
+  function penNote(pf, kg) {
+    var good = [], n = tkMora(pf);
+    if (n === 12) good.push('十二音ぴったりで、リズムがきれいです');
+    else if (n >= 11 && n <= 13) good.push('十二音にちかくて、声に出すと気持ちよく読めます');
+    else good.push('今日のできごとが、そのまま書けています');
+    if (!/たのしい|うれしい|かなしい|さびしい|悲しい|楽しい|嬉しい|寂しい/.test(pf)) good.push('気持ちを言わずに「ようす」で書けているのが、俳句らしくて素敵です');
+    good.push('「' + esc(kg || '') + '」が、気持ちをそっと運んでくれています');
+    var tips = ['もしよかったら、時間や場所をひとつ足してみてください。映像がくっきりします', 'もしよかったら、季語を別のものにかえて、ならべてみるのも楽しいですよ', 'もしよかったら、声に出して読んで、つっかえるところを、ひとつ整えてみましょう'];
+    var tip = tips[(String(pf).length + String(kg || '').length) % tips.length];
+    return '<div class="panel pen-note"><b>🖍 赤ペン先生より</b><ul class="fl-list">' + good.slice(0, 3).map(function (x) { return '<li>◎ ' + x + '</li>'; }).join('') + '</ul><p class="note">ためすなら：' + tip + '。直さなくても、この句はもう立派な一句です。</p></div>';
   }
   function vTsuku() {
     var t = tsuku, h = '<div class="actions"><button class="link" data-act="tk-end">← やめる</button></div><h2 class="sec">句づくり<small>フレーズと季語で一句・約3分</small></h2>';
@@ -2562,20 +2579,20 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     h += '<ol class="steps">' + steps.slice(1).map(function (sname, i) { return '<li class="' + (t.step === i + 1 ? 'now' : t.step > i + 1 ? 'past' : '') + '">' + sname + '</li>'; }).join('') + '</ol>';
     var kigoC = (TK_KIGO5[tkSeason()] || {})[t.mood] || [];
     if (t.step === 0) {
-      h += hostSay('こんにちは。今日は、いちばんかんたんな型で、一句つくりましょう。', '「今日あったこと」を十二音のフレーズにして、五音の季語をのせるだけ。季語は、あとまわしで大丈夫です。');
+      h += penSay('こんにちは、赤ペン先生です。今日は、いっしょに一句つくりましょう。まちがいはありませんから、気楽にどうぞ。', '「今日あったこと」を十二音のフレーズにして、五音の季語をのせるだけ。季語は、あとまわしで大丈夫です。わたしは赤ペンで、◎をつける係です。');
       h += '<div class="panel"><b>きょうの流れ</b><ol class="tg2"><li>フレーズづくり ── 今日、なにがあった？（例：昼はラーメンたべました）</li><li>十二音にととのえる ── 昼にラーメン（七）たべました（五）</li><li>気分にあう五音の季語をえらぶ ── たのしい季語？　かなしい季語？</li><li>一句、完成 ── 天高し　昼にラーメンたべました</li></ol></div>';
       h += '<div class="actions"><button class="btn primary" data-act="tk-go">はじめる</button></div>';
     } else if (t.step === 1) {
-      h += hostSay('まず、フレーズづくり。今日、なにがありましたか。', '「たべたもの」「見たもの」「行ったところ」「したこと」、なんでも一つ。ふつうの文でかまいません。コツはひとつだけ：「たのしい」「かなしい」とは書かないこと。それは、あとで季語が言ってくれます。');
+      h += penSay('まずは、今日のできごとを教えてください。', '「たべたもの」「見たもの」「行ったところ」「したこと」、なんでも一つ。ふつうの文でだいじょうぶです。ひとつだけ、おまけのコツ：「たのしい」「かなしい」は書かなくてOK。あとで季語が、かわりに言ってくれますよ。');
       h += '<div class="panel"><p class="note">例：「昼はラーメンたべました」「夜はお酒をのみました」「バスをひと本のがしました」</p>';
       h += '<div class="field"><label for="tk-f">今日のフレーズ</label><input type="text" id="tk-f" data-f="tk-f" maxlength="30" value="' + esc(t.phrase) + '" placeholder="例：昼はラーメンたべました"></div></div>';
       h += '<div class="actions"><button class="btn primary" data-act="tk-next">次へ</button></div>';
     } else if (t.step === 2) {
-      h += hostSay('つぎは、このフレーズを十二音にととのえます。「七音＋五音」か「五音＋七音」のかたちです。', '「昼はラーメンたべました（十三音）」なら、「昼にラーメン（七）たべました（五）」。てにをはを変えたり、ことばをけずったりして、ちょうどよくします。');
+      h += penSay('いいですね。つぎは、ことばの長さを、ちょっと整えてみましょう。「七音＋五音」か「五音＋七音」がめやすです。', '「昼はラーメンたべました（十三音）」なら、「昼にラーメン（七）たべました（五）」。「は」を「に」にかえたり、ことばを一つへらしたり。ぴったりでなくても、だいたいで大丈夫です。');
       h += '<div class="panel"><div class="field"><label for="tk-f">フレーズ（ここで直せます）</label><input type="text" id="tk-f" data-f="tk-f" maxlength="30" value="' + esc(t.phrase) + '"></div>' + tkMoraBadge(t.phrase) + '</div>';
       h += '<div class="actions"><button class="btn" data-act="tk-back">← もどる</button><button class="btn primary" data-act="tk-next">だいたい十二音になった</button></div>';
     } else if (t.step === 3) {
-      h += hostSay('フレーズは「' + esc(String(t.phrase || '').trim()) + '」。さいごに、五音の季語をのせます。', 'まず、いまの気分をひとつ。気分にあう季語をならべます。最初のひとつに決めず、いくつか置きくらべるのがコツです。');
+      h += penSay('「' + esc(String(t.phrase || '').trim()) + '」、すてきなフレーズです◎ さいごに、五音の季語をのせましょう。', 'まず、いまの気分をひとつ。気分にあう季語をならべます。いくつか置きくらべて、「これだ」と思うものを、どうぞ。');
       h += '<div class="panel"><div class="field"><label>いまの気分は？</label><div class="row">' + TK_MOODS.map(function (k) { return '<button class="chip fit' + (t.mood === k ? ' on' : '') + '" data-act="tk-pick" data-k="mood" data-v="' + esc(k) + '">' + esc(k) + '</button>'; }).join('') + '</div></div>';
       if (t.mood) h += '<div class="field"><label>' + esc(t.mood) + '気分の、五音の季語（いまの季節）</label><div class="row">' + kigoC.map(function (k) { return '<button class="chip fit' + (t.kigo === k ? ' on' : '') + '" data-act="tk-pick" data-k="kigo" data-v="' + esc(k) + '">' + esc(k) + '</button>'; }).join('') + '</div></div>';
       h += '<div class="field"><label for="tk-f">じぶんの季語でもどうぞ（五音）</label><input type="text" id="tk-f" data-f="tk-f" maxlength="10" value="' + esc(t.kigo && kigoC.indexOf(t.kigo) < 0 ? t.kigo : '') + '" placeholder="例：秋の暮"></div>';
@@ -2584,13 +2601,13 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       h += '<div class="actions"><button class="btn" data-act="tk-back">← もどる</button><button class="btn primary" data-act="tk-next">この季語にする</button></div>';
     } else {
       var pf = String(t.phrase || '').trim();
-      h += hostSay('季語を、前におくか、あとにおくか。ならべてみて、すわりのよいほうをどうぞ。', 'どちらも正解です。声に出してよむと、えらびやすいですよ。');
+      h += penSay('季語を、前におくか、あとにおくか。ならべてみて、すわりのよいほうをどうぞ。', 'どちらも正解です。声に出してよむと、えらびやすいですよ。');
       h += '<div class="panel"><div class="row"><button class="chip fit' + (t.order === 'mae' ? ' on' : '') + '" data-act="tk-pick" data-k="order" data-v="mae">季語が前：' + esc(t.kigo) + esc(pf) + '</button></div>' +
         '<div class="row"><button class="chip fit' + (t.order === 'ato' ? ' on' : '') + '" data-act="tk-pick" data-k="order" data-v="ato">季語があと：' + esc(pf) + esc(t.kigo) + '</button></div>';
       h += '<div class="field"><label>季語をかえて、ためす</label><div class="row">' + TK_MOODS.map(function (k) { return '<button class="chip fit' + (t.mood === k ? ' on' : '') + '" data-act="tk-pick" data-k="mood" data-v="' + esc(k) + '">' + esc(k) + '</button>'; }).join('') + '</div><div class="row">' + kigoC.map(function (k) { return '<button class="chip fit' + (t.kigo === k ? ' on' : '') + '" data-act="tk-pick" data-k="kigo" data-v="' + esc(k) + '">' + esc(k) + '</button>'; }).join('') + '</div></div></div>';
       var d = { a: tkText(), b: '', c: '' };
-      h += hostSay('できあがりです。この一句は、あなたの今日から生まれました。', t.saved ? 'ストッ句に残しました（「あとで推敲」付き）。いつでも直せます。' : (!myId ? '登録すると、できた句を「ストッ句」に残せます。' : ''));
-      h += '<div class="tan">' + ku(d) + '</div>' + checkBox(String(d.a || '') + String(d.b || '') + String(d.c || ''));
+      h += penSay('できあがりです。おめでとうございます！ この一句は、あなたの今日から生まれました。', t.saved ? 'ストッ句に残しました（「あとで推敲」付き）。いつでも直せます。' : (!myId ? '登録すると、できた句を「ストッ句」に残せます。' : ''));
+      h += '<div class="tan">' + ku(d) + '</div>' + penNote(pf, t.kigo) + checkBox(String(d.a || '') + String(d.b || '') + String(d.c || ''));
       h += myId ? '<div class="actions"><button class="btn primary" data-act="tk-save"' + (t.saved ? ' disabled' : '') + '>' + (t.saved ? 'ストッ句に残しました' : 'ストッ句に残す（あとで推敲）') + '</button><button class="btn" data-act="tk-copy">この句をひかえる（コピー）</button></div>'
         : '<div class="actions"><button class="btn primary" data-act="fbgate">登録してはじめる（メールだけ・無料）</button><button class="btn" data-act="tk-copy">この句をひかえる（コピー）</button></div>';
       h += '<div class="actions"><button class="btn" data-act="tk-again">はじめから</button><button class="btn" data-act="tk-end">とじる</button></div>';
