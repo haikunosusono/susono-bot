@@ -753,7 +753,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.16f';
+  var APP_VER = 'v2026.10.16g';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1053,6 +1053,23 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     queue = queue.then(function () { return db.doc('kukai/' + sid).update(patch); }).catch(failMsg);
     return queue;
   }
+  /* 進行の書きこみは、「いまの部屋の状態が、思ったとおりのときだけ」。古い画面（ねむっていたスマホなど）が、進んだ句会をまきもどさないように */
+  function writeIf(sid, ok, build) {
+    var res = null;
+    queue = queue.then(function () {
+      var ref = db.doc('kukai/' + sid);
+      return db.runTransaction(function (tx) {
+        return tx.get(ref).then(function (d) {
+          if (!d.exists) return;
+          var cur = Object.assign({ id: sid }, d.data());
+          if (!ok(cur)) return;
+          var p = build(cur); if (!p) return;
+          tx.update(ref, p); res = cur;
+        });
+      }).then(function () { return res; });
+    }).catch(failMsg);
+    return queue;
+  }
   function randPrompt(series) {
     var l = SER[series].list, it = l[Math.floor(Math.random() * l.length)];
     return { series: series, ch: typeof it === 'string' ? it : it.t, hint: typeof it === 'string' ? '' : it.h };
@@ -1125,10 +1142,12 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   }
   /* ふらっと句会：5席のうち1席はボットが待機中から座り、4人そろったら、すぐはじめる（足りない席はボットで埋める） */
   function flatStart(s) {
-    var es = s.entries || {}, need = Math.max(0, (s.size || 5) - Object.keys(es).length);
-    var be = teiBotEntries(s, need), all = Object.assign({}, es, be), patch = { status: 'selecting', selectStart: Date.now(), startedAt: Date.now(), votes: teiBotVotes(s, all), bots: need + Object.keys(es).filter(function (k) { return es[k] && es[k].bot; }).length };
-    Object.keys(be).forEach(function (k) { patch['entries.' + k] = be[k]; });
-    write(s.id, patch);
+    writeIf(s.id, function (c) { return c.status === 'gathering'; }, function (c) {
+      var es = c.entries || {}, need = Math.max(0, (c.size || 5) - Object.keys(es).length);
+      var be = teiBotEntries(c, need), all = Object.assign({}, es, be), patch = { status: 'selecting', selectStart: Date.now(), startedAt: Date.now(), votes: teiBotVotes(c, all), bots: need + Object.keys(es).filter(function (k) { return es[k] && es[k].bot; }).length };
+      Object.keys(be).forEach(function (k) { patch['entries.' + k] = be[k]; });
+      return patch;
+    });
   }
   function teiSlotsFar(days) { var n = dayNum(), out = []; for (var d = n; d <= n + days; d++) teiHoursFor(d).forEach(function (h) { out.push({ dn: d, h: h, start: teiStartOf(d, h), sid: teiSid(d, h) }); }); return out; }
   function teiEnter(sid, quiet) {
@@ -1363,15 +1382,19 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     return out;
   }
   function teiStart(s) {
-    var es = s.entries || {}, humans = teiHumans(s); if (!humans) return;
-    var need = Math.max(0, 3 - Object.keys(es).length), patch = { status: 'selecting', selectStart: Date.now(), startedAt: Date.now() };
-    if (need) {
-      var be = teiBotEntries(s, need), all = Object.assign({}, es, be);
-      patch.entries = be; patch.votes = teiBotVotes(s, all); patch.bots = need;
-    }
-    write(s.id, patch);
-    /* Xのお礼つぶやき用：参加の人数だけを、公開の小さな記録に（句や名前は入れない） */
-    try { db.doc('pub/' + s.id).set({ humans: humans, bots: need, slot: s.slot, date: s.date, at: Date.now() }).catch(function () {}); } catch (_) {}
+    writeIf(s.id, function (c) { return c.status === 'gathering'; }, function (c) {
+      var es = c.entries || {}, humans = teiHumans(c); if (!humans) return null;
+      var need = Math.max(0, 3 - Object.keys(es).length), patch = { status: 'selecting', selectStart: Date.now(), startedAt: Date.now() };
+      if (need) {
+        var be = teiBotEntries(c, need), all = Object.assign({}, es, be);
+        patch.entries = be; patch.votes = teiBotVotes(c, all); patch.bots = need;
+      }
+      return patch;
+    }).then(function (c) {
+      /* Xのお礼つぶやき用：参加の人数だけを、公開の小さな記録に（句や名前は入れない） */
+      if (!c) return;
+      try { var hm = teiHumans(c), nd = Math.max(0, 3 - Object.keys(c.entries || {}).length); db.doc('pub/' + c.id).set({ humans: hm, bots: nd, slot: c.slot, date: c.date, at: Date.now() }).catch(function () {}); } catch (_) {}
+    });
   }
   function selSec(s) { return s && s.tei ? TEI_SEL_SEC : (s && s.std === 'flat' ? FLAT_SEL_SEC : SELECT_SEC); }
   function cmtSecS(s) { return s && s.std === 'flat' ? FLAT_CMT_SEC : COMMENT_SEC; }
@@ -1392,11 +1415,11 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       }
       if (!s.tei && s.status === 'gathering' && inEntry && count(s) >= s.size && !flags['q' + s.id]) {
         flags['q' + s.id] = 1;
-        if (s.std === 'flat') flatStart(s); else write(s.id, { status: 'selecting', selectStart: Date.now() });
+        if (s.std === 'flat') flatStart(s); else writeIf(s.id, function (c) { return c.status === 'gathering'; }, function () { return { status: 'selecting', selectStart: Date.now() }; });
       }
       if (s.status === 'reveal' && inEntry) {
-        if (!s.opened && cmtIdx(s) >= count(s) && !flags['o' + s.id]) { flags['o' + s.id] = 1; write(s.id, { opened: true, openedAt: Date.now() }); }
-        if (s.opened && Date.now() - (s.openedAt || Date.now()) >= CLOSE_SEC * 1000 && !flags['d' + s.id]) { flags['d' + s.id] = 1; write(s.id, { status: 'done' }); }
+        if (!s.opened && cmtIdx(s) >= count(s) && !flags['o' + s.id]) { flags['o' + s.id] = 1; writeIf(s.id, function (c) { return c.status === 'reveal' && !c.opened; }, function () { return { opened: true, openedAt: Date.now() }; }); }
+        if (s.opened && Date.now() - (s.openedAt || Date.now()) >= CLOSE_SEC * 1000 && !flags['d' + s.id]) { flags['d' + s.id] = 1; writeIf(s.id, function (c) { return c.status === 'reveal' && c.opened; }, function () { return { status: 'done' }; }); }
       }
       if (!s.tei && s.status === 'gathering' && inSeat && seatCount(s) >= s.size && !flags['g' + s.id]) {
         flags['g' + s.id] = 1; write(s.id, { status: 'writing', writeStart: Date.now() });
@@ -1412,7 +1435,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       if (s.status === 'selecting' && inEntry) {
         var left = selSec(s) - (Date.now() - (s.selectStart || Date.now())) / 1000;
         if ((allDone(s) || left <= 0) && !flags['r' + s.id]) {
-          flags['r' + s.id] = 1; write(s.id, revealPatch(s));
+          flags['r' + s.id] = 1; writeIf(s.id, function (c) { return c.status === 'selecting'; }, function (c) { return revealPatch(c); });
         }
       }
     });
