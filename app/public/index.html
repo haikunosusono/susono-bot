@@ -753,7 +753,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.16l';
+  var APP_VER = 'v2026.10.16m';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1265,6 +1265,32 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var nk = 0; if (kg) { var rest = t.replace(kg, ''); kgAll().some(function (w) { if (w !== kg && w.length >= 2 && rest.indexOf(w) >= 0 && kg.indexOf(w) < 0) { nk = 1; return true; } return false; }); }
     return { t: t, idx: idx, kg: kg, pos: pos, cut: cut, view: view, kana: kana, onoma: onoma, num: num, simile: simile, nk: nk };
   }
+  /* 松風主宰のほめ言葉：句の読みとれたところ（切れ・季語・視点・音など）だけを、評のポイントとしてほめる。読みとれないことは言わない */
+  function senseiPraise(raw, seed) {
+    var k = kuKata(raw); if (!k) return null;
+    var pts = [], part = '発想', sd = String(seed || '');
+    if (k.cut === 'ya') pts.push(['切れ・余韻', '「や」の切れが効いています。ここで景がぱっとひらいて、前後のことばが響きあう。切れ字の使いかたが、いいですね']);
+    else if (k.cut === 'kana') pts.push(['切れ・余韻', '「かな」の詠嘆でしめくくる型が、句にやわらかい余韻を残しています。さいごの一音まで、きれいです']);
+    else if (k.cut === 'keri') pts.push(['切れ・余韻', '「けり」の言い切りが、きっぱりと句を閉じています。この決めかたが、句を強くしています']);
+    else if (k.cut === 'taigen') pts.push(['切れ・余韻', '体言止めの着地がいいですね。さいごの名詞で映像がぽんと立ちあがって、読む人の目に残ります']);
+    if (k.kg && k.pos === 'kami') pts.push(['季語', '季語「' + k.kg + '」を上五に置いて、先に季節の空気を差し出す運びがいいですね。そのあとの景が、季語に照らされて見えてきます']);
+    else if (k.kg && k.pos === 'shimo') pts.push(['季語', 'フレーズで景を見せて、季語「' + k.kg + '」で受ける取り合わせ。季語の置きどころが、すわりよく決まっています']);
+    else if (k.kg) pts.push(['季語', '季語「' + k.kg + '」が景のことばと近くにあって、ひとつの場面にまとまっています。無理のない、自然な運びです']);
+    if (k.view.length) pts.push(['景色', '「' + k.view[0] + '」の視点が入っているのが、この句の強みです。目で見るだけでなく、からだで感じた景になっています']);
+    if (k.onoma) pts.push(['調べ', 'くり返しの音（オノマトペ）が、耳に残ります。声に出すと、句がいきいきと動きだす。音の選びかたがいいですね']);
+    if (k.num) pts.push(['景色', '数のことばが、景をきゅっと具体にしています。「いくつ」と言うだけで、さびしさやにぎやかさまで伝わる。いい目のつけどころです']);
+    if (k.simile) pts.push(['発想', 'たとえの発想が、句に飛躍をくれています。見たものを別のものに重ねる、その目が俳句的です']);
+    if (/(ない|ちゃ|てる|じゃん|だよ|かも|よね|ねえ|たい|だった|んだ)/.test(k.t)) pts.push(['言葉選び', '口語のことばが生きていますね。かたくならず、作者の声がそのまま聞こえてくる。いまの俳句らしい表現です']);
+    if (k.kana === 17) pts.push(['調べ', '五七五の十七音ぴったりで、調べが整っています。一息で気持ちよく読めるのは、それだけで句の力です']);
+    if (!EMO_RE.test(k.t)) pts.push(['言葉選び', '気持ちのことばを使わず、景だけで語っているのがいいですね。読む人が、自分の気持ちを重ねられる余白があります']);
+    if (!pts.length) pts.push(['発想', '見たものをそのまま、飾らずに差し出しているところがいいですね。日常の一瞬をつかまえる、その目が俳句です']);
+    /* 2つまで。ならび順は、読みとりの確かな順（切れ・季語が先） */
+    var pick = pts.slice(0, 2);
+    var OPEN = ['ご投句、ありがとうございます。まず声に出して読みました。', 'この一句、まっすぐ届きましたよ。', 'よく詠んでくださいました。ていねいに読ませていただきました。'];
+    var CLOSE = ['すてきな一句です。次の句も、楽しみにしています。', 'この調子で、どんどん詠んでください。', 'この句に出会えてよかったです。'];
+    var txt = OPEN[hash(sd + 'O') % OPEN.length] + pick.map(function (p) { return p[1] + '。'; }).join('') + CLOSE[hash(sd + 'C') % CLOSE.length];
+    return { t: txt, part: pick[0][0] };
+  }
   function kataComment(raw, seed) {
     var k = kuKata(raw); if (!k) return null;
     var a = [], b = [], c = [], part = '取り合わせ';
@@ -1378,12 +1404,12 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
         out['cb' + n] = { eid: eid, uid: b, text: sy.text, tone: 'やさしく', part: [sy.part], at: Date.now() + n };
       });
       /* 先生はひとり（松風主宰）。ほめるだけで、句の型や季語は決めつけない */
-      var bz = SENSEI_SAYS[hash(s.id + eid + 'b') % SENSEI_SAYS.length]; n++;
+      var bz = null; try { bz = senseiPraise(joinKu(s.entries[eid]).a, s.id + eid); } catch (_) {} if (!bz) bz = SENSEI_SAYS[hash(s.id + eid + 'b') % SENSEI_SAYS.length]; n++;
       out['cp' + n] = { eid: eid, uid: 'benico', text: bz.t, tone: 'やさしく', part: [bz.part], at: Date.now() + 400 + n };
     });
     /* ボットの句にも、松風主宰がほめる（ボットどうしは、ほめ合わない。人がいるときだけ） */
     if (ids.length > bots.length) bots.forEach(function (eid) {
-      var bz2 = SENSEI_SAYS[hash(s.id + eid + 'b') % SENSEI_SAYS.length]; n++;
+      var bz2 = null; try { bz2 = senseiPraise(joinKu(s.entries[eid]).a, s.id + eid); } catch (_) {} if (!bz2) bz2 = SENSEI_SAYS[hash(s.id + eid + 'b') % SENSEI_SAYS.length]; n++;
       out['cq' + n] = { eid: eid, uid: 'benico', text: bz2.t, tone: 'やさしく', part: [bz2.part], at: Date.now() + 400 + n };
     });
     return out;
