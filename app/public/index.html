@@ -753,7 +753,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.16k';
+  var APP_VER = 'v2026.10.16l';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1192,6 +1192,17 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     { t: '字余りは、ねらいなら武器になります。音読して、いちばん気持ちいい形をさがしてみるのもいいですね。……度胸のある詠みぶりです。', part: '調べ' },
     { t: '固有名詞が、この句ではよく効いています。いいですね。もし季節の動きも添えるなら、時間の視点を入れてもおもしろいです。', part: '言葉選び' }
   ];
+  /* 松風主宰：ほめる先生。句の型や季語を決めつけず、読んだ気持ちだけを伝える */
+  var SENSEI_SAYS = [
+    { t: 'ご投句、ありがとうございます。この句、まず声に出して読みました。読み心地がよく、景がすっと立ちあがります。作者の目のつけどころが、いいですね。', part: '発想' },
+    { t: 'まっすぐ届く一句です。ことばを飾らず、見たものをそのまま差し出しているところに、俳句のよさがあります。この調子で、どんどん詠んでください。', part: '言葉選び' },
+    { t: '読んでいて、作者のいる場所の空気まで伝わってきました。こういう句は、何度も読み返したくなります。すてきな一句です。', part: '景色' },
+    { t: 'ひとつの場面を、きちんと切り取れています。足しすぎず、引きすぎず。余白が、読む人の想像をさそいます。いい句です。', part: '景色' },
+    { t: 'ことばの選びかたに、作者のやさしさが出ています。読んだあと、少しあたたかくなりました。わたしの好きな句です。', part: '言葉選び' },
+    { t: 'リズムが気持ちよく、すっと一息で読めます。耳で楽しめる句は、それだけで強い。よく詠んでくださいました。', part: '調べ' },
+    { t: '素材の見つけかたが、いいですね。日常の中の、見過ごしそうな一瞬をつかまえています。これが俳句の醍醐味です。', part: '発想' },
+    { t: 'この句に出会えてよかったです。読み方はひとつではありませんが、わたしには、しずかで、あたたかい句として届きました。', part: '発想' }
+  ];
   var HINATA_SAYS = [
     { t: 'わたしは大好きです！ 声に出して読むと、気持ちいいんです、この句。', part: '調べ' },
     { t: 'ここまで景がうかぶ句、なかなかないですよ。じんわりします。', part: '景色' },
@@ -1366,21 +1377,14 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
         var sy = botSay(s.id + eid + b, false); n++;
         out['cb' + n] = { eid: eid, uid: b, text: sy.text, tone: 'やさしく', part: [sy.part], at: Date.now() + n };
       });
-      var bz = null; try { var ee = s.entries[eid]; bz = kataComment(joinKu(ee).a, s.id + eid); } catch (_) {} if (!bz) bz = BENI_SAYS[hash(s.id + eid + 'b') % BENI_SAYS.length]; n++;
-      out['cp' + n] = { eid: eid, uid: 'benico', text: bz.t, tone: 'ふつう', part: [bz.part], at: Date.now() + 400 + n };
-      var hz = HINATA_SAYS[hash(s.id + eid + 'h') % HINATA_SAYS.length]; n++;
-      out['cp' + n] = { eid: eid, uid: 'hinata', text: hz.t, tone: 'やさしく', part: [hz.part], at: Date.now() + 800 + n };
-      if (hash(s.id + eid + 'm') % 3 === 0) {
-        var mz = HAMA_SAYS[hash(s.id + eid + 'z') % HAMA_SAYS.length]; n++;
-        out['cp' + n] = { eid: eid, uid: 'hamakichi', text: mz.t, tone: 'ふつう', part: [mz.part], at: Date.now() + 1200 + n };
-      }
+      /* 先生はひとり（松風主宰）。ほめるだけで、句の型や季語は決めつけない */
+      var bz = SENSEI_SAYS[hash(s.id + eid + 'b') % SENSEI_SAYS.length]; n++;
+      out['cp' + n] = { eid: eid, uid: 'benico', text: bz.t, tone: 'やさしく', part: [bz.part], at: Date.now() + 400 + n };
     });
-    /* ボットの句にも、松風主宰とひなたが選評（ボットどうしは、ほめ合わない。人がいるときだけ） */
+    /* ボットの句にも、松風主宰がほめる（ボットどうしは、ほめ合わない。人がいるときだけ） */
     if (ids.length > bots.length) bots.forEach(function (eid) {
-      var bz2 = null; try { bz2 = kataComment(joinKu(s.entries[eid]).a, s.id + eid); } catch (_) {} if (!bz2) bz2 = BENI_SAYS[hash(s.id + eid + 'b') % BENI_SAYS.length]; n++;
-      out['cq' + n] = { eid: eid, uid: 'benico', text: bz2.t, tone: 'ふつう', part: [bz2.part], at: Date.now() + 400 + n };
-      var hz2 = HINATA_SAYS[hash(s.id + eid + 'h') % HINATA_SAYS.length]; n++;
-      out['cq' + n] = { eid: eid, uid: 'hinata', text: hz2.t, tone: 'やさしく', part: [hz2.part], at: Date.now() + 800 + n };
+      var bz2 = SENSEI_SAYS[hash(s.id + eid + 'b') % SENSEI_SAYS.length]; n++;
+      out['cq' + n] = { eid: eid, uid: 'benico', text: bz2.t, tone: 'やさしく', part: [bz2.part], at: Date.now() + 400 + n };
     });
     return out;
   }
@@ -1476,7 +1480,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   }
   function revealPatch(s) {
     var p = { status: 'reveal', revealAt: Date.now() };
-    if (s && (s.bots || s.tei || s.std === 'flat')) p.comments = teiBotComments(s); /* 主宰・ひなた・ダー浜は、人だけの句会でも来る */
+    if (s && (s.bots || s.tei || s.std === 'flat')) p.comments = teiBotComments(s); /* 松風主宰は、人だけの句会でも来る */
     return p;
   }
   /* 進行の目安（毎回、はじめに見せる） */
