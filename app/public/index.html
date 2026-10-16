@@ -753,7 +753,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.16g';
+  var APP_VER = 'v2026.10.16h';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1536,7 +1536,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     } else {
       h += '<p class="nk-sub">' + LABEL[s.status] + '　' + count(s) + '句</p>';
       h += '<div class="actions center"><button class="btn primary big" data-act="tei-go" data-sid="' + sl.sid + '">' + (mi ? '部屋にもどる' : '見学する') + '</button></div>';
-      h += '<p class="note center">' + (mi ? 'あなたは参加中です。' : '受付は終わりました。はじめから終わりまで、見学できます。') + '</p>';
+      h += '<p class="note center">' + (mi ? 'あなたは参加中です。' : '定刻で受付をしめきりました（途中参加はできません）。この回は、見学できます。' + (function () { var nx = teiSlots().filter(function (x) { return x.start > Date.now() && x.sid !== sl.sid; })[0]; return nx ? 'つぎは、' + esc(mdLabel(nx.dn)) + ' ' + nx.h + '時「' + esc(teiSlotName(nx.dn, nx.h)) + '」。そこで一句どうぞ。' : ''; })()) + '</p>';
     }
     return h + '</div>';
   }
