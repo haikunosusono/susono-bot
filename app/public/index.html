@@ -753,7 +753,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.16h';
+  var APP_VER = 'v2026.10.16i';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1064,7 +1064,10 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
           var cur = Object.assign({ id: sid }, d.data());
           if (!ok(cur)) return;
           var p = build(cur); if (!p) return;
-          tx.update(ref, p); res = cur;
+          /* update() の入れ子は「置きかえ」になるので、深い merge になるよう、ひとつずつの書きかえにそろえる（shim.js の update と同じ） */
+          var fl = {}, isP = function (v) { return v && typeof v === 'object' && !Array.isArray(v) && Object.getPrototypeOf(v) === Object.prototype; };
+          (function fz(o, pre) { Object.keys(o).forEach(function (k) { var v = o[k], key = pre ? pre + '.' + k : k; if (isP(v) && Object.keys(v).length) fz(v, key); else fl[key] = v; }); })(p, '');
+          tx.update(ref, fl); res = cur;
         });
       }).then(function () { return res; });
     }).catch(failMsg);
@@ -1387,7 +1390,8 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       var need = Math.max(0, 3 - Object.keys(es).length), patch = { status: 'selecting', selectStart: Date.now(), startedAt: Date.now() };
       if (need) {
         var be = teiBotEntries(c, need), all = Object.assign({}, es, be);
-        patch.entries = be; patch.votes = teiBotVotes(c, all); patch.bots = need;
+        /* entries を丸ごと置きかえると、人の句が消える。ボットの句だけを、ひとつずつ足す */
+        Object.keys(be).forEach(function (k) { patch['entries.' + k] = be[k]; }); patch.votes = teiBotVotes(c, all); patch.bots = need;
       }
       return patch;
     }).then(function (c) {
