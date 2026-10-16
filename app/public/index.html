@@ -753,7 +753,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.16j';
+  var APP_VER = 'v2026.10.16k';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -2127,7 +2127,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   }
 
   function vSessionView(s) {
-    var h = '<div class="sh"><button class="link" data-act="sback">← ' + (fromArch ? '句会アーカイブ' : '句会の一覧') + '</button><h2>' + (s.tei ? '定例句会（デモ）' + esc(teiSlotName(dn(s.date), s.slot)) + '　' + esc(mdLabel(dn(s.date)) + s.slot + '時') : kaidai(s)) + '</h2>' + (s.tei ? '<p class="lead">定例句会（デモ）　お題：当季雑詠</p>' : s.std === 'flat' ? '<p class="lead">3人そろえば、すぐ開く句会　お題：当季雑詠　司会は蛙</p>' : '') + (s.hint ? '<p class="lead">ヒント：' + esc(s.hint) + '</p>' : '') + pill(s.status, s) + '</div>' + steps(s.status, s.opened ? (Date.now() - (s.openedAt || 0) < 60000 ? 'open' : 'back') : false);
+    var h = '<div class="sh"><button class="link" data-act="sback">← ' + (fromArch ? '句会アーカイブ' : '句会の一覧') + '</button><h2>' + (s.tei ? '定例句会（デモ）' + esc(teiSlotName(dn(s.date), s.slot)) + '　' + esc(mdLabel(dn(s.date)) + s.slot + '時') : kaidai(s)) + '</h2>' + (s.tei ? '<p class="lead">定例句会（デモ）　お題：当季雑詠</p>' : s.std === 'flat' ? '<p class="lead">4人そろえば、すぐ開く句会　お題：当季雑詠　司会はダー浜</p>' : '') + (s.hint ? '<p class="lead">ヒント：' + esc(s.hint) + '</p>' : '') + pill(s.status, s) + '</div>' + steps(s.status, s.opened ? (Date.now() - (s.openedAt || 0) < 60000 ? 'open' : 'back') : false);
     if (!kInvolved(s) && s.status !== 'done' && s.status !== 'gathering') h += '<p class="note">見学中です。はじめから終わりまで、見学できます。句を出していないので、選んだり、選評を送ったりはできません。</p>';
     if (s.tei) { h += teiGuide(s); if (!s.opened && s.status !== 'done') h += maner('t'); }
     if (s.std === 'flat') { h += flatGuide(s); if (!s.opened && s.status !== 'done') h += maner('t'); }
