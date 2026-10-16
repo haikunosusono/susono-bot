@@ -5,8 +5,15 @@ service cloud.firestore {
     function mine(uid) { return signedIn() && request.auth.uid == uid; }
 
     // 句会：ログインした人なら、だれでも読める・出せる・点をつけられる。消すのは不可
+    // 句（entries）は、消えないように守る：書きかえのあとも、まえにあった人の句がぜんぶ残っていること（自分の句の取り下げだけは可）
+    function keepsEntries() {
+      return !('entries' in resource.data)
+        || ('entries' in request.resource.data
+            && request.resource.data.entries.keys().hasAll(resource.data.entries.keys().removeAll([request.auth.uid])));
+    }
     match /kukai/{sid} {
-      allow read, create, update: if signedIn();
+      allow read, create: if signedIn();
+      allow update: if signedIn() && keepsEntries();
       allow delete: if false;
     }
     // ミニ合評ルーム：句会と同じ
