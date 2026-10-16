@@ -753,7 +753,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.16m';
+  var APP_VER = 'v2026.10.16n';
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
   function fullLabel(n) { return mdLabel(n) + '（' + WD[new Date(n * 86400000).getUTCDay()] + '）'; }
@@ -1470,7 +1470,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       if (s.status === 'selecting' && inEntry) {
         var left = selSec(s) - (Date.now() - (s.selectStart || Date.now())) / 1000;
         if ((allDone(s) || left <= 0) && !flags['r' + s.id]) {
-          flags['r' + s.id] = 1; writeIf(s.id, function (c) { return c.status === 'selecting'; }, function (c) { return revealPatch(c); });
+          flags['r' + s.id] = 1; writeIf(s.id, function (c) { return c.status === 'selecting'; }, function (c) { return revealPatch(c); }).then(function (c) { try { senseiAI(c); } catch (_) {} });
         }
       }
     });
@@ -1503,6 +1503,25 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (teiLateOpen(s)) return true;
     if (s.status !== 'gathering' || Date.now() >= teiStartMs(s)) return false;
     return true;
+  }
+  /* 松風主宰のほめ言葉を、AI（Google Gemini・はっちゃんの Apps Script 経由）で。住所が空なら使わない。失敗したら、いまのほめ言葉のまま */
+  var SENSEI_API = '';
+  function senseiAI(s0) {
+    if (!SENSEI_API || !s0 || !db) return;
+    var cm = teiBotComments(s0), es = s0.entries || {};
+    Object.keys(cm).forEach(function (key) {
+      var c = cm[key]; if (c.uid !== 'benico' || !es[c.eid] || es[c.eid].bot) return;
+      var ku = joinKu(es[c.eid]).a, ctrl = null, timer = null;
+      try { ctrl = new AbortController(); timer = setTimeout(function () { ctrl.abort(); }, 15000); } catch (_) {}
+      fetch(SENSEI_API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ ku: ku }), signal: ctrl ? ctrl.signal : undefined, redirect: 'follow' })
+        .then(function (r) { return r.json(); })
+        .then(function (o) {
+          if (timer) clearTimeout(timer);
+          if (!o || !o.ok || !o.text) return;
+          var p = {}; p['comments.' + key + '.text'] = String(o.text).slice(0, 400); p['comments.' + key + '.part'] = [String(o.part || c.part[0])]; p['comments.' + key + '.ai'] = true;
+          writeIf(s0.id, function (cur) { return cur.status === 'reveal' && cur.comments && cur.comments[key]; }, function () { return p; });
+        }).catch(function () {});
+    });
   }
   function revealPatch(s) {
     var p = { status: 'reveal', revealAt: Date.now() };
