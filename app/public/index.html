@@ -760,6 +760,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false;
   function checkVer() {
+    if (location.protocol !== 'https:' && location.protocol !== 'http:') return;
     try {
       fetch('/?chk=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
         var m = /var APP_VER = '([^']+)'/.exec(t);
