@@ -756,7 +756,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.19b';
+  var APP_VER = 'v2026.10.19c';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false;
   function checkVer() {
@@ -1007,12 +1007,43 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       (done ? '' : '<div class="actions"><button class="btn primary" data-act="tk-start">🧩 句づくりで一句</button><button class="btn" data-act="tab" data-t="diary">初心者部屋で書く</button></div>') +
       '<p class="note">💡 ひとくちメモ　' + esc(memo) + '</p><p class="note small">※ 健康や病気への効果を、保証するものではありません。楽しく続けるためのメモです。</p></div>';
   }
+  /* ストッ句の書き出し：Excel で開ける CSV（先頭に BOM）と、文としてコピー。いま表示中の絞りこみ（すべて／あとで推敲／かんぺき）のまま */
+  function stList() {
+    var list = mine.slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); });
+    if (stFil === 'n') list = list.filter(function (e) { return e.conf === 'n'; });
+    if (stFil === 'k') list = list.filter(function (e) { return e.conf === 'k'; });
+    return list;
+  }
+  function stRows() { return stList().map(function (e) { return [String(e.date || ''), plain(joinKu(e).a), stSrc(e), CONF[e.conf] || 'ふつう']; }); }
+  function stCsv() {
+    var q = function (v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; };
+    return '\uFEFF' + [['日づけ', '句', 'どこで', '手ごたえ']].concat(stRows()).map(function (r) { return r.map(q).join(','); }).join('\r\n');
+  }
+  function stText() { return stRows().map(function (r) { return r[0] + '　' + r[1] + '　（' + r[2] + '）'; }).join('\n'); }
+  function stDownload() {
+    try {
+      var blob = new Blob([stCsv()], { type: 'text/csv;charset=utf-8' }), a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = 'stokku-' + ds(dayNum()) + '.csv'; document.body.appendChild(a); a.click(); a.remove();
+      toast('書き出しました（Excel で開けます）');
+    } catch (_) { toast('書き出せませんでした。「文でコピー」をお試しください'); }
+  }
+  function stCopy() {
+    var t = stText(); if (!t) { toast('句がありません'); return; }
+    try { navigator.clipboard.writeText(t).then(function () { toast(stList().length + '句を、コピーしました'); }, function () { toast('コピーできませんでした'); }); } catch (_) { toast('コピーできませんでした'); }
+  }
+  function stShare() {
+    var t = stText(); if (!t) { toast('句がありません'); return; }
+    var body = '【ストッ句】' + stList().length + '句\n' + t;
+    try { if (navigator.share) { navigator.share({ title: 'ストッ句', text: body }).catch(function () {}); return; } } catch (_) {}
+    stCopy(); toast('コピーしました。LINE やメールに貼りつけてください');
+  }
   function vStock() {
     var list = mine.slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); });
     if (stFil === 'n') list = list.filter(function (e) { return e.conf === 'n'; });
     if (stFil === 'k') list = list.filter(function (e) { return e.conf === 'k'; });
     var h = vMemoQ(true) + vMemoList();
     h += '<h2 class="sec">こつこつストッ句部屋<small>' + mine.length + '句・自分だけが見られます</small></h2>' + vDaily();
+    h += '<div class="row"><button class="chip fit" data-act="st-csv">📤 Excelに書き出す</button><button class="chip fit" data-act="st-copy">📋 文でコピー</button><button class="chip fit" data-act="st-share">📨 LINE・メールで送る</button></div>';
     h += '<div class="row"><button class="chip fit' + (stView === 'table' ? ' on' : '') + '" data-act="st-view" data-v="table">表で見る（よこ書き）</button><button class="chip fit' + (stView === 'tan' ? ' on' : '') + '" data-act="st-view" data-v="tan">短冊で見る（たて書き）</button></div>';
     h += '<div class="row"><button class="chip fit' + (stFil === 'all' ? ' on' : '') + '" data-act="st-fil" data-v="all">すべて</button><button class="chip fit' + (stFil === 'n' ? ' on' : '') + '" data-act="st-fil" data-v="n">あとで推敲</button><button class="chip fit' + (stFil === 'k' ? ' on' : '') + '" data-act="st-fil" data-v="k">かんぺき</button></div>';
     if (!list.length) return h + '<div class="empty"><p>' + (stFil === 'all' ? 'まだストッ句がありません。どの部屋からでも、一句つくると、ここにたまっていきます。' : 'この手ごたえの句は、まだありません。') + '</p></div>';
@@ -4389,6 +4420,9 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'wipe-ask') { wipeAsk = !wipeAsk; render(); }
     else if (act === 'wipe-do') { wipeMine(); }
     else if (act === 'app-reload') { toast('最新の版に、読みこみ直します'); setTimeout(appReload, 300); }
+    else if (act === 'st-csv') { stDownload(); }
+    else if (act === 'st-copy') { stCopy(); }
+    else if (act === 'st-share') { stShare(); }
     else if (act === 'homeos') { homeOs = t.dataset.os === 'and' ? 'and' : 'ios'; render(); }
     else if (act === 'pushhelp') { pushHelp = !pushHelp; render(); }
     else if (act === 'pushtog') { if (pushOn) pushTurnOff(); else pushTurnOn(); }
