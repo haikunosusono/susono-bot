@@ -756,7 +756,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.20a';
+  var APP_VER = 'v2026.10.20b';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3615,7 +3615,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     cardText = '「' + full + '」' + (o.haigo ? '\n' + o.haigo : '') + '\n#俳句の裾野 #俳句 #haiku';
     markFirst('f_card');
     el.hidden = false;
-    el.innerHTML = '<img id="cardimg" alt="句のカード"><div class="cbtns"><button class="btn small' + (cardStyle === 'card' ? ' primary' : '') + '" data-act="card-style" data-v="card">短冊</button>' + (o.trophy ? '<button class="btn small' + (cardStyle === 'trophy' ? ' primary' : '') + '" data-act="card-style" data-v="trophy">🏆 トロフィー</button>' : '') + '<button class="btn small' + (cardStyle === 'kuhi' ? ' primary' : '') + '" data-act="card-style" data-v="kuhi">🪨 句碑</button></div><div class="cbtns"><button class="btn primary" data-act="card-share">Xに投稿</button><button class="btn" data-act="card-save">画像を保存</button><button class="btn" data-act="card-close">閉じる</button></div><p class="cnote">「Xに投稿」で、画像と文面がそのまま共有画面に渡ります。出ないときは、画像を保存して、Xの投稿に添付してください（画像を長押しでも保存できます）。</p><p class="cnote">自分の句だけを投稿してください。Xなどに公開した句は、大会によって「既発表」とされることがあります。大会に出す句は、募集のきまりを確かめてから。</p>';
+    el.innerHTML = '<img id="cardimg" alt="句のカード"><div class="cbtns"><button class="btn small' + (cardStyle === 'card' ? ' primary' : '') + '" data-act="card-style" data-v="card">📱 デジタル短冊</button>' + (o.trophy ? '<button class="btn small' + (cardStyle === 'trophy' ? ' primary' : '') + '" data-act="card-style" data-v="trophy">🏆 トロフィー</button>' : '') + '<button class="btn small' + (cardStyle === 'kuhi' ? ' primary' : '') + '" data-act="card-style" data-v="kuhi">🪨 句碑</button></div><div class="cbtns"><button class="btn primary" data-act="card-share">Xに投稿</button><button class="btn" data-act="card-save">画像を保存</button><button class="btn" data-act="card-close">閉じる</button></div><p class="cnote">「Xに投稿」で、画像と文面がそのまま共有画面に渡ります。出ないときは、画像を保存して、Xの投稿に添付してください（画像を長押しでも保存できます）。</p><p class="cnote">自分の句だけを投稿してください。Xなどに公開した句は、大会によって「既発表」とされることがあります。大会に出す句は、募集のきまりを確かめてから。</p>';
     var im = document.getElementById('cardimg');
     try { cv.toBlob(function (b) { cardBlob = b; if (b) im.src = URL.createObjectURL(b); }, 'image/png'); } catch (_) { im.src = cv.toDataURL('image/png'); }
   }
