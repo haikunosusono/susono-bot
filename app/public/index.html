@@ -756,7 +756,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.17d';
+  var APP_VER = 'v2026.10.19a';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false;
   function checkVer() {
@@ -1188,6 +1188,8 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function teiBotVotes(s, entries) {
     var ids = Object.keys(entries), v = {};
     ids.filter(function (k) { return entries[k] && entries[k].bot; }).forEach(function (b) {
+      /* 定例句会：ボットは点を入れない（人に点を入れると、同点優勝だらけになる）。選び終えた印だけつける */
+      if (s && s.tei) { v[b] = { toku: '', nami: '', fin: true }; return; }
       var o = ids.filter(function (k) { return k !== b; }).sort(function (x, y) { return hash(s.id + b + x) - hash(s.id + b + y); });
       v[b] = { toku: o[0], nami: o[1], fin: true };
     });
