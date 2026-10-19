@@ -756,7 +756,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.19h';
+  var APP_VER = 'v2026.10.19i';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1680,7 +1680,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     h += '<div class="panel"><b>この句会のルール</b><ul class="tg2">' +
       '<li>お題は「当季雑詠」。ひとり1句です。</li>' +
       '<li>4人そろったら、すぐはじまります。ボット1名も加わって、5句で。</li>' +
-      '<li>選句は 特選1・並選1（予選は3つまで）、約10分。全員が選び終えると、早まります。</li>' +
+      '<li>選句は 特選1・並選1（予選はいくつでも）、約10分。全員が選び終えると、早まります。</li>' +
       '<li>講評は、一句ずつ壇上で、約8分ずつ。司会のダー浜が、問いかけでうながします。</li>' +
       '<li>とちゅうで抜けた人がいても、タイマーが進行します。選ばなかったぶんは、なしのまま進みます。</li>' +
       '<li>作者は、さいごのオープンまでひみつ。最高点に、トロフィー。</li>' +
@@ -2277,7 +2277,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     '【俳句の初心者部屋】お題なしで、一日一句を日記のように残す部屋。テーマ以外の句でも大丈夫。記録は自分だけが見られる。',
     '【俳筋力トレーニング部屋】毎日1つ兼題（漢字・カタカナ・テーマ）が出る。一句詠んで「かんぺき・まあまあ・ふつう・あとで推敲」を付けて記録。記録は自分だけが見られる。連続日数も出る。【ひとりで句会】自分と、ボット（2〜4名）で句会をひらく。自分の一句を出して、選んで、ボットの選評を読む。招待も見学もない。何度でもでき、句はストッ句に残り、参加した句会として数えられる。',
     '【定例句会（デモ）】平日は、夜9時（21時）の「だれでも句会」と、夜11時（23時）の「おかわり句会」と、夜中1時（25時）の「よなよな句会」（日本時間）。土・日・祝日は、あさ10時の「おはよう句会」・13時の「こんにちは句会」・15時の「おやつの句会」。休日の夜も、21時・23時・25時の3回をひらきます。合言葉は「夜9時だよ、全員集合」。お題は「当季雑詠」（いまの季節を自由に）。投句はいつでもでき、定刻でしめきり（開催中のあいだだけ、次の回への投句はお休み）。句を出した人のページが開いていれば、定刻に自動ではじまる。だれも出さなかった回は、ひらかれない。ひとりのときはボット2名、ふたりのときはボット1名が加わって3句にする。はじめから終わりまで、だれでも見学できる（句を出していない人は、選んだり選評を送ったりはできない）。ほかの人の句や選評を、本人の了解なしにSNS等で公開することは禁止。進行は、披講・点付け（特選1・並選1・予選3まで、約10分）→ 合評（一句ずつ、約5分。コメントを入力）→ 得点と作者オープン（約10分で閉会）。最高点の人に句碑のトロフィー。3句で定刻から約25分。出した句は出どころつきでストッ句に残り、参加した句会として数えられる。終わった句会は句会アーカイブに残る（参加した人だけが見られる）。作者は俳号で、オープンまで匿名。毎回、はじめにチュートリアルが開く。【仲間と句会】合言葉か、ひらいた人のリンクで集まるメンバーだけで詠む。見学はできない。幹事は何人にでもできる。題はひとり1題（ランダム・当季雑詠・雑詠も可）か、ボットが出す。ふつうは1回の戦にひとり1句で、パスもできる。だれが出していないかは画面でわかり、全員そろうと幹事に合図が出る。選の種類（特選1並選3予選／秀句1佳作3予選／天・地・人・並・予選）と句数・点数は幹事が決め、途中でも変えられる（変えると「可変タイム」のお知らせ）。回数の上限は3〜10回戦か制限なし。点は通算され、まわし終えるか幹事がとじると、通算トップが句会優勝トロフィー。参加者だけの「こそこそ話」もある。',
-    '選は、特選1・並選1・予選3つまで。ぜんぶ使わなくてもよく、予選だけでも「選を終了」できる。終了後も、時間内なら「選びなおす」で変えられる。句会の進行は、句を出した人のページが開いている間に進む。全員が「選を終了」を押すと時間を待たずに進む。進行のたびに画面のお知らせ・音・振動・通知（ブラウザが許す場合）でしらせる。ページを閉じていると届かない。',
+    '選は、特選1・並選1・予選はいくつでも。ぜんぶ使わなくてもよく、予選だけでも「選を終了」できる。終了後も、時間内なら「選びなおす」で変えられる。句会の進行は、句を出した人のページが開いている間に進む。全員が「選を終了」を押すと時間を待たずに進む。進行のたびに画面のお知らせ・音・振動・通知（ブラウザが許す場合）でしらせる。ページを閉じていると届かない。',
     '句の入力：五七五をひと続きで一つの欄に書く（句またがり・破調・対句も自由）。ルビは語のうしろに《よみ》（例：宇宙《そら》）。ルビは字数に数えない。ひらがなだけでも書いた文字のまま出る。句は縦一行で表示される。',
     '選評：口調（やさしく・ふつう・きびしく）と「どういうところを」（季語・取り合わせ・調べ・読み・ルビなど）のボタンとひとこと。',
     '句読点や一字あけ（空白）は自由に入力でき、入力どおりに表示される（句のはじめとおわりの空白だけ除く）。字数の目安には数えない。',
@@ -2828,7 +2828,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   var G_LABEL = { open: '集まり中', ku: '投句中', sel: '選句中', go: '合評中', done: '作者オープン' };
   var G_PHASES = ['open', 'ku', 'sel', 'go', 'done'];
   function gDefault() {
-    return { daiBy: 'members', daiMode: 'all', daiN: 3, kuPer: 'one', adv: 'host', kuMin: 10, daiMin: 5, selMin: 10, goMin: 15, maxRounds: 0, endMode: 'none', endHM: '', preset: 'std', kinds: JSON.parse(JSON.stringify(G_PRESETS.std.kinds)) };
+    return { daiBy: 'members', daiMode: 'all', daiN: 3, kuPer: 'one', adv: 'host', kuMin: 10, daiMin: 5, selMin: 10, goMin: 15, kuMax: 5, maxRounds: 0, endMode: 'none', endHM: '', preset: 'std', kinds: JSON.parse(JSON.stringify(G_PRESETS.std.kinds)) };
   }
   var gDelAsk = '', gCloseAsk = false, gRooms = [], gCur = '', gNew = false, gJoin = '', gAik = '', gAikNew = '', gSet = gDefault(), gName = '', gDraft = { a: '', b: '', c: '', dai: '' }, gDaiText = '', gDaiCand = [], gCm = {}, gCmTag = {}, gChatText = '', gChatOpen = false, gFlags = {}, gEdit = false, gTimer = null, gPhaseSeen = {}, gNoteSeen = {}, gChatSeen = {};
   function gcur() { for (var i = 0; i < gRooms.length; i++) if (gRooms[i].id === gCur) return gRooms[i]; return gExtra[gCur] || null; }
@@ -3022,7 +3022,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     h += '<div class="field"><label>題の出し方</label>' + chips('daiBy', [['members', '参加者がひとり1題'], ['bot', 'ボットが出す']], st.daiBy) + '</div>';
     if (st.daiBy === 'bot') h += num('daiN', '題の数', st.daiN, 1, 10);
     h += '<div class="field"><label>題のまわし方</label>' + chips('daiMode', [['all', '全部の題を見せて、どれでも'], ['turn', '1題ずつ順に']], st.daiMode) + '</div>';
-    h += '<div class="field"><label>1回の戦で、ひとりが出す句</label>' + chips('kuPer', [['one', '1句ずつ'], ['free', '何句でも']], st.kuPer || 'free') + '</div>';
+    h += '<div class="field"><label>1回の戦で、ひとりが出す句</label>' + chips('kuPer', [['one', '1句ずつ'], ['n', '○句まで'], ['free', '何句でも']], st.kuPer || 'free') + ((st.kuPer || 'free') === 'n' ? num('kuMax', 'ひとり何句まで（1〜100。吟行の「5句出し」など）', st.kuMax || 5, 1, 100) : '') + '</div>';
     h += '<div class="field"><label>進行</label>' + chips('adv', [['host', '幹事がボタンで進める'], ['timer', 'タイマーで自動（ボットが進める）']], st.adv) + '</div>';
     if (st.adv === 'timer') h += '<div class="grid2">' + (st.daiMode === 'turn' ? num('daiMin', '1題あたり（分）', st.daiMin, 1, 120) : num('kuMin', '投句（分）', st.kuMin, 1, 600)) + num('selMin', '選句（分）', st.selMin, 1, 600) + num('goMin', '合評（分）', st.goMin, 1, 600) + '</div>';
     h += '<div class="field"><label>回数の上限（1〜10回戦、または制限なし）</label><select data-f="g-maxRounds"' + dis + '>' + [[0, '制限なし'], [1, '1回戦（1回で終わり）'], [2, '2回戦'], [3, '3回戦'], [4, '4回戦'], [5, '5回戦'], [6, '6回戦'], [7, '7回戦'], [8, '8回戦'], [9, '9回戦'], [10, '10回戦']].map(function (o) { return '<option value="' + o[0] + '"' + (Number(st.maxRounds) === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div>';
@@ -3141,18 +3141,18 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   }
   function vGKu(r, st, mem, host) {
     var dais = gDais(r), turn = st.daiMode === 'turn', idx = Math.min(r.daiIdx || 0, Math.max(0, dais.length - 1));
-    var one = (st.kuPer || 'free') === 'one';
+    var lim = gKuLimit(st), one = lim === 1;
     var mine = gEnts(r).filter(function (e) { return e.uid === myId; }).sort(function (a, b) { return a.at - b.at; });
     var passed = !!(r.pass && r.pass[myId]) && !mine.length;
     var show = turn ? [dais[idx]].filter(Boolean) : dais;
-    var h = hostSay((one ? 'この戦は、ひとり1句です。' : '何句でもどうぞ。') + (turn ? ('題は1つずつ回ります。いまの題は「' + esc((dais[idx] || {}).t || '') + '」（' + (idx + 1) + '/' + dais.length + '）。' + (st.adv === 'timer' ? '時間がくると次の題へ。' : '幹事が「次の題へ」で進めます。'))
+    var h = hostSay((one ? 'この戦は、ひとり1句です。' : lim ? 'この戦は、ひとり' + lim + '句までです（いま' + mine.length + '句）。' : '何句でもどうぞ。') + (turn ? ('題は1つずつ回ります。いまの題は「' + esc((dais[idx] || {}).t || '') + '」（' + (idx + 1) + '/' + dais.length + '）。' + (st.adv === 'timer' ? '時間がくると次の題へ。' : '幹事が「次の題へ」で進めます。'))
       : ('題は' + dais.length + '題。どの題で詠んでもかまいません。' + (st.adv === 'timer' ? '時間がくると、全句をひらきます。' : '全員が出すかパスすると、幹事が全句をひらきます。'))), gEnts(r).length + '句が集まっています（作者は伏せられています）。');
     h += '<div class="panel"><b>題</b><div class="chips2">' + dais.map(function (d, i) { return '<i' + (turn && i === idx ? ' class="on"' : '') + '>' + esc(d.t) + (d.hint ? '（ヒント：' + esc(d.hint) + '）' : '') + '</i>'; }).join('') + '</div>' +
       /* 途中から参加した人：まだ題を出していなければ、投句中でも出せる（題は、あとに足される） */
       (mem && (st.daiBy || 'members') === 'members' && !(r.dai || {})[myId] ? '<div class="field late-dai"><label for="g-dai">あなたの題は、まだです。いまからでも出せます（季語・ことば）</label><div class="row"><input type="text" id="g-dai" data-f="g-dai" maxlength="12" value="' + esc(gDaiText || '') + '" placeholder="例：秋の暮"><button class="chip fit" data-act="g-dai-save">題を出す</button></div><div class="row qbtns"><button class="chip fit" data-act="g-dai-rand">🎲 ランダムに引く</button><button class="chip fit" data-act="g-dai-pick" data-v="当季雑詠">当季雑詠</button></div><p class="note">出した題は、題の列のさいごに足されます' + (turn ? '（題が1つずつ回る設定なので、順番が来たら、みんなが詠みます）' : '') + '。</p></div>' : '') + '</div>';
     if (!mem) return h + '<p class="note">' + (gIsWatcher(r) ? '👀 見学中です。上の「見学をやめて、参加する」で、この回から句を出せます。' : 'このルームには参加していないので、投句はできません。') + '</p>';
     if (!gDraft.dai || !show.some(function (d) { return d.id === gDraft.dai; })) gDraft.dai = show.length ? show[0].id : '';
-    if (!(one && mine.length)) {
+    if (!(lim && mine.length >= lim)) {
       h += '<div class="panel"><div class="field"><label for="g-sdai">題をえらぶ</label><select id="g-sdai" data-f="g-sdai">' + show.map(function (d) { return '<option value="' + esc(d.id) + '"' + (gDraft.dai === d.id ? ' selected' : '') + '>' + esc(d.t) + '</option>'; }).join('') + '</select></div>';
       h += oneBox('g-a', 'g-a', 'g-cnt-a', gDraft.a);
       h += rubyBar() + '<div class="tan pv" id="g-pv">' + ku(gDraft) + '</div>';
@@ -3295,7 +3295,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       if (!r || !ready() || !gActive(r) || r.status !== 'ku') return;
       var a = kt(gDraft.a, 'a'), b = kt(gDraft.b, 'b'), c = kt(gDraft.c, 'c');
       if (!(a || b || c)) { toast('句を入れてください'); return; }
-      if (((r.st || {}).kuPer || 'free') === 'one' && gEnts(r).some(function (e) { return e.uid === myId; })) { toast('この戦は、ひとり1句です。出しなおすときは、いまの句を「消す」でけしてから'); return; }
+      var lim = gKuLimit(r.st), myN = gEnts(r).filter(function (e) { return e.uid === myId; }).length;
+      if (lim && myN >= lim) { toast(lim === 1 ? 'この戦は、ひとり1句です。出しなおすときは、いまの句を「消す」でけしてから' : 'この戦は、ひとり' + lim + '句までです。出しなおすときは、どれかを「消す」でけしてから'); return; }
       var eid = 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
       var patch = nest(['entries', eid], { uid: myId, a: a, b: b, c: c, dai: gDraft.dai, at: Date.now() });
       if (r.pass && r.pass[myId]) patch.pass = {}, patch.pass[myId] = null;
@@ -3348,9 +3349,12 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       else if (f.indexOf('g-kpts-') === 0) { var j = Number(f.slice(7)); if (tgt.kinds[j]) tgt.kinds[j].pts = Math.max(0, Math.min(10, Number(t.value) || 0)); }
       else if (f === 'g-endHM') tgt.endHM = t.value;
       else if (f === 'g-maxRounds') tgt.maxRounds = Math.max(0, Number(t.value) || 0);
+      else if (f === 'g-kuMax') tgt.kuMax = Math.max(1, Math.min(100, Number(t.value) || 1));
       else { var key = f.slice(2); if (key in tgt) tgt[key] = Math.max(1, Number(t.value) || 1); }
     }
   }
+  /* ひとりが出せる句の数：1句ずつ＝1、○句まで＝kuMax（1〜100）、何句でも＝0（制限なし） */
+  function gKuLimit(st) { st = st || {}; var m = st.kuPer || 'free'; return m === 'one' ? 1 : m === 'n' ? Math.max(1, Math.min(100, Number(st.kuMax) || 5)) : 0; }
   function gWatch() {
     gRooms.forEach(function (r) {
       if (!gMine(r)) return;
@@ -4645,7 +4649,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       if (kind === 'yo') {
         var cy = cv.yo || {}, yn = Object.keys(cy).filter(function (k) { return cy[k]; }).length;
         if (cy[eid]) vp.yo = {}, vp.yo[eid] = false;
-        else { if (yn >= 3) { toast('予選は3句までです'); return; } vp.yo = {}; vp.yo[eid] = true; if (cv.toku === eid) vp.toku = ''; if (cv.nami === eid) vp.nami = ''; }
+        else { vp.yo = {}; vp.yo[eid] = true; if (cv.toku === eid) vp.toku = ''; if (cv.nami === eid) vp.nami = ''; }
         var pyv = {}; pyv[myId] = vp; write(sv.id, { votes: pyv }); return;
       }
       var other = kind === 'toku' ? 'nami' : 'toku';
