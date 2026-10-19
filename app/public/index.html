@@ -756,7 +756,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.19i';
+  var APP_VER = 'v2026.10.20a';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3555,14 +3555,23 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     /* 石の肌：ざらつき */
     for (var k = 0; k < 2600; k++) { ctx.fillStyle = rnd() < 0.5 ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.07)'; var rx = 290 + rnd() * 640, ry = 110 + rnd() * 920; ctx.fillRect(rx, ry, 2 + rnd() * 5, 2 + rnd() * 5); }
     ctx.restore();
-    /* 刻字（彫り込み風：影＋ハイライト） */
+    /* 磨いた面（字が読みやすいように、石の中央をなめらかに） */
     var cells = cardCells(String(o.text || '')), n = 0; cells.forEach(function (c) { n += /[　 ]/.test(c.c) ? 0.7 : 1; });
-    var top = 215, avail = 720, sz = Math.max(20, Math.min(70, Math.floor(avail / (Math.max(n, 1) * 1.12))));
-    var kx = 620;
-    drawVertical(ctx, cells, kx + 2, top + 2, sz, 'rgba(255,255,255,.35)');
-    var endY = drawVertical(ctx, cells, kx, top, sz, '#2a2723');
-    var hg = Array.from(String(o.haigo || '').trim());
-    if (hg.length) { var hs = Math.max(22, Math.round(sz * 0.55)), hh = hg.length * hs * 1.12, hy = Math.max(top + 80, endY - hh); drawVertical(ctx, hg.map(function (c) { return { c: c }; }), kx - sz * 1.6 - hs * 0.5 + 2, hy + 2, hs, 'rgba(255,255,255,.3)'); drawVertical(ctx, hg.map(function (c) { return { c: c }; }), kx - sz * 1.6 - hs * 0.5, hy, hs, '#2a2723'); }
+    var top = 200, avail = 760, sz = Math.max(24, Math.min(84, Math.floor(avail / (Math.max(n, 1) * 1.12))));
+    var kx = 625, hg = Array.from(String(o.haigo || '').trim()), hs = Math.max(24, Math.round(sz * 0.55));
+    var px0 = kx - sz * 1.6 - hs - 30, px1 = kx + sz * 0.9, py0 = top - 40, py1 = top + Math.max(n, 1) * sz * 1.12 + 50;
+    ctx.save(); ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(px0, py0, px1 - px0, py1 - py0, 18); else ctx.rect(px0, py0, px1 - px0, py1 - py0);
+    var pol = ctx.createLinearGradient(px0, py0, px1, py1); pol.addColorStop(0, '#b9b7b1'); pol.addColorStop(1, '#a3a09a'); ctx.fillStyle = pol; ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = 3; ctx.stroke(); ctx.restore();
+    /* 刻字（太く・濃く：縁どり＋塗り、右下に白のハイライト） */
+    function carve(cl, x, y, sz0) {
+      drawVertical(ctx, cl, x + 3, y + 3, sz0, 'rgba(255,255,255,.55)');
+      ctx.save(); ctx.lineWidth = Math.max(2, sz0 * 0.06); ctx.strokeStyle = '#141210'; ctx.lineJoin = 'round';
+      var of = ctx.fillText; ctx.fillText = function (t, a, b) { ctx.strokeText(t, a, b); of.call(ctx, t, a, b); };
+      var e = drawVertical(ctx, cl, x, y, sz0, '#1a1714'); ctx.fillText = of; ctx.restore(); return e;
+    }
+    var endY = carve(cells, kx, top, sz);
+    if (hg.length) { var hh = hg.length * hs * 1.12, hy = Math.max(top + 80, endY - hh); carve(hg.map(function (c) { return { c: c }; }), kx - sz * 1.6 - hs * 0.5, hy, hs); }
     /* 隅の小さなしるし */
     ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(40,50,40,.75)'; ctx.font = '26px ' + CARD_FONT; ctx.fillText('俳句の裾野　句碑', 60, 1160);
     ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(40,50,40,.6)'; ctx.font = '22px ' + CARD_FONT; ctx.fillText('haikunosusono.web.app', W - 60, 1160);
