@@ -756,22 +756,23 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.19g';
+  var APP_VER = 'v2026.10.19h';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
-  var newVer = false, verChecked = false;
+  var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
     if (location.protocol !== 'https:' && location.protocol !== 'http:') return;
     try {
       fetch('/?chk=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (t) {
         var m = /var APP_VER = '([^']+)'/.exec(t);
-        if (m) { var was = verChecked; verChecked = true; if (m[1] !== APP_VER && !newVer) { newVer = true; try { render(); } catch (_) {} } else if (!was) { try { render(); } catch (_) {} } }
-      }).catch(function () {});
+        if (m) { var was = verChecked; verChecked = true; verErr = ''; if (m[1] !== APP_VER && !newVer) { newVer = true; try { render(); } catch (_) {} } else if (!was) { try { render(); } catch (_) {} } }
+        else { verErr = '読めず'; try { render(); } catch (_) {} }
+      }).catch(function (e) { verErr = String(e && e.message || e).slice(0, 40); try { render(); } catch (_) {} });
     } catch (_) {}
   }
   function appReload() {
     try { fetch('/?r=' + Date.now(), { cache: 'reload' }).catch(function () {}).then(function () { location.reload(); }); } catch (_) { location.reload(); }
   }
-  setTimeout(checkVer, 5000); setInterval(checkVer, 10 * 60000);
+  setTimeout(checkVer, 1500); setInterval(checkVer, 10 * 60000);
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') checkVer(); });
   var WD = ['日', '月', '火', '水', '木', '金', '土'];
   function mdLabel(n) { var d = new Date(n * 86400000); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日'; }
@@ -3957,7 +3958,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       body = '<div class="actions"><button class="link" data-act="page" data-p="">← もどる</button></div>' + pageView();
     } else {
       var st = streak();
-      body = '<div class="top"><div><h1 class="brand">俳句の裾野</h1><div class="tagline">俳句の筋力トレーニング</div><div class="date">' + esc(fullLabel(n)) + '<span class="ver">' + APP_VER + '</span> <button class="verbtn' + (newVer ? ' new' : verChecked ? ' ok' : '') + '" data-act="app-reload" title="アプリを最新にする">' + (newVer ? '🔄 新しい版があります・更新してください' : verChecked ? '✅ いま最新版です' : '🔄 更新を確かめてください') + '</button></div></div>' + '<div class="topr">' + (st > 0 ? '<span class="streak">連続 ' + st + '日</span>' : '') + '<button class="link" data-act="yoko" aria-pressed="' + yoko + '">' + (yoko ? '縦書きで見る' : '横書きで見る') + '</button><button class="link" data-act="tut">俳句はじめての人へ（チュートリアル）</button></div></div>' +
+      body = '<div class="top"><div><h1 class="brand">俳句の裾野</h1><div class="tagline">俳句の筋力トレーニング</div><div class="date">' + esc(fullLabel(n)) + '<span class="ver">' + APP_VER + '</span> <button class="verbtn' + (newVer ? ' new' : verChecked ? ' ok' : '') + '" data-act="app-reload" title="アプリを最新にする">' + (newVer ? '🔄 新しい版があります・更新してください' : verChecked ? '✅ いま最新版です' : verErr ? '⚠️ 確かめられませんでした・押すと更新（' + esc(verErr) + '）' : '🔄 更新を確かめています…') + '</button></div></div>' + '<div class="topr">' + (st > 0 ? '<span class="streak">連続 ' + st + '日</span>' : '') + '<button class="link" data-act="yoko" aria-pressed="' + yoko + '">' + (yoko ? '縦書きで見る' : '横書きで見る') + '</button><button class="link" data-act="tut">俳句はじめての人へ（チュートリアル）</button></div></div>' +
         (window.fbLogout && myId ? '<div class="who-bar"><span>ログイン中：<b>' + esc(haigo.trim() || (window.fbUserEmail || '')) + '</b>' + (haigo.trim() && window.fbUserEmail ? '<small>（' + esc(window.fbUserEmail) + '）</small>' : '') + '</span><button class="btn small" data-act="fblogout">ログアウト</button></div>' : '') +
         vGuest() + vLive() + vStats() + vMemoQ(false) + vBeginner() + vNews() + vMenu() +
         vRooms() + (tab === 'solo' ? vDeck() : '') + (tab === 'diary' ? vDiary() : tab === 'solo' ? vSolo() : tab === 'bot' ? vBotRoom() : tab === 'gohyo' ? vGohyo() : tab === 'flat' ? vFlat() : vTogether()) + vFooter();
