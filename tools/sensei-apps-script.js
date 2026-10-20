@@ -34,12 +34,34 @@ var RULE = [
   '6. 出力は JSON だけ：{"part": "<切れ・余韻|季語|景色|調べ|言葉選び|発想|取り合わせ のどれか1つ>", "text": "<ほめ言葉>"}'
 ].join('\n');
 
+/* Gemini にたずねて、返事の文字をもらう（モデルは順にためす） */
+function askGemini(prompt) {
+  var MODELS = listModels();
+  for (var i = 0; i < MODELS.length; i++) {
+    var res = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + MODELS[i] + ':generateContent?key=' + KEY, {
+      method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+      payload: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.4, maxOutputTokens: 400, responseMimeType: 'application/json' } })
+    });
+    if (res.getResponseCode() === 200) { try { return JSON.parse(res.getContentText()).candidates[0].content.parts[0].text; } catch (_) {} }
+  }
+  return '';
+}
+
 function doGet() { return ContentService.createTextOutput('ok'); }
 
 function doPost(e) {
   var out = { ok: false };
   try {
     var body = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    /* 2句のくらべ読み（2人の回：ボットの特選を決める）。{"judge":["句A","句B"]} → {"ok":true,"pick":0 か 1,"why":"ひとこと"} */
+    if (body.judge && body.judge.length === 2) {
+      var jp = ['あなたは句会の先生です。次の2句を読みくらべ、特選（よりよい一句）をひとつ選びます。', '基準：景がはっきり見えるか、季語が効いているか、ことばに無理がないか、読後の余韻。', '出力は JSON だけ：{"pick": 0 または 1, "why": "<30字以内の理由>"}', '', '句0：' + String(body.judge[0]).slice(0, 60), '句1：' + String(body.judge[1]).slice(0, 60)].join('\n');
+      var jr = askGemini(jp);
+      if (!jr) throw new Error('くらべ読みができませんでした');
+      var jo = JSON.parse(String(jr).replace(/^```json|```$/g, '').trim());
+      out = { ok: true, pick: Number(jo.pick) === 1 ? 1 : 0, why: String(jo.why || '').slice(0, 60) };
+      return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
+    }
     var ku = String(body.ku || '').replace(/\s+/g, ' ').trim().slice(0, 60);
     if (!ku) throw new Error('句がありません');
     var prompt = RULE + '\n\n句：' + ku;

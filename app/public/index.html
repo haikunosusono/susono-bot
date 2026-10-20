@@ -758,7 +758,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.21a';
+  var APP_VER = 'v2026.10.21b';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1098,6 +1098,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       var v = s.votes[uid];
       if (v.toku && p[v.toku]) { p[v.toku].pts += 2; p[v.toku].toku.push(uid); }
       if (v.nami && p[v.nami]) { p[v.nami].pts += 1; p[v.nami].nami.push(uid); }
+      if (v.nami2 && p[v.nami2]) { p[v.nami2].pts += 1; p[v.nami2].nami.push(uid); }
       Object.keys(v.yo || {}).forEach(function (k) { if (v.yo[k] && p[k] && k !== v.toku && k !== v.nami) p[k].yo.push(uid); });
     });
     return p;
@@ -1225,6 +1226,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       /* 定例句会・ふらっと句会：ボットは「人の句」にだけ点を入れる（ボットどうしには入れない）。人が1〜2人でも、人が優勝できるように。同点は、特選の数→先に出した順で決める */
       var cand = ids.filter(function (k) { return k !== b; });
       if (s && (s.tei || s.std === 'flat')) cand = cand.filter(function (k) { return !(entries[k] && entries[k].bot); });
+      if (s && (s.tei || s.std === 'flat') && cand.length === 2) { v[b] = { toku: '', nami: cand[0], nami2: cand[1], fin: true }; return; } /* 2人：どちらにも並選（差をつけない。AIがつながれば特選を決める） */
       var o = cand.sort(function (x, y) { return hash(s.id + b + x) - hash(s.id + b + y); });
       v[b] = { toku: o[0] || '', nami: o[1] || '', fin: true };
     });
@@ -1526,7 +1528,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       if (s.status === 'selecting' && inEntry) {
         var left = selSec(s) - (Date.now() - (s.selectStart || Date.now())) / 1000;
         if ((allDone(s) || left <= 0) && !flags['r' + s.id]) {
-          flags['r' + s.id] = 1; writeIf(s.id, function (c) { return c.status === 'selecting'; }, function (c) { return revealPatch(c); }).then(function (c) { try { senseiAI(c); } catch (_) {} });
+          flags['r' + s.id] = 1; writeIf(s.id, function (c) { return c.status === 'selecting'; }, function (c) { return revealPatch(c); }).then(function (c) { try { senseiAI(c); senseiJudge(c); } catch (_) {} });
         }
       }
     });
@@ -1568,7 +1570,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     Object.keys(cm).forEach(function (key) {
       var c = cm[key]; if (c.uid !== 'benico' || !es[c.eid] || es[c.eid].bot) return;
       var ku = joinKu(es[c.eid]).a, ctrl = null, timer = null;
-      try { ctrl = new AbortController(); timer = setTimeout(function () { ctrl.abort(); }, 15000); } catch (_) {}
+      try { ctrl = new AbortController(); timer = setTimeout(function () { ctrl.abort(); }, 45000); } catch (_) {}
       fetch(SENSEI_API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ ku: ku }), signal: ctrl ? ctrl.signal : undefined, redirect: 'follow' })
         .then(function (r) { return r.json(); })
         .then(function (o) {
@@ -1578,6 +1580,21 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
           writeIf(s0.id, function (cur) { return cur.status === 'reveal' && cur.comments && cur.comments[key]; }, function () { return p; });
         }).catch(function () {});
     });
+  }
+  /* 2人の回：AI（Gemini）に2句を読ませて、ボットの特選を決める。届かなければ、並選どうしのまま */
+  function senseiJudge(s0) {
+    if (!SENSEI_API || !s0 || !db || !(s0.tei || s0.std === 'flat')) return;
+    var es = s0.entries || {}, hu = Object.keys(es).filter(function (k) { return es[k] && !es[k].bot; }), bots = Object.keys(es).filter(function (k) { return es[k] && es[k].bot; });
+    if (hu.length !== 2 || !bots.length) return;
+    var kus = hu.map(function (k) { return joinKu(es[k]).a; }), ctrl = null;
+    try { ctrl = new AbortController(); setTimeout(function () { ctrl.abort(); }, 45000); } catch (_) {}
+    fetch(SENSEI_API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ judge: kus }), signal: ctrl ? ctrl.signal : undefined, redirect: 'follow' })
+      .then(function (r) { return r.json(); }).then(function (o) {
+        if (!o || !o.ok || !(o.pick === 0 || o.pick === 1)) return;
+        var t = hu[o.pick], n = hu[1 - o.pick], p = {};
+        bots.forEach(function (b) { p['votes.' + b + '.toku'] = t; p['votes.' + b + '.nami'] = n; p['votes.' + b + '.nami2'] = ''; p['votes.' + b + '.ai'] = true; });
+        writeIf(s0.id, function (cur) { return cur.status === 'reveal'; }, function () { return p; });
+      }).catch(function () {});
   }
   function revealPatch(s) {
     var p = { status: 'reveal', revealAt: Date.now() };
@@ -1988,7 +2005,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function kukaiWin(s, rows, T, max) {
     var w = rows.filter(function (x) { return T[x.id].pts === max; });
     /* 定例・ふらっと：同点のときは、特選の数が多い句 → 先に出した句、で1人に決める */
-    if (w.length > 1 && (s.tei || s.std === 'flat')) {
+    if (w.length > 1 && (s.tei || s.std === 'flat') && teiHumans(s) !== 2) {
       w = w.slice().sort(function (x, y) { return (T[y.id].toku || []).length - (T[x.id].toku || []).length || ((s.entries[x.id] || {}).at || 0) - ((s.entries[y.id] || {}).at || 0); }).slice(0, 1);
     }
     if (w.some(function (x) { return x.id === myId; })) { var me = w.filter(function (x) { return x.id === myId; })[0]; awardTrophy('k-' + s.id, { kind: s.tei ? '定例句会（デモ）' : s.std === 'flat' ? 'ふらっと句会' : '定例句会', ch: s.tei ? '当季雑詠　' + mdLabel(dn(s.date)) + s.slot + '時' : (s.ch || ''), date: s.date || ds(dayNum()), pts: max, a: me.a, b: me.b, c: me.c }); }
