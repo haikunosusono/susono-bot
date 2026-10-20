@@ -756,7 +756,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.20b';
+  var APP_VER = 'v2026.10.20c';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1470,8 +1470,8 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function teiStart(s) {
     writeIf(s.id, function (c) { return c.status === 'gathering'; }, function (c) {
       var es = c.entries || {}, humans = teiHumans(c); if (!humans) return null;
-      /* 人が2人までなら、ボット2名。3人からは、人だけ */
-      var need = humans <= 2 ? 2 : 0, patch = { status: 'selecting', selectStart: Date.now(), startedAt: Date.now() };
+      /* 人が1人ならボット2名、2人ならボット1名（3句にそろえる）。3人からは、人だけ */
+      var need = humans >= 3 ? 0 : 3 - humans, patch = { status: 'selecting', selectStart: Date.now(), startedAt: Date.now() };
       if (need) {
         var be = teiBotEntries(c, need), all = Object.assign({}, es, be);
         /* entries を丸ごと置きかえると、人の句が消える。ボットの句だけを、ひとつずつ足す */
@@ -1481,7 +1481,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     }).then(function (c) {
       /* Xのお礼つぶやき用：参加の人数だけを、公開の小さな記録に（句や名前は入れない） */
       if (!c) return;
-      try { var hm = teiHumans(c), nd = hm <= 2 ? 2 : 0; db.doc('pub/' + c.id).set({ humans: hm, bots: nd, slot: c.slot, date: c.date, at: Date.now() }).catch(function () {}); } catch (_) {}
+      try { var hm = teiHumans(c), nd = hm >= 3 ? 0 : 3 - hm; db.doc('pub/' + c.id).set({ humans: hm, bots: nd, slot: c.slot, date: c.date, at: Date.now() }).catch(function () {}); } catch (_) {}
     });
   }
   function selSec(s) { return s && s.tei ? TEI_SEL_SEC : (s && s.std === 'flat' ? FLAT_SEL_SEC : SELECT_SEC); }
@@ -1619,7 +1619,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       h += hostSay('定刻になりました。句を出した人のページで、まもなくはじまります。', me ? 'このページを開いたまま、お待ちください。' : '句を出していない方は、見学できます。');
       h += '<div class="bar"><span>' + (me ? 'あなたをふくめ ' + nh + '人' : nh + '人の句が出ています') + '</span></div>';
     }
-    h += '<p class="note">人が1人か2人のときは、ボット2名が加わります。3人からは、人だけでひらきます。</p>';
+    h += '<p class="note">人が1人ならボット2名、2人ならボット1名が加わって、3句でひらきます。3人からは、人だけでひらきます。</p>';
     h += '<div class="actions"><button class="btn" data-act="invite">仲間をさそう</button><button class="btn" data-act="tutt">進行のしかた（チュートリアル）</button></div>';
     if (showInv) h += '<div class="panel"><p class="note">下の文を、LINEなどで送ってください。ひらくと、この句会に直接入れます（見学もできます）。</p><textarea id="inv-text" readonly rows="5">' + esc(inviteText(s)) + '</textarea><button class="btn primary" data-act="invite-copy">文をコピー</button></div>';
     if (!db) return h;
@@ -1639,7 +1639,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       h += '<p class="nk-sub">' + (nh ? nh + '人の句が出ています' : 'まだ、だれも出していません。いちばん乗りをどうぞ') + (mi ? '（あなたは参加中）' : '') + '</p>';
       h += '<div class="actions center"><button class="btn primary big" data-act="tei-go" data-sid="' + sl.sid + '">' + (mi ? '部屋にもどる' : '一句出して、参加する') + '</button></div>';
       h += '<p class="note center">投句は、いつでも（定刻でしめきり）。見るだけでも入れます。</p>';
-      h += '<p class="botnote">🤖 <b>ひとりでも大丈夫。</b>人が1人か2人のときは、ボット2名が参加します。</p>';
+      h += '<p class="botnote">🤖 <b>ひとりでも大丈夫。</b>人が1人ならボット2名、2人ならボット1名が参加して、3句でひらきます。</p>';
     } else {
       h += '<p class="nk-sub">' + LABEL[s.status] + '　' + count(s) + '句</p>';
       h += '<div class="actions center"><button class="btn primary big" data-act="tei-go" data-sid="' + sl.sid + '">' + (mi ? '部屋にもどる' : '見学する') + '</button></div>';
@@ -2315,7 +2315,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     ['ひとりで句会で作った句は、残りますか？', '残ります。ひとりで句会で出した句は、出どころつきで「ストッ句」に入り、参加した句会としても数えられます。自分とボット（2〜4名）の句会で、招待も見学もありません。'],
     ['一日に、何句まで入れられますか？', '「初心者部屋」は、1日に何句でも。「俳筋トレ」は、兼題ごとに1日1句です。トップの「✏️ 俳句のタネあつめ」メモも何こでも書けて、「ストッ句へ」でストッ句に入れられます（あとで推敲つき）。句づくりや句会で詠んだ句も、ストッ句に残ります。'],
     ['定例句会は、何時にはじまりますか？', '平日は、夜9時（21時）の「だれでも句会」と、夜11時（23時）の「おかわり句会」と、夜中1時（25時）の「よなよな句会」。土・日・祝日は、あさ10時の「おはよう句会」・13時の「こんにちは句会」・15時の「おやつの句会」です（日本時間・休日の夜はおやすみ）。投句はいつでもでき、定刻でしめきりです。句を出した人のページが開いていれば、定刻に自動ではじまります。だれも出さなかった回は、ひらかれません。'],
-    ['ひとりしかいないときは、どうなりますか？', '定刻のとき、句を出した人が1人か2人なら、ボット2名が加わります（3句か4句でひらきます）。3人からは、人だけでひらきます。ボットの句は、あらかじめ用意した句です。ボットの選評も、決まった言いまわしでお伝えします。'],
+    ['ひとりしかいないときは、どうなりますか？', '定刻のとき、句を出した人が1人ならボット2名、2人ならボット1名が加わって、3句でひらきます。3人からは、人だけでひらきます。ボットの句は、あらかじめ用意した句です。ボットの選評も、決まった言いまわしでお伝えします。'],
     ['句会にかかる時間は、どれくらいですか？', '定例句会は、3句なら、定刻から約25分です。選句が約10分、合評は一句ごとに約5分、オープンのあとは約10分で閉会します。全員が選び終えたり、「この句をおわって、次へ」を押したりすると、早まります。'],
     ['参加した句会の回数は、どう数えますか？', '定例句会は、はじまった回に句を出していれば、1回です。仲間と句会は、参加した部屋ごとに1回。ひとりで句会は、最後まで遊ぶごとに1回です。マイページに「回 句会に参加」として出ます。'],
     ['句会がはじまりません。', '定例句会は、定刻に、句を出した人のページで自動ではじまります。句を出したら、ページを開いたままお待ちください。ページを閉じていると、はじまりません（もう一度ひらくと、すぐはじまります）。「仲間と句会」は、幹事の進行ボタンかタイマーで進みます。'],
