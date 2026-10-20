@@ -463,6 +463,7 @@ h3.sec { font-size: 1rem; }
 
 .cardv { position: fixed; inset: 0; z-index: 60; background: rgba(10,14,18,.78); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 16px; overflow: auto; }
 .cardv[hidden] { display: none; }
+img.noown { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; pointer-events: none; }
 .cardv img { max-width: min(92vw, 520px); max-height: 62vh; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,.5); }
 .cardv .cbtns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
 .cardv .cnote { color: #e8e4da; font-size: .85rem; text-align: center; max-width: 30em; line-height: 1.7; }
@@ -757,7 +758,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.20e';
+  var APP_VER = 'v2026.10.20f';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3457,7 +3458,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       if (!kuhiCache[key]) kuhiCache[key] = drawKuhi({ text: text, haigo: haigo || '' }).toDataURL('image/jpeg', 0.88);
       var own = !!(kuObj.id && kuObj.id === myId), ck = ckSet('wk-' + hash(key), { text: text, haigo: haigo || '', own: own }), first = !kuhiShown[key]; kuhiShown[key] = 1;
       return '<div class="cmi hostline"><b>ダー浜（司会）</b>優勝の句碑を、除幕します。みなさん、拍手を！　🎉👏</div>' +
-        '<button class="kuhi-win" data-act="card" data-ck="' + esc(ck) + '" data-style="kuhi" title="大きく見る・保存する"><span class="kw-frame"><img src="' + kuhiCache[key] + '" alt="句碑">' + (first ? '<i class="kw-cloth" aria-hidden="true"></i>' : '') + '</span><span>' + (own ? '🪨 句碑（押すと大きく・保存できます）' : '🪨 句碑（押すと大きく見られます。保存・投稿は作者だけ）') + '</span></button>';
+        '<button class="kuhi-win" data-act="card" data-ck="' + esc(ck) + '" data-style="kuhi" title="大きく見る・保存する"><span class="kw-frame"><img src="' + kuhiCache[key] + '" alt="句碑"' + (own ? '' : ' class="noown" draggable="false"') + '>' + (first ? '<i class="kw-cloth" aria-hidden="true"></i>' : '') + '</span><span>' + (own ? '🪨 句碑（押すと大きく・保存できます）' : '🪨 句碑（押すと大きく見られます。保存・投稿は作者だけ）') + '</span></button>';
     } catch (_) { return ''; }
   }
   function winCard(names, pts, kuObj, label, note) {
@@ -3627,11 +3628,13 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     cardText = '「' + full + '」' + (o.haigo ? '\n' + o.haigo : '') + '\n#俳句の裾野 #俳句 #haiku';
     markFirst('f_card');
     el.hidden = false;
-    el.innerHTML = '<img id="cardimg" alt="句のカード"><div class="cbtns"><button class="btn small' + (cardStyle === 'card' ? ' primary' : '') + '" data-act="card-style" data-v="card">📱 デジタル短冊</button>' + (o.trophy ? '<button class="btn small' + (cardStyle === 'trophy' ? ' primary' : '') + '" data-act="card-style" data-v="trophy">🏆 トロフィー</button>' : '') + '<button class="btn small' + (cardStyle === 'kuhi' ? ' primary' : '') + '" data-act="card-style" data-v="kuhi">🪨 句碑</button></div><div class="cbtns">' + (o.own === false ? '' : '<button class="btn primary" data-act="card-share">Xに投稿</button><button class="btn" data-act="card-save">画像を保存</button>') + '<button class="btn" data-act="card-close">閉じる</button></div>' + (o.own === false ? '<p class="cnote">この句の投稿・保存は、作者ご本人だけができます。</p>' : '') + '<p class="cnote">「Xに投稿」で、画像と文面がそのまま共有画面に渡ります。出ないときは、画像を保存して、Xの投稿に添付してください（画像を長押しでも保存できます）。</p><p class="cnote">自分の句だけを投稿してください。Xなどに公開した句は、大会によって「既発表」とされることがあります。大会に出す句は、募集のきまりを確かめてから。</p>';
+    el.innerHTML = '<img id="cardimg" alt="句のカード"' + (o.own === false ? ' class="noown" draggable="false"' : '') + '><div class="cbtns"><button class="btn small' + (cardStyle === 'card' ? ' primary' : '') + '" data-act="card-style" data-v="card">📱 デジタル短冊</button>' + (o.trophy ? '<button class="btn small' + (cardStyle === 'trophy' ? ' primary' : '') + '" data-act="card-style" data-v="trophy">🏆 トロフィー</button>' : '') + '<button class="btn small' + (cardStyle === 'kuhi' ? ' primary' : '') + '" data-act="card-style" data-v="kuhi">🪨 句碑</button></div><div class="cbtns">' + (o.own === false ? '' : '<button class="btn primary" data-act="card-share">Xに投稿</button><button class="btn" data-act="card-save">画像を保存</button>') + '<button class="btn" data-act="card-close">閉じる</button></div>' + (o.own === false ? '<p class="cnote">この句の投稿・保存は、作者ご本人だけができます。ほかの人の句を、本人の了解なしに公開しないでください。</p>' : '<p class="cnote">「Xに投稿」で、画像と文面がそのまま共有画面に渡ります。出ないときは、画像を保存して、Xの投稿に添付してください（画像を長押しでも保存できます）。</p><p class="cnote">自分の句だけを投稿してください。Xなどに公開した句は、大会によって「既発表」とされることがあります。大会に出す句は、募集のきまりを確かめてから。</p>');
     var im = document.getElementById('cardimg');
     try { cv.toBlob(function (b) { cardBlob = b; if (b) im.src = URL.createObjectURL(b); }, 'image/png'); } catch (_) { im.src = cv.toDataURL('image/png'); }
   }
+  function cardOwn() { var o = cardKey && cardSrc[cardKey]; return !(o && o.own === false); }
   function cardShare() {
+    if (!cardOwn()) { toast('投稿は、作者ご本人だけができます'); return; }
     var f = null; try { if (cardBlob) f = new File([cardBlob], 'haikunosusono.png', { type: 'image/png' }); } catch (_) {}
     var fallback = function () { try { window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(cardText), '_blank'); } catch (_) {} toast('画像は「画像を保存」で保存して、投稿に添付してください'); };
     try {
@@ -3640,6 +3643,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     fallback();
   }
   function cardSave() {
+    if (!cardOwn()) { toast('保存は、作者ご本人だけができます'); return; }
     if (!cardBlob) return;
     try { var a = document.createElement('a'); a.href = URL.createObjectURL(cardBlob); a.download = 'haikunosusono.png'; document.body.appendChild(a); a.click(); a.remove(); toast('画像を保存しました'); } catch (_) { toast('画像を長押しして保存してください'); }
   }
