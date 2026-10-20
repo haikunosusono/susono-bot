@@ -308,6 +308,7 @@ select { width: 100%; min-height: 44px; padding: .5em .7em; background: var(--bg
 .tcard .formula { gap: 6px; font-size: .9rem; }
 .okng .ku { font-size: .85rem; line-height: 1.5; letter-spacing: .08em; height: auto; padding: 10px 8px; box-sizing: border-box; border: 1px solid var(--accent); border-radius: 6px; background: var(--paper); }
 .trophy { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-block: 8px; background: var(--paper); border: 1px solid var(--accent); border-radius: 10px; }
+.kuhi-win{display:block;width:100%;max-width:420px;margin:6px auto 12px;padding:0;border:0;background:none;cursor:pointer;font:inherit}.kuhi-win .kw-frame{display:block;position:relative;overflow:hidden;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.18)}.kuhi-win img{display:block;width:100%}.kw-cloth{position:absolute;inset:0;background:linear-gradient(180deg,#f3e6e0,#d9c7bf 60%,#c9b3aa);animation:kwdrop 1.6s cubic-bezier(.7,0,.3,1) .9s forwards}.kw-cloth::after{content:'';position:absolute;left:50%;top:0;width:3px;height:100%;background:rgba(120,80,70,.25)}@keyframes kwdrop{to{transform:translateY(102%)}}@media(prefers-reduced-motion:reduce){.kw-cloth{display:none}}.kuhi-win span{display:block;text-align:center;font-size:.85rem;color:var(--ink-soft);margin-top:4px}
 .trophy svg { width: 56px; height: 56px; flex: none; }
 .trophy b { display: block; font-size: 1.05rem; color: var(--accent); }
 .trophy .tw { display: block; font-size: 1.05rem; overflow-wrap: anywhere; }
@@ -756,7 +757,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.20c';
+  var APP_VER = 'v2026.10.20d';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3448,8 +3449,19 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var rec = { trophy: 1, at: Date.now() }; for (var k in info) rec[k] = info[k];
     db.collection('data/users/' + myId).doc('trophy-' + id).set(rec).then(function () { toast('優勝おめでとうございます！ トロフィーをマイページに飾りました'); }).catch(function () { awarded[id] = 0; });
   }
+  /* 優勝の句碑：画像を一度だけ描いて、おぼえておく（render のたびに描きなおさない） */
+  var kuhiCache = {}, kuhiShown = {};
+  function kuhiImg(kuObj, haigo) {
+    try {
+      var text = plain(String(kuObj.a || '') + String(kuObj.b || '') + String(kuObj.c || '')), key = text + '|' + (haigo || '');
+      if (!kuhiCache[key]) kuhiCache[key] = drawKuhi({ text: text, haigo: haigo || '' }).toDataURL('image/jpeg', 0.88);
+      var ck = ckSet('wk-' + hash(key), { text: text, haigo: haigo || '' }), first = !kuhiShown[key]; kuhiShown[key] = 1;
+      return '<div class="cmi hostline"><b>ダー浜（司会）</b>優勝の句碑を、除幕します。みなさん、拍手を！　🎉👏</div>' +
+        '<button class="kuhi-win" data-act="card" data-ck="' + esc(ck) + '" data-style="kuhi" title="大きく見る・保存する"><span class="kw-frame"><img src="' + kuhiCache[key] + '" alt="句碑">' + (first ? '<i class="kw-cloth" aria-hidden="true"></i>' : '') + '</span><span>🪨 句碑（押すと大きく・保存できます）</span></button>';
+    } catch (_) { return ''; }
+  }
   function winCard(names, pts, kuObj, label, note) {
-    return '<div class="trophy">' + TROPHY_SVG + '<div><b>優勝 ' + esc(label || '') + '</b><span class="tw">' + esc(names.join('・')) + '</span><small>' + pts + '点' + (kuObj ? '　' + esc(plain((kuObj.a || '') + ' ' + (kuObj.b || '') + ' ' + (kuObj.c || ''))) : '') + '</small>' + (note ? '<small>' + esc(note) + '</small>' : '') + '</div></div>';
+    return '<div class="trophy">' + TROPHY_SVG + '<div><b>優勝 ' + esc(label || '') + '</b><span class="tw">' + esc(names.join('・')) + '</span><small>' + pts + '点' + (kuObj ? '　' + esc(plain((kuObj.a || '') + ' ' + (kuObj.b || '') + ' ' + (kuObj.c || ''))) : '') + '</small>' + (note ? '<small>' + esc(note) + '</small>' : '') + '</div></div>' + (kuObj && names.length === 1 ? kuhiImg(kuObj, names[0]) : '');
   }
   var BADGES = [];
   function fam(cat, key, label, defs) {
