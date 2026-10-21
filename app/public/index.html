@@ -758,7 +758,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.21k';
+  var APP_VER = 'v2026.10.21l';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3400,14 +3400,6 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       if (!tx && !tgs.length) { toast('ボタンをえらぶか、ひとことを入れてください'); return; }
       gCm[e3] = ''; gCmTag[e3] = []; markFirst('f_cm'); gWrite(r.id, nest(['cmts', 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5)], { eid: e3, uid: myId, text: tx.slice(0, 140), tags: tgs, at: Date.now() }));
     }
-    else if (act === 'k-chat-tgl') { kChatOpen = !kChatOpen; render(); }
-    else if (act === 'k-chat-send') {
-      var ks0 = scur(); if (!ks0 || !ready() || !(ks0.entries && ks0.entries[myId])) return; var kt0 = String(kChatText || '').trim(); if (!kt0) return;
-      kChatText = ''; kChatOpen = true; try { var kce = document.getElementById('k-chat'); if (kce) kce.value = ''; } catch (_) {}
-      write(ks0.id, nest(['chat', 'h' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5)], { uid: myId, haigo: haigo.trim() || '名無し', text: kt0.slice(0, 100), at: Date.now() }));
-    }
-    else if (act === 'lounge-tgl') { loungeOpen = !loungeOpen; render(); }
-    else if (act === 'lounge-send') { loungeSend(); }
     else if (act === 'g-chat-tgl') { gChatOpen = !gChatOpen; render(); }
     else if (act === 'g-chat-send') {
       if (!r || !ready() || !gIsMember(r)) return; var ctx0 = String(gChatText || '').trim(); if (!ctx0) return;
@@ -3425,8 +3417,6 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (f === 'g-aik') gAik = t.value;
     else if (f === 'g-naik') gAikNew = t.value;
     else if (f === 'g-chat') gChatText = t.value;
-    else if (f === 'k-chat') kChatText = t.value;
-    else if (f === 'lounge') loungeText = t.value;
     else if (f === 'g-dai') gDaiText = t.value;
     else if (f === 'g-sdai') gDraft.dai = t.value;
     else if (f === 'g-a' || f === 'g-b' || f === 'g-c') { gDraft[f.charAt(2)] = t.value; var gc0 = document.getElementById('g-cnt-a'); if (gc0) gc0.textContent = len(gDraft.a) + '字'; var pv = document.getElementById('g-pv'); if (pv) pv.innerHTML = ku(gDraft); }
@@ -4535,6 +4525,15 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var t = e.target.closest('[data-act]'); if (!t) return;
     var act = t.dataset.act;
     if (act.indexOf('g-') === 0 || act === 'hist-open') { gAct(act, t); return; }
+    if (act === 'k-chat-tgl') { kChatOpen = !kChatOpen; render(); }
+    else if (act === 'k-chat-send') {
+      var ks0 = scur(); if (!ks0 || !ready() || !(ks0.entries && ks0.entries[myId])) return; var kt0 = String(kChatText || '').trim(); if (!kt0) return;
+      kChatText = ''; kChatOpen = true; try { var kce = document.getElementById('k-chat'); if (kce) kce.value = ''; } catch (_) {}
+      write(ks0.id, nest(['chat', 'h' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5)], { uid: myId, haigo: haigo.trim() || '名無し', text: kt0.slice(0, 100), at: Date.now() }));
+    }
+    else if (act === 'lounge-tgl') { loungeOpen = !loungeOpen; render(); }
+    else if (act === 'lounge-send') { loungeSend(); }
+
     if (act === 'hist-open-k') {
       var hsid = t.dataset.sid; fromArch = true; current = hsid; showInv = false; tab = 'together'; page = '';
       if (!sessions.some(function (x) { return x.id === hsid; }) && db) db.collection('kukai').doc(hsid).get().then(function (d) { if (d && d.exists) { var o = d.data() || {}; o.id = d.id; kExtra[hsid] = o; } render(); }).catch(function () { render(); });
@@ -4887,6 +4886,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function onInput(e) {
     var t = e.target, f = t.dataset && t.dataset.f; if (!f) return;
     if (f.indexOf('g-') === 0) { gInput(f, t); return; }
+    if (f === 'k-chat') { kChatText = t.value; return; }
+    if (f === 'lounge') { loungeText = t.value; return; }
     if (f === 'p-avfile') { var fl = t.files && t.files[0]; if (!fl) return; avResize(fl, function (out) { if (!out) { toast('画像を読めませんでした'); return; } avDraft = out; render(); }); return; }
     if (f === 'p-bio') { bioDraft = t.value; var pc = document.querySelector('.right'); if (pc) pc.textContent = t.value.length + ' / 200'; return; }
     if (f === 'haigo') {
