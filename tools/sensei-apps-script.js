@@ -62,6 +62,15 @@ function doPost(e) {
       out = { ok: true, pick: Number(jo.pick) === 1 ? 1 : 0, why: String(jo.why || '').slice(0, 60) };
       return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
     }
+    /* 作者からの問いに、先生が答える。{"ask":{"ku":"句","q":"問い"}} → {"ok":true,"text":"答え"} */
+    if (body.ask && body.ask.ku) {
+      var ap = ['あなたは句会の先生「松風主宰」です。作者が、自分の句について問いかけています。やさしい丁寧語で、120字以内で答えてください。', '守ること：まず句をどう読んだかを一文で。問いには、具体的に答える（例：語順を入れかえた形を一つ示す、季語が動くかどうかの考えを言う）。けなさない。確信のないことは断定しない。相手の名前は呼ばない。', '出力は JSON だけ：{"text": "<答え>"}', '', '句：' + String(body.ask.ku).slice(0, 60), '問い：' + String(body.ask.q).slice(0, 140)].join('\n');
+      var ar = askGemini(ap);
+      if (!ar) throw new Error('答えが作れませんでした');
+      var ao = JSON.parse(String(ar).replace(/^```json|```$/g, '').trim());
+      out = { ok: true, text: String(ao.text || '').slice(0, 220) };
+      return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
+    }
     /* 質問への返事（ボット作者として）。{"reply":{"ku":"句","q":"質問","name":"作者名"}} → {"ok":true,"text":"返事"} */
     if (body.reply && body.reply.ku) {
       var rp = ['あなたは句会の参加者「' + String(body.reply.name || '').slice(0, 10) + '」です。自分の句について、ほかの参加者から質問をもらいました。作者として、やさしい丁寧語で、80字以内で答えてください。', '守ること：句の情景や、ことばを選んだ理由を、作者の実感として話す。わからない季語や事実を断定しない。相手の名前は呼ばない。', '出力は JSON だけ：{"text": "<返事>"}', '', '自分の句：' + String(body.reply.ku).slice(0, 60), '質問：' + String(body.reply.q).slice(0, 140)].join('\n');
