@@ -758,7 +758,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.21b';
+  var APP_VER = 'v2026.10.21c';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2003,13 +2003,17 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       '<span class="lb">どういうところを</span>' + PARTS.map(function (t) { return '<button class="chip fit' + (ps.indexOf(t) >= 0 ? ' on' : '') + '" data-act="cpart" data-eid="' + esc(eid) + '" data-v="' + t + '" aria-pressed="' + (ps.indexOf(t) >= 0) + '">' + t + '</button>'; }).join('') + '</div>';
   }
   function kukaiWin(s, rows, T, max) {
+    /* 優勝は「人の句」だけ。ボットの句が最高点でも、優勝にはしない（人がボットに点を入れることがあるため） */
+    var hrows = rows.filter(function (x) { return !(s.entries && s.entries[x.id] && s.entries[x.id].bot); }), botTop = false;
+    if (hrows.length && hrows.length < rows.length) { var hm = hrows.reduce(function (m, x) { return Math.max(m, T[x.id].pts); }, 0); botTop = hm < max; rows = hrows; max = hm; if (max <= 0) return ''; }
+    if (max <= 0) return '';
     var w = rows.filter(function (x) { return T[x.id].pts === max; });
     /* 定例・ふらっと：同点のときは、特選の数が多い句 → 先に出した句、で1人に決める */
     if (w.length > 1 && (s.tei || s.std === 'flat') && teiHumans(s) !== 2) {
       w = w.slice().sort(function (x, y) { return (T[y.id].toku || []).length - (T[x.id].toku || []).length || ((s.entries[x.id] || {}).at || 0) - ((s.entries[y.id] || {}).at || 0); }).slice(0, 1);
     }
     if (w.some(function (x) { return x.id === myId; })) { var me = w.filter(function (x) { return x.id === myId; })[0]; awardTrophy('k-' + s.id, { kind: s.tei ? '定例句会（デモ）' : s.std === 'flat' ? 'ふらっと句会' : '定例句会', ch: s.tei ? '当季雑詠　' + mdLabel(dn(s.date)) + s.slot + '時' : (s.ch || ''), date: s.date || ds(dayNum()), pts: max, a: me.a, b: me.b, c: me.c }); }
-    return winCard(w.map(function (x) { return x.haigo || '名無し'; }), max, w[0], s.tei ? '（定例句会・定例デモ）' : s.std === 'flat' ? '（ふらっと句会）' : '（定例句会）', s.tei ? '句碑のトロフィーが、優勝の方に贈られます（マイページに飾られます）' : '');
+    return (botTop ? '<p class="note">最高点はボットの句でしたが、優勝は、参加した人の中から決めます。</p>' : '') + winCard(w.map(function (x) { return x.haigo || '名無し'; }), max, w[0], s.tei ? '（定例句会・定例デモ）' : s.std === 'flat' ? '（ふらっと句会）' : '（定例句会）', s.tei ? '句碑のトロフィーが、優勝の方に贈られます（マイページに飾られます）' : '');
   }
   var yakuOpen = {}, watchAt = {};
   var K_STAMPS = [['🌸', 'すき'], ['👏', 'うまい'], ['😮', 'おどろき'], ['🍵', 'しみじみ']];
@@ -2247,7 +2251,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (live) {
       h = hostSay('作者と選者、オープンや。ここからは「振り返り」。作者は、自分の句のこと、自由に語ってええで。感想やお礼も、どうぞ。', '閉会まで、あと ' + cdSpan((s.openedAt || Date.now()) + CLOSE_SEC * 1000) + '。') + (wn > 0 ? '<p class="lead">' + wbadge + '</p>' : '');
     } else h = '<p class="lead">この句会は閉会しました。</p>';
-    h += (opened && max > 0 ? kukaiWin(s, rows, T, max) : '') + '<div>' + rows.map(function (e) { return art(e, false, 0); }).join('') + '</div>';
+    h += (opened ? kukaiWin(s, rows, T, max) : '') + '<div>' + rows.map(function (e) { return art(e, false, 0); }).join('') + '</div>';
     if (opened) h += maner('o');
     return h;
   }
