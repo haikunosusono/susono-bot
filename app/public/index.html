@@ -758,7 +758,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.21f';
+  var APP_VER = 'v2026.10.21g';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -868,13 +868,19 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     prevSt = cur;
   }
   var STALE_MS = 24 * 3600 * 1000;
+  var FLAT_SEAT_H = 6; /* ふらっと句会：席についたまま、この時間がたつと、自動で席を立つ（忘れて帰った人が、夜中に句会を始めてしまわないように） */
   function closeStale() {
     if (!db || !myId) return;
     sessions.forEach(function (x) {
       if (x.status === 'done' || flags['x' + x.id]) return;
+      if (x.std === 'flat' && x.status === 'gathering' && x.entries && x.entries[myId] && !x.entries[myId].bot && Date.now() - (x.entries[myId].at || 0) > FLAT_SEAT_H * 3600000 && !flags['fl' + x.id]) {
+        flags['fl' + x.id] = 1; var FVs = window.firebase && window.firebase.firestore && window.firebase.firestore.FieldValue, sp = {};
+        if (FVs && FVs.delete) { sp['entries.' + myId] = FVs.delete(); write(x.id, sp).then(function () { toast('ふらっと句会の席は、' + FLAT_SEAT_H + '時間たったので、自動で立ちました'); }); }
+      }
       if (x.tei && Date.now() < teiStartMs(x) + TEI_LIVE_MIN * 60000) return;
       var last = Math.max(x.createdAt || 0, x.startAt || 0, x.selectStart || 0, x.revealAt || 0, x.openedAt || 0);
-      if (last && Date.now() - last > STALE_MS) { flags['x' + x.id] = 1; write(x.id, { status: 'done', staleClosed: true }); }
+      var lim0 = (x.std === 'flat' && x.status === 'gathering') ? FLAT_SEAT_H * 3600000 : STALE_MS; /* ふらっとの待ち席は、だれの画面からでも、時間がたてば閉じる */
+      if (last && Date.now() - last > lim0) { flags['x' + x.id] = 1; write(x.id, { status: 'done', staleClosed: true }); }
     });
   }
   function checkCounts() {
@@ -1626,7 +1632,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var h = recvSay(me) + '<div class="panel"><div class="field"><label for="f-haigo">俳号（あとから変えられます）</label><input type="text" id="f-haigo" data-f="haigo" maxlength="20" value="' + esc(haigo) + '" placeholder="句会で名乗る名前"></div>';
     h += oneBox('g-a', 'ga', 'gcnt-a', d.a);
     h += rubyBar() + '<div class="tan pv" id="gpv">' + ku(d) + '</div><p class="chk no" id="gchk"></p>';
-    h += '<button class="btn primary" data-act="rsubmit">' + (me ? '句を直す' : 'この句を出して、参加する') + '</button>' + (me ? '<p class="center"><button class="link" data-act="rwithdraw">提出をやめる（取り消す）</button></p>' : '') + '<p class="note">定刻までなら、何度でも直せます。出した句は、「ストッ句」にも残ります。' + (me ? '「提出をやめる」を押すと、この回への参加を取り消します（句は、ストッ句に残ります）。' : '') + '</p></div>';
+    h += '<button class="btn primary" data-act="rsubmit">' + (me ? '句を直す' : 'この句を出して、参加する') + '</button>' + (me ? (s.std === 'flat' ? '<div class="actions"><button class="btn" data-act="rwithdraw">席を立つ（参加を取り消す）</button></div>' : '<p class="center"><button class="link" data-act="rwithdraw">提出をやめる（取り消す）</button></p>') : '') + '<p class="note">定刻までなら、何度でも直せます。出した句は、「ストッ句」にも残ります。' + (me ? '「提出をやめる」を押すと、この回への参加を取り消します（句は、ストッ句に残ります）。' : '') + '</p></div>';
     return h;
   }
   function vTeiWait(s) {
@@ -1692,7 +1698,11 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       h += '<p class="fc-state">' + (f && cnt ? (mi ? 'あなたは席についています。あと' + Math.max(0, size - cnt) + '人で、はじまります。' : 'あと' + Math.max(0, size - cnt) + '人で、はじまります。') : 'まだ、だれも並んでいません。最初の一人になりますか。') + '</p>';
       h += '<div class="fc-seats" aria-label="' + cnt + '/' + size + '人">'; for (var i = 0; i < size; i++) h += '<span class="' + (i < cnt ? 'on' : '') + '">' + HITO_SVG + '</span>'; h += '</div>';
       h += '<p class="fc-warn">作者は、さいごのオープンまでひみつです。ほかの人の句や選評の無断公開は、きんしです。</p>';
-      h += '<div class="actions"><button class="btn primary big" data-act="flat-go">' + (mi ? 'ようすを見る' : '一句出して、席につく') + '</button></div>';
+      if (f && cnt) {
+        var es0 = f.entries || {}, hu0 = Object.keys(es0).filter(function (k) { return es0[k] && !es0[k].bot; }), bo0 = cnt - hu0.length;
+        h += '<p class="note">いま席にいるのは、人' + hu0.length + '人' + (bo0 ? '・ボット' + bo0 + '名' : '') + '（' + hu0.map(function (k) { return (k === myId ? 'あなた' : esc(es0[k].haigo || '名無し')) + '＝' + ago(es0[k].at); }).join('、') + '）。席は、' + (FLAT_SEAT_H) + '時間たつと自動で立ちます。</p>';
+      }
+      h += '<div class="actions"><button class="btn primary big" data-act="flat-go">' + (mi ? 'ようすを見る' : '一句出して、席につく') + '</button>' + (mi ? '<button class="btn big" data-act="flat-leave">席を立つ（参加を取り消す）</button>' : '') + '</div>';
       h += '<p class="note">4人そろった瞬間に、はじまります。ボット1名と司会のダー浜も加わるので、ひとりでも大丈夫。席についたあとは、ほかのページで遊んでいても、音とお知らせでよびます。</p>';
     }
     h += '</div>';
@@ -4555,6 +4565,14 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'mailtog') { if (!myId) { toast('ログインすると使えます'); return; } mailSet(!mailOn); }
     else if (act === 'tei-go') { askNotify(); teiEnter(t.dataset.sid); }
     else if (act === 'flat-go') { askNotify(); flatEnter(); }
+    else if (act === 'flat-leave') {
+      var fl = flatMine(); if (!fl || !ready()) return;
+      if (fl.status !== 'gathering') { toast('はじまっているので、取り消せません'); return; }
+      if (!window.confirm('ふらっと句会の席を立ちますか？\n（句は「ストッ句」には残ります）')) return;
+      var FVf = window.firebase && window.firebase.firestore && window.firebase.firestore.FieldValue, fp = {};
+      if (FVf && FVf.delete) fp['entries.' + myId] = FVf.delete(); else { var rest2 = Object.assign({}, fl.entries); delete rest2[myId]; fp.entries = rest2; }
+      write(fl.id, fp).then(function () { toast('席を立ちました'); }); delete drafts['s:' + fl.id]; render();
+    }
     else if (act === 'tutt') { openTut(0, 'tei'); }
     else if (act === 'page') { page = t.dataset.p || ''; if (page === 'faq') markFirst('f_faq'); else if (page === 'news') markFirst('f_news'); else if (page === 'my') markFirst('f_my'); render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'live-g') { gCur = t.dataset.gid; gNew = false; tab = 'gohyo'; page = ''; render(); try { window.scrollTo(0, 0); } catch (_) {} }
