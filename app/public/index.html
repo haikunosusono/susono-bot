@@ -758,7 +758,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.22b';
+  var APP_VER = 'v2026.10.22c';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1757,13 +1757,14 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   /* ==== すその句会（月例）：1日に兼題発表 → 15日〆切 → 25日まで互選 → 26日に結果・句会報 ==== */
   var MON_ENTRY_END = 15, MON_SEL_END = 25, MON_MAX = 3;
   /* 月ごとの特別な日程（おためし月など）。ふつうは 15日〆切・25日まで互選 */
-  var MON_SCHED = { '2026-10': { entryEnd: 26, selEnd: 30, note: 'おためし' } };
+  var MON_SCHED = {}, MON_START = '2026-11'; /* はじまる月。それより前は「準備中」 */
   function monEnds(id) { var o = MON_SCHED[id] || {}; return { e: o.entryEnd || MON_ENTRY_END, s: o.selEnd || MON_SEL_END, note: o.note || '' }; }
   var monthly = {}, monDraft = ['', '', ''], monSelView = 'vote', monCmt = {}, monMonth = null;
   function monId(d) { d = d || new Date(Date.now() + 9 * 3600000); return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2); }
   function monLabel(id) { var p = id.split('-'); return p[0] + '年' + (+p[1]) + '月'; }
   function monPhase(id) {
     var now = new Date(Date.now() + 9 * 3600000), cur = monId(now);
+    if (id < MON_START) return 'closed';
     if (id < cur) return 'done'; if (id > cur) return 'soon';
     var day = now.getUTCDate(), en = monEnds(id);
     return day <= en.e ? 'entry' : day <= en.s ? 'select' : 'done';
@@ -1798,6 +1799,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var months = Object.keys(monthly).concat([monId()]).filter(function (x, i, a) { return a.indexOf(x) === i; }).sort().reverse();
     if (months.length > 1) h += '<div class="row">' + months.map(function (m) { return '<button class="chip fit' + (m === id ? ' on' : '') + '" data-act="mon-month" data-v="' + m + '">' + esc(monLabel(m)) + '</button>'; }).join('') + '</div>';
     /* 兼題 */
+    if (ph === 'closed') { return h + '<div class="panel"><b>準備中</b><p class="lead">' + esc(monLabel(MON_START)) + 'から、はじめます。</p><p class="note">' + esc(monLabel(MON_START).slice(0, -1)) + '1日に、ボットが兼題を発表します。それまで、しばらくお待ちください。</p></div>'; }
     if (en.note) h += '<p class="note">' + esc(monLabel(id)) + 'は「' + esc(en.note) + '」の月です。日程：' + MON_ENTRY_END + '日まで投句、' + MON_SEL_END + '日まで互選、' + (MON_SEL_END + 1) + '日に結果。</p>';
     h += '<div class="panel"><b>' + esc(monLabel(id)) + 'の兼題</b><p class="lead" style="font-size:1.4rem;margin:.3em 0">' + esc(kd.t) + '</p><p class="note">' + esc(kd.kind) + '　' + esc(kd.note) + '。1人1〜3句。' + MON_ENTRY_END + '日まで投句、' + MON_SEL_END + '日まで互選。</p>' +
       '<ol class="steps"><li class="' + (ph === 'entry' ? 'now' : 'past') + '">投句（〜' + MON_ENTRY_END + '日）</li><li class="' + (ph === 'select' ? 'now' : ph === 'done' ? 'past' : '') + '">互選（' + (MON_ENTRY_END + 1) + '〜' + MON_SEL_END + '日）</li><li class="' + (ph === 'done' ? 'now' : '') + '">結果・句会報（' + (MON_SEL_END + 1) + '日〜）</li></ol></div>';
@@ -4244,7 +4246,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var at = Date.now(), o = { kind: nf.kind, title: t, body: String(nf.body || '').trim(), url: okUrl(nf.url), at: at, by: myId };
     db.collection('news').doc('n' + at).set(o).then(function () { nf.title = ''; nf.body = ''; nf.url = ''; toast('投稿しました'); render(); }).catch(failMsg);
   }
-  var ROOMS = [['diary', '🌱 俳句の初心者部屋', 'はじめての一句・チュートリアルつき'], ['solo', '💪 俳筋力トレーニング部屋', 'きょうのテーマ・題詠（漢字・カタカナ）で、一日一句'], ['bot', '🐸 ひとりで句会', '進行になれる・鑑賞力もつける'], ['monthly', '📅 すその句会（月例）', '毎月1日に兼題・15日〆切・25日まで互選'], ['flat', '🍡 ふらっと句会', '4人そろえば、すぐ開始'], ['together', '🏮 定例句会（デモ）', '毎日 だれでも21時・おかわり23時・よなよな25時／土日祝はさらに おはよう10時・こんにちは13時・おやつの15時'], ['gohyo', '🍵 仲間と句会', '合言葉で集まる・見学なし']];
+  var ROOMS = [['diary', '🌱 俳句の初心者部屋', 'はじめての一句・チュートリアルつき'], ['solo', '💪 俳筋力トレーニング部屋', 'きょうのテーマ・題詠（漢字・カタカナ）で、一日一句'], ['bot', '🐸 ひとりで句会', '進行になれる・鑑賞力もつける'], ['monthly', '📅 すその句会（月例）', '11月から・毎月1日に兼題・15日〆切・25日まで互選'], ['flat', '🍡 ふらっと句会', '4人そろえば、すぐ開始'], ['together', '🏮 定例句会（デモ）', '毎日 だれでも21時・おかわり23時・よなよな25時／土日祝はさらに おはよう10時・こんにちは13時・おやつの15時'], ['gohyo', '🍵 仲間と句会', '合言葉で集まる・見学なし']];
   function vRooms() {
     return '<div class="rooms" role="tablist">' + ROOMS.map(function (r) { return '<button role="tab" data-act="tab" data-t="' + r[0] + '" aria-selected="' + (tab === r[0]) + '"><b>' + r[1] + '</b><small>' + r[2] + '</small></button>'; }).join('') + '</div>';
   }
