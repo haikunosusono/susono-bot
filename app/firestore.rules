@@ -48,6 +48,12 @@ service cloud.firestore {
     match /inquiries/{uid} {
       allow read, write: if mine(uid) || admin();
     }
+    // すその句会（月例）：だれでも読める（見るだけの人も）。書けるのはログインした人
+    match /monthly/{id} {
+      allow read: if true;
+      allow create, update: if signedIn();
+      allow delete: if admin();
+    }
     // 談話室（みんなの待合室）：ログインした人なら、読める・書ける。消せるのは運営者だけ
     match /lounge/{id} {
       allow read, create, update: if signedIn();
