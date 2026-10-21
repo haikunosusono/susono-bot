@@ -758,7 +758,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.21i';
+  var APP_VER = 'v2026.10.21j';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3943,7 +3943,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     items = items.concat(teiLiveItems());
     sessions.filter(function (x) { return x.std === 'flat' && x.status !== 'done'; }).forEach(function (x) {
       var mi = x.entries && x.entries[myId];
-      if (x.status === 'gathering') { if (count(x) < 1) return; items.push('<li><button class="sess" data-act="flat-go"><span class="row2"><span class="kd">🍡 ふらっと句会に、席が出ています</span><span class="pill st-gathering">あと' + Math.max(0, x.size - count(x)) + '人</span></span><span class="row2 sub"><span>当季雑詠　' + count(x) + '/' + x.size + '人</span><span class="me">' + (mi ? 'ようすを見る' : '句を出して、席につく') + '</span></span></button></li>'); }
+      if (x.status === 'gathering') { if (count(x) < 1) return; items.push('<li><button class="sess" data-act="flat-go"><span class="row2"><span class="kd">🍡 ふらっと句会' + (teiHumans(x) ? 'に、' + teiHumans(x) + '人が待っています' : '（まだ、だれもいません）') + '</span><span class="pill st-gathering">あと' + Math.max(0, x.size - count(x)) + '人</span></span><span class="row2 sub"><span>当季雑詠　人' + teiHumans(x) + '人' + (count(x) - teiHumans(x) ? '・ボット' + (count(x) - teiHumans(x)) + '名' : '') + '（' + x.size + '席）</span><span class="me">' + (mi ? 'ようすを見る' : '句を出して、席につく') + '</span></span></button></li>'); }
       else items.push('<li><button class="sess" data-act="flat-go"><span class="row2"><span class="kd">' + (mi ? 'あなたのふらっと句会が、進行中です' : 'いま、ふらっと句会が進行中です') + '</span>' + pill(x.status, x) + '</span><span class="row2 sub"><span>当季雑詠　' + count(x) + '句</span><span class="me">' + (mi ? 'ひらく' : '見学もどうぞ') + '</span></span></button></li>');
     });
     sessions.forEach(function (x) {
