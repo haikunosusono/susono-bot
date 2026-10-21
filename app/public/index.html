@@ -758,7 +758,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.21j';
+  var APP_VER = 'v2026.10.21k';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1707,6 +1707,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       h += '<p class="note">4人そろった瞬間に、はじまります。ボット1名と司会のダー浜も加わるので、ひとりでも大丈夫。席についたあとは、ほかのページで遊んでいても、音とお知らせでよびます。</p>';
     }
     h += '</div>';
+    h += vLounge();
     h += maner('t');
     h += '<div class="panel"><b>この句会のルール</b><ul class="tg2">' +
       '<li>お題は「当季雑詠」。ひとり1句です。</li>' +
@@ -1728,6 +1729,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var st = teiState(), t = Date.now(), h = '<h2 class="sec">定例句会（デモ）<small>平日はよる・休日はひるまと よる</small></h2>';
     h += '<div class="howto"><b>夜9時だよ、全員集合</b><span>平日は、夜の9時（21時）に「だれでも句会」、11時（23時）に「おかわり句会」、夜中1時（25時）に「よなよな句会」。土・日・祝日は、あさ10時の「おはよう句会」・13時の「こんにちは句会」・15時の「おやつの句会」。休日の夜も、21時・23時・25時の3回をひらきます。お題は「当季雑詠」（いまの季節を、自由に）。句を出して、選んで、一句ずつ語り合い、最後に点と作者がオープン。はじめから終わりまで、だれでも見学できます。<b>ひとりのときは、ボットが参加します。</b></span><span class="chips2"><i>平日21時・23時・25時</i><i>土日祝は10時・13時・15時も</i><i>お題 当季雑詠</i><i>見学OK</i><i>投句はいつでも</i><i>約25分</i></span></div>';
     h += maner('t');
+    h += vLounge();
     if (online > 1) h += '<p class="note">いま ' + online + ' 人が、このページをひらいています。</p>';
     if (st.kind === 'accept' || st.kind === 'live') h += teiSlotCard(st.slot, st.s, st.kind);
     /* きょうの時間割 */
@@ -2271,6 +2273,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var h = '<div class="sh"><button class="link" data-act="sback">← ' + (fromArch ? '句会アーカイブ' : '句会の一覧') + '</button><h2>' + (s.tei ? '定例句会（デモ）' + esc(teiSlotName(dn(s.date), s.slot)) + '　' + esc(mdLabel(dn(s.date)) + s.slot + '時') : kaidai(s)) + '</h2>' + (s.tei ? '<p class="lead">定例句会（デモ）　お題：当季雑詠</p>' : s.std === 'flat' ? '<p class="lead">4人そろえば、すぐ開く句会　お題：当季雑詠　司会はダー浜</p>' : '') + (s.hint ? '<p class="lead">ヒント：' + esc(s.hint) + '</p>' : '') + pill(s.status, s) + '</div>' + steps(s.status, s.opened ? (Date.now() - (s.openedAt || 0) < 60000 ? 'open' : 'back') : false);
     if (!kInvolved(s) && s.status !== 'done' && s.status !== 'gathering') h += '<p class="note">見学中です。はじめから終わりまで、見学できます。句を出していないので、選んだり、選評を送ったりはできません。</p>';
     if (s.tei) { h += teiGuide(s); if (!s.opened && s.status !== 'done') h += maner('t'); }
+    if ((s.tei || s.std === 'flat') && s.status !== 'done') h += vKChat(s);
     if (s.std === 'flat') {
       /* 席についているなら、いちばん上に「席を立つ」。見つけやすく */
       if (s.status === 'gathering' && s.entries && s.entries[myId]) h += '<div class="panel" style="border-color:var(--accent)"><b>あなたは、席についています</b><p class="note">人が4人そろうと、はじまります。やめるときは、ここから席を立てます（句は「ストッ句」に残ります）。</p><div class="actions"><button class="btn" data-act="rwithdraw">席を立つ（参加を取り消す）</button></div></div>';
@@ -3118,6 +3121,36 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     }).join('') + '</ul>';
     return h;
   }
+  /* 定例・ふらっと句会の こそこそ話：句を出した人だけ。部屋（kukai）の chat に入る */
+  var kChatOpen = false, kChatText = '';
+  function vKChat(s) {
+    if (!s || !(s.entries && s.entries[myId])) return '';
+    var msgs = Object.keys(s.chat || {}).map(function (k) { return s.chat[k]; }).sort(function (a, b) { return (a.at || 0) - (b.at || 0); }).slice(-30);
+    return '<details class="panel chatp"' + (kChatOpen ? ' open' : '') + '><summary data-act="k-chat-tgl">こそこそ話<small>（句を出した人だけに見えます・' + msgs.length + '件）</small></summary><div class="chat">' +
+      (msgs.length ? msgs.map(function (m) { return '<p' + (m.uid === myId ? ' class="me2"' : '') + '><b>' + esc(m.haigo || '名無し') + '</b>' + esc(m.text || '') + '</p>'; }).join('') : '<p class="note">まだ、ひそひそはありません。はじまる前の雑談や、あいさつにどうぞ。</p>') +
+      '</div><div class="row"><input type="text" id="k-chat" data-f="k-chat" maxlength="100" value="' + esc(kChatText) + '" placeholder="ひそひそ…" autocomplete="off"><button class="chip fit" data-act="k-chat-send">送る</button></div><p class="note">作者のあてっこの答え合わせは、オープンまでのお楽しみに。</p></details>';
+  }
+  /* 談話室（みんなの待合室）：ログインした人なら、だれでも。集まる相談や、合言葉決め、句会のまえの雑談に */
+  var lounge = {}, loungeOpen = false, loungeText = '', loungeSeen = null;
+  function vLounge() {
+    if (!myId) return '';
+    var msgs = Object.keys(lounge).map(function (k) { return lounge[k]; }).filter(function (m) { return m && Date.now() - (m.at || 0) < 3 * 86400000; }).sort(function (a, b) { return (a.at || 0) - (b.at || 0); }).slice(-50);
+    return '<details class="panel chatp lounge"' + (loungeOpen ? ' open' : '') + '><summary data-act="lounge-tgl">☕ 談話室（みんなの待合室）<small>' + (msgs.length ? '・' + msgs.length + '件' : '') + '</small></summary>' +
+      '<p class="note">句会のまえの雑談、「今夜集まりませんか」の声かけ、仲間と句会の合言葉決めなどに。ログインした人はだれでも見られます（3日で消えます）。句は、ここには書かないでください（未発表のまま守るため）。</p><div class="chat">' +
+      (msgs.length ? msgs.map(function (m) { return '<p' + (m.uid === myId ? ' class="me2"' : '') + '><b>' + esc(m.haigo || '名無し') + '</b>' + esc(m.text || '') + '<small style="margin-left:.5em;color:var(--ink-soft)">' + ago(m.at) + '</small></p>'; }).join('') : '<p class="note">まだ、だれも話していません。</p>') +
+      '</div><div class="row"><input type="text" id="lounge" data-f="lounge" maxlength="120" value="' + esc(loungeText) + '" placeholder="ひとこと…" autocomplete="off"><button class="chip fit" data-act="lounge-send">送る</button></div></details>';
+  }
+  function loungeSend() {
+    if (!db || !myId) { toast('ログインすると使えます'); return; }
+    var t = String(loungeText || '').trim(); if (!t) return;
+    loungeText = ''; loungeOpen = true; try { var le = document.getElementById('lounge'); if (le) le.value = ''; } catch (_) {}
+    var key = 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), p = {};
+    p[key] = { uid: myId, haigo: haigo.trim() || '名無し', text: t.slice(0, 120), at: Date.now() };
+    /* 古いものは、送るついでに消す（60件をこえた分） */
+    var FVl = window.firebase && window.firebase.firestore && window.firebase.firestore.FieldValue, ks = Object.keys(lounge).sort(function (a, b) { return (lounge[a].at || 0) - (lounge[b].at || 0); });
+    if (FVl && FVl.delete && ks.length > 60) ks.slice(0, ks.length - 60).forEach(function (k) { p[k] = FVl.delete(); });
+    db.doc('lounge/main').set(p, { merge: true }).catch(failMsg);
+  }
   function vGChat(r) {
     if (!gIsMember(r)) return '';
     var msgs = Object.keys(r.chat || {}).map(function (k) { return r.chat[k]; }).sort(function (a, b) { return (a.at || 0) - (b.at || 0); }).slice(-30);
@@ -3367,6 +3400,14 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       if (!tx && !tgs.length) { toast('ボタンをえらぶか、ひとことを入れてください'); return; }
       gCm[e3] = ''; gCmTag[e3] = []; markFirst('f_cm'); gWrite(r.id, nest(['cmts', 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5)], { eid: e3, uid: myId, text: tx.slice(0, 140), tags: tgs, at: Date.now() }));
     }
+    else if (act === 'k-chat-tgl') { kChatOpen = !kChatOpen; render(); }
+    else if (act === 'k-chat-send') {
+      var ks0 = scur(); if (!ks0 || !ready() || !(ks0.entries && ks0.entries[myId])) return; var kt0 = String(kChatText || '').trim(); if (!kt0) return;
+      kChatText = ''; kChatOpen = true; try { var kce = document.getElementById('k-chat'); if (kce) kce.value = ''; } catch (_) {}
+      write(ks0.id, nest(['chat', 'h' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5)], { uid: myId, haigo: haigo.trim() || '名無し', text: kt0.slice(0, 100), at: Date.now() }));
+    }
+    else if (act === 'lounge-tgl') { loungeOpen = !loungeOpen; render(); }
+    else if (act === 'lounge-send') { loungeSend(); }
     else if (act === 'g-chat-tgl') { gChatOpen = !gChatOpen; render(); }
     else if (act === 'g-chat-send') {
       if (!r || !ready() || !gIsMember(r)) return; var ctx0 = String(gChatText || '').trim(); if (!ctx0) return;
@@ -3384,6 +3425,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (f === 'g-aik') gAik = t.value;
     else if (f === 'g-naik') gAikNew = t.value;
     else if (f === 'g-chat') gChatText = t.value;
+    else if (f === 'k-chat') kChatText = t.value;
+    else if (f === 'lounge') loungeText = t.value;
     else if (f === 'g-dai') gDaiText = t.value;
     else if (f === 'g-sdai') gDraft.dai = t.value;
     else if (f === 'g-a' || f === 'g-b' || f === 'g-c') { gDraft[f.charAt(2)] = t.value; var gc0 = document.getElementById('g-cnt-a'); if (gc0) gc0.textContent = len(gDraft.a) + '字'; var pv = document.getElementById('g-pv'); if (pv) pv.innerHTML = ku(gDraft); }
@@ -4892,6 +4935,11 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     }, function () {}));
     subGohyo();
     try {
+      unsubs.push(db.doc('lounge/main').onSnapshot(function (d) {
+        var o = (d && d.exists && d.data()) || {}; var n0 = Object.keys(o).length;
+        if (loungeSeen !== null && n0 > loungeSeen && !loungeOpen) toast('談話室に、新しい話があります');
+        loungeSeen = n0; lounge = o; if (!page) render();
+      }, function () {}));
       unsubs.push(db.collection('news').orderBy('at', 'desc').limit(30).onSnapshot(function (sn) {
         news = sn.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; });
         if (!page || page === 'news' || page === 'admin') render();

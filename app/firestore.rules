@@ -48,6 +48,11 @@ service cloud.firestore {
     match /inquiries/{uid} {
       allow read, write: if mine(uid) || admin();
     }
+    // 談話室（みんなの待合室）：ログインした人なら、読める・書ける。消せるのは運営者だけ
+    match /lounge/{id} {
+      allow read, create, update: if signedIn();
+      allow delete: if admin();
+    }
     // 広場の統計（仲間の人数・今日来た人・句の数）：ログインした人なら読める
     // 広場だより：全員が読める。書くのは運営者だけ
     match /news/{id} {
