@@ -758,7 +758,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.21l';
+  var APP_VER = 'v2026.10.21m';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1571,21 +1571,48 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   }
   /* 松風主宰のほめ言葉を、AI（Google Gemini・はっちゃんの Apps Script 経由）で。住所が空なら使わない。失敗したら、いまのほめ言葉のまま */
   var SENSEI_API = 'https://script.google.com/macros/s/AKfycbzPL2utUP3yA-wqTJD4a0qKavefh-KNg2dOAtWGA35YFgJTf5t57SaucWRUqTz_9PIX/exec';
+  var senseiLog = [];
+  function sLog(m) { senseiLog.push(new Date().toLocaleTimeString('ja-JP') + ' ' + m); if (senseiLog.length > 12) senseiLog.shift(); if (isAdmin) { try { render(); } catch (_) {} } }
+  /* ボットの句への質問（？で終わるコメント）に、ボット作者が答える。AI が使えればAIで、だめなら決まった言い方で */
+  var BOT_ANS = [
+    'ご質問ありがとうございます。この季語は、その日いちばん近くに感じた季節のことばでした。',
+    'ありがとうございます。見たままを、できるだけ飾らずに置いてみました。読んでいただけてうれしいです。',
+    'ご質問ありがとうございます。迷った末に、いちばん音がすわることばを選びました。ほかの読みも、ぜひ聞かせてください。',
+    'ありがとうございます。じつは、そこは自分でも迷ったところです。そう読んでいただけて、ほっとしました。'
+  ];
+  function botAnswer(s0, bid, q, key) {
+    var es = s0.entries || {}, be = es[bid]; if (!be || !be.bot) return;
+    var ku = joinKu(be).a, done = false;
+    function put(text) {
+      if (done) return; done = true;
+      var k2 = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), co = {};
+      co[k2] = { eid: bid, uid: bid, text: String(text).slice(0, 140), tone: 'やさしく', part: [], at: Date.now(), re: key || '', jiku: true, anon: true, bot: true };
+      setTimeout(function () { write(s0.id, { comments: co }); }, 1500 + Math.random() * 2500);
+    }
+    var fb = BOT_ANS[hash(s0.id + bid + key) % BOT_ANS.length];
+    if (!SENSEI_API) { put(fb); return; }
+    var ctrl = null; try { ctrl = new AbortController(); setTimeout(function () { ctrl.abort(); }, 40000); } catch (_) {}
+    fetch(SENSEI_API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ reply: { ku: ku, q: String(q).slice(0, 140), name: String(be.haigo || '').replace('（ボット）', '') } }), signal: ctrl ? ctrl.signal : undefined, redirect: 'follow' })
+      .then(function (r) { return r.json(); }).then(function (o) { sLog('質問への返事: ' + (o && o.ok ? 'OK' : '失敗 ' + (o && o.err || ''))); put(o && o.ok && o.text ? o.text : fb); })
+      .catch(function (e) { sLog('質問への返事: 通信エラー ' + (e && e.message || '')); put(fb); });
+  }
   function senseiAI(s0) {
     if (!SENSEI_API || !s0 || !db) return;
+    sLog('先生の評を AI にたのみます（' + s0.id + '）');
     var cm = teiBotComments(s0), es = s0.entries || {};
     Object.keys(cm).forEach(function (key) {
       var c = cm[key]; if (c.uid !== 'benico' || !es[c.eid] || es[c.eid].bot) return;
       var ku = joinKu(es[c.eid]).a, ctrl = null, timer = null;
       try { ctrl = new AbortController(); timer = setTimeout(function () { ctrl.abort(); }, 45000); } catch (_) {}
       fetch(SENSEI_API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ ku: ku }), signal: ctrl ? ctrl.signal : undefined, redirect: 'follow' })
-        .then(function (r) { return r.json(); })
+        .then(function (r) { sLog('応答 HTTP ' + r.status); return r.json(); })
         .then(function (o) {
           if (timer) clearTimeout(timer);
-          if (!o || !o.ok || !o.text) return;
+          if (!o || !o.ok || !o.text) { sLog('評が作れず: ' + (o && o.err || '中身なし')); return; }
+          sLog('評OK（' + (o.model || '') + '）');
           var p = {}; p['comments.' + key + '.text'] = String(o.text).slice(0, 400); p['comments.' + key + '.part'] = [String(o.part || c.part[0])]; p['comments.' + key + '.ai'] = true;
           writeIf(s0.id, function (cur) { return cur.status === 'reveal' && cur.comments && cur.comments[key]; }, function () { return p; });
-        }).catch(function () {});
+        }).catch(function (e) { sLog('通信エラー: ' + (e && e.message || e)); });
     });
   }
   /* 2人の回：AI（Gemini）に2句を読ませて、ボットの特選を決める。届かなければ、並選どうしのまま */
@@ -2274,6 +2301,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (!kInvolved(s) && s.status !== 'done' && s.status !== 'gathering') h += '<p class="note">見学中です。はじめから終わりまで、見学できます。句を出していないので、選んだり、選評を送ったりはできません。</p>';
     if (s.tei) { h += teiGuide(s); if (!s.opened && s.status !== 'done') h += maner('t'); }
     if ((s.tei || s.std === 'flat') && s.status !== 'done') h += vKChat(s);
+    if (isAdmin && senseiLog.length) h += '<details class="panel"><summary>AI の通信ログ（運営者だけ）</summary><pre style="font-size:.75rem;white-space:pre-wrap">' + esc(senseiLog.join('\n')) + '</pre></details>';
     if (s.std === 'flat') {
       /* 席についているなら、いちばん上に「席を立つ」。見つけやすく */
       if (s.status === 'gathering' && s.entries && s.entries[myId]) h += '<div class="panel" style="border-color:var(--accent)"><b>あなたは、席についています</b><p class="note">人が4人そろうと、はじまります。やめるときは、ここから席を立てます（句は「ストッ句」に残ります）。</p><div class="actions"><button class="btn" data-act="rwithdraw">席を立つ（参加を取り消す）</button></div></div>';
@@ -4807,6 +4835,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       cmDraft[eid2] = ''; cmTone[eid2] = ''; cmPart[eid2] = []; cmReply[eid2] = '';
       try { var cie = document.getElementById('cm-' + eid2); if (cie) cie.value = ''; } catch (_) {}
       write(sm.id, { comments: cobj }); try { var tp = {}; tp[myId] = null; write(sm.id, { typing: tp }); } catch (_) {}
+      try { var be0 = sm.entries && sm.entries[eid2]; if (be0 && be0.bot && /[？?]/.test(text)) botAnswer(sm, eid2, text, key); } catch (_) {}
     }
     else if (act === 'finish') { var sf = scur(); if (sf) write(sf.id, { status: 'done' }); }
     else if (act === 'yaku-close') { var sy = scur(); if (sy) { yakuOpen[sy.id] = false; render(); } }

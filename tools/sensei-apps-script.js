@@ -62,6 +62,15 @@ function doPost(e) {
       out = { ok: true, pick: Number(jo.pick) === 1 ? 1 : 0, why: String(jo.why || '').slice(0, 60) };
       return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
     }
+    /* 質問への返事（ボット作者として）。{"reply":{"ku":"句","q":"質問","name":"作者名"}} → {"ok":true,"text":"返事"} */
+    if (body.reply && body.reply.ku) {
+      var rp = ['あなたは句会の参加者「' + String(body.reply.name || '').slice(0, 10) + '」です。自分の句について、ほかの参加者から質問をもらいました。作者として、やさしい丁寧語で、80字以内で答えてください。', '守ること：句の情景や、ことばを選んだ理由を、作者の実感として話す。わからない季語や事実を断定しない。相手の名前は呼ばない。', '出力は JSON だけ：{"text": "<返事>"}', '', '自分の句：' + String(body.reply.ku).slice(0, 60), '質問：' + String(body.reply.q).slice(0, 140)].join('\n');
+      var rr = askGemini(rp);
+      if (!rr) throw new Error('返事が作れませんでした');
+      var ro = JSON.parse(String(rr).replace(/^```json|```$/g, '').trim());
+      out = { ok: true, text: String(ro.text || '').slice(0, 140) };
+      return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
+    }
     var ku = String(body.ku || '').replace(/\s+/g, ' ').trim().slice(0, 60);
     if (!ku) throw new Error('句がありません');
     var prompt = RULE + '\n\n句：' + ku;
