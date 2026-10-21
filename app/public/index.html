@@ -758,7 +758,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.21c';
+  var APP_VER = 'v2026.10.21d';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2013,7 +2013,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       w = w.slice().sort(function (x, y) { return (T[y.id].toku || []).length - (T[x.id].toku || []).length || ((s.entries[x.id] || {}).at || 0) - ((s.entries[y.id] || {}).at || 0); }).slice(0, 1);
     }
     if (w.some(function (x) { return x.id === myId; })) { var me = w.filter(function (x) { return x.id === myId; })[0]; awardTrophy('k-' + s.id, { kind: s.tei ? '定例句会（デモ）' : s.std === 'flat' ? 'ふらっと句会' : '定例句会', ch: s.tei ? '当季雑詠　' + mdLabel(dn(s.date)) + s.slot + '時' : (s.ch || ''), date: s.date || ds(dayNum()), pts: max, a: me.a, b: me.b, c: me.c }); }
-    return (botTop ? '<p class="note">最高点はボットの句でしたが、優勝は、参加した人の中から決めます。</p>' : '') + winCard(w.map(function (x) { return x.haigo || '名無し'; }), max, w[0], s.tei ? '（定例句会・定例デモ）' : s.std === 'flat' ? '（ふらっと句会）' : '（定例句会）', s.tei ? '句碑のトロフィーが、優勝の方に贈られます（マイページに飾られます）' : '');
+    return (botTop ? '<div class="cmi hostline"><b>ダー浜（司会）</b>今回の最高点は、ボットの句やったで。トロフィーは、人の部で決めるで。ボットの句をよう読めたんは、ええことや。こうやって鑑賞力・俳筋力をつけていこな！</div>' : '') + winCard(w.map(function (x) { return x.haigo || '名無し'; }), max, w[0], s.tei ? '（定例句会・定例デモ）' : s.std === 'flat' ? '（ふらっと句会）' : '（定例句会）', s.tei ? '句碑のトロフィーが、優勝の方に贈られます（マイページに飾られます）' : '');
   }
   var yakuOpen = {}, watchAt = {};
   var K_STAMPS = [['🌸', 'すき'], ['👏', 'うまい'], ['😮', 'おどろき'], ['🍵', 'しみじみ']];
