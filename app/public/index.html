@@ -758,7 +758,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.21n';
+  var APP_VER = 'v2026.10.21o';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -844,6 +844,15 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       tone(2093, t + 0.32, 0.9, 0.05);
     } catch (e) {}
   }
+  /* こそこそ話・談話室の、小さな「ピロン」 */
+  function pilon() {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === 'suspended') actx.resume();
+      var t = actx.currentTime + 0.02; tone(1318.5, t, 0.18, 0.12); tone(1760, t + 0.12, 0.35, 0.12);
+      if (navigator.vibrate) navigator.vibrate(80);
+    } catch (e) {}
+  }
   function primeAudio() { try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch (e) {} }
   document.addEventListener('touchend', primeAudio, { passive: true }); document.addEventListener('click', primeAudio, { passive: true });
   function notify(msg) {
@@ -883,8 +892,16 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       if (last && Date.now() - last > lim0) { flags['x' + x.id] = 1; write(x.id, { status: 'done', staleClosed: true }); }
     });
   }
+  var kChatSeen = {};
   function checkCounts() {
     var seen = {};
+    /* 定例・ふらっとの こそこそ話：自分以外から届いたら、ピロン */
+    sessions.forEach(function (x) {
+      if (!(x.tei || x.std === 'flat') || !x.entries || !x.entries[myId]) return;
+      var cn = Object.keys(x.chat || {}).length;
+      if (kChatSeen[x.id] !== undefined && cn > kChatSeen[x.id]) { var lastK = Object.keys(x.chat).map(function (k) { return x.chat[k]; }).sort(function (a, b) { return (b.at || 0) - (a.at || 0); })[0]; if (lastK && lastK.uid !== myId) { pilon(); if (current !== x.id || !kChatOpen) toast('こそこそ話：' + (lastK.haigo || '') + '「' + String(lastK.text || '').slice(0, 20) + '」'); } }
+      kChatSeen[x.id] = cn;
+    });
     sessions.forEach(function (x) {
       seen[x.id] = count(x);
       if (x.tei && x.status === 'gathering' && x.entries && x.entries[myId] && prevCnt[x.id] != null && seen[x.id] > prevCnt[x.id]) notify(seen[x.id] + '人めの句が出ました');
@@ -3497,7 +3514,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
         gNoteSeen[r.id] = r.stNote.at;
       } else if (gNoteSeen[r.id] === undefined) gNoteSeen[r.id] = 0;
       var cn = Object.keys(r.chat || {}).length;
-      if (gChatSeen[r.id] !== undefined && cn > gChatSeen[r.id] && gCur === r.id && !gChatOpen && tab === 'gohyo') toast('こそこそ話が届いています');
+      if (gChatSeen[r.id] !== undefined && cn > gChatSeen[r.id] && gCur === r.id && tab === 'gohyo') { var lastG = Object.keys(r.chat || {}).map(function (k) { return r.chat[k]; }).sort(function (a, b) { return (b.at || 0) - (a.at || 0); })[0]; if (lastG && lastG.uid !== myId) { pilon(); if (!gChatOpen) toast('こそこそ話が届いています'); } }
       gChatSeen[r.id] = cn;
     });
   }
@@ -4989,7 +5006,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     try {
       unsubs.push(db.doc('lounge/main').onSnapshot(function (d) {
         var o = (d && d.exists && d.data()) || {}; var n0 = Object.keys(o).length;
-        if (loungeSeen !== null && n0 > loungeSeen && !loungeOpen) toast('談話室に、新しい話があります');
+        if (loungeSeen !== null && n0 > loungeSeen) { var lastL = Object.keys(o).map(function (k) { return o[k]; }).sort(function (a, b) { return (b.at || 0) - (a.at || 0); })[0]; if (lastL && lastL.uid !== myId) { pilon(); if (!loungeOpen) toast('談話室：' + (lastL.haigo || '') + '「' + String(lastL.text || '').slice(0, 20) + '」'); } }
         loungeSeen = n0; lounge = o; if (!page) render();
       }, function () {}));
       unsubs.push(db.collection('news').orderBy('at', 'desc').limit(30).onSnapshot(function (sn) {
