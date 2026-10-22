@@ -8,16 +8,20 @@ on:
   workflow_dispatch:
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      - uses: actions/setup-node@v4
         with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          projectId: haikunosusono
-          channelId: live
-          entryPoint: app
+          node-version: '20'
+      - name: 画面をデプロイ（Firebase Hosting）
+        env:
+          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          echo "$SA_JSON" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          cd app && npx --yes firebase-tools@13 deploy --only hosting --project haikunosusono --non-interactive
+          rm -f "$RUNNER_TEMP/sa.json"
       - name: Firestoreのルールを反映（失敗しても、画面の反映はそのまま）
         continue-on-error: true
         env:
