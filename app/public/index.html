@@ -846,7 +846,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27s';
+  var APP_VER = 'v2026.10.27t';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3520,7 +3520,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   /* 季語をしらべる：判定はせず、出典のしっかりした歳時記（きごさい歳時記）を検索して確かめる */
   var kgQ = '';
   function kigoBox() {
-    return '<details class="kgbox"><summary>🔍 季語をしらべる（きごさい歳時記・夏井いつきの俳句季語辞典）</summary><div class="row"><input type="text" data-f="kg-q" maxlength="20" value="' + esc(kgQ) + '" placeholder="例：木枯"><button class="chip fit" data-act="kg-go">きごさい歳時記で</button><button class="chip fit" data-act="kg-go" data-v="ouchi">夏井いつきの俳句季語辞典で</button></div><p class="note"><a href="https://ouchidehaiku.com/' + ({ haru: 'spring', natsu: 'summer', aki: 'autumn', fuyu: 'winter' })[tkSeason()] + '/contents/seasonwords" target="_blank" rel="noopener">夏井いつきのおウチde俳句くらぶ「俳句季語辞典」（いまの季節）をひらく</a></p><p class="note">「きごさい歳時記」（NPO法人 季語と歳時記の会）と、夏井いつきの「おウチde俳句くらぶ」の俳句季語辞典のサイトの中を、Googleで検索します。季語のあつかいは歳時記によってちがうことがあります。無季・自由律・季重なりも、句によっては立派な表現です。</p>' + vGoon('', '') + '</details>';
+    return '<details class="kgbox"><summary>🔍 季語をしらべる（きごさい歳時記・夏井いつきの俳句季語辞典）</summary><div class="row"><input type="text" data-f="kg-q" maxlength="20" value="' + esc(kgQ) + '" placeholder="例：木枯"><button class="chip fit" data-act="kg-go">きごさい歳時記で</button><button class="chip fit" data-act="kg-go" data-v="ouchi">夏井いつきの俳句季語辞典で</button></div><p class="note"><a href="https://ouchidehaiku.com/' + ({ haru: 'spring', natsu: 'summer', aki: 'autumn', fuyu: 'winter' })[tkSeason()] + '/contents/seasonwords" target="_blank" rel="noopener">夏井いつきのおウチde俳句くらぶ「俳句季語辞典」（いまの季節）をひらく</a></p><p class="note"><a href="https://kigosai.sub.jp/001/27701-2" target="_blank" rel="noopener">きごさい歳時記「5000季語一覧」（季節・分類べつ）をひらく</a>　<a href="https://kigosai.sub.jp/" target="_blank" rel="noopener">きごさい歳時記のトップ（ことば検索・50音検索）</a></p><p class="note">「きごさい歳時記」（NPO法人 季語と歳時記の会）と、夏井いつきの「おウチde俳句くらぶ」の俳句季語辞典のサイトの中を、Googleで検索します。季語のあつかいは歳時記によってちがうことがあります。無季・自由律・季重なりも、句によっては立派な表現です。</p>' + vGoon('', '') + '</details>';
   }
   function kigoGo(where) {
     var q = String(kgQ || '').trim(); if (!q) { toast('しらべたい言葉を入れてください'); return; }
