@@ -806,7 +806,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27c';
+  var APP_VER = 'v2026.10.27d';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2511,7 +2511,6 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
         (canC && opened && e.id === myId ? '<p class="note">🪶 <b>自句自解（作者から）</b>：自分の句のことを、自由に語ってください。どんな場面だったか、どうしてこの季語・この語順にしたか、質問への答え、こめた思い。長くなっても大丈夫。だまっていても、もちろん大丈夫です。</p>' : '') +
         (canC && !opened ? '<p class="note">「ここがすき」だけでも、立派な選評です。気になる点や質問も、ひとつあると、作者の学びになります。 <button class="link" data-act="page" data-p="hints">句会の評のヒント</button>' + (hyoDone() ? '<br><b>評の型：</b>① ことばを引く　② 感じたこと　③ 提案ひとつ（なくてもよい）' : '　<button class="link" data-act="page" data-p="hyo">5分でれんしゅう</button>') + '</p>' : '') +
         (canC && !opened && e.id !== myId ? hmBox(e) : '') +
-        (canC ? '<details class="qcm' + (qOpen[e.id] ? '" open="' : '') + '" data-qeid="' + esc(e.id) + '"><summary>ことばのヒント（押すと入力欄に入ります・そのまま送ってもOK）</summary>' + K_QGROUPS.map(function (g) { var more = !!qMore[e.id], list = more ? g.ch : g.ch.slice(0, 5); return '<div class="row qcmrow"><span class="lb">' + g.lb + '</span>' + list.map(function (q2) { return '<button class="chip fit" data-act="cm-fill" data-eid="' + esc(e.id) + '" data-v="' + esc(q2) + '">' + esc(q2) + '</button>'; }).join('') + '</div>'; }).join('') + '<p class="note"><button class="link" data-act="cm-more" data-eid="' + esc(e.id) + '">' + (qMore[e.id] ? 'すくなく' : 'もっと見る') + '</button></p></details>' : '') +
         (canC ? '<p class="note typing" id="typing-' + esc(e.id) + '">' + typingText(s) + '</p>' : '') +
         (canC && cmEdit[e.id] ? '<p class="note">自分のコメントを編集しています <button class="link" data-act="cm-edit-cancel" data-eid="' + esc(e.id) + '">やめる</button></p>' : '') +
         (canC && cmReply[e.id] && s.comments && s.comments[cmReply[e.id]] ? '<p class="note">「' + esc(String(s.comments[cmReply[e.id]].text || '').slice(0, 14)) + '…」への返信を書いています <button class="link" data-act="cm-re-cancel" data-eid="' + esc(e.id) + '">やめる</button></p>' : '') +
