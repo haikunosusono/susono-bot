@@ -817,7 +817,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27l';
+  var APP_VER = 'v2026.10.27m';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3016,14 +3016,14 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     { n: '四ノ型', t: '下五で「けり」', base: ['上五に季語（名詞）', '中七・下五は、季語と関係ないひと続きのフレーズ', '動詞＋「けり」で結ぶ'], ex: '[木の葉髪]回覧板を回し{けり}',
       ap: [['上五で切らずに、中七へ続ける', '[秋の蝶]ひくきところを飛びに{けり}'], ['季語に助詞（てにをは）をつける', '[蜜柑の香]指にのこりてゐたり{けり}'], ['季語を中七に', 'てのひらに[冬の日差し]を受けに{けり}']] }
   ];
-  var kataI = 0, kataMore = false;
+  var kataI = 0, kataMore = true;
   function kataKu(s) { return '<span class="kataku">' + esc(s).replace(/\[([^\]]+)\]/g, '<span class="kk">$1</span>').replace(/\{([^}]+)\}/g, '<span class="kc">$1</span>') + '</span>'; }
   function vKata() {
     var k = KATA[kataI];
     var h = '<h2 class="sec">型の基本の部屋<small>藤田湘子『20週俳句入門』より</small></h2>' +
       hostSay('型は、のびのび詠むための道具や。まずは真似して、手になじませよか。', '<button class="link" data-act="page" data-p="kokoro">はじめに（先生がたのことば）</button>') +
       '<div class="kbase"><b>基本形</b><p>季語（5音）＋ 季語と関係ないフレーズ（12音）</p><p class="note">季語とフレーズの距離が、ほどよく遠いと、句がひろがります。</p><p class="kleg"><span class="kk">季語</span>　<span class="kc">切れ字</span>　フレーズ</p></div>' +
-      '<div class="row katatabs">' + KATA.map(function (x, i) { return '<button class="chip fit' + (i === kataI ? ' on' : '') + '" data-act="kata-go" data-i="' + i + '">' + x.n + '<small>' + x.t + '</small></button>'; }).join('') + '</div>' +
+      '<p class="lead">四つの型（基本）と、それぞれの応用型。あわせて<b>17のかたち</b>があります。</p><div class="row katatabs">' + KATA.map(function (x, i) { return '<button class="chip fit' + (i === kataI ? ' on' : '') + '" data-act="kata-go" data-i="' + i + '">' + x.n + '<small>' + x.t + '・' + (1 + x.ap.length) + 'つ</small></button>'; }).join('') + '</div>' +
       '<div class="kcard"><b>' + k.n + '（' + k.t + '）</b><ul>' + k.base.map(function (b) { return '<li>' + esc(b) + '</li>'; }).join('') + '</ul><div class="kex">' + kataKu(k.ex) + '</div>' +
       '<button class="link" data-act="kata-more">' + (kataMore ? '応用型をとじる' : '応用型を見る（' + k.ap.length + 'つ）') + '</button>' +
       (kataMore ? '<ol class="kap">' + k.ap.map(function (a) { return '<li><span>' + esc(a[0]) + '</span><div class="kex">' + kataKu(a[1]) + '</div></li>'; }).join('') + '</ol>' : '') + '</div>' +
@@ -5396,7 +5396,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'kg-go') kigoGo();
     else if (act === 'meiku-next') { meikuNext(); render(); }
     else if (act === 'hito-next') { hitoNext(); render(); }
-    else if (act === 'kata-go') { kataI = parseInt(t.dataset.i, 10) || 0; kataMore = false; render(); }
+    else if (act === 'kata-go') { kataI = parseInt(t.dataset.i, 10) || 0; render(); }
     else if (act === 'kata-more') { kataMore = !kataMore; render(); }
     else if (act === 'page') { page = t.dataset.p || ''; if (page === 'faq') markFirst('f_faq'); else if (page === 'news') markFirst('f_news'); else if (page === 'my') markFirst('f_my'); render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'live-g') { gCur = t.dataset.gid; gNew = false; tab = 'gohyo'; page = ''; render(); try { window.scrollTo(0, 0); } catch (_) {} }
