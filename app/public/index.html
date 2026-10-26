@@ -829,7 +829,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27n';
+  var APP_VER = 'v2026.10.27o';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1940,7 +1940,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       var t = T[k.id], cm = (d.cmts || {})[k.id] || {}, lines = Object.keys(cm).map(function (u) { return '　・' + (cm[u].haigo || '') + '：' + cm[u].text; });
       return (i + 1) + '位　' + t.pts + '点（特' + t.toku.length + '・並' + t.nami.length + '・予' + t.yo.length + '）\n' + k.a + '　' + k.haigo + (lines.length ? '\n' + lines.join('\n') : '');
     }).join('\n\n') + '\n\n俳句の裾野 haikunosusono.web.app\n' + KAIHO_NOTE;
-    h += kaihoPanel('m-' + id, kaihoMon(id, d, sorted, T, nv), '兼題・得点順の全句と、選んだ人、みなさんの選評です（先生・ボットの評は入りません）。');
+    /* すその句会は、未発表の研鑽の場なので、句会報（外へ出す形）はつくらない */
     h += '<div class="panel"><b>得点順の全句</b>' +
       '<ol class="tg2">' + sorted.map(function (k, i) { var t = T[k.id], cm = (d.cmts || {})[k.id] || {}; return '<li><b>' + (i + 1) + '位　' + t.pts + '点</b>（特' + t.toku.length + '・並' + t.nami.length + '・予' + t.yo.length + '）<br><span class="k9">' + esc(k.a) + '</span>　' + esc(k.haigo) + (Object.keys(cm).length ? '<ul class="fl-list">' + Object.keys(cm).map(function (u) { return '<li>' + esc(cm[u].haigo || '') + '：' + esc(cm[u].text) + '</li>'; }).join('') + '</ul>' : '') + '</li>'; }).join('') + '</ol></div>';
     monReport[id] = txt;
