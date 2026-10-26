@@ -126,6 +126,9 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .tmr-row b { font-size: 1.4rem; color: var(--accent); font-variant-numeric: tabular-nums; }
 .tmr-bar { height: 6px; background: var(--muted-soft); border-radius: 99px; overflow: hidden; }
 .tmr-bar i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width 1s linear; }
+.stmemo { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+.stmemo input { flex: 1; min-width: 10em; }
+.stm { margin: 2px 0 0; font-size: .8rem; color: var(--ink-soft); font-family: var(--sans); letter-spacing: 0; writing-mode: horizontal-tb; }
 .kgbox { margin: 8px 0; }
 .kgbox summary { cursor: pointer; font-weight: 700; color: var(--accent); }
 .kgbox input { flex: 1; }
@@ -155,6 +158,15 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .kap li > span { font-size: .88rem; color: var(--ink-soft); }
 .hmk { margin: 8px 0; border: 1px solid var(--accent); border-radius: 12px; padding: 8px 12px; background: var(--paper); }
 .hmk summary { font-weight: 700; cursor: pointer; color: var(--accent); }
+.kshpur { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.kshpur .chip { height: auto; min-height: 64px; flex-direction: column; display: flex; align-items: flex-start; justify-content: center; text-align: left; padding: 8px 12px; line-height: 1.4; white-space: normal; }
+.kshpur .chip small { font-weight: 400; font-size: .75rem; opacity: .85; }
+.kshpick small { display: block; font-family: var(--sans); font-size: .72rem; color: var(--ink-soft); }
+.kshpick.on small { color: inherit; }
+.kshyr { align-self: center; padding: 0 .8em; }
+.kshout { margin: 12px 0; }
+.kshout img { width: 100%; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,.15); }
+.kshpre { white-space: pre-wrap; font-family: var(--serif); background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: .95rem; line-height: 1.7; }
 .kshmile span { color: var(--ink-soft); font-size: .9rem; }
 .kshlist { list-style: none; padding: 0; margin: 6px 0; display: flex; flex-direction: column; gap: 6px; }
 .kshpick { width: 100%; justify-content: flex-start; text-align: left; height: auto; padding: .5em .9em; font-family: var(--serif); font-weight: 500; white-space: normal; display: flex; gap: .6em; align-items: center; }
@@ -817,7 +829,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27m';
+  var APP_VER = 'v2026.10.27n';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1095,7 +1107,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       return h + '<div class="empty"><p>' + (filt === 'n' ? '「あとで推敲」の句はありません。' : (kind === 'd' ? 'まだ句がありません。今日の一句を、気軽に残してみましょう。' : 'まだストッ句がありません。今日の兼題で、最初の一句を詠んでみましょう。')) + '</p></div>';
     }
     return h + '<div class="board">' + list.map(function (e) {
-      return '<article class="slip"><div class="no"><span>' + esc(mdLabel(dn(e.date))) + ' <span class="k">' + (e.series === 'd' ? '初心者部屋' : e.series === 'x' ? esc(e.ch) : SER[e.series].name + '「' + esc(e.ch) + '」') + '</span></span><span class="tag ' + (e.conf === 'n' ? 'n' : e.conf === 'k' ? 'k' : '') + '">' + (CONF[e.conf] || 'ふつう') + '</span></div><div class="tan">' + ku(e) + '</div><div class="actions">' + cardBtn('m:' + e.id, { text: joinKu(e).a, haigo: haigo, sub: (e.series === 'd' ? '初心者部屋' : SER[e.series].name + '「' + e.ch + '」') + '　' + mdLabel(dn(e.date)), badge: e.conf === 'k' ? 'かんぺきの一句' : '' }) + '<button class="link" data-act="edit" data-id="' + esc(e.id) + '">推敲する</button>' + (delAsk === e.id ? '<span class="note">この句を消します。もとにもどせません。</span><button class="btn danger" data-act="del-yes" data-id="' + esc(e.id) + '">消す</button><button class="btn" data-act="del-no">やめる</button>' : '<button class="link" data-act="del-ask" data-id="' + esc(e.id) + '">消す</button>') + '</div></article>';
+      return '<article class="slip"><div class="no"><span>' + esc(mdLabel(dn(e.date))) + ' <span class="k">' + (e.series === 'd' ? '初心者部屋' : e.series === 'x' ? esc(e.ch) : SER[e.series].name + '「' + esc(e.ch) + '」') + '</span></span><span class="tag ' + (e.conf === 'n' ? 'n' : e.conf === 'k' ? 'k' : '') + '">' + (CONF[e.conf] || 'ふつう') + '</span></div><div class="tan">' + ku(e) + '</div>' + stMemoRow(e) + '<div class="actions">' + cardBtn('m:' + e.id, { text: joinKu(e).a, haigo: haigo, sub: (e.series === 'd' ? '初心者部屋' : SER[e.series].name + '「' + e.ch + '」') + '　' + mdLabel(dn(e.date)), badge: e.conf === 'k' ? 'かんぺきの一句' : '' }) + '<button class="link" data-act="edit" data-id="' + esc(e.id) + '">推敲する</button><button class="link" data-act="st-memo" data-id="' + esc(e.id) + '">📝メモ</button>' + (delAsk === e.id ? '<span class="note">この句を消します。もとにもどせません。</span><button class="btn danger" data-act="del-yes" data-id="' + esc(e.id) + '">消す</button><button class="btn" data-act="del-no">やめる</button>' : '<button class="link" data-act="del-ask" data-id="' + esc(e.id) + '">消す</button>') + '</div></article>';
     }).join('') + '</div>';
   }
 
@@ -1148,18 +1160,19 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var h = vMemoQ(true) + vMemoList();
     h += '<h2 class="sec">こつこつストッ句部屋<small>' + mine.length + '句・自分だけが見られます</small></h2>' + vDaily();
     if (myId) h += kshMile(mine.length);
+    if (myId) h += vStAdd();
     h += '<div class="row"><button class="chip fit" data-act="st-csv">📤 Excelに書き出す</button><button class="chip fit" data-act="st-copy">📋 文でコピー</button><button class="chip fit" data-act="st-share">📨 LINE・メールで送る</button></div>';
     h += '<div class="row"><button class="chip fit' + (stView === 'table' ? ' on' : '') + '" data-act="st-view" data-v="table">表で見る（よこ書き）</button><button class="chip fit' + (stView === 'tan' ? ' on' : '') + '" data-act="st-view" data-v="tan">短冊で見る（たて書き）</button></div>';
     h += '<div class="row"><button class="chip fit' + (stFil === 'all' ? ' on' : '') + '" data-act="st-fil" data-v="all">すべて</button><button class="chip fit' + (stFil === 'n' ? ' on' : '') + '" data-act="st-fil" data-v="n">あとで推敲</button><button class="chip fit' + (stFil === 'k' ? ' on' : '') + '" data-act="st-fil" data-v="k">かんぺき</button></div>';
     if (!list.length) return h + '<div class="empty"><p>' + (stFil === 'all' ? 'まだストッ句がありません。どの部屋からでも、一句つくると、ここにたまっていきます。' : 'この手ごたえの句は、まだありません。') + '</p></div>';
     if (stView === 'tan') {
       h += '<div class="board">' + list.map(function (e) {
-        return '<article class="slip"><div class="no"><span>' + esc(mdLabel(dn(e.date))) + ' <span class="k">' + esc(stSrc(e)) + '</span></span><span class="tag ' + (e.conf === 'n' ? 'n' : e.conf === 'k' ? 'k' : '') + '">' + (CONF[e.conf] || 'ふつう') + '</span></div><div class="tan">' + ku(e) + '</div><div class="actions">' + cardBtn('m:' + e.id, { text: joinKu(e).a, haigo: haigo, sub: stSrc(e) + '　' + mdLabel(dn(e.date)), badge: e.conf === 'k' ? 'かんぺきの一句' : '' }) + '<button class="link" data-act="edit" data-id="' + esc(e.id) + '">推敲する</button>' + (delAsk === e.id ? '<span class="note">この句を消します。もとにもどせません。</span><button class="btn danger" data-act="del-yes" data-id="' + esc(e.id) + '">消す</button><button class="btn" data-act="del-no">やめる</button>' : '<button class="link" data-act="del-ask" data-id="' + esc(e.id) + '">消す</button>') + '</div></article>';
+        return '<article class="slip"><div class="no"><span>' + esc(mdLabel(dn(e.date))) + ' <span class="k">' + esc(stSrc(e)) + '</span></span><span class="tag ' + (e.conf === 'n' ? 'n' : e.conf === 'k' ? 'k' : '') + '">' + (CONF[e.conf] || 'ふつう') + '</span></div><div class="tan">' + ku(e) + '</div>' + stMemoRow(e) + '<div class="actions">' + cardBtn('m:' + e.id, { text: joinKu(e).a, haigo: haigo, sub: stSrc(e) + '　' + mdLabel(dn(e.date)), badge: e.conf === 'k' ? 'かんぺきの一句' : '' }) + '<button class="link" data-act="edit" data-id="' + esc(e.id) + '">推敲する</button><button class="link" data-act="st-memo" data-id="' + esc(e.id) + '">📝メモ</button>' + (delAsk === e.id ? '<span class="note">この句を消します。もとにもどせません。</span><button class="btn danger" data-act="del-yes" data-id="' + esc(e.id) + '">消す</button><button class="btn" data-act="del-no">やめる</button>' : '<button class="link" data-act="del-ask" data-id="' + esc(e.id) + '">消す</button>') + '</div></article>';
       }).join('') + '</div>';
       return h;
     }
     h += '<div class="sttwrap"><table class="stt"><thead><tr><th>日づけ</th><th>句</th><th>どこで</th><th>手ごたえ</th><th></th></tr></thead><tbody>' + list.map(function (e) {
-      return '<tr><td class="d">' + esc(mdLabel(dn(e.date))) + '</td><td class="k9">' + esc(plain(joinKu(e).a)) + '</td><td class="src">' + esc(stSrc(e)) + '</td><td><span class="tag ' + (e.conf === 'n' ? 'n' : e.conf === 'k' ? 'k' : '') + '">' + (CONF[e.conf] || 'ふつう') + '</span></td><td class="ops"><button class="link" data-act="edit" data-id="' + esc(e.id) + '">推敲</button>' + (delAsk === e.id ? '<button class="btn danger" data-act="del-yes" data-id="' + esc(e.id) + '">消す</button><button class="btn" data-act="del-no">やめる</button>' : '<button class="link" data-act="del-ask" data-id="' + esc(e.id) + '">消す</button>') + '</td></tr>';
+      return '<tr><td class="d">' + esc(mdLabel(dn(e.date))) + '</td><td class="k9">' + esc(plain(joinKu(e).a)) + stMemoRow(e) + '</td><td class="src">' + esc(stSrc(e)) + '</td><td><span class="tag ' + (e.conf === 'n' ? 'n' : e.conf === 'k' ? 'k' : '') + '">' + (CONF[e.conf] || 'ふつう') + '</span></td><td class="ops"><button class="link" data-act="edit" data-id="' + esc(e.id) + '">推敲</button><button class="link" data-act="st-memo" data-id="' + esc(e.id) + '">メモ</button>' + (delAsk === e.id ? '<button class="btn danger" data-act="del-yes" data-id="' + esc(e.id) + '">消す</button><button class="btn" data-act="del-no">やめる</button>' : '<button class="link" data-act="del-ask" data-id="' + esc(e.id) + '">消す</button>') + '</td></tr>';
     }).join('') + '</tbody></table></div>';
     h += '<p class="note">「推敲」を押すと、その句の部屋にもどって直せます。画像にして投稿したいときは、「短冊で見る」からどうぞ。</p>';
     return h;
@@ -3148,105 +3161,256 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var dais = gDais(r).map(function (x) { return x.t; }).filter(function (x, i, arr) { return x && arr.indexOf(x) === i; });
     return { title: (r.name || '仲間と句会') + '　句会報' + (r.round > 1 ? '（' + r.round + '回目）' : ''), sub: [mdLabel(Math.floor(((r.createdAt || Date.now()) + 9 * 3600000) / 86400000)), dais.length ? '題　' + dais.join('・') : '', list.length + '句・' + gMembers(r).length + '人', kinds.map(function (k, i) { return mark(k, i) + k.name; }).join('　')].filter(Boolean), items: items };
   }
-  /* わたしのミニ句集：ストッ句（自分の句）から6〜12句 → 折本（A4一枚・8ページ）か、縦書きの一覧 */
-  var kshSel = [], kshTitle = '', kshName = '', kshForm = 'ori', kshAto = '', kshSeason = true;
-  function kshMax() { return kshForm === 'ori' ? 12 : 300; }
+  /* わたしの句集づくり：ストッ句（自分の句だけ）から。目的 → 期間 → 句 → かたち */
+  var KSH_PUR = [
+    ['year', '📅 年・年度ごと', '期間の句を、つくった順に。本の句集に'],
+    ['prize', '🏅 入選・掲載の記録', 'メモのある句を、詞書つきで'],
+    ['jisen', '✨ SNSの自選十句', '期間から十句をえらんで、画像に'],
+    ['all', '🌱 これまでの軌跡', 'ストッ句ぜんぶを、年ごとに'],
+    ['note', '📝 note・ブログ用', 'そのまま貼れる文に'],
+    ['kucho', '✂️ 句帳・ノートに貼る', '切って貼れる紙片に'],
+    ['free', '📖 自由にえらぶ', '折本（豆本）なども']
+  ];
+  var KSH_FORMS = { book: '本の句集（A5）', ori: '折本（A4一枚・8ページ）', list: '縦書きの一覧（A4）', img: '画像（X・Instagram）', x: 'Xに投稿する文', note: 'note・ブログ用の文', kucho: '句帳に貼る紙片' };
+  var KSH_PRESET = { year: { per: 'fy', order: 'date', form: 'book', chap: 'month', auto: 1 }, prize: { per: 'all', order: 'date', form: 'book', chap: 'year', auto: 1 }, jisen: { per: 'h1', order: 'season', form: 'img', n: 10 }, all: { per: 'all', order: 'date', form: 'book', chap: 'year', auto: 1 }, note: { per: 'h1', order: 'season', form: 'note', n: 10 }, kucho: { per: 'all', order: 'date', form: 'kucho' }, free: { per: 'all', order: 'pick', form: 'ori' } };
+  var ksh = { pur: '', per: 'all', yr: 0, from: '', to: '', order: 'date', form: 'ori', chap: 'season', pp: 2, n: 10, size: 'yoko', style: 'shiro', tmode: 'tate', inkan: true, kSize: 'm', kDir: 'tate', mae: '', tag: '' };
+  var kshSel = [], kshTitle = '', kshSub = '', kshName = '', kshAto = '', kshPhoto = null, kshImgUrl = '';
+  function kshYr() { return ksh.yr || new Date(Date.now() + 9 * 3600000).getUTCFullYear(); }
+  function kshMax() { return ksh.form === 'ori' ? 12 : ksh.form === 'img' || ksh.form === 'x' ? 30 : 300; }
   function kshSeasonOf(e) { var m = parseInt(String(e.date || '').slice(5, 7), 10) || 0; return m >= 2 && m <= 4 ? 0 : m >= 5 && m <= 7 ? 1 : m >= 8 && m <= 10 ? 2 : 3; }
+  function kshRange() {
+    var y = kshYr(), p = ksh.per;
+    return p === 'y' ? [y + '-01-01', y + '-12-31'] : p === 'fy' ? [y + '-04-01', (y + 1) + '-03-31'] : p === 'h1' ? [y + '-01-01', y + '-06-30'] : p === 'h2' ? [y + '-07-01', y + '-12-31'] : p === 'cust' ? [ksh.from || '0000-00-00', ksh.to || '9999-99-99'] : ['0000-00-00', '9999-99-99'];
+  }
+  function kshPerLabel() { var y = kshYr(), p = ksh.per; return p === 'y' ? y + '年' : p === 'fy' ? y + '年度' : p === 'h1' ? y + '年上半期' : p === 'h2' ? y + '年下半期' : ''; }
+  function kshCands() { var r = kshRange(); return mine.filter(function (e) { var d = String(e.date || ''); return d >= r[0] && d <= r[1] && (ksh.pur !== 'prize' || String(e.memo || '').trim()); }).sort(function (a, b) { return String(a.date).localeCompare(String(b.date)) || (a.at || 0) - (b.at || 0); }); }
+  function kshKus() {
+    var by = {}; mine.forEach(function (e) { by[e.id] = e; }); var k = kshSel.map(function (id) { return by[id]; }).filter(Boolean);
+    if (ksh.order === 'date') k.sort(function (a, b) { return String(a.date).localeCompare(String(b.date)) || (a.at || 0) - (b.at || 0); });
+    else if (ksh.order === 'season') k.sort(function (a, b) { return kshSeasonOf(a) - kshSeasonOf(b) || String(a.date).localeCompare(String(b.date)); });
+    return k;
+  }
+  function kshNumK(n) { return kaihoKan(n); }
+  function kshDefTitle() { var pl = kshPerLabel(); if (ksh.pur === 'jisen' || ksh.pur === 'note') return pl + '自選' + kshNumK(kshSel.length || ksh.n) + '句'; if (ksh.pur === 'year') return pl + '句集'; if (ksh.pur === 'prize') return '入選・掲載句集'; return '句集'; }
+  function kshTitleV() { return kshTitle.trim() || kshDefTitle(); }
+  function kshNameV() { return (kshName || haigo || '').trim(); }
   function kshMile(n) {
     var m = n < 12 ? 'あと ' + (12 - n) + ' 句で、12句のミニ句集' : n < 100 ? 'あと ' + (100 - n) + ' 句で、100句（一冊の句集の目安）' : n < 300 ? 'あと ' + (300 - n) + ' 句で、300句（本格的な句集の目安）' : '300句をこえました。もう立派な句集が編めます';
-    return '<div class="panel kshmile"><b>📖 ' + n + '句</b>　<span>' + m + '</span><div class="row"><button class="btn small primary" data-act="page" data-p="kushu">句集をつくる（折本・本の句集）</button></div></div>';
+    return '<div class="panel kshmile"><b>📖 ' + n + '句</b>　<span>' + m + '</span><div class="row"><button class="btn small primary" data-act="page" data-p="kushu">句集づくり（自選十句・年度の句集・句帳に貼る…）</button></div></div>';
   }
-  function kshKus() { var by = {}; mine.forEach(function (e) { by[e.id] = e; }); return kshSel.map(function (id) { return by[id]; }).filter(Boolean); }
+  function kshPick(pur) {
+    var p = KSH_PRESET[pur] || KSH_PRESET.free; ksh.pur = pur; ksh.per = p.per; ksh.order = p.order; ksh.form = p.form; if (p.chap) ksh.chap = p.chap; if (p.n) ksh.n = p.n;
+    kshTitle = ''; kshImgUrl = ''; kshSel = p.auto ? kshCands().map(function (e) { return e.id; }).slice(0, kshMax()) : [];
+  }
   function vKushu() {
-    var list = mine.slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); }), n = kshSel.length;
-    var h = '<h2 class="sec">わたしの句集<small>ストッ句の自分の句で</small></h2>' +
-      hostSay('自分の句だけで、小さな句集をつくろか。A4一枚で、切って折ったら8ページの本になるで。') +
-      '<div class="howto"><b>句集づくりの礼儀</b><span>入れられるのは、自分のストッ句の句だけです。句会でほかの人が詠んだ句や、人の評は入れません。句会の句を外に出すときは、仲間にひとこと伝えると安心です。<br>' + esc(KAIHO_NOTE) + '</span></div>';
+    var chip = function (act, v, label, on) { return '<button class="chip fit' + (on ? ' on' : '') + '" data-act="' + act + '" data-v="' + esc(v) + '">' + label + '</button>'; };
+    var h = '<h2 class="sec">わたしの句集づくり<small>ストッ句の、自分の句で</small></h2>' +
+      hostSay('自分の句だけで、句集をつくろか。年度の句集でも、自選十句の画像でも、句帳に貼る紙でも、ええで。') +
+      '<div class="howto"><b>句集づくりの礼儀</b><span>入れられるのは、自分のストッ句の句だけです。句会でほかの人が詠んだ句や、人の評は入れません。写真は、自分で撮ったものを。<br>' + esc(KAIHO_NOTE) + '</span></div>';
     if (!myId) return h + '<p class="note">登録すると、ストッ句から句集がつくれます。</p>';
-    if (list.length < 6) return h + '<p class="note">ストッ句が6句たまると、つくれます（いま ' + list.length + '句）。</p>';
-    h += '<div class="panel"><div class="field"><label for="ksh-t">① 句集の名前</label><input type="text" id="ksh-t" data-f="ksh-t" maxlength="16" value="' + esc(kshTitle) + '" placeholder="例：木枯の町"></div>' +
-      '<div class="field"><label for="ksh-h">② 俳号</label><input type="text" id="ksh-h" data-f="ksh-h" maxlength="20" value="' + esc(kshName || haigo || '') + '"></div>' +
-      '<div class="field"><label>③ かたち</label><div class="row"><button class="chip fit' + (kshForm === 'ori' ? ' on' : '') + '" data-act="ksh-form" data-v="ori">折本（A4一枚・8ページ）</button><button class="chip fit' + (kshForm === 'list' ? ' on' : '') + '" data-act="ksh-form" data-v="list">縦書きの一覧</button><button class="chip fit' + (kshForm === 'book' ? ' on' : '') + '" data-act="ksh-form" data-v="book">本の句集（A5）</button></div><p class="note">' + (kshForm === 'ori' ? '折本：6〜12句。A4一枚を切って折ると、8ページの豆本に。' : kshForm === 'book' ? '本の句集：6〜300句。A5・縦書き・1ページ3句。扉・季節の章・あとがき・奥付つき。' : '縦書きの一覧：6〜300句。A4に句を並べます。') + '</p></div>' +
-      (kshForm === 'book' ? '<div class="field"><label><input type="checkbox" data-act="ksh-season"' + (kshSeason ? ' checked' : '') + '> 春・夏・秋・冬の章に分ける（つくった日の月で分けます）</label></div><div class="field"><label for="ksh-a">あとがき（なくてもよい）</label><textarea id="ksh-a" data-f="ksh-a" rows="4" maxlength="800">' + esc(kshAto) + '</textarea></div>' : '') + '</div>';
-    h += '<p class="lead">④ 句をえらぶ（<b>' + n + '</b>／' + kshMax() + '句・押した順に並びます）' + (kshForm !== 'ori' ? '　<button class="link" data-act="ksh-all">ぜんぶえらぶ</button>' : '') + '</p><ul class="kshlist">' + list.map(function (e) {
-      var i = kshSel.indexOf(e.id);
-      return '<li><button class="chip fit kshpick' + (i >= 0 ? ' on' : '') + '" data-act="ksh-pick" data-id="' + esc(e.id) + '"><span class="kn">' + (i >= 0 ? i + 1 : '＋') + '</span>' + esc(plain(joinKu(e).a)) + '</button></li>';
-    }).join('') + '</ul>';
-    h += '<div class="actions"><button class="btn primary" data-act="ksh-make"' + (n < 6 ? ' disabled' : '') + '>📖 句集をひらく（印刷・PDF）</button>' + (n ? '<button class="btn" data-act="ksh-clear">えらびなおす</button>' : '') + '</div>' +
-      (n < 6 ? '<p class="note">あと ' + (6 - n) + ' 句えらぶと、つくれます。</p>' : '') +
-      '<p class="note">できたPDFは、コンビニのネットプリント（A4・カラーでも白黒でも）で刷れます。折本は「A4よこ・用紙に合わせる」で印刷してください。</p>';
+    h += '<p class="lead">① どんな句集？</p><div class="kshpur">' + KSH_PUR.map(function (x) { return '<button class="chip fit' + (ksh.pur === x[0] ? ' on' : '') + '" data-act="ksh-pur" data-v="' + x[0] + '"><b>' + x[1] + '</b><small>' + x[2] + '</small></button>'; }).join('') + '</div>';
+    if (!ksh.pur) return h;
+    if (mine.length < 1) return h + '<p class="note">まだストッ句がありません。</p>';
+    var y = kshYr(), cands = kshCands(), n = kshSel.length;
+    h += '<div class="panel"><div class="field"><label>② 期間</label><div class="row">' + chip('ksh-per', 'all', 'ぜんぶ', ksh.per === 'all') + chip('ksh-per', 'y', '年', ksh.per === 'y') + chip('ksh-per', 'fy', '年度（4〜3月）', ksh.per === 'fy') + chip('ksh-per', 'h1', '上半期', ksh.per === 'h1') + chip('ksh-per', 'h2', '下半期', ksh.per === 'h2') + chip('ksh-per', 'cust', '日づけで', ksh.per === 'cust') + '</div>' +
+      (ksh.per !== 'all' && ksh.per !== 'cust' ? '<div class="row">' + chip('ksh-yr', y - 1, '◀', false) + '<b class="kshyr">' + y + (ksh.per === 'fy' ? '年度' : '年') + '</b>' + chip('ksh-yr', y + 1, '▶', false) + '</div>' : '') +
+      (ksh.per === 'cust' ? '<div class="row"><input type="date" data-f="ksh-from" value="' + esc(ksh.from) + '"> 〜 <input type="date" data-f="ksh-to" value="' + esc(ksh.to) + '"><button class="chip fit" data-act="ksh-re">この期間にする</button></div>' : '') +
+      '<p class="note">この期間のストッ句：' + cands.length + '句' + (ksh.pur === 'prize' ? '（メモのある句だけ。メモは、ストッ句の「📝メモ」から書けます）' : '') + '</p></div>';
+    h += '<div class="panel"><div class="field"><label>③ かたち</label><div class="row">' + Object.keys(KSH_FORMS).map(function (k) { return chip('ksh-form', k, KSH_FORMS[k], ksh.form === k); }).join('') + '</div></div>' +
+      '<div class="field"><label for="ksh-t">題（なくてもよい）</label><input type="text" id="ksh-t" data-f="ksh-t" maxlength="24" value="' + esc(kshTitle) + '" placeholder="' + esc(kshDefTitle()) + '"></div>' +
+      (ksh.form === 'img' || ksh.form === 'book' || ksh.form === 'note' ? '<div class="field"><label for="ksh-s">副題・句集の名（なくてもよい）</label><input type="text" id="ksh-s" data-f="ksh-s" maxlength="20" value="' + esc(kshSub) + '" placeholder="例：しづかな暮らし"></div>' : '') +
+      '<div class="field"><label for="ksh-h">俳号</label><input type="text" id="ksh-h" data-f="ksh-h" maxlength="20" value="' + esc(kshName || haigo || '') + '"></div>' +
+      '<div class="field"><label>並べかた</label><div class="row">' + chip('ksh-order', 'date', 'つくった順', ksh.order === 'date') + chip('ksh-order', 'season', '季節の流れ', ksh.order === 'season') + chip('ksh-order', 'pick', 'えらんだ順', ksh.order === 'pick') + '</div></div>' + vKshOpts() + '</div>';
+    h += '<p class="lead">④ 句をえらぶ（<b>' + n + '</b>／' + kshMax() + '句）　<button class="link" data-act="ksh-all">この期間をぜんぶ</button>　' + (n ? '<button class="link" data-act="ksh-clear">えらびなおす</button>' : '') + '</p>' +
+      (ksh.pur === 'jisen' ? '<div class="row">' + [10, 20, 30].map(function (k) { return chip('ksh-n', k, '自選' + kshNumK(k) + '句', ksh.n === k); }).join('') + '</div>' : '') +
+      '<ul class="kshlist">' + cands.slice().reverse().map(function (e) {
+        var i = kshSel.indexOf(e.id);
+        return '<li><button class="chip fit kshpick' + (i >= 0 ? ' on' : '') + '" data-act="ksh-pick" data-id="' + esc(e.id) + '"><span class="kn">' + (i >= 0 ? i + 1 : '＋') + '</span><span>' + esc(plain(joinKu(e).a)) + '<small>' + esc(mdLabel(dn(e.date))) + (e.memo ? '　📝' + esc(e.memo) : '') + '</small></span></button></li>';
+      }).join('') + '</ul>';
+    var minN = ksh.form === 'ori' ? 6 : 1;
+    h += '<div class="actions"><button class="btn primary" data-act="ksh-make"' + (n < minN ? ' disabled' : '') + '>' + (ksh.form === 'img' ? '🖼 画像をつくる' : ksh.form === 'x' || ksh.form === 'note' ? '📋 文をつくる' : '📖 ひらく（印刷・PDF）') + '</button></div>' +
+      (n < minN ? '<p class="note">' + (ksh.form === 'ori' ? '折本は6句から（12句まで）。' : '句をえらんでください。') + '</p>' : '') + vKshOut();
     return h;
   }
-  function kshPages(kus) { /* 6ページに、1〜2句ずつ */
-    var pages = [[], [], [], [], [], []], extra = kus.length - 6;
-    var k = 0; for (var p = 0; p < 6; p++) { var c = p < extra ? 2 : 1; for (var j = 0; j < c && k < kus.length; j++) pages[p].push(kus[k++]); }
-    return pages;
+  function vKshOpts() {
+    var chip = function (act, v, label, on) { return '<button class="chip fit' + (on ? ' on' : '') + '" data-act="' + act + '" data-v="' + esc(v) + '">' + label + '</button>'; }, f = ksh.form;
+    if (f === 'book') return '<div class="field"><label>章わけ</label><div class="row">' + chip('ksh-chap', 'none', 'なし', ksh.chap === 'none') + chip('ksh-chap', 'season', '春夏秋冬', ksh.chap === 'season') + chip('ksh-chap', 'year', '年ごと', ksh.chap === 'year') + chip('ksh-chap', 'month', '月ごと', ksh.chap === 'month') + '</div></div><div class="field"><label>1ページに</label><div class="row">' + chip('ksh-pp', 2, '2句', ksh.pp === 2) + chip('ksh-pp', 3, '3句', ksh.pp === 3) + '</div></div><div class="field"><label for="ksh-a">あとがき（なくてもよい）</label><textarea id="ksh-a" data-f="ksh-a" rows="3" maxlength="800">' + esc(kshAto) + '</textarea></div><p class="note">メモ（入選・掲載）は、句の前に小さく「詞書」として入ります。</p>';
+    if (f === 'img') return '<div class="field"><label>大きさ</label><div class="row">' + chip('ksh-size', 'yoko', '横長（X向き）', ksh.size === 'yoko') + chip('ksh-size', 'sq', '正方形（Instagram）', ksh.size === 'sq') + chip('ksh-size', 'tate', '縦長', ksh.size === 'tate') + '</div></div>' +
+      '<div class="field"><label>地の色・形</label><div class="row">' + chip('ksh-style', 'shiro', '白', ksh.style === 'shiro') + chip('ksh-style', 'kinari', '生成り', ksh.style === 'kinari') + chip('ksh-style', 'sakura', '桜色', ksh.style === 'sakura') + chip('ksh-style', 'sora', '空色', ksh.style === 'sora') + chip('ksh-style', 'yoru', '夜', ksh.style === 'yoru') + chip('ksh-style', 'genko', '原稿用紙', ksh.style === 'genko') + chip('ksh-style', 'photo', '自分の写真', ksh.style === 'photo') + '</div>' +
+      (ksh.style === 'photo' ? '<p class="note">写真は、この画面の中だけで使います（どこにも送りません）。 <input type="file" accept="image/*" data-f="ksh-photo"></p>' : '') + '</div>' +
+      '<div class="field"><label>題の置きかた</label><div class="row">' + chip('ksh-tmode', 'tate', '右はしに縦書き', ksh.tmode === 'tate') + chip('ksh-tmode', 'yoko', '上に横書き', ksh.tmode === 'yoko') + '</div></div>' +
+      '<div class="field"><label><input type="checkbox" data-act="ksh-inkan"' + (ksh.inkan ? ' checked' : '') + '> 落款（俳号の一字の印）を押す</label></div>';
+    if (f === 'x') return '<div class="field"><label for="ksh-tag">ハッシュタグ</label><input type="text" id="ksh-tag" data-f="ksh-tag" maxlength="40" value="' + esc(ksh.tag) + '" placeholder="#' + esc(kshPerLabel() || '今年') + '自選十句をつぶやく"></div><p class="note">Xは一回140字までなので、自動で分けます。画像にして1枚で出すなら「画像」をどうぞ。</p>';
+    if (f === 'note') return '<div class="field"><label for="ksh-mae">まえがき（なくてもよい）</label><textarea id="ksh-mae" data-f="ksh-mae" rows="2" maxlength="400">' + esc(ksh.mae) + '</textarea></div><div class="field"><label for="ksh-a">あとがき（なくてもよい）</label><textarea id="ksh-a" data-f="ksh-a" rows="3" maxlength="800">' + esc(kshAto) + '</textarea></div>';
+    if (f === 'kucho') return '<div class="field"><label>大きさ</label><div class="row">' + chip('ksh-ksize', 's', '小（俳句手帳）', ksh.kSize === 's') + chip('ksh-ksize', 'm', '中（A6ノート）', ksh.kSize === 'm') + chip('ksh-ksize', 'l', '大（A5ノート）', ksh.kSize === 'l') + '</div></div><div class="field"><label>書きかた</label><div class="row">' + chip('ksh-kdir', 'tate', '縦書き', ksh.kDir === 'tate') + chip('ksh-kdir', 'yoko', '横書き', ksh.kDir === 'yoko') + '</div></div>';
+    return '';
   }
+  var kshOut = '';
+  function vKshOut() { return kshOut; }
+  /* ---- 文（X・note） ---- */
+  function kshXPosts() {
+    var kus = kshKus(), tag = (ksh.tag.trim() || ('#' + (kshPerLabel() || '今年') + '自選十句をつぶやく')), head = kshTitleV() + (kshNameV() ? '　' + kshNameV() : '');
+    var lines = kus.map(function (e) { return plain(joinKu(e).a); }), posts = [], cur = head, lim = 140 - tag.length - 2;
+    lines.forEach(function (l) { if ((cur + '\n' + l).length > lim) { posts.push(cur); cur = l; } else cur += '\n' + l; });
+    posts.push(cur);
+    return posts.map(function (p, i) { return p + (posts.length > 1 ? '\n（' + (i + 1) + '/' + posts.length + '）' : '') + '\n' + tag; });
+  }
+  function kshNoteText() {
+    var kus = kshKus(), t = kshTitleV() + (kshSub.trim() ? '「' + kshSub.trim() + '」' : '');
+    return t + '\n' + kshNameV() + '\n\n' + (ksh.mae.trim() ? ksh.mae.trim() + '\n\n' : '') + kus.map(function (e) { return plain(joinKu(e).a) + (e.memo ? '\n【' + e.memo + '】' : ''); }).join('\n\n') + '\n\n' + (kshAto.trim() ? '・・・・・\n' + kshAto.trim() + '\n\n' : '') + '#俳句 #自選十句 #俳句の裾野\n' + KAIHO_NOTE;
+  }
+  /* ---- 画像（自選十句） ---- */
+  var KSH_BG = { shiro: ['#fbfaf6', '#222'], kinari: ['#f3ead7', '#2b2418'], sakura: ['#f7e9ec', '#3a2a2e'], sora: ['#e6eff7', '#1f2d3d'], yoru: ['#1d2838', '#f2efe6'], genko: ['#fbf8f0', '#2b2418'], photo: ['#ffffff', '#1d1d1d'] };
+  function kshVText(ctx, s, x, y, f, maxH) {
+    var ROT = 'ー－〜～…‥「」『』（）()―-[]【】=＝', SMALL = 'ぁぃぅぇぉっゃゅょゎァィゥェォッャュョヮ、。', cs = Array.from(s), step = f * 1.04;
+    if (cs.length * step > maxH) step = maxH / cs.length;
+    cs.forEach(function (c, i) {
+      var cy = y + i * step;
+      if (ROT.indexOf(c) >= 0) { ctx.save(); ctx.translate(x, cy + step / 2); ctx.rotate(Math.PI / 2); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(c, 0, 0); ctx.restore(); }
+      else if (SMALL.indexOf(c) >= 0) { ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(c, x + f * 0.14, cy + step / 2 - f * 0.12); }
+      else { ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(c, x, cy + step / 2); }
+    });
+  }
+  function kshDrawImg() {
+    var S = { yoko: [1600, 1000], sq: [1200, 1200], tate: [1080, 1350] }[ksh.size] || [1600, 1000], W = S[0], H = S[1];
+    var cv = document.createElement('canvas'); cv.width = W; cv.height = H; var ctx = cv.getContext('2d'), col = KSH_BG[ksh.style] || KSH_BG.shiro;
+    ctx.fillStyle = col[0]; ctx.fillRect(0, 0, W, H);
+    if (ksh.style === 'photo' && kshPhoto) {
+      var im = kshPhoto, r = Math.max(W / im.width, H / im.height), iw = im.width * r, ih = im.height * r; ctx.drawImage(im, (W - iw) / 2, (H - ih) / 2, iw, ih);
+      ctx.fillStyle = 'rgba(255,255,255,.74)'; ctx.fillRect(W * 0.05, H * 0.05, W * 0.9, H * 0.9);
+    }
+    var kus = kshKus().map(function (e) { return plain(joinKu(e).a).replace(/[ 　]+/g, '　'); }), title = kshTitleV(), sub = kshSub.trim(), name = kshNameV();
+    var m = Math.round(Math.min(W, H) * 0.09), top = m, bottom = H - m, left = m, right = W - m;
+    var titleK = kaihoKan(title);
+    ctx.fillStyle = col[1];
+    var maxLen = Math.max.apply(null, kus.map(function (k) { return Array.from(k).length; }).concat([12]));
+    if (ksh.tmode === 'yoko') {
+      var tf = Math.round(Math.min(W, H) * 0.055); ctx.font = '700 ' + tf + 'px ' + CARD_FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText(title + (sub ? '「' + sub + '」' : ''), W / 2, top); top += tf * 1.6;
+      if (name) { ctx.font = Math.round(tf * 0.6) + 'px ' + CARD_FONT; ctx.fillText(name, W / 2, top - tf * 0.45); top += tf * 0.5; }
+    }
+    var cols = kus.length + (ksh.tmode === 'tate' ? 2 : 0), colW = (right - left) / Math.max(cols, 6);
+    var f = Math.min(colW * 0.62, (bottom - top) / (maxLen * 1.04)); f = Math.max(14, Math.floor(f));
+    var x = right - colW / 2;
+    if (ksh.tmode === 'tate') {
+      ctx.font = '700 ' + Math.round(f * 1.15) + 'px ' + CARD_FONT; kshVText(ctx, titleK, x, top, Math.round(f * 1.15), bottom - top); x -= colW;
+      ctx.font = Math.round(f * 0.9) + 'px ' + CARD_FONT;
+      if (sub) kshVText(ctx, '「' + sub + '」', x, top + f * 0.5, Math.round(f * 0.9), (bottom - top) * 0.6);
+      if (name) { var nl = Array.from(name).length * f * 0.94; kshVText(ctx, name, x, Math.max(top, bottom - nl), Math.round(f * 0.9), bottom - top); }
+      x -= colW * 1.0;
+    }
+    if (ksh.style === 'genko') {
+      ctx.save(); ctx.strokeStyle = 'rgba(190,80,60,.35)'; ctx.lineWidth = 1.2;
+      for (var gx = right; gx > left; gx -= colW) { ctx.beginPath(); ctx.moveTo(gx, top - f * 0.2); ctx.lineTo(gx, bottom + f * 0.2); ctx.stroke(); }
+      for (var gy = top; gy <= bottom; gy += f * 1.04) { ctx.beginPath(); ctx.moveTo(left, gy); ctx.lineTo(right, gy); ctx.stroke(); }
+      ctx.restore(); ctx.fillStyle = col[1];
+    }
+    ctx.font = f + 'px ' + CARD_FONT;
+    kus.forEach(function (k) { kshVText(ctx, k, x, top, f, bottom - top); x -= colW; });
+    if (ksh.inkan && name) {
+      var sz = Math.round(Math.min(W, H) * 0.075), sx = left, sy = bottom - sz;
+      ctx.fillStyle = '#b8302a'; ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(sx, sy, sz, sz, sz * 0.12); else ctx.rect(sx, sy, sz, sz); ctx.fill();
+      ctx.fillStyle = '#fff4ee'; ctx.font = '700 ' + Math.round(sz * 0.62) + 'px ' + CARD_FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(Array.from(name)[0], sx + sz / 2, sy + sz / 2 + sz * 0.02);
+    }
+    ctx.fillStyle = ksh.style === 'yoru' ? 'rgba(242,239,230,.55)' : 'rgba(0,0,0,.38)'; ctx.font = Math.round(Math.min(W, H) * 0.018) + 'px ' + CARD_FONT; ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic'; ctx.fillText('俳句の裾野', W - m * 0.5, H - m * 0.35);
+    return cv;
+  }
+  function kshShowImg() {
+    var cv = kshDrawImg();
+    cardKey = null; cardText = kshTitleV() + (kshNameV() ? '　' + kshNameV() : '') + '\n#俳句 #自選十句 #俳句の裾野';
+    try { cv.toBlob(function (b) { cardBlob = b; if (kshImgUrl) { try { URL.revokeObjectURL(kshImgUrl); } catch (_) {} } kshImgUrl = b ? URL.createObjectURL(b) : cv.toDataURL('image/png'); kshOut = '<div class="kshout"><img src="' + kshImgUrl + '" alt="自選の画像"><div class="actions"><button class="btn primary" data-act="card-save">画像を保存</button><button class="btn" data-act="card-share">投稿する（X・Instagramなど）</button></div><p class="note">' + esc(KAIHO_NOTE) + '</p></div>'; render(); }, 'image/png'); } catch (_) {}
+  }
+  /* ---- 句帳に貼る紙片 ---- */
+  function kshKuchoHtml() {
+    var kus = kshKus(), SZ = { s: [22, 78, 10.5], m: [30, 100, 13], l: [40, 132, 16] }[ksh.kSize] || [30, 100, 13], tate = ksh.kDir === 'tate';
+    var w = tate ? SZ[0] : SZ[1], hh = tate ? SZ[1] : SZ[0];
+    var css = '@page{size:A4 portrait;margin:10mm}*{box-sizing:border-box}body{margin:0;background:#f4f1ea;font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif}rt{font-size:.5em}.bar{position:sticky;top:0;display:flex;gap:8px;padding:10px 16px;background:#fff;border-bottom:1px solid #ccc;font-family:sans-serif}.bar button{font-size:15px;padding:8px 14px;border-radius:999px;border:1px solid #888;background:#fff}.bar .p{background:#1f7a5c;color:#fff;border-color:#1f7a5c}' +
+      '.how{font-family:sans-serif;font-size:13px;margin:10px 16px}.sheet{width:190mm;margin:10px auto;background:#fff;display:flex;flex-wrap:wrap;' + (tate ? 'flex-direction:row-reverse;' : '') + 'gap:0;align-content:flex-start}' +
+      '.sl{width:' + w + 'mm;height:' + hh + 'mm;border:0.25mm dashed #aaa;padding:2.5mm;' + (tate ? 'writing-mode:vertical-rl;' : '') + 'break-inside:avoid;overflow:hidden}' +
+      '.k{font-size:' + SZ[2] + 'pt;line-height:1.5;margin:0}.d{font-size:7pt;color:#666;margin:0;padding-top:2mm;font-family:sans-serif' + (tate ? ';text-orientation:upright' : '') + '}' +
+      '@media print{body{background:#fff}.bar,.how{display:none}.sheet{margin:0}}';
+    var dt = function (e) { var d = String(e.date || ''); return d ? d.slice(0, 4) + '.' + (+d.slice(5, 7)) + '.' + (+d.slice(8, 10)) : ''; };
+    return '<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>句帳に貼る</title><style>' + css + '</style></head><body><div class="bar"><button class="p" onclick="window.print()">🖨 印刷・PDFにする</button><button onclick="window.close()">とじる</button></div><p class="how">点線で切って、句帳やノートに貼ってください（A4・「実際のサイズ」で印刷）。シール用紙に刷ると、そのまま貼れます。</p><div class="sheet">' +
+      kus.map(function (e) { return '<div class="sl"><p class="k">' + rb(joinKu(e).a) + '</p><p class="d">' + esc(dt(e)) + (e.memo ? '　' + esc(e.memo) : '') + '</p></div>'; }).join('') + '</div></body></html>';
+  }
+  function kshPages(kus) { var pages = [[], [], [], [], [], []], extra = kus.length - 6, k = 0; for (var p = 0; p < 6; p++) { var c = p < extra ? 2 : 1; for (var j = 0; j < c && k < kus.length; j++) pages[p].push(kus[k++]); } return pages; }
   function kshHtml() {
-    var kus = kshKus(), title = kshTitle.trim() || '句集', name = (kshName || haigo || '').trim();
+    var kus = kshKus(), title = kshTitleV(), sub = kshSub.trim(), name = kshNameV();
     var dt = new Date(Date.now() + 9 * 3600000), ymd = kaihoKan(dt.getUTCFullYear() + '年' + (dt.getUTCMonth() + 1) + '月' + dt.getUTCDate() + '日');
-    var kuP = function (e) { return '<p class="k">' + rb(joinKu(e).a) + '</p>'; };
-    var cover = '<div class="cv"><p class="tt">' + esc(title) + '</p><p class="nm">' + esc(name) + '</p></div>';
-    var oku = '<div class="ok"><p>' + esc(title) + '</p><p>著者　' + esc(name) + '</p><p>' + ymd + '　発行</p><p>俳句の裾野でつくりました</p><p class="n">' + esc(KAIHO_NOTE) + '</p></div>';
+    var kuP = function (e, withMemo) { return (withMemo && e.memo ? '<p class="kt">' + esc(e.memo) + '</p>' : '') + '<p class="k">' + rb(joinKu(e).a) + '</p>'; };
+    var cover = '<div class="cv"><p class="tt">' + esc(sub || title) + '</p><p class="nm">' + esc(name) + '</p></div>';
+    var oku = '<div class="ok"><p>' + esc(sub ? sub + '（' + title + '）' : title) + '</p><p>著者　' + esc(name) + '</p><p>' + ymd + '　発行</p><p>俳句の裾野でつくりました</p><p class="n">' + esc(KAIHO_NOTE) + '</p></div>';
     var css = '*{box-sizing:border-box}body{margin:0;background:#f4f1ea;color:#222;font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif}rt{font-size:.5em}' +
       '.bar{position:sticky;top:0;display:flex;gap:8px;flex-wrap:wrap;padding:10px 16px;background:#fff;border-bottom:1px solid #ccc;font-family:sans-serif;z-index:2}.bar button{font-size:15px;padding:8px 14px;border-radius:999px;border:1px solid #888;background:#fff}.bar .p{background:#1f7a5c;color:#fff;border-color:#1f7a5c}' +
-      '.how{font-family:sans-serif;font-size:13px;max-width:760px;margin:10px auto;padding:0 16px;line-height:1.7}';
+      '.how{font-family:sans-serif;font-size:13px;max-width:760px;margin:10px auto;padding:0 16px;line-height:1.7}.kt{font-size:.62em;color:#555;margin:0 0 0 1.5mm;padding-top:4mm}';
     var body;
-    if (kshForm === 'ori') {
-      var pg = kshPages(kus), P = {};
-      P[1] = cover; P[8] = oku;
-      pg.forEach(function (arr, i) { P[i + 2] = '<div class="pp">' + arr.map(kuP).join('') + '<span class="no">' + kaihoKan(i + 1) + '</span></div>'; });
+    if (ksh.form === 'ori') {
+      var pg = kshPages(kus), P = {}; P[1] = cover; P[8] = oku;
+      pg.forEach(function (arr, i) { P[i + 2] = '<div class="pp">' + arr.map(function (e) { return kuP(e, false); }).join('') + '<span class="no">' + kaihoKan(i + 1) + '</span></div>'; });
       var cell = function (no, up) { return '<div class="c' + (up ? ' up' : '') + '">' + P[no] + '</div>'; };
       css += '@page{size:A4 landscape;margin:0}.sheet{width:297mm;height:210mm;margin:12px auto;background:#fff;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:1fr 1fr;box-shadow:0 0 0 1px #ccc}' +
         '.c{position:relative;border:0.2mm dashed #ddd;writing-mode:vertical-rl;padding:9mm 6mm;display:flex;justify-content:center;overflow:hidden}.c.up{transform:rotate(180deg)}' +
         '.k{font-size:12.5pt;letter-spacing:.06em;line-height:1.6;margin:0 3mm}.pp{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:5mm;height:100%;width:100%}.no{position:absolute;bottom:4mm;left:50%;font-size:8pt;writing-mode:horizontal-tb;color:#777}' +
-        '.cv{display:flex;flex-direction:column;justify-content:center;height:100%}.tt{font-size:24pt;letter-spacing:.2em;margin:0 0 0 6mm}.nm{font-size:13pt;margin:20mm 0 0 0;letter-spacing:.15em}.sub{font-size:10pt;color:#777;margin:0}' +
+        '.cv{display:flex;flex-direction:column;justify-content:center;height:100%}.tt{font-size:22pt;letter-spacing:.2em;margin:0 0 0 6mm}.nm{font-size:13pt;margin:20mm 0 0 0;letter-spacing:.15em}' +
         '.ok{font-size:9pt;line-height:1.9;display:flex;flex-direction:column;justify-content:flex-end;height:100%}.ok p{margin:0 0 0 1.5mm}.ok .n{font-size:7pt;color:#666;margin-top:6mm}' +
         '@media screen{.wrap{overflow-x:auto}}@media print{body{background:#fff}.bar,.how{display:none}.sheet{margin:0;box-shadow:none}.c{border-color:transparent}}';
-      /* 右とじ（縦書き）の8ページ折本：上段は逆さ */
       body = '<div class="wrap"><div class="sheet">' + cell(2, true) + cell(3, true) + cell(4, true) + cell(5, true) + cell(1) + cell(8) + cell(7) + cell(6) + '</div></div>' +
         '<div class="how"><b>折本のつくりかた</b><ol><li>A4よこで印刷（「用紙に合わせる」）。</li><li>たて半分、よこ半分、さらに半分と折って、折り目をつける（8つのマスができます）。</li><li>紙をひろげ、よこ半分に折って、まん中の2マス分だけ、折り山からはさみで切る。</li><li>たてに開き、切れ目がひし形にひらくように、両はしを寄せる。</li><li>表紙が外に来るように、たたんでできあがり。</li></ol></div>';
-    } else if (kshForm === 'book') {
-      var SN = ['春', '夏', '秋', '冬'], groups = [];
-      if (kshSeason) { [0, 1, 2, 3].forEach(function (z) { var g = kus.filter(function (e) { return kshSeasonOf(e) === z; }).sort(function (a, b) { return String(a.date).localeCompare(String(b.date)); }); if (g.length) groups.push({ h: SN[z], k: g }); }); }
-      else groups.push({ h: '', k: kus });
+    } else if (ksh.form === 'book') {
+      var SN = ['春', '夏', '秋', '冬'], groups = [], keyOf = ksh.chap === 'season' ? function (e) { return SN[kshSeasonOf(e)]; } : ksh.chap === 'year' ? function (e) { return kaihoKan(String(e.date).slice(0, 4) + '年'); } : ksh.chap === 'month' ? function (e) { return kaihoKan(String(e.date).slice(0, 4) + '年' + (+String(e.date).slice(5, 7)) + '月'); } : null;
+      var src = ksh.chap === 'season' ? kus.slice().sort(function (a, b) { return kshSeasonOf(a) - kshSeasonOf(b) || String(a.date).localeCompare(String(b.date)); }) : kus;
+      src.forEach(function (e) { var k = keyOf ? keyOf(e) : ''; var g = groups[groups.length - 1]; if (!g || g.h !== k) groups.push({ h: k, k: [e] }); else g.k.push(e); });
       var pages = [], pno = 0, page = function (inner, cls) { pages.push('<section class="pg' + (cls ? ' ' + cls : '') + '">' + inner + (cls === 'ku' ? '<span class="pn">' + kaihoKan(++pno) + '</span>' : '') + '</section>'); };
-      page('<p class="tt">' + esc(title) + '</p><p class="nm">' + esc(name) + '</p><p class="sb">句集</p>', 'cover');
-      page('', 'blank');
-      groups.forEach(function (g) {
-        if (g.h) page('<p class="ch">' + g.h + '</p>', 'chap');
-        for (var i = 0; i < g.k.length; i += 3) page(g.k.slice(i, i + 3).map(kuP).join(''), 'ku');
-      });
+      page('<p class="tt">' + esc(sub || title) + '</p><p class="nm">' + esc(name) + '</p>' + (sub ? '<p class="sb">' + esc(title) + '</p>' : ''), 'cover'); page('', 'blank');
+      groups.forEach(function (g) { if (g.h) page('<p class="ch">' + esc(g.h) + '</p>', 'chap'); for (var i = 0; i < g.k.length; i += ksh.pp) page(g.k.slice(i, i + ksh.pp).map(function (e) { return '<div class="kb">' + kuP(e, true) + '</div>'; }).join(''), 'ku'); });
       if (kshAto.trim()) page('<p class="ah">あとがき</p>' + esc(kshAto.trim()).split(/\n+/).map(function (x) { return '<p class="at">' + x + '</p>'; }).join('') + '<p class="an">' + esc(name) + '</p>', 'ato');
       page(oku, 'oku');
       css += '@page{size:A5 portrait;margin:0}.book{display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 0}' +
         '.pg{width:148mm;height:210mm;background:#fff;position:relative;writing-mode:vertical-rl;padding:22mm 18mm;box-shadow:0 0 0 1px #ccc;page-break-after:always;break-after:page;overflow:hidden}' +
         '.cover{display:flex;flex-direction:column;justify-content:center}.cover .tt{font-size:26pt;letter-spacing:.25em;margin:0 0 0 10mm}.cover .nm{font-size:13pt;letter-spacing:.2em;margin:40mm 0 0 0}.cover .sb{font-size:10pt;color:#777;margin:0}' +
-        '.chap{display:flex;justify-content:center}.ch{font-size:20pt;letter-spacing:.3em;margin:30mm 0 0 0}' +
-        '.ku{display:flex;flex-direction:column;justify-content:flex-start;gap:14mm}.k{font-size:14pt;letter-spacing:.08em;line-height:1.6;margin:0}.pn{position:absolute;bottom:9mm;left:50%;writing-mode:horizontal-tb;font-size:8pt;color:#777}' +
+        '.chap{display:flex;justify-content:center}.ch{font-size:18pt;letter-spacing:.3em;margin:30mm 0 0 0}' +
+        '.ku{display:flex;flex-direction:column;justify-content:flex-start;gap:' + (ksh.pp === 2 ? 22 : 13) + 'mm}.kb{display:flex}.k{font-size:' + (ksh.pp === 2 ? 15 : 14) + 'pt;letter-spacing:.08em;line-height:1.6;margin:0}.pn{position:absolute;bottom:9mm;left:50%;writing-mode:horizontal-tb;font-size:8pt;color:#777}' +
         '.ato .ah{font-size:13pt;margin:0 0 0 8mm;letter-spacing:.2em}.ato .at{font-size:10.5pt;line-height:1.9;margin:0 0 0 2mm;text-indent:1em}.ato .an{text-align:end;margin:0 6mm 0 0;font-size:10.5pt}' +
         '.oku{display:flex;flex-direction:column;justify-content:flex-end}.ok{font-size:9pt;line-height:1.9}.ok p{margin:0 0 0 1.5mm}.ok .n{font-size:7pt;color:#666;margin-top:6mm}' +
         '@media print{body{background:#fff}.bar,.how{display:none}.book{padding:0;gap:0;display:block}.pg{box-shadow:none}}';
       body = '<div class="how">A5で印刷すると、そのまま本のページになります（A4に2ページずつ並べて刷り、半分に切っても）。ページ数：' + pages.length + '</div><div class="book">' + pages.join('') + '</div>';
     } else {
       css += '@page{size:A4 portrait;margin:16mm 14mm}.sheet{max-width:182mm;margin:12px auto;background:#fff;padding:10mm 6mm;writing-mode:vertical-rl;height:250mm;overflow-x:auto}' +
-        '.cv2{margin-left:12mm}.cv2 .tt{font-size:22pt;letter-spacing:.2em;margin:0}.cv2 .nm{font-size:12pt;margin:0 0 0 0;text-align:end}.k{font-size:15pt;letter-spacing:.1em;margin:0 0 0 8mm}' +
+        '.cv2{margin-left:12mm}.cv2 .tt{font-size:22pt;letter-spacing:.2em;margin:0}.cv2 .nm{font-size:12pt;margin:0;text-align:end}.kb{display:flex;margin-left:6mm}.k{font-size:15pt;letter-spacing:.1em;margin:0}' +
         '.ok{margin-right:10mm;font-size:9pt;line-height:1.8}.ok p{margin:0}.ok .n{font-size:7pt;color:#666}@media print{body{background:#fff}.bar{display:none}.sheet{margin:0;height:auto}}';
-      body = '<div class="sheet"><div class="cv2"><p class="tt">' + esc(title) + '</p><p class="nm">' + esc(name) + '</p></div>' + kus.map(kuP).join('') + oku + '</div>';
+      body = '<div class="sheet"><div class="cv2"><p class="tt">' + esc(kaihoKan(title)) + '</p>' + (sub ? '<p class="tt" style="font-size:14pt">「' + esc(sub) + '」</p>' : '') + '<p class="nm">' + esc(name) + '</p></div>' + kus.map(function (e) { return '<div class="kb">' + kuP(e, true) + '</div>'; }).join('') + oku + '</div>';
     }
     return '<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + esc(title) + '</title><style>' + css + '</style></head><body><div class="bar"><button class="p" onclick="window.print()">🖨 印刷・PDFにする</button><button onclick="window.close()">とじる</button></div>' + body + '</body></html>';
   }
+  function kshOpenWin(html) { var w = null; try { w = window.open('', '_blank'); } catch (_) {} if (!w) { toast('新しい画面をひらけませんでした'); return; } w.document.open(); w.document.write(html); w.document.close(); }
+  function kshCopy(tx) { try { navigator.clipboard.writeText(tx).then(function () { toast('コピーしました'); }, function () { toast('文を長押しして、コピーしてください'); }); } catch (_) { toast('文を長押しして、コピーしてください'); } }
   function kshAct(act, t) {
-    if (act === 'ksh-pick') { var id = t.dataset.id, i = kshSel.indexOf(id); if (i >= 0) kshSel.splice(i, 1); else if (kshSel.length >= kshMax()) { toast(kshMax() + '句までです'); return true; } else kshSel.push(id); render(); return true; }
-    if (act === 'ksh-clear') { kshSel = []; render(); return true; }
-    if (act === 'ksh-form') { kshForm = t.dataset.v === 'list' ? 'list' : t.dataset.v === 'book' ? 'book' : 'ori'; if (kshSel.length > kshMax()) kshSel = kshSel.slice(0, kshMax()); render(); return true; }
-    if (act === 'ksh-all') { kshSel = mine.slice().sort(function (a, b) { return (a.at || 0) - (b.at || 0); }).map(function (e) { return e.id; }).slice(0, kshMax()); render(); return true; }
-    if (act === 'ksh-season') { kshSeason = !kshSeason; render(); return true; }
+    var v = t.dataset.v;
+    if (act === 'ksh-pur') { kshPick(v); kshOut = ''; render(); return true; }
+    if (act === 'ksh-per') { ksh.per = v; kshSel = KSH_PRESET[ksh.pur] && KSH_PRESET[ksh.pur].auto ? kshCands().map(function (e) { return e.id; }).slice(0, kshMax()) : kshSel.filter(function (id) { return kshCands().some(function (e) { return e.id === id; }); }); kshOut = ''; render(); return true; }
+    if (act === 'ksh-yr') { ksh.yr = parseInt(v, 10); return kshAct('ksh-per', { dataset: { v: ksh.per } }); }
+    if (act === 'ksh-re') return kshAct('ksh-per', { dataset: { v: 'cust' } });
+    if (act === 'ksh-form') { ksh.form = v; if (kshSel.length > kshMax()) kshSel = kshSel.slice(0, kshMax()); kshOut = ''; render(); return true; }
+    if (act === 'ksh-order') { ksh.order = v; kshOut = ''; render(); return true; }
+    if (act === 'ksh-chap') { ksh.chap = v; render(); return true; }
+    if (act === 'ksh-pp') { ksh.pp = parseInt(v, 10) === 3 ? 3 : 2; render(); return true; }
+    if (act === 'ksh-n') { ksh.n = parseInt(v, 10) || 10; if (kshSel.length > ksh.n) kshSel = kshSel.slice(0, ksh.n); render(); return true; }
+    if (act === 'ksh-size' || act === 'ksh-style' || act === 'ksh-tmode') { ksh[act.slice(4)] = v; if (kshOut && ksh.form === 'img') kshShowImg(); else render(); return true; }
+    if (act === 'ksh-ksize') { ksh.kSize = v; render(); return true; }
+    if (act === 'ksh-kdir') { ksh.kDir = v; render(); return true; }
+    if (act === 'ksh-inkan') { ksh.inkan = !ksh.inkan; if (kshOut && ksh.form === 'img') kshShowImg(); else render(); return true; }
+    if (act === 'ksh-pick') { var id = t.dataset.id, i = kshSel.indexOf(id), mx = ksh.pur === 'jisen' ? Math.min(ksh.n, kshMax()) : kshMax(); if (i >= 0) kshSel.splice(i, 1); else if (kshSel.length >= mx) { toast(mx + '句までです'); return true; } else kshSel.push(id); kshOut = ''; render(); return true; }
+    if (act === 'ksh-clear') { kshSel = []; kshOut = ''; render(); return true; }
+    if (act === 'ksh-all') { kshSel = kshCands().map(function (e) { return e.id; }).slice(0, ksh.pur === 'jisen' ? Math.min(ksh.n, kshMax()) : kshMax()); kshOut = ''; render(); return true; }
+    if (act === 'ksh-copy') { kshCopy(t.dataset.i != null && kshXPosts()[+t.dataset.i] != null ? kshXPosts()[+t.dataset.i] : kshNoteText()); return true; }
+    if (act === 'ksh-xpost') { var ps = kshXPosts(), p = ps[+t.dataset.i] || ''; try { window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(p), '_blank'); } catch (_) {} return true; }
     if (act === 'ksh-make') {
-      if (kshKus().length < 6) { toast('6句えらんでください'); return true; }
-      var w = null; try { w = window.open('', '_blank'); } catch (_) {}
-      if (!w) { toast('新しい画面をひらけませんでした'); return true; }
-      w.document.open(); w.document.write(kshHtml()); w.document.close(); return true;
+      if (!kshKus().length) { toast('句をえらんでください'); return true; }
+      if (ksh.form === 'ori' && kshKus().length < 6) { toast('折本は6句からです'); return true; }
+      if (ksh.form === 'img') { kshShowImg(); return true; }
+      if (ksh.form === 'x') { kshOut = '<div class="kshout">' + kshXPosts().map(function (p, i) { return '<pre class="kshpre">' + esc(p) + '</pre><div class="actions"><button class="btn small" data-act="ksh-copy" data-i="' + i + '">📋 コピー</button><button class="btn small" data-act="ksh-xpost" data-i="' + i + '">Xで投稿する</button></div>'; }).join('') + '<p class="note">' + esc(KAIHO_NOTE) + '</p></div>'; render(); return true; }
+      if (ksh.form === 'note') { kshOut = '<div class="kshout"><pre class="kshpre">' + esc(kshNoteText()) + '</pre><div class="actions"><button class="btn primary" data-act="ksh-copy">📋 ぜんぶコピー（noteに貼る）</button></div></div>'; render(); return true; }
+      kshOpenWin(ksh.form === 'kucho' ? kshKuchoHtml() : kshHtml()); return true;
     }
     return false;
   }
@@ -3338,6 +3502,41 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
         else done('⚠️ HTTP ' + x.st + '。返事の中身が読めませんでした：' + esc(String(x.tx).slice(0, 200)));
       })
       .catch(function (e) { done('❌ つながりませんでした：' + esc(String(e && e.message || e))); });
+  }
+  /* ストッ句：メモ（入選・掲載・詞書）と、外で詠んだ句の書き足し */
+  var stMemoId = '', stMemoV = '', stAdd = null;
+  function stMemoRow(e) {
+    if (stMemoId === e.id) return '<div class="stmemo"><input type="text" data-f="st-memo" maxlength="60" value="' + esc(stMemoV) + '" placeholder="例：一句一遊 金曜日／〇〇俳句大会 佳作／吟行にて"><button class="chip fit" data-act="st-memo-save" data-id="' + esc(e.id) + '">のこす</button><button class="link" data-act="st-memo-x">やめる</button></div>';
+    return (e.memo ? '<p class="stm">📝 ' + esc(e.memo) + '</p>' : '');
+  }
+  function vStAdd() {
+    if (!stAdd) return '<div class="row"><button class="chip fit" data-act="st-add">＋ 句を書き足す（外で詠んだ句・大会に出した句など）</button></div>';
+    var today = ds(dayNum());
+    return '<div class="panel stadd"><b>句を書き足す</b><div class="field"><label for="sa-k">句</label><input type="text" id="sa-k" data-f="sa-k" maxlength="60" value="' + esc(stAdd.k) + '" placeholder="五七五をひと続きで"></div>' +
+      '<div class="field"><label for="sa-d">詠んだ日（だいたいでOK）</label><input type="date" id="sa-d" data-f="sa-d" value="' + esc(stAdd.d || today) + '" max="' + today + '"></div>' +
+      '<div class="field"><label for="sa-s">どこで・どこへ（なくてもよい）</label><input type="text" id="sa-s" data-f="sa-s" maxlength="30" value="' + esc(stAdd.s) + '" placeholder="例：一句一遊／結社誌／句帳から"></div>' +
+      '<div class="field"><label for="sa-m">メモ（入選・掲載・詞書。なくてもよい）</label><input type="text" id="sa-m" data-f="sa-m" maxlength="60" value="' + esc(stAdd.m) + '" placeholder="例：金曜日に読まれた／〇〇大会 佳作"></div>' +
+      '<p class="note">ここには、自分の句だけを書き足してください。</p><div class="actions"><button class="btn primary" data-act="st-add-save">ストッ句に入れる</button><button class="btn" data-act="st-add-x">やめる</button></div></div>';
+  }
+  function stxAct(act, t) {
+    if (act === 'st-memo') { stMemoId = t.dataset.id; stMemoV = (mineById[stMemoId] || {}).memo || ''; render(); return true; }
+    if (act === 'st-memo-x') { stMemoId = ''; render(); return true; }
+    if (act === 'st-memo-save') {
+      var id = t.dataset.id, v = String(stMemoV || '').trim().slice(0, 60); if (!db || !myId || !mineById[id]) return true;
+      db.collection('data/users/' + myId).doc(id).set({ memo: v }, { merge: true }).then(function () { toast(v ? 'メモをのこしました' : 'メモを消しました'); }).catch(function () { toast('のこせませんでした'); });
+      mineById[id].memo = v; stMemoId = ''; render(); return true;
+    }
+    if (act === 'st-add') { stAdd = { k: '', d: ds(dayNum()), s: '', m: '' }; render(); return true; }
+    if (act === 'st-add-x') { stAdd = null; render(); return true; }
+    if (act === 'st-add-save') {
+      if (!db || !myId) { toast('登録すると使えます'); return true; }
+      var k = String(stAdd.k || '').trim(); if (!k) { toast('句を書いてください'); return true; }
+      var d = /^\d{4}-\d{2}-\d{2}$/.test(stAdd.d || '') ? stAdd.d : ds(dayNum()), at = Date.parse(d + 'T12:00:00+09:00') || Date.now();
+      var nid = 'add-' + Date.now().toString(36);
+      db.collection('data/users/' + myId).doc(nid).set({ date: d, series: 'x', ch: String(stAdd.s || '').trim() || '書き足し', a: k, b: '', c: '', conf: 'f', at: at, memo: String(stAdd.m || '').trim(), added: 1 }).then(function () { toast('ストッ句に入れました'); }).catch(function () { toast('入れられませんでした'); });
+      stAdd = null; render(); return true;
+    }
+    return false;
   }
   function vAbout() {
     var L = function (n, ico, t, tag, p, btns) { return '<li class="lstep"><span class="ln">' + n + '</span><div><b>' + ico + ' ' + t + '</b> <small>' + tag + '</small><p>' + p + '</p><div class="actions">' + btns + '</div></div></li>'; };
@@ -5390,6 +5589,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act.indexOf('hyo-') === 0 && hyoAct(act, t)) {}
     else if (act.indexOf('hm-') === 0 && hmAct(act, t)) {}
     else if (act.indexOf('ksh-') === 0 && kshAct(act, t)) {}
+    else if (act.indexOf('st-') === 0 && stxAct(act, t)) {}
     else if (act === 'kaiho-open') kaihoOpen(t.dataset.v);
     else if (act === 'kaiho-copy') kaihoCopy(t.dataset.v);
     else if (act === 'ai-test') { if (isAdmin) aiTestRun(); }
@@ -5679,8 +5879,18 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     }
     else if (f === 'da') { if (demo && demo.step === 0) { if (demo.prep && kt(t.value, 'a') !== kt(demo.d.a, 'a')) demo.prep = false; demo.d.a = t.value; updateDemo(); } }
     else if (f === 'mq') { memoDraft = String(t.value || ''); }
+    else if (f === 'st-memo') stMemoV = String(t.value || '');
+    else if (f === 'sa-k' && stAdd) stAdd.k = String(t.value || '');
+    else if (f === 'sa-d' && stAdd) stAdd.d = String(t.value || '');
+    else if (f === 'sa-s' && stAdd) stAdd.s = String(t.value || '');
+    else if (f === 'sa-m' && stAdd) stAdd.m = String(t.value || '');
     else if (f === 'kg-q') kgQ = String(t.value || '');
     else if (f === 'ksh-t') kshTitle = String(t.value || '');
+    else if (f === 'ksh-s') kshSub = String(t.value || '');
+    else if (f === 'ksh-from') ksh.from = String(t.value || '');
+    else if (f === 'ksh-to') ksh.to = String(t.value || '');
+    else if (f === 'ksh-tag') ksh.tag = String(t.value || '');
+    else if (f === 'ksh-mae') ksh.mae = String(t.value || '');
     else if (f === 'ksh-h') kshName = String(t.value || '');
     else if (f === 'ksh-a') kshAto = String(t.value || '');
     else if (f === 'tk-y') { if (tsuku) { tsuku.yomi = String(t.value || ''); var yo = document.getElementById('tk-yo'); if (yo) yo.innerHTML = tkYomiOut(tsuku.yomi); } }
@@ -5728,6 +5938,10 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     render = function () { origRender.apply(this, arguments); if (inside()) ensureGuard(); };
   })();
   /* 「ことばのヒント」の開閉を覚える（人が開いたまま、ほかの人のコメントで描きなおしても閉じないように） */
+  app.addEventListener('change', function (e) {
+    var t = e.target; if (!t || !t.dataset || t.dataset.f !== 'ksh-photo' || !t.files || !t.files[0]) return;
+    var fr = new FileReader(); fr.onload = function () { var im = new Image(); im.onload = function () { kshPhoto = im; ksh.style = 'photo'; if (kshOut && ksh.form === 'img') kshShowImg(); else { toast('写真を入れました'); render(); } }; im.src = fr.result; }; fr.readAsDataURL(t.files[0]);
+  });
   app.addEventListener('toggle', function (e) { var d = e.target; if (d && d.classList && d.classList.contains('qcm') && d.dataset.qeid) qOpen[d.dataset.qeid] = d.open; if (d && d.classList && d.classList.contains('hmk') && d.dataset.heid) hmOpen[d.dataset.heid] = d.open; }, true);
   app.addEventListener('change', onInput);
   ['click', 'touchstart', 'keydown'].forEach(function (ev) { document.addEventListener(ev, function (e) { if (ev === 'keydown') { if (e.key === 'Enter') markAct(); return; } var t = e.target; if (t && t.closest && !isTyping(t)) markAct(); }, true); });
