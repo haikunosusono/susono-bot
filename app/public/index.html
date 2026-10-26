@@ -126,6 +126,32 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .tmr-row b { font-size: 1.4rem; color: var(--accent); font-variant-numeric: tabular-nums; }
 .tmr-bar { height: 6px; background: var(--muted-soft); border-radius: 99px; overflow: hidden; }
 .tmr-bar i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width 1s linear; }
+.hyotabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.hyotab { width: 2.2rem; height: 2.2rem; border-radius: 50%; border: 1px solid var(--line); background: var(--paper); font-family: var(--serif); font-weight: 700; cursor: pointer; color: var(--ink-soft); }
+.hyotab.past { background: var(--accent-soft); color: var(--accent); }
+.hyotab.cur { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.hyohead { text-align: center; margin: 14px 0 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.hyohead span { font-size: .78rem; background: var(--accent-soft); color: var(--accent); padding: 2px 12px; border-radius: 999px; }
+.hyohead b { font-family: var(--serif); color: var(--accent); font-size: 1.15rem; }
+#app .host + .host, .hyoku, .hyoex, .hyostep, .hyopv, .hyoprac { margin-top: 10px; }
+.hyoku { font-family: var(--serif); font-size: 1.35rem; letter-spacing: .08em; line-height: 1.9; background: var(--paper); border: 1px solid var(--accent); border-radius: 12px; padding: 14px 16px; }
+.hyosep { color: var(--accent); margin: 0 .3em; }
+.hyochips { margin-top: 8px; flex-wrap: wrap; }
+.hyochips .chip { flex: none; }
+.hyoex, .hyostep { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+.hyoex .lb, .hyostep .lb { font-size: .8rem; color: var(--ink-soft); display: block; margin-bottom: 6px; }
+.hyoex p { margin: 6px 0; padding: 6px 10px; border-left: 3px solid var(--accent-soft); background: var(--bg, transparent); line-height: 1.7; }
+.hyocol { display: flex; flex-direction: column; gap: 8px; }
+.hyocol .chip { flex: none; height: auto; padding: .5em 1em; text-align: left; line-height: 1.5; white-space: normal; }
+.hyoprac .tag { font-size: .78rem; background: var(--accent-soft); color: var(--accent); padding: 2px 10px; border-radius: 999px; }
+.hyopvl { text-align: right; font-size: .8rem; color: var(--ink-soft); margin: 12px 0 4px; }
+.hyopv { margin-left: 15%; background: var(--accent); color: var(--accent-ink); border-radius: 14px 4px 14px 14px; padding: 12px 16px; line-height: 1.8; }
+.hyolist { list-style: none; padding: 12px 14px; margin: 10px 0; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; }
+.hyolist li { display: flex; gap: 10px; align-items: center; padding: 5px 0; }
+.hyolist li span { width: 1.9rem; height: 1.9rem; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-weight: 700; flex: none; }
+.hyoend { flex-direction: column; }
+.hyonav { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); }
+.hyoentry { margin: 8px 0 14px; display: flex; flex-direction: column; gap: 8px; }
 .host { display: flex; gap: 10px; align-items: flex-start; }
 .hav { flex: none; width: 2.4rem; height: 2.4rem; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-weight: 700; border: 1px solid var(--line); }
 .hav.hi { background: #ffe3ec; color: #c2456f; border-color: #f6b9cc; }
@@ -758,7 +784,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.26a';
+  var APP_VER = 'v2026.10.27a';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2461,7 +2487,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
         (isCur && !opened ? '<div id="halfway" class="cmi hostline" style="display:none"><b>ダー浜（司会）</b>講評の時間、半分すぎたで。のこりは<b id="hw-left"></b>や（上のタイマーも見てや）。まだの人も、ひとことどうぞ。時間が足りんかったら、下のボタンで。<div><button class="btn primary small" data-act="cm-ext" data-i="' + (num - 1) + '"' + (((s.ext || {})[num - 1] || 0) >= 4 ? ' disabled' : '') + '>⏳ +2分 のばす （あと' + Math.max(0, 4 - ((s.ext || {})[num - 1] || 0)) + '回まで）</button></div></div>' : '') +
         (isCur && !opened && live && entrant && e.id === myId ? askBox(s, e) : '') +
         (canC && opened && e.id === myId ? '<p class="note">🪶 <b>自句自解（作者から）</b>：自分の句のことを、自由に語ってください。どんな場面だったか、どうしてこの季語・この語順にしたか、質問への答え、こめた思い。長くなっても大丈夫。だまっていても、もちろん大丈夫です。</p>' : '') +
-        (canC && !opened ? '<p class="note">「ここがすき」だけでも、立派な選評です。気になる点や質問も、ひとつあると、作者の学びになります。 <button class="link" data-act="page" data-p="hints">句会の評のヒント</button></p>' : '') +
+        (canC && !opened ? '<p class="note">「ここがすき」だけでも、立派な選評です。気になる点や質問も、ひとつあると、作者の学びになります。 <button class="link" data-act="page" data-p="hints">句会の評のヒント</button>' + (hyoDone() ? '<br><b>評の型：</b>① ことばを引く　② 感じたこと　③ 提案ひとつ（なくてもよい）' : '　<button class="link" data-act="page" data-p="hyo">5分でれんしゅう</button>') + '</p>' : '') +
         (canC ? '<details class="qcm' + (qOpen[e.id] ? '" open="' : '') + '" data-qeid="' + esc(e.id) + '"><summary>ことばのヒント（押すと入力欄に入ります・そのまま送ってもOK）</summary>' + K_QGROUPS.map(function (g) { var more = !!qMore[e.id], list = more ? g.ch : g.ch.slice(0, 5); return '<div class="row qcmrow"><span class="lb">' + g.lb + '</span>' + list.map(function (q2) { return '<button class="chip fit" data-act="cm-fill" data-eid="' + esc(e.id) + '" data-v="' + esc(q2) + '">' + esc(q2) + '</button>'; }).join('') + '</div>'; }).join('') + '<p class="note"><button class="link" data-act="cm-more" data-eid="' + esc(e.id) + '">' + (qMore[e.id] ? 'すくなく' : 'もっと見る') + '</button></p></details>' : '') +
         (canC ? '<p class="note typing" id="typing-' + esc(e.id) + '">' + typingText(s) + '</p>' : '') +
         (canC && cmEdit[e.id] ? '<p class="note">自分のコメントを編集しています <button class="link" data-act="cm-edit-cancel" data-eid="' + esc(e.id) + '">やめる</button></p>' : '') +
@@ -2817,12 +2843,104 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     ['よみ（ルビ）', '読み方が分かるか。当て読みなら、ルビで伝えられているか。', '「ルビのおかげで、宇宙が『そら』と読めました」', '「読み方で迷いました。ルビをつけると親切かもしれません」']
   ];
   function vHints() {
-    var h = '<h2 class="sec">句会の評のヒント<small>見るところと、ひとことの例</small></h2><div class="howto"><b>選評は、三段で書くと書きやすくなります</b><span>① ここが好き　② ここが気になる　③ こうしたら？　— 全部そろわなくても大丈夫です。「いいな」の一言も、立派な選評です。まず自分の好きな理由を一つ、言葉にしてみましょう。</span></div>';
+    var h = '<h2 class="sec">句会の評のヒント<small>見るところと、ひとことの例</small></h2><div class="hyoentry">' + hostSay('評の書きかた、ダー浜といっしょに5分でれんしゅうしてみよか。') + '<button class="btn primary" data-act="page" data-p="hyo">🎓 評のれんしゅう（5分）</button></div><div class="howto"><b>選評は、三段で書くと書きやすくなります</b><span>① ここが好き　② ここが気になる　③ こうしたら？　— 全部そろわなくても大丈夫です。「いいな」の一言も、立派な選評です。まず自分の好きな理由を一つ、言葉にしてみましょう。</span></div>';
     HINTS.forEach(function (x) {
       h += '<details class="hint"><summary>' + esc(x[0]) + '</summary><p>' + esc(x[1]) + '</p><p class="note"><b>いいな：</b>' + esc(x[2]) + '<br><b>提案：</b>' + esc(x[3]) + '</p></details>';
     });
     h += '<p class="note">これは、ひとつの見かたです。句は、正解のあるものではありません。相手の句を直すのではなく、読んだ感想を、やさしく手渡しましょう。</p>';
     return h;
+  }
+  /* 評のれんしゅう：ダー浜（関西弁）と、五つのヒント → やってみる → むすび */
+  var HYO_KU = {
+    haru: { ku: '春の泥ちいさき靴の向きそろふ', parts: ['春の泥', 'ちいさき靴の', '向きそろふ'], kigo: '春の泥', w: ['ちいさき靴', '向きそろふ', '春の泥'],
+      ex: '「向きそろふ」の一語に、玄関先でそっと靴をそろえる手つきまで見えました。春の泥のやわらかさと、子どもの小さな靴がよく響き合っています。',
+      pr: ['欲を言えば、靴をそろえた人の気配がもう少しあると、景がくっきりしそうです', '「ちいさき靴の」の「の」を、別の助詞にしてみる手もあるかもしれません'] },
+    natsu: { ku: '夕立や地図の路地裏指でなぞる', parts: ['夕立や', '地図の路地裏', '指でなぞる'], kigo: '夕立', w: ['路地裏', '指でなぞる', '夕立や'],
+      ex: '「指でなぞる」に、雨宿りの時間のゆっくりした手ざわりがあります。「夕立や」の切れのあとに、急に静かな机の上へ移る転換がみごとです。',
+      pr: ['欲を言えば、場所がもう一言あると、雨宿りの景がくっきりしそうです', '下五の字余りを、六音のままにするか整えるか、声に出して比べてみてもよさそうです'] },
+    aki: { ku: '月今宵ポストの口のつめたさよ', parts: ['月今宵', 'ポストの口の', 'つめたさよ'], kigo: '月今宵', w: ['ポストの口', 'つめたさよ', '月今宵'],
+      ex: '「ポストの口」という小さな物に、手紙を出す人の指先の感覚が集まっています。「月今宵」の大きな景と、指先の冷たさの取り合わせが、よく効いています。',
+      pr: ['欲を言えば、「の」が二つ続くので、一つ変えると軽くなるかもしれません', '何を出しに来たのか、ほんの少し匂わせる手もありそうです'] },
+    fuyu: { ku: '冬の灯や地図の路地裏指でなぞる', parts: ['冬の灯や', '地図の路地裏', '指でなぞる'], kigo: '冬の灯', w: ['路地裏', '指でなぞる', '冬の灯'],
+      ex: '「指でなぞる」に、まだ行ったことのない町への気持ちがこもっています。「冬の灯や」で切って、灯の下の地図へ視線が下りていく運びが美しいです。',
+      pr: ['欲を言えば、時間がもう一言あると、景がくっきりしそうです', '結びは言い切らず、少し開いて終える手もありそうです'] }
+  };
+  var HYO_FEEL = ['という言葉に、すっと景色が浮かびました', 'という表現の手ざわりが、心に残りました', 'の音のひびきが、耳に残りました'];
+  var HYO_T = ['声に出して、読んでみる', '心が動いたところを、ひとつ', 'よかったところは、言葉を引いて', '直しの提案は、ひとつだけ', '作者に、敬意を'];
+  var hyoS = 0, hyoW = -1, hyoW2 = -1, hyoF = -1, hyoP = -2, hyoSplit = false;
+  try { hyoS = Math.max(0, Math.min(6, parseInt(localStorage.getItem('ikku-hyo') || '0', 10) || 0)); } catch (_) {}
+  function hyoDone() { try { return localStorage.getItem('ikku-hyo-done') === '1'; } catch (_) { return false; } }
+  function hyoKu() { return HYO_KU[tkSeason()] || HYO_KU.aki; }
+  function hyoDraft() {
+    var k = hyoKu(); if (hyoW2 < 0) return '';
+    var t = '「' + k.w[hyoW2] + '」' + (hyoF >= 0 ? HYO_FEEL[hyoF] + '。' : '');
+    if (hyoP >= 0) t += k.pr[hyoP] + '。';
+    return t;
+  }
+  function vHyo() {
+    var k = hyoKu(), s = hyoS, NUM = ['一', '二', '三', '四', '五'];
+    var tabs = '<div class="hyotabs" role="tablist">' + NUM.map(function (n, i) { return '<button class="hyotab' + (s === i ? ' cur' : s > i ? ' past' : '') + '" data-act="hyo-go" data-i="' + i + '" aria-label="ヒント' + n + '">' + n + '</button>'; }).join('') + '</div>';
+    var head = function (tag, title) { return '<div class="hyohead"><span>' + tag + '</span><b>' + title + '</b></div>'; };
+    var kubox = function (inner) { return '<div class="hyoku">' + (inner || esc(k.ku)) + '</div>'; };
+    var lst = function (arr) { return '<div class="hyoex"><span class="lb">言いかたの例</span>' + arr.map(function (x) { return '<p>' + x + '</p>'; }).join('') + '</div>'; };
+    var h = '<div class="sh"><h2 class="sec">評のヒント<small>ダー浜と、5分のれんしゅう</small></h2>' + tabs + '</div>';
+    if (s === 0) {
+      h += head('ヒント 一', HYO_T[0]) +
+        hostSay('まずは声に出して読んでみてや。小さい声でも、頭の中でもええねん。五七五の調べと、どこで一回息が切れるか、耳で確かめるんや。') +
+        kubox(hyoSplit ? k.parts.map(esc).join('<span class="hyosep">／</span>') : '') +
+        '<p class="row"><button class="chip fit' + (hyoSplit ? ' on' : '') + '" data-act="hyo-split">' + (hyoSplit ? '一句にもどす' : '五・七・五に分けて見る') + '</button></p>' +
+        hostSay('「' + esc(k.parts[0]) + '」のあとで、ちょっと間があるやろ？ そこが<b>切れ</b>や。読んで「ええな」と思えたら、それだけでもう評の半分はできてるで。');
+    } else if (s === 1) {
+      h += head('ヒント 二', HYO_T[1]) +
+        hostSay('この句で、心が動いた言葉を<b>ひとつだけ</b>押してみ。ぜんぶ言わんでええねん。ひとつに絞るのがコツや。') +
+        kubox() + '<div class="row hyochips">' + k.w.map(function (w, i) { return '<button class="chip fit' + (hyoW === i ? ' on' : '') + '" data-act="hyo-w" data-i="' + i + '">' + esc(w) + '</button>'; }).join('') + '</div>' +
+        (hyoW >= 0 ? hostSay('ええとこ見つけたな。「' + esc(k.w[hyoW]) + '」——それが、あんたの評の<b>入り口</b>になるで。' + (k.w[hyoW].indexOf(k.kigo) >= 0 ? '（ちなみにそれは季語や。季語に心が動くのも、だいじな読みやで）' : '')) : '<p class="note">どれかひとつ、押してみてください。</p>');
+    } else if (s === 2) {
+      h += head('ヒント 三', HYO_T[2]) +
+        hostSay('よかったとこは、句の言葉をそのまま引いて言うたらええねん。「〜という言葉に」から始めたら、どこがよかったか、作者にちゃんと伝わるで。') +
+        kubox() + charaSay('be', esc(k.ex), '松風主宰の評の例') +
+        lst(['「〇〇」という言葉に、すっと景色が浮かびました。', '「〇〇」の音のひびきが、耳に残りました。', '季語の「' + esc(k.kigo) + '」と「〇〇」の取り合わせが、よく効いています。']) +
+        hostSay('「いいですね」だけより、言葉をひとつ引くだけで、ぐっと評らしなるやろ。');
+    } else if (s === 3) {
+      h += head('ヒント 四', HYO_T[3]) +
+        hostSay('気になるとこがあっても、提案は<b>ひとつだけ</b>にしとき。言い切らんと「〜かもしれません」くらいが、ちょうどええねん。') +
+        charaSay('be', esc(k.pr[0]) + '。', '松風主宰の提案の例') +
+        lst(['季語の置き場所を、上五と下五で入れかえてみる手もありそうです。', '中七を少し軽くすると、季語が立つかもしれません。', '結びは言い切らず、少し開いて終える手もありそうです。']) +
+        hostSay('提案は、なくてもかまへん。よかったとこだけでも、じゅうぶん立派な評やで。');
+    } else if (s === 4) {
+      h += head('ヒント 五', HYO_T[4]) +
+        hostSay('句の背景は、作者にしかわからへん。決めつけんと「ここはどんな景ですか？」て聞くのも、ええ評や。') +
+        hostSay('裾野では、自分の句が壇上にあるあいだ、作者は聞き役や。あんたの評のことばは、そのまま作者への<b>贈りもの</b>になるで。自分の句に評をもろたら、まず「ありがとう」からな。');
+    } else if (s === 5) {
+      var d = hyoDraft();
+      h += head('やってみる', '評をひとつ、組み立てる') +
+        hostSay('ほな、ためしにひとつ、評を組み立ててみよか。') +
+        '<div class="hyoprac"><span class="tag">れんしゅう</span>' + kubox() + '</div>' +
+        '<div class="hyostep"><span class="lb">① ことばを引く</span><div class="row hyochips">' + k.w.map(function (w, i) { return '<button class="chip fit' + (hyoW2 === i ? ' on' : '') + '" data-act="hyo-w2" data-i="' + i + '">' + esc(w) + '</button>'; }).join('') + '</div></div>' +
+        (hyoW2 >= 0 ? '<div class="hyostep"><span class="lb">② 感じたことを</span><div class="hyocol">' + HYO_FEEL.map(function (x, i) { return '<button class="chip fit' + (hyoF === i ? ' on' : '') + '" data-act="hyo-f" data-i="' + i + '">' + esc(x) + '</button>'; }).join('') + '</div></div>' : '') +
+        (hyoF >= 0 ? '<div class="hyostep"><span class="lb">③ 提案をひとつ（なくてもよい）</span><div class="hyocol">' + k.pr.map(function (x, i) { return '<button class="chip fit' + (hyoP === i ? ' on' : '') + '" data-act="hyo-p" data-i="' + i + '">' + esc(x) + '</button>'; }).join('') + '<button class="chip fit' + (hyoP === -1 ? ' on' : '') + '" data-act="hyo-p" data-i="-1">提案はなし</button></div></div>' : '') +
+        (d ? '<p class="hyopvl">あなたの評（プレビュー）</p><div class="hyopv">' + esc(d) + '</div>' : '') +
+        (hyoP > -2 && d ? hostSay('はい、それでもう立派な評や。この型のまま、合評でどうぞ。ゆっくりでええで。') + '<p class="row"><button class="btn small" data-act="hyo-copy">この評をコピー</button></p>' : '');
+    } else {
+      h += head('むすび', 'きょうのヒント') +
+        hostSay('五つのヒントは、いつでもここで読み返せるで。ほな、句会で会いましょ。') +
+        '<ol class="hyolist">' + HYO_T.map(function (t, i) { return '<li><span>' + NUM[i] + '</span>' + t + '</li>'; }).join('') + '</ol>' +
+        '<div class="actions hyoend"><button class="btn primary" data-act="page" data-p="archive">句会アーカイブで評を眺める</button><button class="btn" data-act="page" data-p="hints">見どころの一覧（評のヒント）</button><button class="btn" data-act="page" data-p="">ホームへもどる</button></div>';
+    }
+    h += '<div class="hyonav"><button class="link" data-act="hyo-go" data-i="' + Math.max(0, s - 1) + '"' + (s === 0 ? ' disabled' : '') + '>← もどる</button>' +
+      (s < 6 ? '<button class="btn primary" data-act="hyo-go" data-i="' + (s + 1) + '">次へ</button>' : '<button class="btn primary" data-act="hyo-go" data-i="0">はじめから</button>') + '</div>';
+    return h;
+  }
+  function hyoAct(act, t) {
+    var i = parseInt(t.dataset.i, 10);
+    if (act === 'hyo-go') { hyoS = isNaN(i) ? 0 : i; if (hyoS === 0) { hyoSplit = false; } if (hyoS === 6) { try { localStorage.setItem('ikku-hyo-done', '1'); } catch (_) {} } try { localStorage.setItem('ikku-hyo', String(hyoS)); } catch (_) {} render(); try { window.scrollTo(0, 0); } catch (_) {} return true; }
+    if (act === 'hyo-split') { hyoSplit = !hyoSplit; render(); return true; }
+    if (act === 'hyo-w') { hyoW = i; render(); return true; }
+    if (act === 'hyo-w2') { hyoW2 = i; render(); return true; }
+    if (act === 'hyo-f') { hyoF = i; render(); return true; }
+    if (act === 'hyo-p') { hyoP = i; render(); return true; }
+    if (act === 'hyo-copy') { var d = hyoDraft(); try { navigator.clipboard.writeText(d).then(function () { toast('評をコピーしました'); }, function () { toast('コピーできませんでした'); }); } catch (_) { toast('コピーできませんでした'); } return true; }
+    return false;
   }
   function vAbout() {
     var L = function (n, ico, t, tag, p, btns) { return '<li class="lstep"><span class="ln">' + n + '</span><div><b>' + ico + ' ' + t + '</b> <small>' + tag + '</small><p>' + p + '</p><div class="actions">' + btns + '</div></div></li>'; };
@@ -2848,7 +2966,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<h3>お問い合わせ</h3><p>ご意見・不具合・権利侵害の申告は「お問い合わせ」から。ボットが定型の返事をし、運営者が内容を確認します。</p>' +
       '<h3>この試作版について</h3><ul><li>メールアドレスとパスワードで登録します。句会でほかの人に見えるのは俳号だけです。</li><li>データは Google の Firebase（東京のサーバー）に保管されます。松風主宰のほめ言葉には、Google の AI（Gemini）を使っています。</li><li>試作中のため、機能や内容は予告なく変わります。大切な句は、手元にも控えてください。</li><li>「みんなで歌会」からひらめきをもらって作りました。</li></ul></div>';
   }
-  function pageView() { return page === 'stock' ? vStock() : page === 'contact' ? vContact() : page === 'terms' ? vTerms() : page === 'my' ? vMy() : page === 'hints' ? vHints() : page === 'admin' ? vAdmin() : page === 'about' ? vAbout() : page === 'news' ? vNewsPage() : page === 'faq' ? vFaq() : page === 'notify' ? vNotify() : page === 'archive' ? vArchive() : page === 'manner' ? vManner() : vPrivacy(); }
+  function pageView() { return page === 'stock' ? vStock() : page === 'contact' ? vContact() : page === 'terms' ? vTerms() : page === 'my' ? vMy() : page === 'hints' ? vHints() : page === 'hyo' ? vHyo() : page === 'admin' ? vAdmin() : page === 'about' ? vAbout() : page === 'news' ? vNewsPage() : page === 'faq' ? vFaq() : page === 'notify' ? vNotify() : page === 'archive' ? vArchive() : page === 'manner' ? vManner() : vPrivacy(); }
   function vManner() {
     return '<h2 class="sec">句のあつかいとマナー<small>ここは練習の場です</small></h2>' +
       '<div class="howto"><b>ここで作った句は、「未発表」のあつかいです</b><span>「俳句の裾野」は、俳句を鍛える練習の場です。ここで作った句は、練習の句なので、未発表のあつかいにします。</span></div>' +
@@ -4220,7 +4338,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var g = function (t, items) { return '<div class="mgrp"><b>' + t + '</b><div class="row">' + items.join('') + '</div></div>'; };
     return '<details class="panel menu"><summary>☰ メニュー・機能まとめ</summary>' +
       g('つくる', [mb('tk-start', '', '🧩 句づくり'), pg('stock', '📒 ストッ句')]) +
-      g('まなぶ', [mb('tut', '', '🌱 一句つくれるチュートリアル'), mb('tutd', '', '🔍 さらに深くチュートリアル'), pg('about', 'できること'), pg('hints', '句会の評のヒント'), pg('manner', '句のあつかい・マナー'), pg('faq', 'よくある質問'), pg('notify', 'スマホの通知のしかた')]) +
+      g('まなぶ', [mb('tut', '', '🌱 一句つくれるチュートリアル'), mb('tutd', '', '🔍 さらに深くチュートリアル'), pg('about', 'できること'), pg('hyo', '🎓 評のれんしゅう'), pg('hints', '句会の評のヒント'), pg('manner', '句のあつかい・マナー'), pg('faq', 'よくある質問'), pg('notify', 'スマホの通知のしかた')]) +
       g('じぶん', [pg('my', 'マイページ'), pg('archive', '句会アーカイブ')]) +
       g('声をとどける', [pg('contact', '📮 ご意見・ご要望'), pg('terms', '利用規約'), pg('privacy', 'プライバシー')]) +
       '</details>';
@@ -4855,6 +4973,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       write(fl.id, fp).then(function () { toast('席を立ちました'); }); delete drafts['s:' + fl.id]; render();
     }
     else if (act === 'tutt') { openTut(0, 'tei'); }
+    else if (act.indexOf('hyo-') === 0 && hyoAct(act, t)) {}
     else if (act === 'page') { page = t.dataset.p || ''; if (page === 'faq') markFirst('f_faq'); else if (page === 'news') markFirst('f_news'); else if (page === 'my') markFirst('f_my'); render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'live-g') { gCur = t.dataset.gid; gNew = false; tab = 'gohyo'; page = ''; render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'live-k') { current = t.dataset.sid; showInv = false; tab = 'together'; page = ''; render(); try { window.scrollTo(0, 0); } catch (_) {} }
