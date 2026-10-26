@@ -126,6 +126,10 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .tmr-row b { font-size: 1.4rem; color: var(--accent); font-variant-numeric: tabular-nums; }
 .tmr-bar { height: 6px; background: var(--muted-soft); border-radius: 99px; overflow: hidden; }
 .tmr-bar i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width 1s linear; }
+.meiku { background: var(--paper); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; padding: 8px 14px; margin: 8px 0 12px; }
+.meiku .lb { font-size: .75rem; color: var(--ink-soft); }
+.mq { font-family: var(--serif); font-size: 1.15rem; letter-spacing: .06em; margin: 2px 0; line-height: 1.7; }
+.mw { margin: 0; text-align: right; font-size: .85rem; color: var(--ink-soft); }
 .hito { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; margin: 8px 0 12px; }
 .hito .lb { font-size: .78rem; color: var(--ink-soft); }
 .hq { font-family: var(--serif); font-size: 1.05rem; line-height: 1.8; margin: 4px 0; }
@@ -810,7 +814,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27g';
+  var APP_VER = 'v2026.10.27h';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3215,6 +3219,65 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     }
     return false;
   }
+  /* 今日の一句（名句）：著作権の切れた俳人だけ（1967年までに没）。[句, 作者, 出典（不確かなものは空）] */
+  var MEIKU = {
+    haru: [
+      ['古池や蛙飛こむ水のおと', '松尾芭蕉', '春の日'], ['草の戸も住替る代ぞひなの家', '松尾芭蕉', 'おくのほそ道'], ['さまざまの事おもひ出す桜かな', '松尾芭蕉', '笈の小文'],
+      ['山路来て何やらゆかしすみれ草', '松尾芭蕉', '野ざらし紀行'], ['春なれや名もなき山の薄霞', '松尾芭蕉', '野ざらし紀行'], ['行く春を近江の人とをしみける', '松尾芭蕉', '猿蓑'],
+      ['梅が香にのつと日の出る山路かな', '松尾芭蕉', '炭俵'], ['花の雲鐘は上野か浅草か', '松尾芭蕉', '続虚栗'], ['春の夜や籠り人ゆかし堂の隅', '松尾芭蕉', '笈の小文'],
+      ['菜の花や月は東に日は西に', '与謝蕪村', ''], ['春の海終日のたりのたりかな', '与謝蕪村', ''], ['ゆく春やおもたき琵琶の抱ごころ', '与謝蕪村', ''],
+      ['春雨や小磯の小貝ぬるるほど', '与謝蕪村', ''], ['春の水山なき国を流れけり', '与謝蕪村', ''], ['陽炎や名もしらぬ虫の白き飛ぶ', '与謝蕪村', ''],
+      ['雀の子そこのけそこのけ御馬が通る', '小林一茶', 'おらが春'], ['やせ蛙まけるな一茶是に有', '小林一茶', '七番日記'], ['雪とけて村一ぱいの子ども哉', '小林一茶', '七番日記'],
+      ['梅一輪一輪ほどのあたたかさ', '服部嵐雪', ''], ['人恋し灯ともしころをさくらちる', '加舎白雄', ''], ['春風や闘志いだきて丘に立つ', '高浜虚子', '五百句'],
+      ['一つ根に離れ浮く葉や春の水', '高浜虚子', '五百句'], ['咲き満ちてこぼるる花もなかりけり', '高浜虚子', ''], ['蝶々のもの食ふ音の静かさよ', '高浜虚子', ''],
+      ['赤い椿白い椿と落ちにけり', '河東碧梧桐', ''], ['菫ほどな小さき人に生れたし', '夏目漱石', ''], ['木瓜咲くや漱石拙を守るべく', '夏目漱石', ''],
+      ['花衣ぬぐやまつはる紐いろいろ', '杉田久女', '杉田久女句集'], ['雪解川名山けづる響かな', '前田普羅', '普羅句集'], ['春風や堤長うして家遠し', '与謝蕪村', '春風馬堤曲']
+    ],
+    natsu: [
+      ['閑さや岩にしみ入る蝉の声', '松尾芭蕉', 'おくのほそ道'], ['夏草や兵どもが夢の跡', '松尾芭蕉', 'おくのほそ道'], ['五月雨をあつめて早し最上川', '松尾芭蕉', 'おくのほそ道'],
+      ['暑き日を海にいれたり最上川', '松尾芭蕉', 'おくのほそ道'], ['若葉して御目の雫ぬぐはばや', '松尾芭蕉', '笈の小文'], ['蛸壺やはかなき夢を夏の月', '松尾芭蕉', '笈の小文'],
+      ['ほととぎす鳴くや五尺のあやめ草', '松尾芭蕉', ''], ['清滝や波に散り込む青松葉', '松尾芭蕉', ''], ['卯の花に兼房見ゆる白毛かな', '河合曾良', 'おくのほそ道'],
+      ['目には青葉山ほととぎす初鰹', '山口素堂', ''], ['夏河を越すうれしさよ手に草履', '与謝蕪村', ''], ['さみだれや大河を前に家二軒', '与謝蕪村', ''],
+      ['牡丹散て打かさなりぬ二三片', '与謝蕪村', ''], ['ほととぎす平安城を筋違に', '与謝蕪村', ''], ['涼しさや鐘をはなるるかねの声', '与謝蕪村', ''],
+      ['河童の恋する宿や夏の月', '与謝蕪村', ''], ['鮎くれてよらで過行夜半の門', '与謝蕪村', ''], ['夕立や草葉をつかむむら雀', '与謝蕪村', ''],
+      ['涼風の曲りくねつて来たりけり', '小林一茶', ''], ['やれ打つな蝿が手をすり足をする', '小林一茶', ''], ['六月を奇麗な風の吹くことよ', '正岡子規', ''],
+      ['夏嵐机上の白紙飛び尽す', '正岡子規', ''], ['白牡丹といふといへども紅ほのか', '高浜虚子', '五百句'], ['蛇逃げて我を見し眼の草に残る', '高浜虚子', '五百句'],
+      ['谺して山ほととぎすほしいまま', '杉田久女', '杉田久女句集'], ['分け入つても分け入つても青い山', '種田山頭火', '草木塔'], ['あるけばかつこういそげばかつこう', '種田山頭火', '草木塔'],
+      ['入れものが無い両手で受ける', '尾崎放哉', '大空'], ['算術の少年しのび泣けり夏', '西東三鬼', '旗'], ['青蛙おのれもペンキぬりたてか', '芥川龍之介', '澄江堂句集']
+    ],
+    aki: [
+      ['荒海や佐渡によこたふ天河', '松尾芭蕉', 'おくのほそ道'], ['石山の石より白し秋の風', '松尾芭蕉', 'おくのほそ道'], ['一家に遊女もねたり萩と月', '松尾芭蕉', 'おくのほそ道'],
+      ['病雁の夜寒に落ちて旅寝哉', '松尾芭蕉', '猿蓑'], ['秋深き隣は何をする人ぞ', '松尾芭蕉', ''], ['此道や行人なしに秋の暮', '松尾芭蕉', ''],
+      ['名月や池をめぐりて夜もすがら', '松尾芭蕉', ''], ['もの言へば唇寒し秋の風', '松尾芭蕉', ''], ['この秋は何で年寄る雲に鳥', '松尾芭蕉', ''],
+      ['菊の香や奈良には古き仏達', '松尾芭蕉', ''], ['朝顔につるべとられてもらひ水', '加賀千代女', ''], ['鳥羽殿へ五六騎いそぐ野分哉', '与謝蕪村', ''],
+      ['月天心貧しき町を通りけり', '与謝蕪村', ''], ['白露や茨の刺にひとつづつ', '与謝蕪村', ''], ['山は暮れて野は黄昏の薄哉', '与謝蕪村', ''],
+      ['名月をとつてくれろと泣く子かな', '小林一茶', 'おらが春'], ['露の世は露の世ながらさりながら', '小林一茶', 'おらが春'], ['柿くへば鐘が鳴るなり法隆寺', '正岡子規', ''],
+      ['鶏頭の十四五本もありぬべし', '正岡子規', ''], ['赤とんぼ筑波に雲もなかりけり', '正岡子規', ''], ['糸瓜咲て痰のつまりし仏かな', '正岡子規', ''],
+      ['行く我にとどまる汝に秋二つ', '正岡子規', ''], ['桐一葉日当りながら落ちにけり', '高浜虚子', '五百句'], ['秋風や眼中のもの皆俳句', '高浜虚子', ''],
+      ['をりとりてはらりとおもきすすきかな', '飯田蛇笏', '山廬集'], ['くろがねの秋の風鈴鳴りにけり', '飯田蛇笏', '山廬集'], ['芋の露連山影を正しうす', '飯田蛇笏', '山廬集'],
+      ['頂上や殊に野菊の吹かれ居り', '原石鼎', '花影'], ['金剛の露ひとつぶや石の上', '川端茅舎', '川端茅舎句集'], ['痩馬のあはれ機嫌や秋高し', '村上鬼城', '鬼城句集']
+    ],
+    fuyu: [
+      ['旅に病んで夢は枯野をかけ廻る', '松尾芭蕉', ''], ['初しぐれ猿も小蓑をほしげ也', '松尾芭蕉', '猿蓑'], ['海くれて鴨のこゑほのかに白し', '松尾芭蕉', '野ざらし紀行'],
+      ['旅人と我名よばれん初しぐれ', '松尾芭蕉', '笈の小文'], ['冬の日や馬上に氷る影法師', '松尾芭蕉', '笈の小文'], ['いざ子ども走りありかむ玉霰', '松尾芭蕉', ''],
+      ['金屏の松の古さよ冬籠', '松尾芭蕉', ''], ['葱買て枯木の中を帰りけり', '与謝蕪村', ''], ['斧入れて香におどろくや冬木立', '与謝蕪村', ''],
+      ['寒月や門なき寺の天高し', '与謝蕪村', ''], ['待人の足音遠き落葉哉', '与謝蕪村', ''], ['凩の果はありけり海の音', '池西言水', ''],
+      ['是がまあつひの栖か雪五尺', '小林一茶', '七番日記'], ['うまさうな雪がふうはりふはりかな', '小林一茶', ''], ['めでたさも中位なりおらが春', '小林一茶', 'おらが春'],
+      ['いくたびも雪の深さを尋ねけり', '正岡子規', ''], ['遠山に日の当りたる枯野かな', '高浜虚子', '五百句'], ['流れ行く大根の葉の早さかな', '高浜虚子', '五百句'],
+      ['去年今年貫く棒の如きもの', '高浜虚子', ''], ['咳をしても一人', '尾崎放哉', '大空'], ['うしろすがたのしぐれてゆくか', '種田山頭火', '草木塔'],
+      ['鉄鉢の中へも霰', '種田山頭火', '草木塔'], ['水枕ガバリと寒い海がある', '西東三鬼', '旗'], ['足袋つぐやノラともならず教師妻', '杉田久女', '杉田久女句集'],
+      ['冬蜂の死にどころなく歩きけり', '村上鬼城', '鬼城句集'], ['小春日や石を噛み居る赤蜻蛉', '村上鬼城', '鬼城句集'], ['しんしんと雪降る空に鳶の笛', '川端茅舎', ''],
+      ['約束の寒の土筆を煮て下さい', '川端茅舎', ''], ['元日や手を洗ひをる夕ごころ', '芥川龍之介', '澄江堂句集'], ['木がらしや目刺にのこる海のいろ', '芥川龍之介', '澄江堂句集']
+    ]
+  };
+  var meikuI = -1;
+  function meikuList() { return MEIKU[tkSeason()] || MEIKU.aki; }
+  function meikuNext() { var L = meikuList(), n = meikuI; if (L.length < 2) { meikuI = 0; return; } while (n === meikuI) n = Math.floor(Math.random() * L.length); meikuI = n; }
+  function vMeiku() {
+    var L = meikuList(); if (meikuI < 0 || meikuI >= L.length) meikuNext();
+    var x = L[meikuI];
+    return '<div class="meiku"><span class="lb">今日の一句（名句）</span><p class="mq">' + esc(x[0]) + '</p><p class="mw">' + esc(x[1]) + (x[2] ? '『' + esc(x[2]) + '』' : '') + '　<button class="link" data-act="meiku-next">ほかの句</button></p></div>';
+  }
   function vAbout() {
     var L = function (n, ico, t, tag, p, btns) { return '<li class="lstep"><span class="ln">' + n + '</span><div><b>' + ico + ' ' + t + '</b> <small>' + tag + '</small><p>' + p + '</p><div class="actions">' + btns + '</div></div></li>'; };
     var ladder = '<h2 class="sec">はじめの一歩から、段階的に<small>裾野から、すこしずつ</small></h2><ol class="ladder">' +
@@ -4702,7 +4765,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       body = '<div class="top"><div><h1 class="brand">俳句の裾野</h1><div class="tagline">俳句の筋力トレーニング</div><div class="date">' + esc(fullLabel(n)) + '<span class="ver">' + APP_VER + '</span> <button class="verbtn' + (newVer ? ' new' : verChecked ? ' ok' : '') + '" data-act="app-reload" title="アプリを最新にする">' + (newVer ? '🔄 新しい版があります・更新してください' : verChecked ? '✅ いま最新版です' : verErr ? '⚠️ 確かめられませんでした・押すと更新（' + esc(verErr) + '）' : '🔄 更新を確かめています…') + '</button></div></div>' + '<div class="topr">' + (st > 0 ? '<span class="streak">連続 ' + st + '日</span>' : '') + '<button class="link" data-act="yoko" aria-pressed="' + yoko + '">' + (yoko ? '縦書きで見る' : '横書きで見る') + '</button><button class="link" data-act="tut">俳句はじめての人へ（チュートリアル）</button></div></div>' +
         (window.fbLogout && myId ? '<div class="who-bar"><span>ログイン中：<b>' + esc(haigo.trim() || (window.fbUserEmail || '')) + '</b>' + (haigo.trim() && window.fbUserEmail ? '<small>（' + esc(window.fbUserEmail) + '）</small>' : '') + '</span><button class="btn small" data-act="fblogout">ログアウト</button></div>' : '') +
         vGuest() + vLive() + vStats() + vMemoQ(false) + vBeginner() + vNews() + vMenu() +
-        vRooms() + (tab === 'solo' ? vDeck() : '') + (tab === 'diary' ? vDiary() : tab === 'solo' ? vSolo() : tab === 'bot' ? vBotRoom() : tab === 'gohyo' ? vGohyo() : tab === 'flat' ? vFlat() : tab === 'monthly' ? vMonthly() : vTogether()) + vFooter();
+        vMeiku() + vRooms() + (tab === 'solo' ? vDeck() : '') + (tab === 'diary' ? vDiary() : tab === 'solo' ? vSolo() : tab === 'bot' ? vBotRoom() : tab === 'gohyo' ? vGohyo() : tab === 'flat' ? vFlat() : tab === 'monthly' ? vMonthly() : vTogether()) + vFooter();
       if (dbState === 'none') body += '<p class="note">保存先につながっていません。ページを読みこみなおしてください。</p>';
     }
     /* こそこそ話：描きなおしても、いちばん下（最新）に。読み返し中（上にスクロール中）なら、その位置を保つ */
@@ -5269,6 +5332,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act.indexOf('ksh-') === 0 && kshAct(act, t)) {}
     else if (act === 'kaiho-open') kaihoOpen(t.dataset.v);
     else if (act === 'kaiho-copy') kaihoCopy(t.dataset.v);
+    else if (act === 'meiku-next') { meikuNext(); render(); }
     else if (act === 'hito-next') { hitoNext(); render(); }
     else if (act === 'kata-go') { kataI = parseInt(t.dataset.i, 10) || 0; kataMore = false; render(); }
     else if (act === 'kata-more') { kataMore = !kataMore; render(); }
