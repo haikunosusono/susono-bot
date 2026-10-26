@@ -817,7 +817,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27k';
+  var APP_VER = 'v2026.10.27l';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2767,6 +2767,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function vAdmin() {
     var un = adminInqs.filter(function (x) { return !x.seen; }).length;
     var h = '<h2 class="sec">運営者ページ<small>お問い合わせ ' + adminInqs.length + '件・未確認 ' + un + '件</small></h2>';
+    h += vAiTest();
     h += vNewsForm();
     h += '<p class="note">ここは、運営者（あなた）だけに見えるページです。届いたお問い合わせには、ここから返信できます（相手のお問い合わせページに表示されます）。確認したら「確認ずみ」を押してください。</p>';
     if (!adminInqs.length) return h + '<div class="empty"><p>まだお問い合わせはありません。</p></div>';
@@ -3316,6 +3317,27 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function kigoGo() {
     var q = String(kgQ || '').trim(); if (!q) { toast('しらべたい言葉を入れてください'); return; }
     try { window.open('https://www.google.com/search?q=' + encodeURIComponent('site:kigosai.sakura.ne.jp ' + q), '_blank', 'noopener'); } catch (_) {}
+  }
+  /* 運営者だけ：AI先生（Gemini）がいま評を返せるか、その場でためす */
+  var aiTest = { busy: false, res: '' };
+  function vAiTest() {
+    return '<div class="panel"><b>🤖 AI先生をためす</b><p class="note">名句「柿くへば鐘が鳴るなり法隆寺」で、AI先生に評をたのみます。15〜40秒ほどかかります。</p><div class="actions"><button class="btn primary" data-act="ai-test"' + (aiTest.busy ? ' disabled' : '') + '>' + (aiTest.busy ? 'たのんでいます…' : 'ためす') + '</button></div>' + (aiTest.res ? '<div class="cmi">' + aiTest.res + '</div>' : '') + '</div>';
+  }
+  function aiTestRun() {
+    if (!SENSEI_API) { aiTest.res = 'AI先生のURLが入っていません。'; render(); return; }
+    aiTest.busy = true; aiTest.res = ''; render();
+    var t0 = Date.now(), ctrl = null, timer = null;
+    try { ctrl = new AbortController(); timer = setTimeout(function () { ctrl.abort(); }, 60000); } catch (_) {}
+    var done = function (m) { if (timer) clearTimeout(timer); aiTest.busy = false; aiTest.res = m + '<br><small>' + Math.round((Date.now() - t0) / 1000) + '秒</small>'; render(); };
+    fetch(SENSEI_API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ ku: '柿くへば鐘が鳴るなり法隆寺' }), signal: ctrl ? ctrl.signal : undefined, redirect: 'follow' })
+      .then(function (r) { return r.text().then(function (tx) { return { st: r.status, tx: tx }; }); })
+      .then(function (x) {
+        var o = null; try { o = JSON.parse(x.tx); } catch (_) {}
+        if (o && o.ok && o.text) done('✅ <b>AI先生は動いています</b>（' + esc(o.model || '') + '）<br>' + esc(String(o.text)));
+        else if (o) done('⚠️ 返事は来ましたが、評は作れませんでした：' + esc(String(o.err || JSON.stringify(o)).slice(0, 300)));
+        else done('⚠️ HTTP ' + x.st + '。返事の中身が読めませんでした：' + esc(String(x.tx).slice(0, 200)));
+      })
+      .catch(function (e) { done('❌ つながりませんでした：' + esc(String(e && e.message || e))); });
   }
   function vAbout() {
     var L = function (n, ico, t, tag, p, btns) { return '<li class="lstep"><span class="ln">' + n + '</span><div><b>' + ico + ' ' + t + '</b> <small>' + tag + '</small><p>' + p + '</p><div class="actions">' + btns + '</div></div></li>'; };
@@ -5370,6 +5392,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act.indexOf('ksh-') === 0 && kshAct(act, t)) {}
     else if (act === 'kaiho-open') kaihoOpen(t.dataset.v);
     else if (act === 'kaiho-copy') kaihoCopy(t.dataset.v);
+    else if (act === 'ai-test') { if (isAdmin) aiTestRun(); }
     else if (act === 'kg-go') kigoGo();
     else if (act === 'meiku-next') { meikuNext(); render(); }
     else if (act === 'hito-next') { hitoNext(); render(); }
