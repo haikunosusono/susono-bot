@@ -846,7 +846,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27r';
+  var APP_VER = 'v2026.10.27s';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3520,11 +3520,11 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   /* 季語をしらべる：判定はせず、出典のしっかりした歳時記（きごさい歳時記）を検索して確かめる */
   var kgQ = '';
   function kigoBox() {
-    return '<details class="kgbox"><summary>🔍 季語をしらべる（きごさい歳時記）</summary><div class="row"><input type="text" data-f="kg-q" maxlength="20" value="' + esc(kgQ) + '" placeholder="例：木枯"><button class="chip fit" data-act="kg-go">しらべる</button></div><p class="note">「きごさい歳時記」（NPO法人 季語と歳時記の会）のサイトの中を、Googleで検索します。季語のあつかいは歳時記によってちがうことがあります。無季・自由律・季重なりも、句によっては立派な表現です。</p>' + vGoon('', '') + '</details>';
+    return '<details class="kgbox"><summary>🔍 季語をしらべる（きごさい歳時記・夏井いつきの俳句季語辞典）</summary><div class="row"><input type="text" data-f="kg-q" maxlength="20" value="' + esc(kgQ) + '" placeholder="例：木枯"><button class="chip fit" data-act="kg-go">きごさい歳時記で</button><button class="chip fit" data-act="kg-go" data-v="ouchi">夏井いつきの俳句季語辞典で</button></div><p class="note"><a href="https://ouchidehaiku.com/' + ({ haru: 'spring', natsu: 'summer', aki: 'autumn', fuyu: 'winter' })[tkSeason()] + '/contents/seasonwords" target="_blank" rel="noopener">夏井いつきのおウチde俳句くらぶ「俳句季語辞典」（いまの季節）をひらく</a></p><p class="note">「きごさい歳時記」（NPO法人 季語と歳時記の会）と、夏井いつきの「おウチde俳句くらぶ」の俳句季語辞典のサイトの中を、Googleで検索します。季語のあつかいは歳時記によってちがうことがあります。無季・自由律・季重なりも、句によっては立派な表現です。</p>' + vGoon('', '') + '</details>';
   }
-  function kigoGo() {
+  function kigoGo(where) {
     var q = String(kgQ || '').trim(); if (!q) { toast('しらべたい言葉を入れてください'); return; }
-    try { window.open('https://www.google.com/search?q=' + encodeURIComponent('(site:kigosai.sub.jp OR site:kigosai.sakura.ne.jp) ' + q), '_blank', 'noopener'); } catch (_) {}
+    try { window.open('https://www.google.com/search?q=' + encodeURIComponent((where === 'ouchi' ? 'site:ouchidehaiku.com ' : '(site:kigosai.sub.jp OR site:kigosai.sakura.ne.jp) ') + q), '_blank', 'noopener'); } catch (_) {}
   }
   /* 運営者だけ：AI先生（Gemini）がいま評を返せるか、その場でためす */
   var aiTest = { busy: false, res: '' };
@@ -5687,7 +5687,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'kaiho-open') kaihoOpen(t.dataset.v);
     else if (act === 'kaiho-copy') kaihoCopy(t.dataset.v);
     else if (act === 'ai-test') { if (isAdmin) aiTestRun(); }
-    else if (act === 'kg-go') kigoGo();
+    else if (act === 'kg-go') kigoGo(t.dataset.v);
     else if (act === 'goon-s') { goonS = t.dataset.v; render(); }
     else if (act === 'goon-q') { kgQ = t.dataset.v; kigoGo(); }
     else if (act === 'meiku-next') { meikuNext(); render(); }
