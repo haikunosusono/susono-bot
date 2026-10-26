@@ -135,6 +135,7 @@ function featureText(n) {
 }
 async function buildAny() {
   const t = nowMs(), want = (process.env.KIND || 'auto').trim() || 'auto';
+  if (want === 'custom') { const tx = String(process.env.TEXT || '').replace(/\\n/g, '\n').trim(); return { d: jstDate(), kind: 'custom', text: tx, skip: tx ? '' : 'TEXT が空なので、投稿しません' }; }
   let kind = want, slot = null;
   if (want === 'auto') { const a = autoKind(t); kind = a.kind; slot = a.slot; }
   else if (want !== 'daily') slot = slotFor(want, t);

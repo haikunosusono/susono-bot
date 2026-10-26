@@ -29,8 +29,11 @@ on:
         description: '1 なら投稿せず文面だけ確認'
         default: '1'
       kind:
-        description: 'auto（いまの時刻で決める）/ daily / announce / start / thanks'
+        description: 'auto（いまの時刻で決める）/ daily / announce / start / thanks / custom'
         default: 'auto'
+      text:
+        description: 'custom のときの文（改行は \\n）'
+        default: ''
 jobs:
   tweet:
     runs-on: ubuntu-latest
@@ -48,5 +51,6 @@ jobs:
           INCLUDE_LINK: ${{ vars.INCLUDE_LINK }}
           TEI_POSTS: ${{ vars.TEI_POSTS }}
           KIND: ${{ github.event.inputs.kind || 'auto' }}
+          TEXT: ${{ github.event.inputs.text }}
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || '0' }}
         run: node post.js
