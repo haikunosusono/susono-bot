@@ -195,6 +195,13 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .rkread .rkth { font-size: .85rem; color: var(--ink-soft); margin: 0 0 0 1.2em; }
 .rkread .rkk { font-size: 1.15rem; letter-spacing: .1em; margin: 0 0 0 .9em; }
 .rkread .rkn { margin: 0 1em 0 0; text-align: end; }
+.docv { position: fixed; inset: 0; z-index: 70; background: #f4f1ea; display: flex; flex-direction: column; }
+.docv[hidden] { display: none; }
+.docbar { display: flex; gap: 8px; flex-wrap: wrap; padding: 10px 12px; padding-top: max(10px, env(safe-area-inset-top)); background: #fff; border-bottom: 1px solid #ccc; }
+.docbar a.btn { text-decoration: none; display: inline-flex; align-items: center; }
+.docv iframe { flex: 1; width: 100%; border: 0; background: #f4f1ea; }
+.docnote { margin: 0; padding: 6px 12px; padding-bottom: max(6px, env(safe-area-inset-bottom)); font-size: .78rem; color: #555; background: #fff; }
+body.docopen { overflow: hidden; }
 .kshpur { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
 .kshpur .chip { height: auto; min-height: 64px; flex-direction: column; display: flex; align-items: flex-start; justify-content: center; text-align: left; padding: 8px 12px; line-height: 1.4; white-space: normal; }
 .kshpur .chip small { font-weight: 400; font-size: .75rem; opacity: .85; }
@@ -866,7 +873,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27x';
+  var APP_VER = 'v2026.10.27y';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1904,7 +1911,13 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var kind = ['季語', 'テーマ', '当季雑詠'][h % 3];
     return kind === '季語' ? { kind: '季語', t: kg[(h >> 3) % kg.length], note: 'この季語を詠みこんで' } : kind === 'テーマ' ? { kind: 'テーマ', t: tp, note: 'このテーマで（季語はご自由に）' } : { kind: '当季雑詠', t: '当季雑詠', note: 'いまの季節を、自由に' };
   }
-  function monDoc(id) { return monthly[id] || { id: id, entries: {}, votes: {}, cmts: {} }; }
+  function monDoc(id) {
+    var d = monthly[id]; if (!d) return { id: id, entries: {}, votes: {}, cmts: {} };
+    if (!d.cmts2) return d;
+    var c = JSON.parse(JSON.stringify(d.cmts || {}));
+    Object.keys(d.cmts2).forEach(function (u) { var m = d.cmts2[u] || {}; Object.keys(m).forEach(function (kid) { if (!m[kid]) return; c[kid] = c[kid] || {}; c[kid][u] = m[kid]; }); });
+    return Object.assign({}, d, { cmts: c });
+  }
   function monKus(d) { /* 句の一覧：id = uid + ':' + 番号 */
     var out = []; Object.keys(d.entries || {}).forEach(function (u) { var e = d.entries[u]; (e.kus || []).forEach(function (k, i) { if (String(k || '').trim()) out.push({ id: u + ':' + i, uid: u, haigo: e.haigo || '名無し', a: k, at: e.at || 0 }); }); });
     return out.sort(function (x, y) { return hash(d.id + x.id) - hash(d.id + y.id); });
@@ -2019,7 +2032,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function monComment(kid) {
     var id = monMonth || monId(); if (!db || !myId || monPhase(id) !== 'select') return;
     var t = String(monCmt[kid] || '').trim(); if (!t) return;
-    var p = { cmts: {} }; p.cmts[kid] = {}; p.cmts[kid][myId] = { haigo: haigo.trim() || '名無し', text: t.slice(0, 120), at: Date.now() };
+    var p = { cmts2: {} }; p.cmts2[myId] = {}; p.cmts2[myId][kid] = { haigo: haigo.trim() || '名無し', text: t.slice(0, 120), at: Date.now() };
     monWrite(id, p).then(function () { toast('選評を送りました'); });
   }
   function vFlatLobby() {
@@ -3176,9 +3189,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   }
   function kaihoOpen(key) {
     var k = kaihoData[key]; if (!k) return;
-    var w = null; try { w = window.open('', '_blank'); } catch (_) {}
-    if (!w) { toast('新しい画面をひらけませんでした。コピーをお使いください'); return; }
-    w.document.open(); w.document.write(kaihoHtml(k)); w.document.close();
+    openDoc(kaihoHtml(k));
   }
   function kaihoCopy(key) {
     var k = kaihoData[key]; if (!k) return;
@@ -3444,7 +3455,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     }
     return '<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + esc(title) + '</title><style>' + css + '</style></head><body><div class="bar"><button class="p" onclick="window.print()">🖨 印刷・PDFにする</button><button onclick="window.close()">とじる</button></div>' + body + '</body></html>';
   }
-  function kshOpenWin(html) { var w = null; try { w = window.open('', '_blank'); } catch (_) {} if (!w) { toast('新しい画面をひらけませんでした'); return; } w.document.open(); w.document.write(html); w.document.close(); }
+  function kshOpenWin(html) { openDoc(html); }
   function kshCopy(tx) { try { navigator.clipboard.writeText(tx).then(function () { toast('コピーしました'); }, function () { toast('文を長押しして、コピーしてください'); }); } catch (_) { toast('文を長押しして、コピーしてください'); } }
   function kshAct(act, t) {
     var v = t.dataset.v;
@@ -3766,6 +3777,23 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (act === 'rk-del-yes') { if (db && myId) db.collection('data/users/' + myId).doc(r.id).delete().catch(function () {}); renkans = renkans.filter(function (x) { return x.id !== r.id; }); rkCur = ''; rkDelAsk = false; render(); return true; }
     return false;
   }
+  /* 印刷用の画面（句会報・句集・句帳）：別ウィンドウではなく、アプリの中に重ねて出す（iPhoneのホーム画面アプリでも開けるように） */
+  var docUrl = '';
+  function openDoc(html) {
+    var el = document.getElementById('docv');
+    if (!el) { el = document.createElement('div'); el.id = 'docv'; el.className = 'docv'; document.body.appendChild(el); }
+    var inner = String(html).replace('</head>', '<style>.bar{display:none!important}</style></head>');
+    try { if (docUrl) URL.revokeObjectURL(docUrl); docUrl = URL.createObjectURL(new Blob([html], { type: 'text/html' })); } catch (_) { docUrl = ''; }
+    el.innerHTML = '<div class="docbar"><button class="btn primary small" data-dv="print">🖨 印刷・PDFにする</button>' + (docUrl ? '<a class="btn small" href="' + docUrl + '" target="_blank" rel="noopener">別の画面で開く</a>' : '') + '<button class="btn small" data-dv="close">とじる</button></div><iframe id="docf" title="印刷用の画面"></iframe><p class="docnote">うまく印刷できないときは「別の画面で開く」から、共有ボタン →「プリント」でPDFにできます。</p>';
+    var f = document.getElementById('docf'); f.srcdoc = inner;
+    el.hidden = false; document.body.classList.add('docopen');
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target && e.target.closest && e.target.closest('[data-dv]'); if (!b) return;
+    var el = document.getElementById('docv');
+    if (b.getAttribute('data-dv') === 'close') { if (el) { el.hidden = true; el.innerHTML = ''; } document.body.classList.remove('docopen'); }
+    else { var f = document.getElementById('docf'); try { f.contentWindow.focus(); f.contentWindow.print(); } catch (_) { toast('「別の画面で開く」から印刷してください'); } }
+  });
   function vAbout() {
     var L = function (n, ico, t, tag, p, btns) { return '<li class="lstep"><span class="ln">' + n + '</span><div><b>' + ico + ' ' + t + '</b> <small>' + tag + '</small><p>' + p + '</p><div class="actions">' + btns + '</div></div></li>'; };
     var ladder = '<h2 class="sec">はじめの一歩から、段階的に<small>裾野から、すこしずつ</small></h2><ol class="ladder">' +
@@ -6243,7 +6271,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
         if (page === 'my') render();
       }, function () {}));
     } catch (_) {}
-    db.collection('data/users/' + myId).orderBy('date', 'desc').limit(400).onSnapshot(function (s) {
+    db.collection('data/users/' + myId).orderBy('date', 'desc').onSnapshot(function (s) {
       var all = s.docs.map(function (d) { var o = d.data(); o.id = d.id; return o; });
       mine = all.filter(function (o) { return o.series; });
       memos = all.filter(function (o) { return o.memo; }).sort(function (a, b) { return (b.at || 0) - (a.at || 0); });
