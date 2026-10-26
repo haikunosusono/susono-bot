@@ -184,7 +184,11 @@ async function main() {
   const r = await fetch(url, { method: 'POST', headers: { Authorization: authHeader('POST', url, ...keys), 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) });
   const j = await r.text();
   console.log(r.status, j);
-  if (!r.ok) process.exit(1);
+  if (!r.ok) {
+    const dup = /duplicate/i.test(j);
+    console.log((dup ? '::notice title=X::同じ文の投稿なので、Xに断られました（失敗あつかいにしません）' : '::error title=X::' + r.status + ' ') + (dup ? '' : j.replace(/\r?\n/g, ' ').slice(0, 400)));
+    if (!dup) process.exit(1);
+  }
 }
 if (require.main === module) main().catch(err => { console.error(err); process.exit(1); });
 module.exports = { build, buildAny, autoKind, slotsAround, weighted, authHeader, announceText, thanksText };
