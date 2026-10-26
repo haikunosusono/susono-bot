@@ -26,10 +26,13 @@ async function token() {
 function val(v) { if (!v) return null; if ('stringValue' in v) return v.stringValue; if ('booleanValue' in v) return v.booleanValue; if ('integerValue' in v) return Number(v.integerValue); if ('mapValue' in v) { const o = {}; Object.entries(v.mapValue.fields || {}).forEach(([k, x]) => { o[k] = val(x); }); return o; } if ('arrayValue' in v) return (v.arrayValue.values || []).map(val); return null; }
 async function checkKukai() {
   const tk = await token(); if (!tk) { note('合評の先生の評', 'しらべられません（鍵がない）'); return; }
-  const url = 'https://firestore.googleapis.com/v1/projects/' + PROJECT + '/databases/(default)/documents/kukai?pageSize=40&orderBy=' + encodeURIComponent('__name__ desc');
-  const r = await fetch(url, { headers: { Authorization: 'Bearer ' + tk } });
-  if (!r.ok) { note('合評の先生の評', 'しらべられません ' + r.status + ' ' + (await r.text()).slice(0, 160)); return; }
-  const docs = (await r.json()).documents || [];
+  const base = 'https://firestore.googleapis.com/v1/projects/' + PROJECT + '/databases/(default)/documents/kukai?pageSize=300&mask.fieldPaths=comments';
+  let docs = [], pt = '';
+  for (let i = 0; i < 15; i++) {
+    const r = await fetch(base + (pt ? '&pageToken=' + encodeURIComponent(pt) : ''), { headers: { Authorization: 'Bearer ' + tk } });
+    if (!r.ok) { note('合評の先生の評', 'しらべられません ' + r.status + ' ' + (await r.text()).slice(0, 160)); return; }
+    const j = await r.json(); docs = docs.concat(j.documents || []); pt = j.nextPageToken || ''; if (!pt) break;
+  }
   const since = Date.now() - 36 * 3600000, lines = [];
   docs.forEach((d) => {
     const id = d.name.split('/').pop(), f = {}; Object.entries(d.fields || {}).forEach(([k, x]) => { f[k] = val(x); });
