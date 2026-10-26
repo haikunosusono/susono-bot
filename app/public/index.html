@@ -758,7 +758,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.22e';
+  var APP_VER = 'v2026.10.26a';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -5157,6 +5157,27 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   }
   app.addEventListener('focusin', function (e) { var i = e.target && e.target.id; if (i && /^(f|g)-[abc]$/.test(i)) lastFld = i; });
   app.addEventListener('input', onInput);
+  /* スマホの「戻る」ボタン：いきなりアプリが閉じないように。部屋やページの中なら、ひとつ前の画面にもどる */
+  (function () {
+    var guard = false;
+    function inside() { return !!(current || page || trial || tsuku || demo); }
+    function ensureGuard() { try { if (!guard) { history.pushState({ susono: 1 }, ''); guard = true; } } catch (_) {} }
+    try { history.replaceState({ susonoRoot: 1 }, ''); } catch (_) {}
+    window.addEventListener('popstate', function () {
+      guard = false;
+      if (inside()) {
+        if (trial) trial = null; else if (tsuku) tsuku = null; else if (demo) demo = null;
+        else if (current) { current = null; if (fromArch) { fromArch = false; page = 'archive'; } }
+        else page = '';
+        render(); try { window.scrollTo(0, 0); } catch (_) {}
+        ensureGuard();
+      }
+      /* いちばん上の画面なら、そのまま（もう一度「戻る」でブラウザが閉じる） */
+    });
+    /* 画面が変わるたびに、ガードを置く */
+    var origRender = render;
+    render = function () { origRender.apply(this, arguments); if (inside()) ensureGuard(); };
+  })();
   /* 「ことばのヒント」の開閉を覚える（人が開いたまま、ほかの人のコメントで描きなおしても閉じないように） */
   app.addEventListener('toggle', function (e) { var d = e.target; if (d && d.classList && d.classList.contains('qcm') && d.dataset.qeid) qOpen[d.dataset.qeid] = d.open; }, true);
   app.addEventListener('change', onInput);
