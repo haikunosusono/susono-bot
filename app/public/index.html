@@ -873,7 +873,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27y';
+  var APP_VER = 'v2026.10.27z';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3168,24 +3168,31 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     });
   }
   function kaihoHtml(k) {
-    var mx = k.items.length ? k.items[0].pts : 0;
-    var it = k.items.map(function (x) {
-      return '<section class="it' + (mx > 0 && x.pts === mx ? ' top' : '') + '"><p class="rk">' + kaihoKan(x.rank + '位　' + x.pts + '点') + (x.det ? '<small>' + esc(kaihoKan(x.det)) + '</small>' : '') + '</p><p class="kk">' + rb(x.ku) + '</p><p class="au">' + esc(x.haigo) + '</p>' +
-        (x.sel ? '<p class="se">選　' + esc(x.sel) + '</p>' : '') + x.cm.map(function (c) { return '<p class="cm">' + esc(c.h) + '　' + esc(c.t) + '</p>'; }).join('') + '</section>';
+    var groups = [];
+    k.items.forEach(function (x) { var g = groups[groups.length - 1]; if (!g || g.pts !== x.pts) groups.push({ pts: x.pts, items: [x] }); else g.items.push(x); });
+    var body = groups.map(function (g) {
+      return '<p class="ph">' + kaihoKan(g.pts) + '点句</p>' + g.items.map(function (x) {
+        var order = (k.kinds || []).concat(['ひとこと']);
+        var cms = order.map(function (gn) { var cs = x.cm.filter(function (c) { return c.g === gn; }); return cs.length ? '<p class="cg">' + esc(gn) + '</p>' + cs.map(function (c) { return '<p class="cm">' + esc(c.t) + '<span class="by">（' + esc(c.h) + '）</span></p>'; }).join('') : ''; }).join('');
+        return '<p class="kk">' + rb(x.ku) + '</p><p class="au">' + esc(x.haigo) + '</p>' + (x.dai && (k.head || '').indexOf('・') >= 0 ? '<p class="dai">題「' + esc(x.dai) + '」</p>' : '') +
+          (x.sels.length ? '<div class="sel">' + x.sels.map(function (sl) { return '<p><b>' + esc(sl.name) + '</b>　' + sl.names.map(esc).join('・') + '</p>'; }).join('') + '</div>' : '') + cms + '<p class="gap"></p>';
+      }).join('');
     }).join('');
     return '<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + esc(k.title) + '</title><style>' +
-      '@page{size:A4 portrait;margin:14mm 12mm}*{box-sizing:border-box}body{margin:0;background:#f4f1ea;color:#222;font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif}' +
+      '@page{size:A4 portrait;margin:12mm 12mm 14mm}*{box-sizing:border-box}body{margin:0;background:#f4f1ea;color:#111;font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif}rt{font-size:.5em}' +
       '.bar{position:sticky;top:0;display:flex;gap:8px;flex-wrap:wrap;padding:10px 16px;background:#fff;border-bottom:1px solid #ccc;font-family:sans-serif;z-index:2}.bar button{font-size:15px;padding:8px 14px;border-radius:999px;border:1px solid #888;background:#fff}.bar .p{background:#1f7a5c;color:#fff;border-color:#1f7a5c}' +
-      '.sheet{max-width:186mm;margin:12px auto;background:#fff;padding:8mm 6mm;display:flex;flex-direction:row-reverse;flex-wrap:wrap;align-content:flex-start}' +
-      '.it,.head{writing-mode:vertical-rl;height:84mm;padding:0 3.2mm;border-bottom:1px solid #333;margin-bottom:5mm;break-inside:avoid;page-break-inside:avoid}' +
-      '.head{padding-left:6mm}.head h1{font-size:19px;margin:0 0 0 3mm;letter-spacing:.12em}.head p{margin:0 0 0 1.5mm;font-size:12.5px}' +
-      '.rk{margin:0;font-size:11px;color:#555}.rk small{display:block;font-size:10px}.kk{margin:0 1.6mm;font-size:17px;letter-spacing:.08em;line-height:1.5}.au{margin:0;font-size:13px;text-align:end}.se,.cm{margin:0;font-size:10.5px;color:#444;max-height:84mm}' +
-      '.it.top .kk{background:#e6e6e6;padding:2mm 1.2mm}rt{font-size:.5em}' +
-      '.note{writing-mode:horizontal-tb;width:100%;font-family:sans-serif;font-size:11px;color:#555;border-top:1px solid #999;padding-top:3mm;margin-top:2mm;text-align:left}' +
-      '@media print{body{background:#fff}.bar{display:none}.sheet{margin:0;max-width:none;padding:0}}' +
-      '</style></head><body><div class="bar"><button class="p" onclick="window.print()">🖨 印刷・PDFにする</button><button onclick="window.close()">とじる</button></div><div class="sheet">' +
-      '<section class="head"><h1>' + esc(kaihoKan(k.title)) + '</h1>' + k.sub.map(function (s) { return '<p>' + esc(kaihoKan(s)) + '</p>'; }).join('') + '</section>' + it +
-      '<p class="note">俳句の裾野　haikunosusono.web.app<br>' + KAIHO_NOTE + '</p></div></body></html>';
+      '.sheet{width:186mm;margin:12px auto;background:#fff;padding:6mm 4mm}' +
+      '.flow{writing-mode:vertical-rl;width:178mm;column-width:80mm;column-gap:7mm;column-rule:0.3mm solid #444;column-fill:auto;font-size:10.5pt;line-height:1.75}' +
+      '.flow p{margin:0}.tt{font-size:20pt;letter-spacing:.12em;margin:0 0 0 4mm!important;padding-top:4mm}.rm{font-size:10pt;color:#444;margin:0 0 0 6mm!important;text-align:end}' +
+      '.ph{display:inline-block;background:#cfcfcf;font-family:sans-serif;font-weight:700;font-size:12pt;padding:4mm 1.5mm;margin:0 0 0 3mm!important;break-inside:avoid}' +
+      '.kk{font-size:13.5pt;letter-spacing:.08em;margin:0 1mm 0 0!important;padding-top:6mm}.au{text-align:end;font-size:11pt;margin:0 0 0 2mm!important}.dai{font-size:9pt;color:#555}' +
+      '.sel{border-top:0.4mm solid #888;border-bottom:0.4mm solid #888;padding:0 1.5mm;margin:0 1mm 0 2mm;font-size:9.5pt;line-height:1.6;background:#f2f2f2}.sel b{font-family:sans-serif}' +
+      '.cg{font-family:sans-serif;font-weight:700;font-size:9.5pt;margin:0 0 0 1mm!important;padding-top:1mm}.cm{text-indent:1em;font-size:10pt}.cm .by{display:block;text-align:end;text-indent:0;font-size:9.5pt}.gap{margin-left:5mm!important}' +
+      '.note{writing-mode:horizontal-tb;font-family:sans-serif;font-size:10px;color:#555;border-top:1px solid #999;padding-top:2mm;margin-top:3mm}' +
+      '@media print{body{background:#fff}.bar{display:none}.sheet{margin:0;padding:0;width:auto}}' +
+      '</style></head><body><div class="bar"><button class="p" onclick="window.print()">🖨 印刷・PDFにする</button><button onclick="window.close()">とじる</button></div><div class="sheet"><div class="flow">' +
+      '<p class="tt">' + esc(kaihoKan(k.head || k.title)) + '</p><p class="rm">' + esc(k.room || '') + '　' + esc(kaihoKan(k.sub[0] || '')) + '</p>' + body +
+      '</div><p class="note">俳句の裾野　haikunosusono.web.app　' + esc(KAIHO_NOTE) + '</p></div></body></html>';
   }
   function kaihoOpen(key) {
     var k = kaihoData[key]; if (!k) return;
@@ -3214,11 +3221,13 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var items = kaihoRanks(list.map(function (e) {
       var t = p[e.id], d = (r.dai || {})[e.dai];
       var sel = kinds.map(function (k, i) { return t.by[k.k].map(function (u) { return mark(k, i) + gHaigo(r, u); }).join('・'); }).filter(Boolean).join('・');
+      var sels = kinds.map(function (k) { return { name: k.name, names: t.by[k.k].map(function (u) { return gHaigo(r, u); }) }; }).filter(function (x) { return x.names.length; });
+      var kindOf = function (u) { for (var i = 0; i < kinds.length; i++) if (t.by[kinds[i].k].indexOf(u) >= 0) return kinds[i].name; return 'ひとこと'; };
       var cm = Object.keys(r.cmts || {}).map(function (k) { return r.cmts[k]; }).filter(function (c) { return c && c.eid === e.id && (c.text || (c.tags || []).length); }).sort(function (a, b) { return a.at - b.at; });
-      return { pts: t.pts, det: d && d.t ? '題「' + d.t + '」' : '', ku: joinKu(e).a, haigo: gHaigo(r, e.uid), sel: sel, cm: cm.map(function (c) { return { h: gHaigo(r, c.uid), t: [(c.tags || []).join('・'), c.text || ''].filter(Boolean).join('　') }; }) };
+      return { pts: t.pts, det: d && d.t ? '題「' + d.t + '」' : '', dai: d && d.t ? d.t : '', ku: joinKu(e).a, haigo: gHaigo(r, e.uid), sel: sel, sels: sels, cm: cm.map(function (c) { return { h: gHaigo(r, c.uid), g: kindOf(c.uid), t: [(c.tags || []).join('・'), c.text || ''].filter(Boolean).join('　') }; }) };
     }));
     var dais = gDais(r).map(function (x) { return x.t; }).filter(function (x, i, arr) { return x && arr.indexOf(x) === i; });
-    return { title: (r.name || '仲間と句会') + '　句会報' + (r.round > 1 ? '（' + r.round + '回目）' : ''), sub: [mdLabel(Math.floor(((r.createdAt || Date.now()) + 9 * 3600000) / 86400000)), dais.length ? '題　' + dais.join('・') : '', list.length + '句・' + gMembers(r).length + '人', kinds.map(function (k, i) { return mark(k, i) + k.name; }).join('　')].filter(Boolean), items: items };
+    return { head: (r.round ? '第' + r.round + '回' : '') + (dais.length ? '「' + dais.join('・') + '」' : ''), title: (r.name || '仲間と句会') + '　句会報' + (r.round > 1 ? '（' + r.round + '回目）' : ''), sub: [mdLabel(Math.floor(((r.createdAt || Date.now()) + 9 * 3600000) / 86400000)), dais.length ? '題　' + dais.join('・') : '', list.length + '句・' + gMembers(r).length + '人'].filter(Boolean), room: r.name || '仲間と句会', kinds: kinds.map(function (k) { return k.name; }), items: items };
   }
   /* わたしの句集づくり：ストッ句（自分の句だけ）から。目的 → 期間 → 句 → かたち */
   var KSH_PUR = [
@@ -3233,7 +3242,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   var KSH_FORMS = { book: '本の句集（A5）', ori: '折本（A4一枚・8ページ）', list: '縦書きの一覧（A4）', img: '画像（X・Instagram）', x: 'Xに投稿する文', note: 'note・ブログ用の文', kucho: '句帳に貼る紙片' };
   var KSH_PRESET = { year: { per: 'fy', order: 'date', form: 'book', chap: 'month', auto: 1 }, prize: { per: 'all', order: 'date', form: 'book', chap: 'year', auto: 1 }, jisen: { per: 'h1', order: 'season', form: 'img', n: 10 }, all: { per: 'all', order: 'date', form: 'book', chap: 'year', auto: 1 }, note: { per: 'h1', order: 'season', form: 'note', n: 10 }, kucho: { per: 'all', order: 'date', form: 'kucho' }, free: { per: 'all', order: 'pick', form: 'ori' } };
   var ksh = { font: 'mincho', inkanTx: '', pur: '', per: 'all', yr: 0, from: '', to: '', order: 'date', form: 'ori', chap: 'season', pp: 2, n: 10, size: 'yoko', style: 'shiro', tmode: 'tate', inkan: true, kSize: 'm', kDir: 'tate', mae: '', tag: '' };
-  var kshSel = [], kshTitle = '', kshSub = '', kshName = '', kshAto = '', kshPhoto = null, kshImgUrl = '';
+  var kshSel = [], kshTitle = '', kshSub = '', kshName = '', kshAto = '', kshPhoto = null, kshImgUrl = '', kshOverride = {};
+  function kshTx(e) { return kshOverride[e.id] || joinKu(e).a; }
   function kshYr() { return ksh.yr || new Date(Date.now() + 9 * 3600000).getUTCFullYear(); }
   function kshMax() { return ksh.form === 'ori' ? 12 : ksh.form === 'img' || ksh.form === 'x' ? 30 : 300; }
   function kshSeasonOf(e) { var m = parseInt(String(e.date || '').slice(5, 7), 10) || 0; return m >= 2 && m <= 4 ? 0 : m >= 5 && m <= 7 ? 1 : m >= 8 && m <= 10 ? 2 : 3; }
@@ -3259,7 +3269,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   }
   function kshPick(pur) {
     var p = KSH_PRESET[pur] || KSH_PRESET.free; ksh.pur = pur; ksh.per = p.per; ksh.order = p.order; ksh.form = p.form; if (p.chap) ksh.chap = p.chap; if (p.n) ksh.n = p.n;
-    kshTitle = ''; kshImgUrl = ''; kshSel = p.auto ? kshCands().map(function (e) { return e.id; }).slice(0, kshMax()) : [];
+    kshTitle = ''; kshImgUrl = ''; kshOverride = {}; kshSel = p.auto ? kshCands().map(function (e) { return e.id; }).slice(0, kshMax()) : [];
   }
   function vKushu() {
     var chip = function (act, v, label, on) { return '<button class="chip fit' + (on ? ' on' : '') + '" data-act="' + act + '" data-v="' + esc(v) + '">' + label + '</button>'; };
@@ -3284,7 +3294,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       (ksh.pur === 'jisen' ? '<div class="row">' + [10, 20, 30].map(function (k) { return chip('ksh-n', k, '自選' + kshNumK(k) + '句', ksh.n === k); }).join('') + '</div>' : '') +
       '<ul class="kshlist">' + cands.slice().reverse().map(function (e) {
         var i = kshSel.indexOf(e.id);
-        return '<li><button class="chip fit kshpick' + (i >= 0 ? ' on' : '') + '" data-act="ksh-pick" data-id="' + esc(e.id) + '"><span class="kn">' + (i >= 0 ? i + 1 : '＋') + '</span><span>' + esc(plain(joinKu(e).a)) + '<small>' + esc(mdLabel(dn(e.date))) + (e.memo ? '　📝' + esc(e.memo) : '') + '</small></span></button></li>';
+        return '<li><button class="chip fit kshpick' + (i >= 0 ? ' on' : '') + '" data-act="ksh-pick" data-id="' + esc(e.id) + '"><span class="kn">' + (i >= 0 ? i + 1 : '＋') + '</span><span>' + esc(plain(kshTx(e))) + '<small>' + esc(mdLabel(dn(e.date))) + (e.memo ? '　📝' + esc(e.memo) : '') + '</small></span></button></li>';
       }).join('') + '</ul>';
     var minN = ksh.form === 'ori' ? 6 : 1;
     h += '<div class="actions"><button class="btn primary" data-act="ksh-make"' + (n < minN ? ' disabled' : '') + '>' + (ksh.form === 'img' ? '🖼 画像をつくる' : ksh.form === 'x' || ksh.form === 'note' ? '📋 文をつくる' : '📖 ひらく（印刷・PDF）') + '</button></div>' +
@@ -3310,14 +3320,14 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   /* ---- 文（X・note） ---- */
   function kshXPosts() {
     var kus = kshKus(), tag = (ksh.tag.trim() || ('#' + (kshPerLabel() || '今年') + '自選十句をつぶやく')), head = kshTitleV() + (kshNameV() ? '　' + kshNameV() : '');
-    var lines = kus.map(function (e) { return plain(joinKu(e).a); }), posts = [], cur = head, lim = 140 - tag.length - 2;
+    var lines = kus.map(function (e) { return plain(kshTx(e)); }), posts = [], cur = head, lim = 140 - tag.length - 2;
     lines.forEach(function (l) { if ((cur + '\n' + l).length > lim) { posts.push(cur); cur = l; } else cur += '\n' + l; });
     posts.push(cur);
     return posts.map(function (p, i) { return p + (posts.length > 1 ? '\n（' + (i + 1) + '/' + posts.length + '）' : '') + '\n' + tag; });
   }
   function kshNoteText() {
     var kus = kshKus(), t = kshTitleV() + (kshSub.trim() ? '「' + kshSub.trim() + '」' : '');
-    return t + '\n' + kshNameV() + '\n\n' + (ksh.mae.trim() ? ksh.mae.trim() + '\n\n' : '') + kus.map(function (e) { return plain(joinKu(e).a) + (e.memo ? '\n【' + e.memo + '】' : ''); }).join('\n\n') + '\n\n' + (kshAto.trim() ? '・・・・・\n' + kshAto.trim() + '\n\n' : '') + '#俳句 #自選十句 #俳句の裾野\n' + KAIHO_NOTE;
+    return t + '\n' + kshNameV() + '\n\n' + (ksh.mae.trim() ? ksh.mae.trim() + '\n\n' : '') + kus.map(function (e) { return plain(kshTx(e)) + (e.memo ? '\n【' + e.memo + '】' : ''); }).join('\n\n') + '\n\n' + (kshAto.trim() ? '・・・・・\n' + kshAto.trim() + '\n\n' : '') + '#俳句 #自選十句 #俳句の裾野\n' + KAIHO_NOTE;
   }
   /* ---- 画像（自選十句） ---- */
   var KSH_FONTS = { mincho: ['明朝', '"Shippori Mincho B1",' + CARD_FONT, ''], kyokasho: ['教科書体', '"Klee One",' + CARD_FONT, 'Klee+One:wght@600'], tegaki: ['手書き風', '"Yomogi",' + CARD_FONT, 'Yomogi'], fude: ['筆', '"Yuji Syuku",' + CARD_FONT, 'Yuji+Syuku'], maru: ['まる文字', '"Zen Maru Gothic",' + CARD_FONT, ''] };
@@ -3326,7 +3336,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function kshLoadFont(cb) {
     var F = KSH_FONTS[ksh.font] || KSH_FONTS.mincho;
     if (F[2] && !kshFontsLoaded[ksh.font]) { var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://fonts.googleapis.com/css2?family=' + F[2] + '&display=swap'; document.head.appendChild(l); kshFontsLoaded[ksh.font] = 1; }
-    var fam = F[1].split(',')[0], txt = kshKus().map(function (e) { return plain(joinKu(e).a); }).join('') + kshTitleV() + kshNameV() + '〇一二三四五六七八九十年上下半期自選句「」';
+    var fam = F[1].split(',')[0], txt = kshKus().map(function (e) { return plain(kshTx(e)); }).join('') + kshTitleV() + kshNameV() + '〇一二三四五六七八九十年上下半期自選句「」';
     var go = function () { try { cb(); } catch (_) {} };
     try { Promise.all([document.fonts.load('40px ' + fam, txt), document.fonts.load('700 40px ' + fam, txt)]).then(function () { setTimeout(go, 50); }, go); } catch (_) { go(); }
   }
@@ -3349,7 +3359,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       var im = kshPhoto, r = Math.max(W / im.width, H / im.height), iw = im.width * r, ih = im.height * r; ctx.drawImage(im, (W - iw) / 2, (H - ih) / 2, iw, ih);
       ctx.fillStyle = 'rgba(255,255,255,.74)'; ctx.fillRect(W * 0.05, H * 0.05, W * 0.9, H * 0.9);
     }
-    var kus = kshKus().map(function (e) { return plain(joinKu(e).a).replace(/[ 　]+/g, '　'); }), title = kshTitleV(), sub = kshSub.trim(), name = kshNameV();
+    var kus = kshKus().map(function (e) { return plain(kshTx(e)).replace(/[ 　]+/g, '　'); }), title = kshTitleV(), sub = kshSub.trim(), name = kshNameV();
     var m = Math.round(Math.min(W, H) * 0.09), top = m, bottom = H - m, left = m, right = W - m;
     var titleK = kaihoKan(title);
     ctx.fillStyle = col[1];
@@ -3404,13 +3414,13 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '@media print{body{background:#fff}.bar,.how{display:none}.sheet{margin:0}}';
     var dt = function (e) { var d = String(e.date || ''); return d ? d.slice(0, 4) + '.' + (+d.slice(5, 7)) + '.' + (+d.slice(8, 10)) : ''; };
     return '<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>句帳に貼る</title><style>' + css + '</style></head><body><div class="bar"><button class="p" onclick="window.print()">🖨 印刷・PDFにする</button><button onclick="window.close()">とじる</button></div><p class="how">点線で切って、句帳やノートに貼ってください（A4・「実際のサイズ」で印刷）。シール用紙に刷ると、そのまま貼れます。</p><div class="sheet">' +
-      kus.map(function (e) { return '<div class="sl"><p class="k">' + rb(joinKu(e).a) + '</p><p class="d">' + esc(dt(e)) + (e.memo ? '　' + esc(e.memo) : '') + '</p></div>'; }).join('') + '</div></body></html>';
+      kus.map(function (e) { return '<div class="sl"><p class="k">' + rb(kshTx(e)) + '</p><p class="d">' + esc(dt(e)) + (e.memo ? '　' + esc(e.memo) : '') + '</p></div>'; }).join('') + '</div></body></html>';
   }
   function kshPages(kus) { var pages = [[], [], [], [], [], []], extra = kus.length - 6, k = 0; for (var p = 0; p < 6; p++) { var c = p < extra ? 2 : 1; for (var j = 0; j < c && k < kus.length; j++) pages[p].push(kus[k++]); } return pages; }
   function kshHtml() {
     var kus = kshKus(), title = kshTitleV(), sub = kshSub.trim(), name = kshNameV();
     var dt = new Date(Date.now() + 9 * 3600000), ymd = kaihoKan(dt.getUTCFullYear() + '年' + (dt.getUTCMonth() + 1) + '月' + dt.getUTCDate() + '日');
-    var kuP = function (e, withMemo) { return (withMemo && e.memo ? '<p class="kt">' + esc(e.memo) + '</p>' : '') + '<p class="k">' + rb(joinKu(e).a) + '</p>'; };
+    var kuP = function (e, withMemo) { return (withMemo && e.memo ? '<p class="kt">' + esc(e.memo) + '</p>' : '') + '<p class="k">' + rb(kshTx(e)) + '</p>'; };
     var cover = '<div class="cv"><p class="tt">' + esc(sub || title) + '</p><p class="nm">' + esc(name) + '</p></div>';
     var oku = '<div class="ok"><p>' + esc(sub ? sub + '（' + title + '）' : title) + '</p><p>著者　' + esc(name) + '</p><p>' + ymd + '　発行</p><p>俳句の裾野でつくりました</p><p class="n">' + esc(KAIHO_NOTE) + '</p></div>';
     var css = '*{box-sizing:border-box}body{margin:0;background:#f4f1ea;color:#222;font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif}rt{font-size:.5em}' +
@@ -3771,7 +3781,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (act === 'rk-ed-save') { var it = r.items[i], e2 = mineById[it.id], orig = e2 ? plain(joinKu(e2).a) : it.orig, v = String(rkEditV || '').trim(); it.custom = v && v !== orig ? v : ''; rkEditI = -1; rkSave(r); render(); return true; }
     if (act === 'rk-ed-reset') { r.items[i].custom = ''; rkEditI = -1; rkSave(r); render(); return true; }
     if (act === 'rk-copy') { var tx = (r.title || '') + '\n' + (r.theme ? r.theme + '\n' : '') + '\n' + r.items.map(rkText).join('\n') + '\n\n' + (haigo || ''); try { navigator.clipboard.writeText(tx).then(function () { toast('コピーしました'); }, function () { toast('コピーできませんでした'); }); } catch (_) {} return true; }
-    if (act === 'rk-kushu') { kshPick('free'); ksh.form = 'book'; kshTitle = r.title || ''; kshSel = r.items.map(function (x) { return x.id; }).filter(function (id) { return mineById[id]; }); ksh.order = 'pick'; page = 'kushu'; render(); try { window.scrollTo(0, 0); } catch (_) {} toast('連作の句を、句集づくりに入れました（直しは元の句で出ます）'); return true; }
+    if (act === 'rk-kushu') { kshPick('free'); ksh.form = 'book'; kshTitle = r.title || ''; kshSel = r.items.map(function (x) { return x.id; }).filter(function (id) { return mineById[id]; }); r.items.forEach(function (x) { if (x.custom) kshOverride[x.id] = x.custom; }); ksh.order = 'pick'; page = 'kushu'; render(); try { window.scrollTo(0, 0); } catch (_) {} toast('連作の句を、直した形のまま句集づくりに入れました'); return true; }
     if (act === 'rk-del') { rkDelAsk = true; render(); return true; }
     if (act === 'rk-del-no') { rkDelAsk = false; render(); return true; }
     if (act === 'rk-del-yes') { if (db && myId) db.collection('data/users/' + myId).doc(r.id).delete().catch(function () {}); renkans = renkans.filter(function (x) { return x.id !== r.id; }); rkCur = ''; rkDelAsk = false; render(); return true; }
