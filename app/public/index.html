@@ -806,7 +806,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27e';
+  var APP_VER = 'v2026.10.27f';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3278,10 +3278,24 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     return n;
   }
   function tkText() { var t = tsuku, p = String(t.phrase || '').trim(); if (!t.kigo) return p; return t.order === 'mae' ? t.kigo + p : p + t.kigo; }
+  /* はじめの一歩だけ：ひらがなの読みで、音数をかぞえる */
+  function tkYomiOut(v, split) {
+    v = String(v || '').trim(); if (!v) return 'ひらがなで書くと、ここに音数が出ます。';
+    if (!split) { var n = tkMora(v); if (n < 0) return 'ひらがな（カタカナ）だけで書いてください。'; return 'よみは <b>' + n + '</b> 音。' + (n >= 11 && n <= 13 ? '十二音くらい。◎です！' : n < 11 ? 'ことばをひとつ足しても、よさそうです。' : 'すこし長めです。気になったら、ことばをひとつへらしても。'); }
+    var segs = v.split(/[\s　]+/).filter(Boolean), ns = segs.map(tkMora);
+    if (ns.some(function (n) { return n < 0; })) return 'ひらがな（カタカナ）だけで書いてください。';
+    var tot = ns.reduce(function (a, b) { return a + b; }, 0);
+    var out = 'よみは <b>' + tot + '</b> 音' + (segs.length > 1 ? '（' + ns.join('・') + '）' : '') + '。';
+    if (segs.length === 3 && ns[0] === 5 && ns[1] === 7 && ns[2] === 5) out += '五・七・五、ぴったり。◎';
+    else if (tot >= 15 && tot <= 19) out += '十七音くらい。◎ 少しの字余り・字足らずは、気にしなくて大丈夫です。';
+    else out += 'まずは十七音くらいを目安に。きっちりでなくて大丈夫です。';
+    if (segs.length < 3) out += '<br><small>五・七・五のあいだを空けて書くと、ひとつずつ数えます。</small>';
+    return out;
+  }
   function tkMoraBadge(v) {
     var n = tkMora(v);
     if (!len(v)) return '';
-    if (n < 0) return '<p class="note">漢字まじりのときは、声に出して、指を折ってかぞえてみましょう（小さい「ゃ・ゅ・ょ」は数えません。「っ」「ー」は数えます）。ぜんぶひらがなで書くと、先生が自動でかぞえます。</p>';
+    if (n < 0) return '<p class="note">漢字まじりのときは、声に出して、指を折ってかぞえてみましょう（小さい「ゃ・ゅ・ょ」は数えません。「っ」「ー」は数えます）。下の「よみ」に、ひらがなで書くと、先生が数えます。</p>';
     return '<p class="note">いま <b id="tk-cnt">' + n + '</b> 音です。' + (n === 12 ? '十二音、ぴったり。◎です！' : n >= 11 && n <= 13 ? '十二音にちかいので、だいたい大丈夫です。◎' : n < 11 ? 'ことばをひとつ足すと、もっと気持ちよく読めますよ。' : 'ことばをひとつへらすと、すっきりしますよ。') + '</p>';
   }
   /* 赤ペン先生の、やさしいひとこと：◎（いいところ）と、ひとつだけ「ためすなら」 */
@@ -3312,7 +3326,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       h += '<div class="actions"><button class="btn primary" data-act="tk-next">次へ</button></div>';
     } else if (t.step === 2) {
       h += penSay('いいですね。つぎは、ことばの長さを、ちょっと整えてみましょう。「七音＋五音」か「五音＋七音」がめやすです。', '「昼はラーメンたべました（十三音）」なら、「昼にラーメン（七）たべました（五）」。「は」を「に」にかえたり、ことばを一つへらしたり。ぴったりでなくても、だいたいで大丈夫です。');
-      h += '<div class="panel"><div class="field"><label for="tk-f">フレーズ（ここで直せます）</label><input type="text" id="tk-f" data-f="tk-f" maxlength="30" value="' + esc(t.phrase) + '"></div>' + tkMoraBadge(t.phrase) + '</div>';
+      h += '<div class="panel"><div class="field"><label for="tk-f">フレーズ（ここで直せます）</label><input type="text" id="tk-f" data-f="tk-f" maxlength="30" value="' + esc(t.phrase) + '"></div>' + tkMoraBadge(t.phrase) + (tkMora(t.phrase) < 0 ? '<div class="field"><label for="tk-y">よみ（ひらがなで）</label><input type="text" id="tk-y" data-f="tk-y" maxlength="40" value="' + esc(t.yomi || '') + '" placeholder="例：ひるにらあめん たべました"></div><p class="note" id="tk-yo">' + tkYomiOut(t.yomi) + '</p>' : '') + '</div>';
       h += '<div class="actions"><button class="btn" data-act="tk-back">← もどる</button><button class="btn primary" data-act="tk-next">だいたい十二音になった</button></div>';
     } else if (t.step === 3) {
       h += penSay('「' + esc(String(t.phrase || '').trim()) + '」、すてきなフレーズです◎ さいごに、五音の季語をのせましょう。', 'まず、いまの気分をひとつ。気分にあう季語をならべます。いくつか置きくらべて、「これだ」と思うものを、どうぞ。');
@@ -3330,7 +3344,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       h += '<div class="field"><label>季語をかえて、ためす</label><div class="row">' + TK_MOODS.map(function (k) { return '<button class="chip fit' + (t.mood === k ? ' on' : '') + '" data-act="tk-pick" data-k="mood" data-v="' + esc(k) + '">' + esc(k) + '</button>'; }).join('') + '</div><div class="row">' + kigoC.map(function (k) { return '<button class="chip fit' + (t.kigo === k ? ' on' : '') + '" data-act="tk-pick" data-k="kigo" data-v="' + esc(k) + '">' + esc(k) + '</button>'; }).join('') + '</div></div></div>';
       var d = { a: tkText(), b: '', c: '' };
       h += penSay('できあがりです。おめでとうございます！ この一句は、あなたの今日から生まれました。', t.saved ? 'ストッ句に残しました（「あとで推敲」付き）。いつでも直せます。' : (!myId ? '登録すると、できた句を「ストッ句」に残せます。' : ''));
-      h += '<div class="tan">' + ku(d) + '</div>' + penNote(pf, t.kigo) + checkBox(String(d.a || '') + String(d.b || '') + String(d.c || ''));
+      h += '<div class="tan">' + ku(d) + '</div>' + '<div class="panel"><div class="field"><label for="tk-ky">音数をたしかめる（ひらがなで、五・七・五のあいだを空けて）</label><input type="text" id="tk-ky" data-f="tk-ky" maxlength="50" value="' + esc(t.kyomi || '') + '" placeholder="例：あきのくれ ひるにらあめん たべました"></div><p class="note" id="tk-kyo">' + tkYomiOut(t.kyomi, true) + '</p></div>' + penNote(pf, t.kigo) + checkBox(String(d.a || '') + String(d.b || '') + String(d.c || ''));
       h += myId ? '<div class="actions"><button class="btn primary" data-act="tk-save"' + (t.saved ? ' disabled' : '') + '>' + (t.saved ? 'ストッ句に残しました' : 'ストッ句に残す（あとで推敲）') + '</button><button class="btn" data-act="tk-copy">この句をひかえる（コピー）</button></div>'
         : '<div class="actions"><button class="btn primary" data-act="fbgate">登録してはじめる（メールだけ・無料）</button><button class="btn" data-act="tk-copy">この句をひかえる（コピー）</button></div>';
       h += '<div class="actions"><button class="btn" data-act="tk-again">はじめから</button><button class="btn" data-act="tk-end">とじる</button></div>';
@@ -5458,6 +5472,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     }
     else if (f === 'da') { if (demo && demo.step === 0) { if (demo.prep && kt(t.value, 'a') !== kt(demo.d.a, 'a')) demo.prep = false; demo.d.a = t.value; updateDemo(); } }
     else if (f === 'mq') { memoDraft = String(t.value || ''); }
+    else if (f === 'tk-y') { if (tsuku) { tsuku.yomi = String(t.value || ''); var yo = document.getElementById('tk-yo'); if (yo) yo.innerHTML = tkYomiOut(tsuku.yomi); } }
+    else if (f === 'tk-ky') { if (tsuku) { tsuku.kyomi = String(t.value || ''); var kyo = document.getElementById('tk-kyo'); if (kyo) kyo.innerHTML = tkYomiOut(tsuku.kyomi, true); } }
     else if (f === 'tk-f') { if (tsuku) { var vv = String(t.value || ''); if (tsuku.step === 1 || tsuku.step === 2) { tsuku.phrase = vv; var ce = document.getElementById('tk-cnt'), mn = tkMora(vv); if (ce && mn >= 0) ce.textContent = mn; } else if (tsuku.step === 3) { tsuku.kigo = vv.trim() || tsuku.kigo; } } }
     else if (f === 'ta') { if (trial) { trial.d.a = t.value; trial.d.b = ''; trial.d.c = ''; updateTrial(); } }
     else if (f.indexOf('p-') === 0 && f !== 'p-haigo') { prof[f.slice(2)] = (f === 'p-x' || f === 'p-ig') ? hn(t.value) : t.value; if (e.type === 'change') { saveProf(); if (f === 'p-x' || f === 'p-ig' || f === 'p-sy' || f === 'p-sm') setTimeout(render, 0); } }
