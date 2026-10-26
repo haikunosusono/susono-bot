@@ -1,0 +1,17 @@
+name: AI先生の点検
+on:
+  schedule:
+    - cron: '20 */6 * * *'   # 6時間ごと（日本時間 3:20・9:20・15:20・21:20 ごろ）
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 点検する
+        env:
+          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: node tools/ai-check.js
