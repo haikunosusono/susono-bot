@@ -129,6 +129,10 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .stmemo { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
 .stmemo input { flex: 1; min-width: 10em; }
 .stm { margin: 2px 0 0; font-size: .8rem; color: var(--ink-soft); font-family: var(--sans); letter-spacing: 0; writing-mode: horizontal-tb; }
+.k5b { margin: 8px 0; }
+.k5b summary { cursor: pointer; font-weight: 700; color: var(--accent); }
+.k5g { max-height: 360px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; background: var(--paper); }
+.k5g .lb { margin: 8px 0 4px; font-size: .8rem; color: var(--ink-soft); }
 .goon { margin: 8px 0; }
 .goon summary { cursor: pointer; font-weight: 700; color: var(--accent); }
 .goontabs { gap: 6px; margin: 6px 0; }
@@ -873,7 +877,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27z';
+  var APP_VER = 'v2026.10.28a';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3561,7 +3565,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   /* 季語をしらべる：判定はせず、出典のしっかりした歳時記（きごさい歳時記）を検索して確かめる */
   var kgQ = '';
   function kigoBox() {
-    return '<details class="kgbox"><summary>🔍 季語をしらべる（きごさい歳時記・夏井いつきの俳句季語辞典）</summary><div class="row"><input type="text" data-f="kg-q" maxlength="20" value="' + esc(kgQ) + '" placeholder="例：木枯（入れると、約5000の季語から引きます）"><button class="chip fit" data-act="kg-go">きごさい歳時記で</button><button class="chip fit" data-act="kg-go" data-v="ouchi">夏井いつきの俳句季語辞典で</button></div><div id="kg-res">' + k5Html(kgQ) + '</div><p class="note"><a href="https://ouchidehaiku.com/' + ({ haru: 'spring', natsu: 'summer', aki: 'autumn', fuyu: 'winter' })[tkSeason()] + '/contents/seasonwords" target="_blank" rel="noopener">夏井いつきのおウチde俳句くらぶ「俳句季語辞典」（いまの季節）をひらく</a></p><p class="note"><a href="https://kigosai.sub.jp/001/27701-2" target="_blank" rel="noopener">きごさい歳時記「5000季語一覧」（季節・分類べつ）をひらく</a>　<a href="https://kigosai.sub.jp/" target="_blank" rel="noopener">きごさい歳時記のトップ（ことば検索・50音検索）</a></p><details class="kglinks"><summary>ほかの調べもの（リンク集）</summary><ul><li><a href="https://haiku-textbook.com/" target="_blank" rel="noopener">俳句の教科書（初心者向けの解説・季語の一覧）</a></li><li><a href="https://lapis.nichibun.ac.jp/haikai/haikai_kigo_search.html" target="_blank" rel="noopener">俳諧データベース・季語検索（国際日本文化研究センター／江戸の俳諧）</a></li><li><a href="http://www.haiku-data.jp/index.php" target="_blank" rel="noopener">現代俳句データベース（現代俳句協会／明治以降の句を季語で）</a></li><li><a href="http://www.haijinkyokai.jp/system/saijiki/" target="_blank" rel="noopener">俳句検索（俳人協会／季語で例句を）</a></li></ul><p class="note src">参考：国立国会図書館「リサーチ・ナビ」の調べ方案内</p></details><p class="note">「きごさい歳時記」（NPO法人 季語と歳時記の会）と、夏井いつきの「おウチde俳句くらぶ」の俳句季語辞典のサイトの中を、Googleで検索します。季語のあつかいは歳時記によってちがうことがあります。無季・自由律・季重なりも、句によっては立派な表現です。</p>' + vGoon('', '') + '</details>';
+    return '<details class="kgbox"><summary>🔍 季語をしらべる（きごさい歳時記・夏井いつきの俳句季語辞典）</summary><div class="row"><input type="text" data-f="kg-q" maxlength="20" value="' + esc(kgQ) + '" placeholder="例：凩・こがらし（漢字でもひらがなでも）"><button class="chip fit" data-act="kg-go">きごさい歳時記で</button><button class="chip fit" data-act="kg-go" data-v="ouchi">夏井いつきの俳句季語辞典で</button></div><div id="kg-res">' + k5Html(kgQ) + '</div><p class="note"><a href="https://ouchidehaiku.com/' + ({ haru: 'spring', natsu: 'summer', aki: 'autumn', fuyu: 'winter' })[tkSeason()] + '/contents/seasonwords" target="_blank" rel="noopener">夏井いつきのおウチde俳句くらぶ「俳句季語辞典」（いまの季節）をひらく</a></p><p class="note"><a href="https://kigosai.sub.jp/001/27701-2" target="_blank" rel="noopener">きごさい歳時記「5000季語一覧」（季節・分類べつ）をひらく</a>　<a href="https://kigosai.sub.jp/" target="_blank" rel="noopener">きごさい歳時記のトップ（ことば検索・50音検索）</a></p><details class="kglinks"><summary>ほかの調べもの（リンク集）</summary><ul><li><a href="https://haiku-textbook.com/" target="_blank" rel="noopener">俳句の教科書（初心者向けの解説・季語の一覧）</a></li><li><a href="https://lapis.nichibun.ac.jp/haikai/haikai_kigo_search.html" target="_blank" rel="noopener">俳諧データベース・季語検索（国際日本文化研究センター／江戸の俳諧）</a></li><li><a href="http://www.haiku-data.jp/index.php" target="_blank" rel="noopener">現代俳句データベース（現代俳句協会／明治以降の句を季語で）</a></li><li><a href="http://www.haijinkyokai.jp/system/saijiki/" target="_blank" rel="noopener">俳句検索（俳人協会／季語で例句を）</a></li></ul><p class="note src">参考：国立国会図書館「リサーチ・ナビ」の調べ方案内</p></details><p class="note">「きごさい歳時記」（NPO法人 季語と歳時記の会）と、夏井いつきの「おウチde俳句くらぶ」の俳句季語辞典のサイトの中を、Googleで検索します。季語のあつかいは歳時記によってちがうことがあります。無季・自由律・季重なりも、句によっては立派な表現です。</p>' + vGoon('', '') + k5Browse() + '</details>';
   }
   function kigoGo(where) {
     var q = String(kgQ || '').trim(); if (!q) { toast('しらべたい言葉を入れてください'); return; }
@@ -3680,8 +3684,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   }
   function k5Find(q) {
     q = String(q || '').trim().replace(/[\s　]/g, ''); if (!q || !K5) return [];
-    var nq = norm(q), ex = [], st = [], co = [];
-    K5.w.forEach(function (x) { var w = x[0], nw = norm(w); if (nw === nq) ex.push(x); else if (nw.indexOf(nq) === 0) st.push(x); else if (nw.indexOf(nq) >= 0) co.push(x); });
+    var nq = norm(q), kana = /^[ぁ-んー]+$/.test(nq), ex = [], st = [], co = [];
+    K5.w.forEach(function (x) { var w = x[0], nw = norm(w), y = x[2] || ''; if (nw === nq || (kana && y === nq)) ex.push(x); else if (nw.indexOf(nq) === 0 || (kana && y && y.indexOf(nq) === 0)) st.push(x); else if (nw.indexOf(nq) >= 0 || (kana && nq.length >= 2 && y.indexOf(nq) >= 0)) co.push(x); });
     return ex.concat(st, co).slice(0, 40);
   }
   function k5Html(q) {
@@ -3690,6 +3694,19 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var r = k5Find(q);
     if (!r.length) return '<p class="note">この一覧（約5000語）には見つかりませんでした。下のボタンで、歳時記でもしらべてみてください。無季の句も、立派な俳句です。</p>';
     return '<ul class="k5">' + r.map(function (x) { var k = K5.k[x[1]].split('|'); return '<li><button class="link" data-act="goon-q" data-v="' + esc(x[0]) + '">' + esc(x[0]) + '</button><span>' + esc(k[0] === '暮' || k[0] === '新年' ? k[0] : k[0] + '（' + k[1] + '）') + '・' + esc(k[2]) + '</span></li>'; }).join('') + '</ul><p class="note src">出典：' + esc(K5.src) + '。季語の名前を押すと、きごさい歳時記でしらべます。</p>';
+  }
+  var k5S = '', k5C = '';
+  var K5_SEA = ['春', '夏', '秋', '冬', '暮', '新年'], K5_CAT = ['時候', '天文', '地理', '生活', '行事', '動物', '植物'];
+  function k5Browse() {
+    var chip = function (act, v, on) { return '<button class="chip fit' + (on ? ' on' : '') + '" data-act="' + act + '" data-v="' + v + '">' + v + '</button>'; };
+    var h = '<details class="k5b"' + (k5S || k5C ? ' open' : '') + '><summary>📚 季節と分類で見る（約5000の季語）</summary><div class="row goontabs">' + K5_SEA.map(function (x) { return chip('k5-s', x, k5S === x); }).join('') + '</div><div class="row goontabs">' + K5_CAT.map(function (x) { return chip('k5-c', x, k5C === x); }).join('') + '</div>';
+    if (!k5S || !k5C) return h + '<p class="note">季節と分類を、ひとつずつ選んでください。</p></details>';
+    if (!K5) return h + '<p class="note">読みこんでいます…</p></details>';
+    var groups = {};
+    K5.w.forEach(function (x) { var k = K5.k[x[1]].split('|'); if (k[0] === k5S && k[2] === k5C) (groups[k[1]] = groups[k[1]] || []).push(x[0]); });
+    var keys = Object.keys(groups);
+    if (!keys.length) return h + '<p class="note">この組み合わせの季語は、一覧にありません。</p></details>';
+    return h + '<div class="k5g">' + keys.map(function (g) { return '<p class="lb">' + esc(g === k5S ? k5S : g) + '（' + groups[g].length + '）</p><div class="row goonlist">' + groups[g].map(function (w) { return '<button class="chip fit" data-act="goon-q" data-v="' + esc(w) + '">' + esc(w) + '</button>'; }).join('') + '</div>'; }).join('') + '</div><p class="note src">出典：' + esc(K5.src) + '。押すと、きごさい歳時記でしらべます。</p></details>';
   }
   function k5Update() { var el = document.getElementById('kg-res'); if (el) el.innerHTML = k5Html(kgQ); }
   /* 連作の部屋：ストッ句（自分の句）を並べて連作にする。直しは連作の中だけ（元のストッ句はそのまま） */
@@ -5863,6 +5880,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'ai-test') { if (isAdmin) aiTestRun(); }
     else if (act === 'kg-go') kigoGo(t.dataset.v);
     else if (act === 'goon-s') { goonS = t.dataset.v; render(); }
+    else if (act === 'k5-s' || act === 'k5-c') { if (act === 'k5-s') k5S = t.dataset.v; else k5C = t.dataset.v; if (K5) render(); else k5Load(render); }
     else if (act === 'goon-q') { kgQ = t.dataset.v; kigoGo(); }
     else if (act === 'meiku-next') { meikuNext(); render(); }
     else if (act === 'hito-next') { hitoNext(); render(); }
