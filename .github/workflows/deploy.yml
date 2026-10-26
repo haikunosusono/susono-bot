@@ -29,5 +29,11 @@ jobs:
         run: |
           echo "$SA_JSON" > "$RUNNER_TEMP/sa.json"
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
-          cd app && npx --yes firebase-tools@13 deploy --only firestore:rules --project haikunosusono --non-interactive
+          cd app
+          set +e
+          npx --yes firebase-tools@13 deploy --only firestore:rules --project haikunosusono --non-interactive > "$RUNNER_TEMP/rules.log" 2>&1
+          rc=$?
+          cat "$RUNNER_TEMP/rules.log"
           rm -f "$RUNNER_TEMP/sa.json"
+          if [ $rc -ne 0 ]; then echo "::error title=rules::$(grep -iE 'error|denied|permission|invalid|line' "$RUNNER_TEMP/rules.log" | tail -n 8 | tr '\n' ' ' | cut -c1-900)"; exit 1; fi
+          echo "::notice title=rules::ルールを反映しました"
