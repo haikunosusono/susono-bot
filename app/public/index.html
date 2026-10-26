@@ -181,6 +181,20 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .kap li > span { font-size: .88rem; color: var(--ink-soft); }
 .hmk { margin: 8px 0; border: 1px solid var(--accent); border-radius: 12px; padding: 8px 12px; background: var(--paper); }
 .hmk summary { font-weight: 700; cursor: pointer; color: var(--accent); }
+.rklist { list-style: none; padding: 0; margin: 10px 0; display: flex; flex-direction: column; gap: 8px; }
+.rkbar { display: block; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-top: 6px; }
+.rkbar.big { height: 10px; }
+.rkbar i { display: block; height: 100%; background: var(--accent); }
+.rkitems { padding-left: 1.6em; margin: 10px 0; }
+.rkitems li { margin-bottom: 10px; padding: 8px 10px; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; }
+.rkitems .rkk { font-family: var(--serif); font-size: 1.1rem; letter-spacing: .05em; }
+.rkops { gap: 6px; margin-top: 6px; }
+.rkops .chip { flex: none; min-height: 34px; padding: 0 .8em; }
+.rkread { writing-mode: vertical-rl; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 20px 16px; height: 70vh; max-height: 560px; overflow-x: auto; font-family: var(--serif); margin: 10px 0; }
+.rkread .rkt { font-size: 1.3rem; font-weight: 700; margin: 0 0 0 1.2em; letter-spacing: .15em; }
+.rkread .rkth { font-size: .85rem; color: var(--ink-soft); margin: 0 0 0 1.2em; }
+.rkread .rkk { font-size: 1.15rem; letter-spacing: .1em; margin: 0 0 0 .9em; }
+.rkread .rkn { margin: 0 1em 0 0; text-align: end; }
 .kshpur { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
 .kshpur .chip { height: auto; min-height: 64px; flex-direction: column; display: flex; align-items: flex-start; justify-content: center; text-align: left; padding: 8px 12px; line-height: 1.4; white-space: normal; }
 .kshpur .chip small { font-weight: 400; font-size: .75rem; opacity: .85; }
@@ -852,7 +866,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27w';
+  var APP_VER = 'v2026.10.27x';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1183,7 +1197,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var h = vMemoQ(true) + vMemoList();
     h += '<h2 class="sec">こつこつストッ句部屋<small>' + mine.length + '句・自分だけが見られます</small></h2>' + vDaily();
     if (myId) h += kshMile(mine.length);
-    if (myId) h += vStAdd();
+    if (myId) h += vStAdd() + '<div class="row"><button class="chip fit" data-act="page" data-p="renkan">🧵 連作の部屋へ</button></div>';
     h += '<div class="row"><button class="chip fit" data-act="st-csv">📤 Excelに書き出す</button><button class="chip fit" data-act="st-copy">📋 文でコピー</button><button class="chip fit" data-act="st-share">📨 LINE・メールで送る</button></div>';
     h += '<div class="row"><button class="chip fit' + (stView === 'table' ? ' on' : '') + '" data-act="st-view" data-v="table">表で見る（よこ書き）</button><button class="chip fit' + (stView === 'tan' ? ' on' : '') + '" data-act="st-view" data-v="tan">短冊で見る（たて書き）</button></div>';
     h += '<div class="row"><button class="chip fit' + (stFil === 'all' ? ' on' : '') + '" data-act="st-fil" data-v="all">すべて</button><button class="chip fit' + (stFil === 'n' ? ' on' : '') + '" data-act="st-fil" data-v="n">あとで推敲</button><button class="chip fit' + (stFil === 'k' ? ' on' : '') + '" data-act="st-fil" data-v="k">かんぺき</button></div>';
@@ -3657,6 +3671,101 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     return '<ul class="k5">' + r.map(function (x) { var k = K5.k[x[1]].split('|'); return '<li><button class="link" data-act="goon-q" data-v="' + esc(x[0]) + '">' + esc(x[0]) + '</button><span>' + esc(k[0] === '暮' || k[0] === '新年' ? k[0] : k[0] + '（' + k[1] + '）') + '・' + esc(k[2]) + '</span></li>'; }).join('') + '</ul><p class="note src">出典：' + esc(K5.src) + '。季語の名前を押すと、きごさい歳時記でしらべます。</p>';
   }
   function k5Update() { var el = document.getElementById('kg-res'); if (el) el.innerHTML = k5Html(kgQ); }
+  /* 連作の部屋：ストッ句（自分の句）を並べて連作にする。直しは連作の中だけ（元のストッ句はそのまま） */
+  var renkans = [], rkCur = '', rkMode = 'edit', rkPick = false, rkQ = '', rkEditI = -1, rkEditV = '', rkNew = null, rkDelAsk = false;
+  function rkGet(id) { return renkans.filter(function (r) { return r.id === id; })[0] || null; }
+  function rkText(it) { var e = mineById[it.id]; return it.custom || (e ? plain(joinKu(e).a) : (it.orig || '（消えた句）')); }
+  function rkUsedIn(id, except) { return renkans.filter(function (r) { return r.id !== except && (r.items || []).some(function (x) { return x.id === id; }); }).map(function (r) { return r.title || '無題'; }); }
+  function rkSave(r) {
+    if (!db || !myId || !r) return;
+    var o = { renkan: 1, date: r.date || ds(dayNum()), title: r.title || '', goal: r.goal || 0, theme: r.theme || '', items: (r.items || []).map(function (x) { var y = { id: x.id, orig: x.orig || '' }; if (x.custom) y.custom = x.custom; return y; }), at: Date.now() };
+    db.collection('data/users/' + myId).doc(r.id).set(o).catch(function () { toast('のこせませんでした'); });
+  }
+  function vRenkanList() {
+    var h = '<h2 class="sec">連作の部屋<small>ストッ句を並べて、ひとつの作品に</small></h2>' +
+      hostSay('ストッ句の句を並べて、連作にしよか。題と、目ざす句数を決めたら、あとは句を入れて並べるだけや。') +
+      '<div class="howto"><b>連作のきまり</b><span>入れられるのは、自分のストッ句の句だけです。連作の中で句を直しても、ストッ句の元の句はそのまま残ります。大会に出す連作は「未発表」が条件のことが多いので、SNSに載せる前に応募要項を確かめましょう。</span></div>';
+    if (!myId) return h + '<p class="note">登録すると、連作がつくれます。</p>';
+    if (rkNew) {
+      h += '<div class="panel"><b>新しい連作</b><div class="field"><label for="rk-t">題</label><input type="text" id="rk-t" data-f="rk-t" maxlength="24" value="' + esc(rkNew.title) + '" placeholder="例：秋の散歩（あとで変えられます）"></div>' +
+        '<div class="field"><label for="rk-g">目ざす句数（なくてもよい）</label><input type="number" id="rk-g" data-f="rk-g" min="0" max="300" value="' + esc(rkNew.goal || '') + '" placeholder="例：5・10・20・30・50" style="max-width:10em"></div>' +
+        '<p class="note">大会の句数の例：石田波郷新人賞20句・現代俳句新人賞30句・角川俳句賞50句・芝不器男俳句新人賞100句（年により変わるので要項で確認を）</p>' +
+        '<div class="actions"><button class="btn primary" data-act="rk-create">つくる</button><button class="btn" data-act="rk-new-x">やめる</button></div></div>';
+    } else h += '<div class="actions"><button class="btn primary" data-act="rk-new">＋ 新しい連作をつくる</button></div>';
+    if (!renkans.length) return h + '<p class="note">まだ連作はありません。</p>';
+    h += '<ul class="rklist">' + renkans.slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); }).map(function (r) {
+      var n = (r.items || []).length;
+      return '<li><button class="sess" data-act="rk-open" data-v="' + esc(r.id) + '"><span class="row2"><span class="kd">' + esc(r.title || '無題の連作') + '</span><span>' + n + (r.goal ? '／' + r.goal : '') + '句</span></span>' + (r.goal ? '<span class="rkbar"><i style="width:' + Math.min(100, Math.round(n / r.goal * 100)) + '%"></i></span>' : '') + '</button></li>';
+    }).join('') + '</ul>';
+    return h;
+  }
+  function vRenkan() {
+    var r = rkGet(rkCur); if (!r) { rkCur = ''; return vRenkanList(); }
+    var items = r.items || [], n = items.length;
+    var h = '<div class="actions"><button class="link" data-act="rk-back">← 連作の一覧</button></div>' +
+      '<h2 class="sec">' + esc(r.title || '無題の連作') + '<small>' + n + (r.goal ? '／' + r.goal : '') + '句</small></h2>' +
+      (r.goal ? '<div class="rkbar big"><i style="width:' + Math.min(100, Math.round(n / r.goal * 100)) + '%"></i></div><p class="note">' + (n >= r.goal ? '目ざす句数に、とどきました。' : 'あと ' + (r.goal - n) + ' 句') + '</p>' : '') +
+      '<div class="row">' + ['edit', 'read'].map(function (m) { return '<button class="chip fit' + (rkMode === m ? ' on' : '') + '" data-act="rk-mode" data-v="' + m + '">' + (m === 'edit' ? '✏️ つくる・直す' : '📖 味わう（縦書きで通して読む）') + '</button>'; }).join('') + '</div>';
+    if (rkMode === 'read') {
+      return h + '<div class="rkread">' + '<p class="rkt">' + esc(r.title || '') + '</p>' + (r.theme ? '<p class="rkth">' + esc(r.theme) + '</p>' : '') + items.map(function (it) { return '<p class="rkk">' + esc(rkText(it)) + '</p>'; }).join('') + '<p class="rkn">' + esc(haigo || '') + '</p></div>' +
+        '<div class="actions"><button class="btn" data-act="rk-copy">📋 文でコピー</button><button class="btn" data-act="rk-kushu">📖 句集づくりへ</button></div>';
+    }
+    h += '<div class="panel"><div class="field"><label for="rk-et">題</label><input type="text" id="rk-et" data-f="rk-et" maxlength="24" value="' + esc(r.title || '') + '"></div>' +
+      '<div class="field"><label for="rk-eg">目ざす句数</label><input type="number" id="rk-eg" data-f="rk-eg" min="0" max="300" value="' + esc(r.goal || '') + '" style="max-width:8em"></div>' +
+      '<div class="field"><label for="rk-th">テーマ・前書きのメモ（なくてもよい）</label><textarea id="rk-th" data-f="rk-th" rows="2" maxlength="300">' + esc(r.theme || '') + '</textarea></div><div class="actions"><button class="btn small" data-act="rk-meta">題・メモをのこす</button></div></div>';
+    h += '<ol class="rkitems">' + items.map(function (it, i) {
+      var e = mineById[it.id], used = rkUsedIn(it.id, r.id);
+      return '<li><div class="rkk">' + esc(rkText(it)) + '</div>' +
+        (it.custom ? '<p class="note">✏️ 連作の中だけ直しあり（元：' + esc(e ? plain(joinKu(e).a) : it.orig) + '）</p>' : '') +
+        (used.length ? '<p class="note">📎 ほかの連作でも使用：' + esc(used.join('・')) + '</p>' : '') +
+        (rkEditI === i ? '<div class="stmemo"><input type="text" data-f="rk-ed" maxlength="60" value="' + esc(rkEditV) + '"><button class="chip fit" data-act="rk-ed-save" data-i="' + i + '">直す</button>' + (it.custom ? '<button class="link" data-act="rk-ed-reset" data-i="' + i + '">元にもどす</button>' : '') + '<button class="link" data-act="rk-ed-x">やめる</button></div>' :
+          '<div class="row rkops"><button class="chip fit" data-act="rk-up" data-i="' + i + '"' + (i === 0 ? ' disabled' : '') + '>↑</button><button class="chip fit" data-act="rk-down" data-i="' + i + '"' + (i === n - 1 ? ' disabled' : '') + '>↓</button><button class="chip fit" data-act="rk-ed" data-i="' + i + '">✏️ 直す</button><button class="chip fit" data-act="rk-rm" data-i="' + i + '">外す</button></div>') + '</li>';
+    }).join('') + '</ol>';
+    if (!n) h += '<p class="note">まだ句がありません。下の「＋ ストッ句から選ぶ」から入れてください。</p>';
+    h += '<div class="actions"><button class="btn primary" data-act="rk-pick">' + (rkPick ? '選ぶのをとじる' : '＋ ストッ句から選ぶ') + '</button></div>';
+    if (rkPick) {
+      var q = String(rkQ || '').trim(), in_ = {}; items.forEach(function (x) { in_[x.id] = 1; });
+      var list = mine.slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); }).filter(function (e) { return !q || plain(joinKu(e).a).indexOf(q) >= 0 || String(e.memo || '').indexOf(q) >= 0 || stSrc(e).indexOf(q) >= 0; });
+      h += '<div class="panel rkpick"><div class="row"><input type="text" data-f="rk-q" value="' + esc(rkQ) + '" placeholder="言葉でさがす（句・メモ・どこで）"><button class="chip fit" data-act="rk-q-go">さがす</button></div><ul class="kshlist">' + list.slice(0, 120).map(function (e) {
+        var used = rkUsedIn(e.id, '');
+        return '<li><button class="chip fit kshpick' + (in_[e.id] ? ' on' : '') + '" data-act="rk-add" data-id="' + esc(e.id) + '"' + (in_[e.id] ? ' disabled' : '') + '><span class="kn">' + (in_[e.id] ? '✓' : '＋') + '</span><span>' + esc(plain(joinKu(e).a)) + '<small>' + esc(mdLabel(dn(e.date))) + '・' + esc(stSrc(e)) + (used.length ? '・📎' + esc(used.join('・')) : '') + '</small></span></button></li>';
+      }).join('') + '</ul>' + (list.length > 120 ? '<p class="note">さがす言葉を入れると、しぼりこめます。</p>' : '') + '</div>';
+    }
+    h += '<div class="actions">' + (rkDelAsk ? '<span class="note">この連作を消します（ストッ句の句は消えません）。</span><button class="btn danger" data-act="rk-del-yes">消す</button><button class="btn" data-act="rk-del-no">やめる</button>' : '<button class="link" data-act="rk-del">この連作を消す</button>') + '</div>';
+    return h;
+  }
+  function vRenkanPage() { return rkCur ? vRenkan() : vRenkanList(); }
+  function rkAct(act, t) {
+    var r = rkGet(rkCur), i = parseInt(t.dataset.i, 10);
+    if (act === 'rk-new') { rkNew = { title: '', goal: '' }; render(); return true; }
+    if (act === 'rk-new-x') { rkNew = null; render(); return true; }
+    if (act === 'rk-create') {
+      if (!db || !myId) { toast('登録すると使えます'); return true; }
+      var nr = { id: 'renkan-' + Date.now().toString(36), title: String(rkNew.title || '').trim() || '無題の連作', goal: Math.max(0, Math.min(300, parseInt(rkNew.goal, 10) || 0)), theme: '', items: [], date: ds(dayNum()), at: Date.now() };
+      renkans.push(nr); rkSave(nr); rkNew = null; rkCur = nr.id; rkMode = 'edit'; rkPick = true; render(); try { window.scrollTo(0, 0); } catch (_) {} return true;
+    }
+    if (act === 'rk-open') { rkCur = t.dataset.v; rkMode = 'edit'; rkPick = false; rkEditI = -1; rkDelAsk = false; render(); try { window.scrollTo(0, 0); } catch (_) {} return true; }
+    if (act === 'rk-back') { rkCur = ''; render(); return true; }
+    if (!r) return false;
+    if (act === 'rk-mode') { rkMode = t.dataset.v === 'read' ? 'read' : 'edit'; render(); return true; }
+    if (act === 'rk-meta') { r.title = String(r._t != null ? r._t : r.title).trim() || '無題の連作'; r.goal = Math.max(0, Math.min(300, parseInt(r._g != null ? r._g : r.goal, 10) || 0)); r.theme = String(r._th != null ? r._th : r.theme || ''); rkSave(r); toast('のこしました'); render(); return true; }
+    if (act === 'rk-pick') { rkPick = !rkPick; render(); return true; }
+    if (act === 'rk-q-go') { render(); return true; }
+    if (act === 'rk-add') { var id = t.dataset.id, e = mineById[id]; if (!e || (r.items || []).some(function (x) { return x.id === id; })) return true; r.items = (r.items || []).concat([{ id: id, orig: plain(joinKu(e).a) }]); rkSave(r); render(); return true; }
+    if (act === 'rk-up' && i > 0) { var a = r.items; var x = a[i]; a[i] = a[i - 1]; a[i - 1] = x; rkSave(r); render(); return true; }
+    if (act === 'rk-down' && i < r.items.length - 1) { var b = r.items; var y = b[i]; b[i] = b[i + 1]; b[i + 1] = y; rkSave(r); render(); return true; }
+    if (act === 'rk-rm') { r.items.splice(i, 1); rkSave(r); render(); return true; }
+    if (act === 'rk-ed') { rkEditI = i; rkEditV = rkText(r.items[i]); render(); return true; }
+    if (act === 'rk-ed-x') { rkEditI = -1; render(); return true; }
+    if (act === 'rk-ed-save') { var it = r.items[i], e2 = mineById[it.id], orig = e2 ? plain(joinKu(e2).a) : it.orig, v = String(rkEditV || '').trim(); it.custom = v && v !== orig ? v : ''; rkEditI = -1; rkSave(r); render(); return true; }
+    if (act === 'rk-ed-reset') { r.items[i].custom = ''; rkEditI = -1; rkSave(r); render(); return true; }
+    if (act === 'rk-copy') { var tx = (r.title || '') + '\n' + (r.theme ? r.theme + '\n' : '') + '\n' + r.items.map(rkText).join('\n') + '\n\n' + (haigo || ''); try { navigator.clipboard.writeText(tx).then(function () { toast('コピーしました'); }, function () { toast('コピーできませんでした'); }); } catch (_) {} return true; }
+    if (act === 'rk-kushu') { kshPick('free'); ksh.form = 'book'; kshTitle = r.title || ''; kshSel = r.items.map(function (x) { return x.id; }).filter(function (id) { return mineById[id]; }); ksh.order = 'pick'; page = 'kushu'; render(); try { window.scrollTo(0, 0); } catch (_) {} toast('連作の句を、句集づくりに入れました（直しは元の句で出ます）'); return true; }
+    if (act === 'rk-del') { rkDelAsk = true; render(); return true; }
+    if (act === 'rk-del-no') { rkDelAsk = false; render(); return true; }
+    if (act === 'rk-del-yes') { if (db && myId) db.collection('data/users/' + myId).doc(r.id).delete().catch(function () {}); renkans = renkans.filter(function (x) { return x.id !== r.id; }); rkCur = ''; rkDelAsk = false; render(); return true; }
+    return false;
+  }
   function vAbout() {
     var L = function (n, ico, t, tag, p, btns) { return '<li class="lstep"><span class="ln">' + n + '</span><div><b>' + ico + ' ' + t + '</b> <small>' + tag + '</small><p>' + p + '</p><div class="actions">' + btns + '</div></div></li>'; };
     var ladder = '<h2 class="sec">はじめの一歩から、段階的に<small>裾野から、すこしずつ</small></h2><ol class="ladder">' +
@@ -3684,7 +3793,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<h3>お問い合わせ</h3><p>ご意見・不具合・権利侵害の申告は「お問い合わせ」から。ボットが定型の返事をし、運営者が内容を確認します。</p>' +
       '<h3>この試作版について</h3><ul><li>メールアドレスとパスワードで登録します。句会でほかの人に見えるのは俳号だけです。</li><li>データは Google の Firebase（東京のサーバー）に保管されます。松風主宰のほめ言葉には、Google の AI（Gemini）を使っています。</li><li>試作中のため、機能や内容は予告なく変わります。大切な句は、手元にも控えてください。</li><li>「みんなで歌会」からひらめきをもらって作りました。</li></ul></div>';
   }
-  function pageView() { return page === 'stock' ? vStock() : page === 'contact' ? vContact() : page === 'terms' ? vTerms() : page === 'my' ? vMy() : page === 'hints' ? vHints() : page === 'hyo' ? vHyo() : page === 'kata' ? vKata() : page === 'kushu' ? vKushu() : page === 'kokoro' ? vKokoro() : page === 'admin' ? vAdmin() : page === 'about' ? vAbout() : page === 'news' ? vNewsPage() : page === 'faq' ? vFaq() : page === 'notify' ? vNotify() : page === 'archive' ? vArchive() : page === 'manner' ? vManner() : vPrivacy(); }
+  function pageView() { return page === 'stock' ? vStock() : page === 'contact' ? vContact() : page === 'terms' ? vTerms() : page === 'my' ? vMy() : page === 'hints' ? vHints() : page === 'hyo' ? vHyo() : page === 'kata' ? vKata() : page === 'kushu' ? vKushu() : page === 'renkan' ? vRenkanPage() : page === 'kokoro' ? vKokoro() : page === 'admin' ? vAdmin() : page === 'about' ? vAbout() : page === 'news' ? vNewsPage() : page === 'faq' ? vFaq() : page === 'notify' ? vNotify() : page === 'archive' ? vArchive() : page === 'manner' ? vManner() : vPrivacy(); }
   function vManner() {
     return '<h2 class="sec">句のあつかいとマナー<small>ここは練習の場です</small></h2>' +
       '<div class="howto"><b>ここで作った句は、「未発表」のあつかいです</b><span>「俳句の裾野」は、俳句を鍛える練習の場です。ここで作った句は、練習の句なので、未発表のあつかいにします。</span></div>' +
@@ -5070,7 +5179,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     function pg(p, label) { return mb('page', ' data-p="' + p + '"', label); }
     var g = function (t, items) { return '<div class="mgrp"><b>' + t + '</b><div class="row">' + items.join('') + '</div></div>'; };
     return '<details class="panel menu"><summary>☰ メニュー・機能まとめ</summary>' +
-      g('つくる', [mb('tk-start', '', '🧩 句づくり'), pg('stock', '📒 ストッ句'), pg('kushu', '📖 句集づくり')]) +
+      g('つくる', [mb('tk-start', '', '🧩 句づくり'), pg('stock', '📒 ストッ句'), pg('renkan', '🧵 連作の部屋'), pg('kushu', '📖 句集づくり')]) +
       g('まなぶ', [mb('tut', '', '🌱 一句つくれるチュートリアル'), mb('tutd', '', '🔍 さらに深くチュートリアル'), pg('about', 'できること'), pg('kokoro', '🍵 はじめに（ことば）'), pg('kata', '📐 俳句の型と技の部屋'), pg('hyo', '🎓 評のトレーニング'), pg('hints', '句会の評のヒント'), pg('manner', '句のあつかい・マナー'), pg('faq', 'よくある質問'), pg('notify', 'スマホの通知のしかた')]) +
       g('じぶん', [pg('my', 'マイページ'), pg('archive', '句会アーカイブ')]) +
       g('声をとどける', [pg('contact', '📮 ご意見・ご要望'), pg('terms', '利用規約'), pg('privacy', 'プライバシー')]) +
@@ -5710,6 +5819,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act.indexOf('hm-') === 0 && hmAct(act, t)) {}
     else if (act.indexOf('ksh-') === 0 && kshAct(act, t)) {}
     else if (act.indexOf('st-') === 0 && stxAct(act, t)) {}
+    else if (act.indexOf('rk-') === 0 && rkAct(act, t)) {}
     else if (act === 'kaiho-open') kaihoOpen(t.dataset.v);
     else if (act === 'kaiho-copy') kaihoCopy(t.dataset.v);
     else if (act === 'ai-test') { if (isAdmin) aiTestRun(); }
@@ -6002,6 +6112,13 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     }
     else if (f === 'da') { if (demo && demo.step === 0) { if (demo.prep && kt(t.value, 'a') !== kt(demo.d.a, 'a')) demo.prep = false; demo.d.a = t.value; updateDemo(); } }
     else if (f === 'mq') { memoDraft = String(t.value || ''); }
+    else if (f === 'rk-t' && rkNew) rkNew.title = String(t.value || '');
+    else if (f === 'rk-g' && rkNew) rkNew.goal = String(t.value || '');
+    else if (f === 'rk-et') { var rr = rkGet(rkCur); if (rr) rr._t = String(t.value || ''); }
+    else if (f === 'rk-eg') { var rr2 = rkGet(rkCur); if (rr2) rr2._g = String(t.value || ''); }
+    else if (f === 'rk-th') { var rr3 = rkGet(rkCur); if (rr3) rr3._th = String(t.value || ''); }
+    else if (f === 'rk-ed') rkEditV = String(t.value || '');
+    else if (f === 'rk-q') rkQ = String(t.value || '');
     else if (f === 'st-memo') stMemoV = String(t.value || '');
     else if (f === 'sa-k' && stAdd) stAdd.k = String(t.value || '');
     else if (f === 'sa-d' && stAdd) stAdd.d = String(t.value || '');
@@ -6132,6 +6249,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       memos = all.filter(function (o) { return o.memo; }).sort(function (a, b) { return (b.at || 0) - (a.at || 0); });
       trophies = all.filter(function (o) { return o.trophy; });
       mineById = {}; mine.forEach(function (e) { mineById[e.id] = e; });
+      renkans = all.filter(function (o) { return o.renkan; });
       hists = all.filter(function (o) { return o.hist; }); histById = {}; hists.forEach(function (o) { histById[o.rid] = 1; });
       mineReady = !(s.metadata && s.metadata.fromCache && !all.length); stockSync(); histSync();
       checkBadges(!!(s.metadata && s.metadata.fromCache));
