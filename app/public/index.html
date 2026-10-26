@@ -806,7 +806,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27d';
+  var APP_VER = 'v2026.10.27e';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1914,8 +1914,9 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var txt = '【すその句会報　' + monLabel(id) + '】\n兼題：' + monKendai(id).t + '（' + monKendai(id).kind + '）\n' + kus.length + '句・' + Object.keys(d.entries || {}).length + '人・互選' + nv + '人\n\n' + sorted.map(function (k, i) {
       var t = T[k.id], cm = (d.cmts || {})[k.id] || {}, lines = Object.keys(cm).map(function (u) { return '　・' + (cm[u].haigo || '') + '：' + cm[u].text; });
       return (i + 1) + '位　' + t.pts + '点（特' + t.toku.length + '・並' + t.nami.length + '・予' + t.yo.length + '）\n' + k.a + '　' + k.haigo + (lines.length ? '\n' + lines.join('\n') : '');
-    }).join('\n\n') + '\n\n俳句の裾野 haikunosusono.web.app';
-    h += '<div class="panel"><div class="row2"><b>すその句会報　' + esc(monLabel(id)) + '</b><button class="chip fit" data-act="mon-copy" data-v="' + esc(id) + '">📋 句会報をコピー</button></div><p class="note">兼題・結果・得点順の全句と、みなさんの選評です（先生・ボットの評は入りません）。</p>' +
+    }).join('\n\n') + '\n\n俳句の裾野 haikunosusono.web.app\n' + KAIHO_NOTE;
+    h += kaihoPanel('m-' + id, kaihoMon(id, d, sorted, T, nv), '兼題・得点順の全句と、選んだ人、みなさんの選評です（先生・ボットの評は入りません）。');
+    h += '<div class="panel"><b>得点順の全句</b>' +
       '<ol class="tg2">' + sorted.map(function (k, i) { var t = T[k.id], cm = (d.cmts || {})[k.id] || {}; return '<li><b>' + (i + 1) + '位　' + t.pts + '点</b>（特' + t.toku.length + '・並' + t.nami.length + '・予' + t.yo.length + '）<br><span class="k9">' + esc(k.a) + '</span>　' + esc(k.haigo) + (Object.keys(cm).length ? '<ul class="fl-list">' + Object.keys(cm).map(function (u) { return '<li>' + esc(cm[u].haigo || '') + '：' + esc(cm[u].text) + '</li>'; }).join('') + '</ul>' : '') + '</li>'; }).join('') + '</ol></div>';
     monReport[id] = txt;
     return h;
@@ -3063,6 +3064,77 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (act === 'hm-use') { cmDraft[eid] = hmDraft(eid); render(); var el = document.getElementById('cm-' + eid); if (el) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (_) {} } return true; }
     return false;
   }
+  /* 句会報（すその句会・仲間と句会）：縦書き・A4・印刷/PDF、コピー用の文 */
+  var KAIHO_NOTE = '※SNSに載せると「既発表」になることがあります。投句先の規約をご確認ください。';
+  var kaihoData = {};
+  function kaihoText(k) {
+    return '【' + k.title + '】\n' + k.sub.join('\n') + '\n\n' + k.items.map(function (it) {
+      return it.rank + '位　' + it.pts + '点' + (it.det ? '（' + it.det + '）' : '') + '\n' + plain(it.ku) + '　' + it.haigo + (it.sel ? '\n　選：' + it.sel : '') + (it.cm.length ? '\n' + it.cm.map(function (c) { return '　・' + c.h + '：' + c.t; }).join('\n') : '');
+    }).join('\n\n') + '\n\n俳句の裾野 haikunosusono.web.app\n' + KAIHO_NOTE;
+  }
+  function kaihoKan(v) {
+    var D = '〇一二三四五六七八九';
+    return String(v).replace(/\d+/g, function (n) {
+      if (n.length >= 3) return n.split('').map(function (c) { return D[+c]; }).join('');
+      var x = +n; if (x < 10) return D[x];
+      return (x >= 20 ? D[Math.floor(x / 10)] : '') + '十' + (x % 10 ? D[x % 10] : '');
+    });
+  }
+  function kaihoHtml(k) {
+    var mx = k.items.length ? k.items[0].pts : 0;
+    var it = k.items.map(function (x) {
+      return '<section class="it' + (mx > 0 && x.pts === mx ? ' top' : '') + '"><p class="rk">' + kaihoKan(x.rank + '位　' + x.pts + '点') + (x.det ? '<small>' + esc(kaihoKan(x.det)) + '</small>' : '') + '</p><p class="kk">' + rb(x.ku) + '</p><p class="au">' + esc(x.haigo) + '</p>' +
+        (x.sel ? '<p class="se">選　' + esc(x.sel) + '</p>' : '') + x.cm.map(function (c) { return '<p class="cm">' + esc(c.h) + '　' + esc(c.t) + '</p>'; }).join('') + '</section>';
+    }).join('');
+    return '<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + esc(k.title) + '</title><style>' +
+      '@page{size:A4 portrait;margin:14mm 12mm}*{box-sizing:border-box}body{margin:0;background:#f4f1ea;color:#222;font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif}' +
+      '.bar{position:sticky;top:0;display:flex;gap:8px;flex-wrap:wrap;padding:10px 16px;background:#fff;border-bottom:1px solid #ccc;font-family:sans-serif;z-index:2}.bar button{font-size:15px;padding:8px 14px;border-radius:999px;border:1px solid #888;background:#fff}.bar .p{background:#1f7a5c;color:#fff;border-color:#1f7a5c}' +
+      '.sheet{max-width:186mm;margin:12px auto;background:#fff;padding:8mm 6mm;display:flex;flex-direction:row-reverse;flex-wrap:wrap;align-content:flex-start}' +
+      '.it,.head{writing-mode:vertical-rl;height:84mm;padding:0 3.2mm;border-bottom:1px solid #333;margin-bottom:5mm;break-inside:avoid;page-break-inside:avoid}' +
+      '.head{padding-left:6mm}.head h1{font-size:19px;margin:0 0 0 3mm;letter-spacing:.12em}.head p{margin:0 0 0 1.5mm;font-size:12.5px}' +
+      '.rk{margin:0;font-size:11px;color:#555}.rk small{display:block;font-size:10px}.kk{margin:0 1.6mm;font-size:17px;letter-spacing:.08em;line-height:1.5}.au{margin:0;font-size:13px;text-align:end}.se,.cm{margin:0;font-size:10.5px;color:#444;max-height:84mm}' +
+      '.it.top .kk{background:#e6e6e6;padding:2mm 1.2mm}rt{font-size:.5em}' +
+      '.note{writing-mode:horizontal-tb;width:100%;font-family:sans-serif;font-size:11px;color:#555;border-top:1px solid #999;padding-top:3mm;margin-top:2mm;text-align:left}' +
+      '@media print{body{background:#fff}.bar{display:none}.sheet{margin:0;max-width:none;padding:0}}' +
+      '</style></head><body><div class="bar"><button class="p" onclick="window.print()">🖨 印刷・PDFにする</button><button onclick="window.close()">とじる</button></div><div class="sheet">' +
+      '<section class="head"><h1>' + esc(kaihoKan(k.title)) + '</h1>' + k.sub.map(function (s) { return '<p>' + esc(kaihoKan(s)) + '</p>'; }).join('') + '</section>' + it +
+      '<p class="note">俳句の裾野　haikunosusono.web.app<br>' + KAIHO_NOTE + '</p></div></body></html>';
+  }
+  function kaihoOpen(key) {
+    var k = kaihoData[key]; if (!k) return;
+    var w = null; try { w = window.open('', '_blank'); } catch (_) {}
+    if (!w) { toast('新しい画面をひらけませんでした。コピーをお使いください'); return; }
+    w.document.open(); w.document.write(kaihoHtml(k)); w.document.close();
+  }
+  function kaihoCopy(key) {
+    var k = kaihoData[key]; if (!k) return;
+    try { navigator.clipboard.writeText(kaihoText(k)).then(function () { toast('句会報をコピーしました'); }, function () { toast('コピーできませんでした'); }); } catch (_) { toast('コピーできませんでした'); }
+  }
+  function kaihoPanel(key, k, lead) {
+    kaihoData[key] = k;
+    return '<div class="panel kaiho"><div class="row2"><b>📰 句会報</b></div><p class="note">' + lead + '</p><div class="actions"><button class="btn primary" data-act="kaiho-open" data-v="' + esc(key) + '">縦書きで見る・印刷／PDF</button><button class="btn" data-act="kaiho-copy" data-v="' + esc(key) + '">📋 文でコピー（LINEなどに）</button></div><p class="note">' + esc(KAIHO_NOTE) + '</p></div>';
+  }
+  function kaihoRanks(arr) { var out = []; arr.forEach(function (x, i) { x.rank = i && arr[i - 1].pts === x.pts ? arr[i - 1].rank : i + 1; out.push(x); }); return out; }
+  function kaihoMon(id, d, sorted, T, nv) {
+    var nm = function (u) { return ((d.entries || {})[u] || {}).haigo || ((d.votes || {})[u] || {}).haigo || 'だれか'; };
+    var items = kaihoRanks(sorted.map(function (k) {
+      var t = T[k.id], cm = (d.cmts || {})[k.id] || {};
+      var sel = [].concat(t.toku.map(function (u) { return '◎' + nm(u); }), t.nami.map(function (u) { return '○' + nm(u); })).join('・');
+      return { pts: t.pts, det: '特' + t.toku.length + '・並' + t.nami.length, ku: k.a, haigo: k.haigo, sel: sel, cm: Object.keys(cm).map(function (u) { return { h: cm[u].haigo || '', t: cm[u].text || '' }; }) };
+    }));
+    return { title: 'すその句会報　' + monLabel(id), sub: ['兼題　' + monKendai(id).t + '（' + monKendai(id).kind + '）', sorted.length + '句・' + Object.keys(d.entries || {}).length + '人・互選' + nv + '人', '◎特選　○並選'], items: items };
+  }
+  function kaihoG(r, list, p, kinds) {
+    var mark = function (k, i) { return i === 0 ? '◎' : i === 1 ? '○' : '・'; };
+    var items = kaihoRanks(list.map(function (e) {
+      var t = p[e.id], d = (r.dai || {})[e.dai];
+      var sel = kinds.map(function (k, i) { return t.by[k.k].map(function (u) { return mark(k, i) + gHaigo(r, u); }).join('・'); }).filter(Boolean).join('・');
+      var cm = Object.keys(r.cmts || {}).map(function (k) { return r.cmts[k]; }).filter(function (c) { return c && c.eid === e.id && (c.text || (c.tags || []).length); }).sort(function (a, b) { return a.at - b.at; });
+      return { pts: t.pts, det: d && d.t ? '題「' + d.t + '」' : '', ku: joinKu(e).a, haigo: gHaigo(r, e.uid), sel: sel, cm: cm.map(function (c) { return { h: gHaigo(r, c.uid), t: [(c.tags || []).join('・'), c.text || ''].filter(Boolean).join('　') }; }) };
+    }));
+    var dais = gDais(r).map(function (x) { return x.t; }).filter(function (x, i, arr) { return x && arr.indexOf(x) === i; });
+    return { title: (r.name || '仲間と句会') + '　句会報' + (r.round > 1 ? '（' + r.round + '回目）' : ''), sub: [mdLabel(Math.floor(((r.createdAt || Date.now()) + 9 * 3600000) / 86400000)), dais.length ? '題　' + dais.join('・') : '', list.length + '句・' + gMembers(r).length + '人', kinds.map(function (k, i) { return mark(k, i) + k.name; }).join('　')].filter(Boolean), items: items };
+  }
   function vAbout() {
     var L = function (n, ico, t, tag, p, btns) { return '<li class="lstep"><span class="ln">' + n + '</span><div><b>' + ico + ' ' + t + '</b> <small>' + tag + '</small><p>' + p + '</p><div class="actions">' + btns + '</div></div></li>'; };
     var ladder = '<h2 class="sec">はじめの一歩から、段階的に<small>裾野から、すこしずつ</small></h2><ol class="ladder">' +
@@ -3745,6 +3817,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       h += '<div class="panel roundtop"><b>この回のトップ</b>　' + tops.map(function (e) { return esc(gHaigo(r, e.uid)); }).join('・') + '（' + mx0 + '点）' + (isFinal ? '' : '<span class="note">　点は通算にくりこされます</span>') + '</div>';
     }
     if (done) h += vGSeries(r, isFinal);
+    if (done) h += kaihoPanel('g-' + r.id, kaihoG(r, list, p, kinds), '点の高い順の全句と、選んだ人、ひとことです。');
     h += '<div class="board one">' + list.map(function (e) {
       var d = (r.dai || {})[e.dai], t = p[e.id], who = kinds.map(function (k) { return t.by[k.k].length ? esc(k.name) + '：' + t.by[k.k].map(function (u) { return esc(gHaigo(r, u)); }).join('・') : ''; }).filter(Boolean).join('　');
       var cm = Object.keys(r.cmts || {}).map(function (k) { return r.cmts[k]; }).filter(function (c) { return c && c.eid === e.id; }).sort(function (a, b) { return a.at - b.at; });
@@ -5099,6 +5172,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'tutt') { openTut(0, 'tei'); }
     else if (act.indexOf('hyo-') === 0 && hyoAct(act, t)) {}
     else if (act.indexOf('hm-') === 0 && hmAct(act, t)) {}
+    else if (act === 'kaiho-open') kaihoOpen(t.dataset.v);
+    else if (act === 'kaiho-copy') kaihoCopy(t.dataset.v);
     else if (act === 'hito-next') { hitoNext(); render(); }
     else if (act === 'kata-go') { kataI = parseInt(t.dataset.i, 10) || 0; kataMore = false; render(); }
     else if (act === 'kata-more') { kataMore = !kataMore; render(); }
