@@ -144,6 +144,17 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .hh { margin: 6px 0 0; font-size: .88rem; color: var(--ink-soft); }
 .hitolist { list-style: none; padding: 0; margin: 12px 0; display: flex; flex-direction: column; gap: 10px; }
 .hitolist li { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+.katatabs2 { gap: 8px; margin: 6px 0 10px; }
+.katatabs2 .chip { display: flex; flex-direction: column; line-height: 1.3; padding: 6px 10px; height: auto; }
+.katatabs2 .chip small { font-weight: 400; font-size: .75rem; }
+.waza { padding-left: 1.6em; margin: 8px 0; }
+.waza li { margin-bottom: 6px; line-height: 1.6; }
+.waza li b { display: block; }
+.waza li span { font-size: .88rem; color: var(--ink-soft); }
+.w20 li b { display: inline; margin-right: .6em; }
+.wz2 { margin: 8px 0 0; font-weight: 700; color: var(--accent); }
+.note.src { font-size: .78rem; }
+.wazatop .hh { margin: 2px 0; }
 .kbase, .kcard { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 10px 0; }
 .kbase p { margin: 4px 0; }
 .kcard ul { margin: 6px 0; padding-left: 1.2em; line-height: 1.7; }
@@ -829,7 +840,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27o';
+  var APP_VER = 'v2026.10.27p';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1177,7 +1188,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     h += '<p class="note">「推敲」を押すと、その句の部屋にもどって直せます。画像にして投稿したいときは、「短冊で見る」からどうぞ。</p>';
     return h;
   }
-  function vSolo() { return '<h2 class="sec">俳筋力トレーニング部屋<small>今日の兼題で一句</small></h2>' + vHito() + '<div class="howto"><b>今日の兼題（お題）から、俳句をつくる練習です</b><span>毎日のメニューは、漢字（季語ではない字）を詠み込む、カタカナを詠み込む、テーマで詠む（発想をとばす）の3つがひとまわり。一句つくり、手ごたえ（かんぺき・まあまあ・ふつう・あとで推敲）をつけて記録に残します。記録は自分だけが見られます。人と詠み合いたいときは「定例句会」へ。</span></div><div class="actions"><button class="btn" data-act="trial-start">俳筋トレ体験（保存なし・1分）</button><button class="btn" data-act="tk-start">🧩 句づくり（フレーズと季語で一句）</button></div>' + vComposer() + kigoBox() + vRecords('s'); }
+  function vSolo() { return '<h2 class="sec">俳筋力トレーニング部屋<small>今日の兼題で一句</small></h2>' + vHito() + vWazaTop() + '<div class="howto"><b>今日の兼題（お題）から、俳句をつくる練習です</b><span>毎日のメニューは、漢字（季語ではない字）を詠み込む、カタカナを詠み込む、テーマで詠む（発想をとばす）の3つがひとまわり。一句つくり、手ごたえ（かんぺき・まあまあ・ふつう・あとで推敲）をつけて記録に残します。記録は自分だけが見られます。人と詠み合いたいときは「定例句会」へ。</span></div><div class="actions"><button class="btn" data-act="trial-start">俳筋トレ体験（保存なし・1分）</button><button class="btn" data-act="tk-start">🧩 句づくり（フレーズと季語で一句）</button></div>' + vComposer() + kigoBox() + vRecords('s'); }
   function vDiary() { return '<h2 class="sec">俳句の初心者部屋<small>日記のように、何句でも</small></h2><div class="howto"><b>今日の句を、日記のように</b><span>お題はありません。テーマに合わない句でも、季語がなくても、字余りでも大丈夫。今日の気づきや気分を、気軽に残しましょう（1日に何句でも）。記録は自分だけが見られます。慣れたら「俳筋力トレーニング部屋」へ。</span></div><div class="actions"><button class="btn" data-act="tk-start">🧩 句づくり（フレーズと季語で一句・約3分）</button></div>' + vComposer() + kigoBox() + vRecords('d'); }
 
   /* ---- みんな：ファスト句会（定員がそろったらすぐ始まる。みんなで歌会と同じ進め方） ---- */
@@ -3033,7 +3044,9 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function kataKu(s) { return '<span class="kataku">' + esc(s).replace(/\[([^\]]+)\]/g, '<span class="kk">$1</span>').replace(/\{([^}]+)\}/g, '<span class="kc">$1</span>') + '</span>'; }
   function vKata() {
     var k = KATA[kataI];
-    var h = '<h2 class="sec">型の基本の部屋<small>藤田湘子『20週俳句入門』より</small></h2>' +
+    var h = '<h2 class="sec">俳句の型と技の部屋<small>藤田湘子の二冊から</small></h2><div class="row katatabs2"><button class="chip fit' + (kataTab === 'kihon' ? ' on' : '') + '" data-act="kata-tab" data-v="kihon">基本：型<small>『20週俳句入門』</small></button><button class="chip fit' + (kataTab === 'jissen' ? ' on' : '') + '" data-act="kata-tab" data-v="jissen">実践：技<small>『実作俳句入門』</small></button></div>';
+    if (kataTab === 'jissen') return h + vWaza() + '<div class="actions"><button class="btn primary" data-act="tk-start">🧩 一句つくってみる</button><button class="btn" data-act="page" data-p="hyo">評のトレーニングへ</button></div>';
+    h += 
       hostSay('型は、のびのび詠むための道具や。まずは真似して、手になじませよか。', '<button class="link" data-act="page" data-p="kokoro">はじめに（先生がたのことば）</button>') +
       '<div class="kbase"><b>基本形</b><p>季語（5音）＋ 季語と関係ないフレーズ（12音）</p><p class="note">季語とフレーズの距離が、ほどよく遠いと、句がひろがります。</p><p class="kleg"><span class="kk">季語</span>　<span class="kc">切れ字</span>　フレーズ</p></div>' +
       '<p class="lead">四つの型（基本）と、それぞれの応用型。あわせて<b>17のかたち</b>があります。</p><div class="row katatabs">' + KATA.map(function (x, i) { return '<button class="chip fit' + (i === kataI ? ' on' : '') + '" data-act="kata-go" data-i="' + i + '">' + x.n + '<small>' + x.t + '・' + (1 + x.ap.length) + 'つ</small></button>'; }).join('') + '</div>' +
@@ -3042,7 +3055,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       (kataMore ? '<ol class="kap">' + k.ap.map(function (a) { return '<li><span>' + esc(a[0]) + '</span><div class="kex">' + kataKu(a[1]) + '</div></li>'; }).join('') + '</ol>' : '') + '</div>' +
       (kataI === 0 ? '<p class="note">湘子のすすめ：はじめは一ノ型だけで、毎日一句。型が手になじむと、ほかの型も楽になります。</p>' : '') +
       '<div class="actions"><button class="btn primary" data-act="tk-start">🧩 この型で一句つくる</button><button class="btn" data-act="page" data-p="hyo">評のトレーニングへ</button></div>' +
-      '<p class="note">例句は、すべて裾野でつくった句です。型の分け方は、本の紹介や読書ノートをもとにまとめました。くわしくは本でどうぞ。</p>';
+      vShoshi20() + '<p class="note">例句は、すべて裾野でつくった句です。型の分け方は、本の紹介や読書ノート（note「【20週俳句入門】一ノ型〜四ノ型」ほか）をもとにまとめました。くわしくは本でどうぞ。</p>';
     return h;
   }
   /* 評メーカー：句会の合評で、押すだけで評をひとつ組み立てる（評のトレーニングと同じ型） */
@@ -3538,6 +3551,39 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     }
     return false;
   }
+  /* 俳句の型と技の部屋：基本＝藤田湘子『20週俳句入門』、実践＝藤田湘子『新版 実作俳句入門』（目次は出典どおり。説明は裾野のひとこと） */
+  var SHOSHI_20 = [
+    ['準備編', [['第1週', '自分のために'], ['第2週', '作句の必需品'], ['第3週', '『歳時記』と親しむ'], ['第4週', '表記と雅号'], ['第5週', '俳句の前提＝五・七・五'], ['第6週', '季語のはたらき'], ['第7週', '切字の効果']]],
+    ['実作編', [['第8週', '作句へスタート'], ['第9週', '第一作をどう詠んだか'], ['第10週', '基本から応用へ'], ['第11週', '上五の切り方'], ['第12週', '二つめの型へ進む'], ['第13週', '「新宿の空は四角や」'], ['第14週', '「眼中のもの皆俳句」'], ['第15週', 'デリケートな「かな」'], ['第16週', 'あるレベルに達した'], ['第17週', '「俳句は切字響きけり」'], ['第18週', '俳句を上手に作る法'], ['第19週', '「をり」「なり」「たり」'], ['第20週', 'これからの勉強法']]]
+  ];
+  var SHOSHI_WAZA = [
+    ['実践篇1　実作のポイント', [
+      ['気どりのポーズをなくす', 'かっこよく見せようとせず、見たまま感じたままを。'], ['陳腐なものは陳腐', 'よくある言い方・発想は、よくあるまま。自分だけの細部を探す。'], ['省略は佳句の出発点', '言わなくても伝わることは、思いきって削る。'], ['今を描写する', '思い出や説明より、目の前の「いま」を写す。'],
+      ['季語は離して使う', '季語と、もう一つの言葉を、近づけすぎない。'], ['「だから」ではない', '理由や因果でつながると、句が説明になる。'], ['季語を修飾するな', '「赤い夕焼」のように、季語に飾りをつけない。'], ['一句一動詞', '動詞をたくさん入れず、ひとつに絞る。'],
+      ['「てにをは」の妙', '助詞ひとつで、景色も主役もかわる。'], ['中七の字余りは解消せよ', 'まん中の七音があふれると、調べがくずれる。'], ['下から読んでも', '下五から読み返して、すわりを確かめる。'], ['「孫」の名句はない', '身内へのかわいさは、句では甘くなりやすい。'],
+      ['テレビ屋になるな', '報道や解説のように、事柄を伝えるだけにしない。'], ['風流ぶりをやめよ', 'いかにも俳句らしい「風流」を、なぞらない。']]],
+    ['実践篇2　作句のテクニック', [
+      ['絞る', '見るもの・言うことを、一点に絞る。'], ['命令', '「〜せよ」「〜して」と、呼びかける形。'], ['否定', '「〜なし」「〜ず」と、ないことを言って、あるものを見せる。'], ['疑問・推量', '「〜か」「〜らむ」と、問いかけ・おしはかる形。'],
+      ['擬音', 'オノマトペで、音や手ざわりを。'], ['繰り返す', '同じ言葉をくり返して、調べを生む。'], ['並列・対称', '二つのものを、並べる・向かい合わせる。'], ['比喩', '「〜のごとく」「〜のやう」。たとえで景を立ち上げる。'],
+      ['「我」を出す', '「われ」「わが」と、作者自身を句に入れる。'], ['身体の部分も', '手・指・目・背中など、からだの一部を詠む。'], ['字余り', 'あえて音をあふれさせて、強調する。'], ['色彩', '色の言葉で、景をくっきりさせる。'],
+      ['数詞', '「一」「二三」など、数で景を確かにする。'], ['地名を詠む', '地名のひびきと、その土地の空気を借りる。'], ['人名を詠む', '人の名で、句に物語をよぶ。'], ['慶弔と贈答の句', 'お祝い・お悔やみ・贈りものに添える句。']]]
+  ];
+  var kataTab = 'kihon';
+  var SRC_20 = '出典：藤田湘子『20週俳句入門』（角川ソフィア文庫・新版は角川学芸ブックス）目次より', SRC_JS = '出典：藤田湘子『新版 実作俳句入門』（角川ソフィア文庫『実作俳句入門』）目次より';
+  function vWazaTop() {
+    var all = []; SHOSHI_WAZA.forEach(function (g) { g[1].forEach(function (x) { all.push(x); }); });
+    var w = all[(dayNum() * 7) % all.length], k = KATA[dayNum() % KATA.length];
+    return '<div class="hito wazatop"><span class="lb">きょうの型・きょうの技</span><p class="hh">📐 <b>' + esc(k.n) + '</b>（' + esc(k.t) + '）　🪄 <b>' + esc(w[0]) + '</b>：' + esc(w[1]) + '</p><p class="hh"><button class="link" data-act="page" data-p="kata">俳句の型と技の部屋へ</button></p></div>';
+  }
+  function vWaza() {
+    var h = '<div class="howto"><b>湘子の実践：作句のポイントとテクニック</b><span>型が手になじんだら、技へ。項目は本の目次のとおりです。説明は、裾野のひとことです（本の文章ではありません。くわしくは本でどうぞ）。</span></div>';
+    SHOSHI_WAZA.forEach(function (g) { h += '<div class="kcard"><b>' + esc(g[0]) + '</b><ol class="waza">' + g[1].map(function (x) { return '<li><b>' + esc(x[0]) + '</b><span>' + esc(x[1]) + '</span></li>'; }).join('') + '</ol></div>'; });
+    return h + '<p class="note src">' + esc(SRC_JS) + '</p>';
+  }
+  function vShoshi20() {
+    return '<div class="kcard"><b>『20週俳句入門』の流れ（目次）</b>' + SHOSHI_20.map(function (g) { return '<p class="wz2">' + esc(g[0]) + '</p><ol class="waza w20">' + g[1].map(function (x) { return '<li><b>' + esc(x[0]) + '</b><span>' + esc(x[1]) + '</span></li>'; }).join('') + '</ol>'; }).join('') + '<p class="note src">' + esc(SRC_20) + '</p></div>' +
+      '<div class="kcard"><b>型のこぼれ話</b><ul><li>型は、あとの型ほど、言い切る調子が強くなります（一ノ型の「や」がいちばんやわらかく、四ノ型の「けり」がいちばん強い）。</li><li>季語の音数のめやす：一ノ型は四音の季語＋「や」、二ノ型は五音の季語、三ノ型・四ノ型は三音の季語＋「かな」「けり」。</li><li>「けり」のかわりに、「をり」「なり」「たり」も使えます（第19週）。</li></ul><p class="note src">参考：『20週俳句入門』の紹介・読書ノートより</p></div>';
+  }
   function vAbout() {
     var L = function (n, ico, t, tag, p, btns) { return '<li class="lstep"><span class="ln">' + n + '</span><div><b>' + ico + ' ' + t + '</b> <small>' + tag + '</small><p>' + p + '</p><div class="actions">' + btns + '</div></div></li>'; };
     var ladder = '<h2 class="sec">はじめの一歩から、段階的に<small>裾野から、すこしずつ</small></h2><ol class="ladder">' +
@@ -3559,7 +3605,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<h3>マイページ・ストッ句</h3><p>俳号、プロフィール文、アイコンを入れておけます。トロフィーは「画像にする」で、金の額の画像にできます。ストッ句（自分の句の記録）は自分だけが見られ、「あとで推敲」の句は、あとから推敲できます。Excel（CSV）に書き出す・文でコピー・LINEやメールで送る、もできます。句の画像は「デジタル短冊」と「句碑」の2つ。投稿・保存は、作者本人だけができます。設定の「自分のデータを消す」から、ご自分で消せます。</p>' +
       '<h3>句づくり（赤ペン先生）</h3><p>「今日あったこと」を十二音にして、五音の季語をのせるだけの、いちばんかんたんな型。やさしい赤ペン先生が、◎でほめながら案内します。</p>' +
       '<h3>はじめに（先生がたのことば）</h3><p>夏井いつき・藤田湘子・芭蕉・虚子の「ええ言葉」の棚。俳筋トレ部屋の上にも、開くたびにちがう「きょうのひとこと」が出ます。 <button class="link" data-act="page" data-p="kokoro">ひらく</button></p>' +
-      '<h3>型の基本の部屋</h3><p>藤田湘子『20週俳句入門』の四つの型と応用型を、裾野でつくった例句で。季語・切れ字を色分けして見られます。 <button class="link" data-act="page" data-p="kata">ひらく</button></p>' +
+      '<h3>俳句の型と技の部屋</h3><p>基本は藤田湘子『20週俳句入門』の四つの型と応用型（裾野でつくった例句・季語と切れ字を色分け）と、20週の目次。実践は『実作俳句入門』の作句のポイント14とテクニック16。 <button class="link" data-act="page" data-p="kata">ひらく</button></p>' +
       '<h3>評のトレーニング</h3><p>司会のダー浜（関西弁）と、評のコツ五つを5分で。例句の言葉を押していくと、評がひとつ組み上がります。 <button class="link" data-act="page" data-p="hyo">ひらく</button></p>' +
       '<h3>句会の評のヒント</h3><p>選評を書くときの見どころ（視点・語順・切れ字・助詞・季語・取り合わせ・オリジナリティ・音数・ルビ）を、例つきでまとめてあります。</p>' +
       '<h3>お問い合わせ</h3><p>ご意見・不具合・権利侵害の申告は「お問い合わせ」から。ボットが定型の返事をし、運営者が内容を確認します。</p>' +
@@ -4951,7 +4997,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var g = function (t, items) { return '<div class="mgrp"><b>' + t + '</b><div class="row">' + items.join('') + '</div></div>'; };
     return '<details class="panel menu"><summary>☰ メニュー・機能まとめ</summary>' +
       g('つくる', [mb('tk-start', '', '🧩 句づくり'), pg('stock', '📒 ストッ句'), pg('kushu', '📖 句集づくり')]) +
-      g('まなぶ', [mb('tut', '', '🌱 一句つくれるチュートリアル'), mb('tutd', '', '🔍 さらに深くチュートリアル'), pg('about', 'できること'), pg('kokoro', '🍵 はじめに（ことば）'), pg('kata', '📐 型の基本の部屋'), pg('hyo', '🎓 評のトレーニング'), pg('hints', '句会の評のヒント'), pg('manner', '句のあつかい・マナー'), pg('faq', 'よくある質問'), pg('notify', 'スマホの通知のしかた')]) +
+      g('まなぶ', [mb('tut', '', '🌱 一句つくれるチュートリアル'), mb('tutd', '', '🔍 さらに深くチュートリアル'), pg('about', 'できること'), pg('kokoro', '🍵 はじめに（ことば）'), pg('kata', '📐 俳句の型と技の部屋'), pg('hyo', '🎓 評のトレーニング'), pg('hints', '句会の評のヒント'), pg('manner', '句のあつかい・マナー'), pg('faq', 'よくある質問'), pg('notify', 'スマホの通知のしかた')]) +
       g('じぶん', [pg('my', 'マイページ'), pg('archive', '句会アーカイブ')]) +
       g('声をとどける', [pg('contact', '📮 ご意見・ご要望'), pg('terms', '利用規約'), pg('privacy', 'プライバシー')]) +
       '</details>';
@@ -5597,6 +5643,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'meiku-next') { meikuNext(); render(); }
     else if (act === 'hito-next') { hitoNext(); render(); }
     else if (act === 'kata-go') { kataI = parseInt(t.dataset.i, 10) || 0; render(); }
+    else if (act === 'kata-tab') { kataTab = t.dataset.v === 'jissen' ? 'jissen' : 'kihon'; render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'kata-more') { kataMore = !kataMore; render(); }
     else if (act === 'page') { page = t.dataset.p || ''; if (page === 'faq') markFirst('f_faq'); else if (page === 'news') markFirst('f_news'); else if (page === 'my') markFirst('f_my'); render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'live-g') { gCur = t.dataset.gid; gNew = false; tab = 'gohyo'; page = ''; render(); try { window.scrollTo(0, 0); } catch (_) {} }
