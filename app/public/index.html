@@ -129,6 +129,12 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .stmemo { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
 .stmemo input { flex: 1; min-width: 10em; }
 .stm { margin: 2px 0 0; font-size: .8rem; color: var(--ink-soft); font-family: var(--sans); letter-spacing: 0; writing-mode: horizontal-tb; }
+.goon { margin: 8px 0; }
+.goon summary { cursor: pointer; font-weight: 700; color: var(--accent); }
+.goontabs { gap: 6px; margin: 6px 0; }
+.goontabs .chip { flex: none; }
+.goonlist { flex-wrap: wrap; gap: 6px; }
+.goonlist .chip { flex: none; min-height: 36px; padding: 0 .8em; font-family: var(--serif); font-weight: 500; }
 .kgbox { margin: 8px 0; }
 .kgbox summary { cursor: pointer; font-weight: 700; color: var(--accent); }
 .kgbox input { flex: 1; }
@@ -840,7 +846,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27q';
+  var APP_VER = 'v2026.10.27r';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3514,11 +3520,11 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   /* 季語をしらべる：判定はせず、出典のしっかりした歳時記（きごさい歳時記）を検索して確かめる */
   var kgQ = '';
   function kigoBox() {
-    return '<details class="kgbox"><summary>🔍 季語をしらべる（きごさい歳時記）</summary><div class="row"><input type="text" data-f="kg-q" maxlength="20" value="' + esc(kgQ) + '" placeholder="例：木枯"><button class="chip fit" data-act="kg-go">しらべる</button></div><p class="note">「きごさい歳時記」（NPO法人 季語と歳時記の会）のサイトの中を、Googleで検索します。季語のあつかいは歳時記によってちがうことがあります。無季・自由律・季重なりも、句によっては立派な表現です。</p></details>';
+    return '<details class="kgbox"><summary>🔍 季語をしらべる（きごさい歳時記）</summary><div class="row"><input type="text" data-f="kg-q" maxlength="20" value="' + esc(kgQ) + '" placeholder="例：木枯"><button class="chip fit" data-act="kg-go">しらべる</button></div><p class="note">「きごさい歳時記」（NPO法人 季語と歳時記の会）のサイトの中を、Googleで検索します。季語のあつかいは歳時記によってちがうことがあります。無季・自由律・季重なりも、句によっては立派な表現です。</p>' + vGoon('', '') + '</details>';
   }
   function kigoGo() {
     var q = String(kgQ || '').trim(); if (!q) { toast('しらべたい言葉を入れてください'); return; }
-    try { window.open('https://www.google.com/search?q=' + encodeURIComponent('site:kigosai.sakura.ne.jp ' + q), '_blank', 'noopener'); } catch (_) {}
+    try { window.open('https://www.google.com/search?q=' + encodeURIComponent('(site:kigosai.sub.jp OR site:kigosai.sakura.ne.jp) ' + q), '_blank', 'noopener'); } catch (_) {}
   }
   /* 運営者だけ：AI先生（Gemini）がいま評を返せるか、その場でためす */
   var aiTest = { busy: false, res: '' };
@@ -3608,6 +3614,22 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function vShoshi20() {
     return '<div class="kcard"><b>『20週俳句入門』の流れ（目次）</b>' + SHOSHI_20.map(function (g) { return '<p class="wz2">' + esc(g[0]) + '</p><ol class="waza w20">' + g[1].map(function (x) { return '<li><b>' + esc(x[0]) + '</b><span>' + esc(x[1]) + '</span></li>'; }).join('') + '</ol>'; }).join('') + '<p class="note src">' + esc(SRC_20) + '</p></div>' +
       '<div class="kcard"><b>型のこぼれ話</b><ul><li>型は、あとの型ほど、言い切る調子が強くなります（一ノ型の「や」がいちばんやわらかく、四ノ型の「けり」がいちばん強い）。</li><li>季語の音数のめやす：一ノ型は四音の季語＋「や」、二ノ型は五音の季語、三ノ型・四ノ型は三音の季語＋「かな」「けり」。</li><li>「けり」のかわりに、「をり」「なり」「たり」も使えます（第19週）。</li></ul><p class="note src">参考：『20週俳句入門』の紹介・読書ノートより</p></div>';
+  }
+  /* 五音の季語集（出典：株式会社 夏井&カンパニー作成『五音の季語集』） */
+  var GOON = {
+    haru: '春寒し・春の朝・春の昼・冴返る・春の暮・春の夕・春の宵・春の夜・春暑し・春深し・春惜しむ・夏近し・朧月・春の雲・春一番・風光る・春の雪・春の雨・春の霜・春の雷・春の虹・春夕焼・花曇・花の雨・山笑う・水温む・春の波・春の海・春の川・春の土・春の泥・残る雪・花衣・シャボン玉・風車・雛祭・桜餅・磯遊び・春祭・春愁・猫の恋・鳥の恋・燕の巣・桜貝・木の芽風・梅の花・初桜・散る桜・桃の花・春の草・チューリップ・ヒヤシンス・つくしんぼ・葱坊主',
+    natsu: '麦の秋・夏の朝・夏の昼・夏の夕・夏の宵・夏の夜・熱帯夜・夏来る・夏の空・夏の雲・夏の星・夏の月・雲の峰・南風・風薫る・青嵐・五月晴・夏の雨・梅雨曇・油照・炎天下・夏日影・日の盛・大西日・夏の川・夏の海・土用波・青田風・夏の山・子供の日・鯉幟・扇風機・ソーダ水・夏休み・サングラス・夏帽子・心太・燕の子・熱帯魚・夏の蝶・甲虫・水馬・蝸牛・雨蛙・油蝉・蝉時雨・さくらんぼ・青りんご・夏木立・若葉風・夏の草・草茂る・花菖蒲・アマリリス・月見草・ラベンダー',
+    aki: '秋の朝・秋の昼・秋の暮・秋の宵・秋麗・秋暑し・秋涼し・秋深し・秋惜しむ・そぞろ寒・冬隣・秋彼岸・秋の空・天高し・秋の雲・鰯雲・秋の風・天の川・夕月夜・星月夜・流れ星・秋の雨・秋の雷・稲光・秋の山・秋の田・秋の水・秋の海・秋の川・秋出水・秋の庭・花畑・秋の波・秋の潮・星祭・魂祭・盆休み・秋さびし・月見酒・秋祭・紅葉狩・文化の日・渡り鳥・秋燕・稲雀・赤蜻蛉・虫の声・秋の蝉・秋の蝶・青蜜柑・山葡萄・初紅葉・草の花・銀杏散る・木の実落つ・曼珠沙華',
+    fuyu: '冬の朝・冬の昼・冬の宵・冬の夜・冬ざるる・冬浅し・冬ぬくし・年の暮・冬深し・冬の暮・春隣・冬の空・冬の雲・冬の星・冬の月・冬の雨・冬の雷・冬の風・木枯来・空っ風・冬麗・寒昴・雪催・山眠る・冬の山・冬の海・冬の川・冬景色・霜柱・滝凍る・氷点下・息白し・隙間風・雪達磨・落葉焚・日向ぼこ・七五三・クリスマス・除夜の鐘・冬休み・冬籠・冬構・冬鴎・冬の蝿・冬の鳥・冬の蝶・冬林檎・冬木立・冬の草・枯尾花・紅葉散る・帰り花・寒椿・竜の玉',
+    shin: 'お正月・松の内・初日の出・初景色・お年玉・鏡餅・年賀状・初詣・福寿草'
+  };
+  var GOON_N = { haru: '春', natsu: '夏', aki: '秋', fuyu: '冬', shin: '新年' }, GOON_SRC = '出典：株式会社 夏井&カンパニー作成『五音の季語集』';
+  var goonS = '';
+  function vGoon(act, cur) {
+    var se = goonS || tkSeason(), list = GOON[se].split('・');
+    return '<details class="goon"' + (goonS ? ' open' : '') + '><summary>📒 五音の季語集から選ぶ</summary><div class="row goontabs">' + Object.keys(GOON).map(function (k) { return '<button class="chip fit' + (k === se ? ' on' : '') + '" data-act="goon-s" data-v="' + k + '">' + GOON_N[k] + '</button>'; }).join('') + '</div>' +
+      '<div class="row goonlist">' + list.map(function (k) { return act ? '<button class="chip fit' + (cur === k ? ' on' : '') + '" data-act="' + act + '" data-k="kigo" data-v="' + esc(k) + '">' + esc(k) + '</button>' : '<button class="chip fit" data-act="goon-q" data-v="' + esc(k) + '">' + esc(k) + '</button>'; }).join('') + '</div>' +
+      '<p class="note src">' + esc(GOON_SRC) + '（' + list.length + '語）' + (act ? '' : '　押すと、きごさい歳時記でしらべます。') + '</p></details>';
   }
   function vAbout() {
     var L = function (n, ico, t, tag, p, btns) { return '<li class="lstep"><span class="ln">' + n + '</span><div><b>' + ico + ' ' + t + '</b> <small>' + tag + '</small><p>' + p + '</p><div class="actions">' + btns + '</div></div></li>'; };
@@ -3804,6 +3826,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       h += penSay('「' + esc(String(t.phrase || '').trim()) + '」、すてきなフレーズです◎ さいごに、五音の季語をのせましょう。', 'まず、いまの気分をひとつ。気分にあう季語をならべます。いくつか置きくらべて、「これだ」と思うものを、どうぞ。');
       h += '<div class="panel"><div class="field"><label>いまの気分は？</label><div class="row">' + TK_MOODS.map(function (k) { return '<button class="chip fit' + (t.mood === k ? ' on' : '') + '" data-act="tk-pick" data-k="mood" data-v="' + esc(k) + '">' + esc(k) + '</button>'; }).join('') + '</div></div>';
       if (t.mood) h += '<div class="field"><label>' + esc(t.mood) + '気分の、五音の季語（いまの季節）</label><div class="row">' + kigoC.map(function (k) { return '<button class="chip fit' + (t.kigo === k ? ' on' : '') + '" data-act="tk-pick" data-k="kigo" data-v="' + esc(k) + '">' + esc(k) + '</button>'; }).join('') + '</div></div>';
+      h += vGoon('tk-pick', t.kigo);
       h += kigoBox();
       h += '<div class="field"><label for="tk-f">じぶんの季語でもどうぞ（五音）</label><input type="text" id="tk-f" data-f="tk-f" maxlength="10" value="' + esc(t.kigo && kigoC.indexOf(t.kigo) < 0 ? t.kigo : '') + '" placeholder="例：秋の暮"></div>';
       if (t.kigo) h += '<p class="note">おきてみると……<b>' + esc(t.kigo) + esc(String(t.phrase || '').trim()) + '</b></p>';
@@ -5665,6 +5688,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'kaiho-copy') kaihoCopy(t.dataset.v);
     else if (act === 'ai-test') { if (isAdmin) aiTestRun(); }
     else if (act === 'kg-go') kigoGo();
+    else if (act === 'goon-s') { goonS = t.dataset.v; render(); }
+    else if (act === 'goon-q') { kgQ = t.dataset.v; kigoGo(); }
     else if (act === 'meiku-next') { meikuNext(); render(); }
     else if (act === 'hito-next') { hitoNext(); render(); }
     else if (act === 'kata-go') { kataI = parseInt(t.dataset.i, 10) || 0; render(); }
