@@ -146,6 +146,8 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .kap { padding-left: 1.4em; margin: 8px 0 0; }
 .kap li { margin-bottom: 8px; }
 .kap li > span { font-size: .88rem; color: var(--ink-soft); }
+.hmk { margin: 8px 0; border: 1px solid var(--accent); border-radius: 12px; padding: 8px 12px; background: var(--paper); }
+.hmk summary { font-weight: 700; cursor: pointer; color: var(--accent); }
 .hyotabs { display: flex; gap: 6px; flex-wrap: wrap; }
 .hyotab { width: 2.2rem; height: 2.2rem; border-radius: 50%; border: 1px solid var(--line); background: var(--paper); font-family: var(--serif); font-weight: 700; cursor: pointer; color: var(--ink-soft); }
 .hyotab.past { background: var(--accent-soft); color: var(--accent); }
@@ -804,7 +806,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27b';
+  var APP_VER = 'v2026.10.27c';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2508,6 +2510,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
         (isCur && !opened && live && entrant && e.id === myId ? askBox(s, e) : '') +
         (canC && opened && e.id === myId ? '<p class="note">🪶 <b>自句自解（作者から）</b>：自分の句のことを、自由に語ってください。どんな場面だったか、どうしてこの季語・この語順にしたか、質問への答え、こめた思い。長くなっても大丈夫。だまっていても、もちろん大丈夫です。</p>' : '') +
         (canC && !opened ? '<p class="note">「ここがすき」だけでも、立派な選評です。気になる点や質問も、ひとつあると、作者の学びになります。 <button class="link" data-act="page" data-p="hints">句会の評のヒント</button>' + (hyoDone() ? '<br><b>評の型：</b>① ことばを引く　② 感じたこと　③ 提案ひとつ（なくてもよい）' : '　<button class="link" data-act="page" data-p="hyo">5分でれんしゅう</button>') + '</p>' : '') +
+        (canC && !opened && e.id !== myId ? hmBox(e) : '') +
         (canC ? '<details class="qcm' + (qOpen[e.id] ? '" open="' : '') + '" data-qeid="' + esc(e.id) + '"><summary>ことばのヒント（押すと入力欄に入ります・そのまま送ってもOK）</summary>' + K_QGROUPS.map(function (g) { var more = !!qMore[e.id], list = more ? g.ch : g.ch.slice(0, 5); return '<div class="row qcmrow"><span class="lb">' + g.lb + '</span>' + list.map(function (q2) { return '<button class="chip fit" data-act="cm-fill" data-eid="' + esc(e.id) + '" data-v="' + esc(q2) + '">' + esc(q2) + '</button>'; }).join('') + '</div>'; }).join('') + '<p class="note"><button class="link" data-act="cm-more" data-eid="' + esc(e.id) + '">' + (qMore[e.id] ? 'すくなく' : 'もっと見る') + '</button></p></details>' : '') +
         (canC ? '<p class="note typing" id="typing-' + esc(e.id) + '">' + typingText(s) + '</p>' : '') +
         (canC && cmEdit[e.id] ? '<p class="note">自分のコメントを編集しています <button class="link" data-act="cm-edit-cancel" data-eid="' + esc(e.id) + '">やめる</button></p>' : '') +
@@ -3015,6 +3018,51 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<div class="actions"><button class="btn primary" data-act="tk-start">🧩 この型で一句つくる</button><button class="btn" data-act="page" data-p="hyo">評のトレーニングへ</button></div>' +
       '<p class="note">例句は、すべて裾野でつくった句です。型の分け方は、本の紹介や読書ノートをもとにまとめました。くわしくは本でどうぞ。</p>';
     return h;
+  }
+  /* 評メーカー：句会の合評で、押すだけで評をひとつ組み立てる（評のトレーニングと同じ型） */
+  var hmS = {}, hmOpen = {};
+  var HM_FEEL = ['という言葉に、すっと景色が浮かびました', 'という表現の手ざわりが、心に残りました', 'の音のひびきが、耳に残りました', 'と季語の取り合わせが、よく効いています', 'に、作者のまなざしのやさしさを感じました'];
+  var HM_PR = ['欲を言えば、場所や時間がもう一言あると、景がくっきりしそうです', '結びは言い切らず、少し開いて終える手もありそうです', '「の」が続くところを一つ変えると、軽くなるかもしれません', 'ここはどんな景なのか、作者に聞いてみたいです'];
+  function hmWords(ku) {
+    var s = String(ku || '').replace(/《[^》]*》/g, '').replace(/[\s　、。・]/g, '');
+    var P = /^(は|が|を|に|へ|で|と|や|も|よ|て|かな|けり|ぬ|り|たり|なり|より|から|まで|ば|つつ)$/;
+    var out = [], cur = '';
+    var push = function () { if (cur.length >= 2 && out.indexOf(cur) < 0) out.push(cur); cur = ''; };
+    try {
+      var seg = new Intl.Segmenter('ja', { granularity: 'word' });
+      Array.from(seg.segment(s)).forEach(function (x) { if (P.test(x.segment)) push(); else cur += x.segment; });
+    } catch (_) {
+      s.split(/(かな|けり|[はがをにへでとやもよ])/).forEach(function (x) { if (P.test(x)) push(); else cur += x; });
+    }
+    push();
+    out = out.filter(function (w) { return w.length <= 12; });
+    if (out.length < 2 && s.length > 4) { var n = Math.ceil(s.length / 3); out = [s.slice(0, n), s.slice(n, n * 2), s.slice(n * 2)].filter(function (w) { return w.length >= 2; }); }
+    return out.slice(0, 7);
+  }
+  function hmDraft(eid) {
+    var o = hmS[eid] || {}; if (!o.w) return '';
+    var t = '「' + o.w + '」' + (o.f >= 0 ? HM_FEEL[o.f] + '。' : 'がすきです。');
+    if (o.p >= 0) t += HM_PR[o.p] + '。';
+    return t;
+  }
+  function hmBox(e) {
+    var eid = e.id, o = hmS[eid] || {}, ws = hmWords(joinKu(e).a), d = hmDraft(eid);
+    var chip = function (act, i, label, on) { return '<button class="chip fit' + (on ? ' on' : '') + '" data-act="' + act + '" data-eid="' + esc(eid) + '" data-i="' + i + '">' + esc(label) + '</button>'; };
+    return '<details class="hmk"' + (hmOpen[eid] ? ' open' : '') + ' data-heid="' + esc(eid) + '"><summary>🎓 押すだけで評をつくる</summary>' +
+      '<div class="hyostep"><span class="lb">① 心が動いた言葉を、ひとつ</span><div class="row hyochips">' + ws.map(function (w, i) { return chip('hm-w', i, w, o.w === w); }).join('') + '</div></div>' +
+      (o.w ? '<div class="hyostep"><span class="lb">② 感じたことを</span><div class="hyocol">' + HM_FEEL.map(function (x, i) { return chip('hm-f', i, x, o.f === i); }).join('') + '</div></div>' : '') +
+      (o.w ? '<div class="hyostep"><span class="lb">③ 提案をひとつ（なくてもよい）</span><div class="hyocol">' + HM_PR.map(function (x, i) { return chip('hm-p', i, x, o.p === i); }).join('') + chip('hm-p', -1, '提案はなし', o.p === -1) + '</div></div>' : '') +
+      (d ? '<p class="hyopvl">あなたの評（プレビュー）</p><div class="hyopv">' + esc(d) + '</div><p class="row"><button class="btn primary small" data-act="hm-use" data-eid="' + esc(eid) + '">入力欄に入れる</button></p><p class="note">入れたあと、自分の言葉に書きかえても大丈夫です。</p>' : '<p class="note">言葉をひとつ押すだけでも、評になります。</p>') +
+      '</details>';
+  }
+  function hmAct(act, t) {
+    var eid = t.dataset.eid, i = parseInt(t.dataset.i, 10), o = hmS[eid] = hmS[eid] || { f: -9, p: -9 };
+    hmOpen[eid] = true;
+    if (act === 'hm-w') { var e0 = null; try { e0 = t.textContent; } catch (_) {} o.w = e0; render(); return true; }
+    if (act === 'hm-f') { o.f = i; render(); return true; }
+    if (act === 'hm-p') { o.p = i; render(); return true; }
+    if (act === 'hm-use') { cmDraft[eid] = hmDraft(eid); render(); var el = document.getElementById('cm-' + eid); if (el) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (_) {} } return true; }
+    return false;
   }
   function vAbout() {
     var L = function (n, ico, t, tag, p, btns) { return '<li class="lstep"><span class="ln">' + n + '</span><div><b>' + ico + ' ' + t + '</b> <small>' + tag + '</small><p>' + p + '</p><div class="actions">' + btns + '</div></div></li>'; };
@@ -5051,6 +5099,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     }
     else if (act === 'tutt') { openTut(0, 'tei'); }
     else if (act.indexOf('hyo-') === 0 && hyoAct(act, t)) {}
+    else if (act.indexOf('hm-') === 0 && hmAct(act, t)) {}
     else if (act === 'hito-next') { hitoNext(); render(); }
     else if (act === 'kata-go') { kataI = parseInt(t.dataset.i, 10) || 0; kataMore = false; render(); }
     else if (act === 'kata-more') { kataMore = !kataMore; render(); }
@@ -5378,7 +5427,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     render = function () { origRender.apply(this, arguments); if (inside()) ensureGuard(); };
   })();
   /* 「ことばのヒント」の開閉を覚える（人が開いたまま、ほかの人のコメントで描きなおしても閉じないように） */
-  app.addEventListener('toggle', function (e) { var d = e.target; if (d && d.classList && d.classList.contains('qcm') && d.dataset.qeid) qOpen[d.dataset.qeid] = d.open; }, true);
+  app.addEventListener('toggle', function (e) { var d = e.target; if (d && d.classList && d.classList.contains('qcm') && d.dataset.qeid) qOpen[d.dataset.qeid] = d.open; if (d && d.classList && d.classList.contains('hmk') && d.dataset.heid) hmOpen[d.dataset.heid] = d.open; }, true);
   app.addEventListener('change', onInput);
   ['click', 'touchstart', 'keydown'].forEach(function (ev) { document.addEventListener(ev, function (e) { if (ev === 'keydown') { if (e.key === 'Enter') markAct(); return; } var t = e.target; if (t && t.closest && !isTyping(t)) markAct(); }, true); });
   app.addEventListener('focusout', function () { if (!pendRender) return; clearTimeout(pendT); pendT = setTimeout(function () { if (pendRender && !isTyping(document.activeElement)) render(); }, 350); });
