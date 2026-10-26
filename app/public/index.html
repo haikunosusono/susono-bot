@@ -126,6 +126,9 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .tmr-row b { font-size: 1.4rem; color: var(--accent); font-variant-numeric: tabular-nums; }
 .tmr-bar { height: 6px; background: var(--muted-soft); border-radius: 99px; overflow: hidden; }
 .tmr-bar i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width 1s linear; }
+.kgbox { margin: 8px 0; }
+.kgbox summary { cursor: pointer; font-weight: 700; color: var(--accent); }
+.kgbox input { flex: 1; }
 .meiku { background: var(--paper); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; padding: 8px 14px; margin: 8px 0 12px; }
 .meiku .lb { font-size: .75rem; color: var(--ink-soft); }
 .mq { font-family: var(--serif); font-size: 1.15rem; letter-spacing: .06em; margin: 2px 0; line-height: 1.7; }
@@ -814,7 +817,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27h';
+  var APP_VER = 'v2026.10.27i';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1161,8 +1164,8 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     h += '<p class="note">「推敲」を押すと、その句の部屋にもどって直せます。画像にして投稿したいときは、「短冊で見る」からどうぞ。</p>';
     return h;
   }
-  function vSolo() { return '<h2 class="sec">俳筋力トレーニング部屋<small>今日の兼題で一句</small></h2>' + vHito() + '<div class="howto"><b>今日の兼題（お題）から、俳句をつくる練習です</b><span>毎日のメニューは、漢字（季語ではない字）を詠み込む、カタカナを詠み込む、テーマで詠む（発想をとばす）の3つがひとまわり。一句つくり、手ごたえ（かんぺき・まあまあ・ふつう・あとで推敲）をつけて記録に残します。記録は自分だけが見られます。人と詠み合いたいときは「定例句会」へ。</span></div><div class="actions"><button class="btn" data-act="trial-start">俳筋トレ体験（保存なし・1分）</button><button class="btn" data-act="tk-start">🧩 句づくり（フレーズと季語で一句）</button></div>' + vComposer() + vRecords('s'); }
-  function vDiary() { return '<h2 class="sec">俳句の初心者部屋<small>日記のように、何句でも</small></h2><div class="howto"><b>今日の句を、日記のように</b><span>お題はありません。テーマに合わない句でも、季語がなくても、字余りでも大丈夫。今日の気づきや気分を、気軽に残しましょう（1日に何句でも）。記録は自分だけが見られます。慣れたら「俳筋力トレーニング部屋」へ。</span></div><div class="actions"><button class="btn" data-act="tk-start">🧩 句づくり（フレーズと季語で一句・約3分）</button></div>' + vComposer() + vRecords('d'); }
+  function vSolo() { return '<h2 class="sec">俳筋力トレーニング部屋<small>今日の兼題で一句</small></h2>' + vHito() + '<div class="howto"><b>今日の兼題（お題）から、俳句をつくる練習です</b><span>毎日のメニューは、漢字（季語ではない字）を詠み込む、カタカナを詠み込む、テーマで詠む（発想をとばす）の3つがひとまわり。一句つくり、手ごたえ（かんぺき・まあまあ・ふつう・あとで推敲）をつけて記録に残します。記録は自分だけが見られます。人と詠み合いたいときは「定例句会」へ。</span></div><div class="actions"><button class="btn" data-act="trial-start">俳筋トレ体験（保存なし・1分）</button><button class="btn" data-act="tk-start">🧩 句づくり（フレーズと季語で一句）</button></div>' + vComposer() + kigoBox() + vRecords('s'); }
+  function vDiary() { return '<h2 class="sec">俳句の初心者部屋<small>日記のように、何句でも</small></h2><div class="howto"><b>今日の句を、日記のように</b><span>お題はありません。テーマに合わない句でも、季語がなくても、字余りでも大丈夫。今日の気づきや気分を、気軽に残しましょう（1日に何句でも）。記録は自分だけが見られます。慣れたら「俳筋力トレーニング部屋」へ。</span></div><div class="actions"><button class="btn" data-act="tk-start">🧩 句づくり（フレーズと季語で一句・約3分）</button></div>' + vComposer() + kigoBox() + vRecords('d'); }
 
   /* ---- みんな：ファスト句会（定員がそろったらすぐ始まる。みんなで歌会と同じ進め方） ---- */
   var SELECT_SEC = 300;
@@ -3278,6 +3281,15 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var x = L[meikuI];
     return '<div class="meiku"><span class="lb">今日の一句（名句）</span><p class="mq">' + esc(x[0]) + '</p><p class="mw">' + esc(x[1]) + (x[2] ? '『' + esc(x[2]) + '』' : '') + '　<button class="link" data-act="meiku-next">ほかの句</button></p></div>';
   }
+  /* 季語をしらべる：判定はせず、出典のしっかりした歳時記（きごさい歳時記）を検索して確かめる */
+  var kgQ = '';
+  function kigoBox() {
+    return '<details class="kgbox"><summary>🔍 季語をしらべる（きごさい歳時記）</summary><div class="row"><input type="text" data-f="kg-q" maxlength="20" value="' + esc(kgQ) + '" placeholder="例：木枯"><button class="chip fit" data-act="kg-go">しらべる</button></div><p class="note">「きごさい歳時記」（NPO法人 季語と歳時記の会）のサイトの中を、Googleで検索します。季語のあつかいは歳時記によってちがうことがあります。無季・自由律・季重なりも、句によっては立派な表現です。</p></details>';
+  }
+  function kigoGo() {
+    var q = String(kgQ || '').trim(); if (!q) { toast('しらべたい言葉を入れてください'); return; }
+    try { window.open('https://www.google.com/search?q=' + encodeURIComponent('site:kigosai.sakura.ne.jp ' + q), '_blank', 'noopener'); } catch (_) {}
+  }
   function vAbout() {
     var L = function (n, ico, t, tag, p, btns) { return '<li class="lstep"><span class="ln">' + n + '</span><div><b>' + ico + ' ' + t + '</b> <small>' + tag + '</small><p>' + p + '</p><div class="actions">' + btns + '</div></div></li>'; };
     var ladder = '<h2 class="sec">はじめの一歩から、段階的に<small>裾野から、すこしずつ</small></h2><ol class="ladder">' +
@@ -3475,6 +3487,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       h += penSay('「' + esc(String(t.phrase || '').trim()) + '」、すてきなフレーズです◎ さいごに、五音の季語をのせましょう。', 'まず、いまの気分をひとつ。気分にあう季語をならべます。いくつか置きくらべて、「これだ」と思うものを、どうぞ。');
       h += '<div class="panel"><div class="field"><label>いまの気分は？</label><div class="row">' + TK_MOODS.map(function (k) { return '<button class="chip fit' + (t.mood === k ? ' on' : '') + '" data-act="tk-pick" data-k="mood" data-v="' + esc(k) + '">' + esc(k) + '</button>'; }).join('') + '</div></div>';
       if (t.mood) h += '<div class="field"><label>' + esc(t.mood) + '気分の、五音の季語（いまの季節）</label><div class="row">' + kigoC.map(function (k) { return '<button class="chip fit' + (t.kigo === k ? ' on' : '') + '" data-act="tk-pick" data-k="kigo" data-v="' + esc(k) + '">' + esc(k) + '</button>'; }).join('') + '</div></div>';
+      h += kigoBox();
       h += '<div class="field"><label for="tk-f">じぶんの季語でもどうぞ（五音）</label><input type="text" id="tk-f" data-f="tk-f" maxlength="10" value="' + esc(t.kigo && kigoC.indexOf(t.kigo) < 0 ? t.kigo : '') + '" placeholder="例：秋の暮"></div>';
       if (t.kigo) h += '<p class="note">おきてみると……<b>' + esc(t.kigo) + esc(String(t.phrase || '').trim()) + '</b></p>';
       h += '</div>';
@@ -5332,6 +5345,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act.indexOf('ksh-') === 0 && kshAct(act, t)) {}
     else if (act === 'kaiho-open') kaihoOpen(t.dataset.v);
     else if (act === 'kaiho-copy') kaihoCopy(t.dataset.v);
+    else if (act === 'kg-go') kigoGo();
     else if (act === 'meiku-next') { meikuNext(); render(); }
     else if (act === 'hito-next') { hitoNext(); render(); }
     else if (act === 'kata-go') { kataI = parseInt(t.dataset.i, 10) || 0; kataMore = false; render(); }
@@ -5617,6 +5631,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     }
     else if (f === 'da') { if (demo && demo.step === 0) { if (demo.prep && kt(t.value, 'a') !== kt(demo.d.a, 'a')) demo.prep = false; demo.d.a = t.value; updateDemo(); } }
     else if (f === 'mq') { memoDraft = String(t.value || ''); }
+    else if (f === 'kg-q') kgQ = String(t.value || '');
     else if (f === 'ksh-t') kshTitle = String(t.value || '');
     else if (f === 'ksh-h') kshName = String(t.value || '');
     else if (f === 'tk-y') { if (tsuku) { tsuku.yomi = String(t.value || ''); var yo = document.getElementById('tk-yo'); if (yo) yo.innerHTML = tkYomiOut(tsuku.yomi); } }
