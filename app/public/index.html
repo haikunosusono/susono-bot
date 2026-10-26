@@ -141,6 +141,11 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .goonlist .chip { flex: none; min-height: 36px; padding: 0 .8em; font-family: var(--serif); font-weight: 500; }
 .kglinks summary { cursor: pointer; font-size: .9rem; color: var(--accent); }
 .kglinks ul { margin: 4px 0; padding-left: 1.2em; font-size: .9rem; line-height: 1.9; }
+.k5y { font-size: .75rem; color: var(--ink-soft); }
+.k5br .row { flex-wrap: wrap; gap: 6px; margin: 4px 0; }
+.k5br .chip { flex: none; min-height: 34px; padding: 0 .8em; }
+.k5pd { margin: 8px 0 2px; font-weight: 700; font-size: .85rem; color: var(--accent); }
+.k5ws { display: flex; flex-wrap: wrap; gap: 4px 12px; font-family: var(--serif); }
 .k5 { list-style: none; padding: 0; margin: 6px 0; max-height: 280px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
 .k5 li { display: flex; gap: .8em; align-items: baseline; padding: 4px 10px; border-bottom: 1px dotted var(--line); }
 .k5 li .link { font-family: var(--serif); font-size: 1.05rem; font-weight: 700; }
@@ -3565,7 +3570,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   /* 季語をしらべる：判定はせず、出典のしっかりした歳時記（きごさい歳時記）を検索して確かめる */
   var kgQ = '';
   function kigoBox() {
-    return '<details class="kgbox"><summary>🔍 季語をしらべる（きごさい歳時記・夏井いつきの俳句季語辞典）</summary><div class="row"><input type="text" data-f="kg-q" maxlength="20" value="' + esc(kgQ) + '" placeholder="例：凩・こがらし（漢字でもひらがなでも）"><button class="chip fit" data-act="kg-go">きごさい歳時記で</button><button class="chip fit" data-act="kg-go" data-v="ouchi">夏井いつきの俳句季語辞典で</button></div><div id="kg-res">' + k5Html(kgQ) + '</div><p class="note"><a href="https://ouchidehaiku.com/' + ({ haru: 'spring', natsu: 'summer', aki: 'autumn', fuyu: 'winter' })[tkSeason()] + '/contents/seasonwords" target="_blank" rel="noopener">夏井いつきのおウチde俳句くらぶ「俳句季語辞典」（いまの季節）をひらく</a></p><p class="note"><a href="https://kigosai.sub.jp/001/27701-2" target="_blank" rel="noopener">きごさい歳時記「5000季語一覧」（季節・分類べつ）をひらく</a>　<a href="https://kigosai.sub.jp/" target="_blank" rel="noopener">きごさい歳時記のトップ（ことば検索・50音検索）</a></p><details class="kglinks"><summary>ほかの調べもの（リンク集）</summary><ul><li><a href="https://haiku-textbook.com/" target="_blank" rel="noopener">俳句の教科書（初心者向けの解説・季語の一覧）</a></li><li><a href="https://lapis.nichibun.ac.jp/haikai/haikai_kigo_search.html" target="_blank" rel="noopener">俳諧データベース・季語検索（国際日本文化研究センター／江戸の俳諧）</a></li><li><a href="http://www.haiku-data.jp/index.php" target="_blank" rel="noopener">現代俳句データベース（現代俳句協会／明治以降の句を季語で）</a></li><li><a href="http://www.haijinkyokai.jp/system/saijiki/" target="_blank" rel="noopener">俳句検索（俳人協会／季語で例句を）</a></li></ul><p class="note src">参考：国立国会図書館「リサーチ・ナビ」の調べ方案内</p></details><p class="note">「きごさい歳時記」（NPO法人 季語と歳時記の会）と、夏井いつきの「おウチde俳句くらぶ」の俳句季語辞典のサイトの中を、Googleで検索します。季語のあつかいは歳時記によってちがうことがあります。無季・自由律・季重なりも、句によっては立派な表現です。</p>' + vGoon('', '') + k5Browse() + '</details>';
+    return '<details class="kgbox"><summary>🔍 季語をしらべる（きごさい歳時記・夏井いつきの俳句季語辞典）</summary><div class="row"><input type="text" data-f="kg-q" maxlength="20" value="' + esc(kgQ) + '" placeholder="例：凩・こがらし（漢字でもひらがなでも）"><button class="chip fit" data-act="kg-go">きごさい歳時記で</button><button class="chip fit" data-act="kg-go" data-v="ouchi">夏井いつきの俳句季語辞典で</button></div><div class="kg-res">' + k5Html(kgQ) + '</div><div class="k5br">' + k5Browse() + '</div><p class="note"><a href="https://ouchidehaiku.com/' + ({ haru: 'spring', natsu: 'summer', aki: 'autumn', fuyu: 'winter' })[tkSeason()] + '/contents/seasonwords" target="_blank" rel="noopener">夏井いつきのおウチde俳句くらぶ「俳句季語辞典」（いまの季節）をひらく</a></p><p class="note"><a href="https://kigosai.sub.jp/001/27701-2" target="_blank" rel="noopener">きごさい歳時記「5000季語一覧」（季節・分類べつ）をひらく</a>　<a href="https://kigosai.sub.jp/" target="_blank" rel="noopener">きごさい歳時記のトップ（ことば検索・50音検索）</a></p><details class="kglinks"><summary>ほかの調べもの（リンク集）</summary><ul><li><a href="https://haiku-textbook.com/" target="_blank" rel="noopener">俳句の教科書（初心者向けの解説・季語の一覧）</a></li><li><a href="https://lapis.nichibun.ac.jp/haikai/haikai_kigo_search.html" target="_blank" rel="noopener">俳諧データベース・季語検索（国際日本文化研究センター／江戸の俳諧）</a></li><li><a href="http://www.haiku-data.jp/index.php" target="_blank" rel="noopener">現代俳句データベース（現代俳句協会／明治以降の句を季語で）</a></li><li><a href="http://www.haijinkyokai.jp/system/saijiki/" target="_blank" rel="noopener">俳句検索（俳人協会／季語で例句を）</a></li></ul><p class="note src">参考：国立国会図書館「リサーチ・ナビ」の調べ方案内</p></details><p class="note">「きごさい歳時記」（NPO法人 季語と歳時記の会）と、夏井いつきの「おウチde俳句くらぶ」の俳句季語辞典のサイトの中を、Googleで検索します。季語のあつかいは歳時記によってちがうことがあります。無季・自由律・季重なりも、句によっては立派な表現です。</p>' + vGoon('', '') + k5Browse() + '</details>';
   }
   function kigoGo(where) {
     var q = String(kgQ || '').trim(); if (!q) { toast('しらべたい言葉を入れてください'); return; }
@@ -3682,18 +3687,22 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (K5) { cb(); return; } if (K5busy) return; K5busy = true;
     fetch('kigo5000.json').then(function (r) { return r.json(); }).then(function (j) { K5 = j; K5busy = false; cb(); }).catch(function () { K5busy = false; });
   }
+  function k5Norm(v) { return String(v || '').replace(/[ァ-ヶ]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0x60); }).normalize('NFD').replace(/[\u3099\u309A]/g, '').normalize('NFC'); }
   function k5Find(q) {
     q = String(q || '').trim().replace(/[\s　]/g, ''); if (!q || !K5) return [];
-    var nq = norm(q), kana = /^[ぁ-んー]+$/.test(nq), ex = [], st = [], co = [];
-    K5.w.forEach(function (x) { var w = x[0], nw = norm(w), y = x[2] || ''; if (nw === nq || (kana && y === nq)) ex.push(x); else if (nw.indexOf(nq) === 0 || (kana && y && y.indexOf(nq) === 0)) st.push(x); else if (nw.indexOf(nq) >= 0 || (kana && nq.length >= 2 && y.indexOf(nq) >= 0)) co.push(x); });
-    return ex.concat(st, co).slice(0, 40);
+    var nq = k5Norm(q), kana = /^[ぁ-ゖー]+$/.test(nq), ex = [], st = [], co = [];
+    K5.w.forEach(function (x) {
+      var nw = k5Norm(x[0]), nr = x[2] ? k5Norm(x[2]) : '';
+      if (nw === nq || (kana && nr === nq)) ex.push(x); else if (nw.indexOf(nq) === 0 || (kana && nr.indexOf(nq) === 0)) st.push(x); else if (nw.indexOf(nq) >= 0 || (kana && nr.indexOf(nq) >= 0)) co.push(x);
+    });
+    return ex.concat(st, co).slice(0, 60);
   }
   function k5Html(q) {
     if (!String(q || '').trim()) return '';
     if (!K5) return '<p class="note">季語の一覧を読みこんでいます…</p>';
     var r = k5Find(q);
     if (!r.length) return '<p class="note">この一覧（約5000語）には見つかりませんでした。下のボタンで、歳時記でもしらべてみてください。無季の句も、立派な俳句です。</p>';
-    return '<ul class="k5">' + r.map(function (x) { var k = K5.k[x[1]].split('|'); return '<li><button class="link" data-act="goon-q" data-v="' + esc(x[0]) + '">' + esc(x[0]) + '</button><span>' + esc(k[0] === '暮' || k[0] === '新年' ? k[0] : k[0] + '（' + k[1] + '）') + '・' + esc(k[2]) + '</span></li>'; }).join('') + '</ul><p class="note src">出典：' + esc(K5.src) + '。季語の名前を押すと、きごさい歳時記でしらべます。</p>';
+    return '<ul class="k5">' + r.map(function (x) { var k = K5.k[x[1]].split('|'); return '<li><button class="link" data-act="goon-q" data-v="' + esc(x[0]) + '">' + esc(x[0]) + '</button>' + (x[2] && x[2] !== x[0] ? '<small class="k5y">' + esc(x[2]) + '</small>' : '') + '<span>' + esc(k[0] === '暮' || k[0] === '新年' ? k[0] : k[0] + '（' + k[1] + '）') + '・' + esc(k[2]) + '</span></li>'; }).join('') + '</ul><p class="note src">出典：' + esc(K5.src) + '。読みは自動でつけたもので、ずれることがあります。季語の名前を押すと、きごさい歳時記でしらべます。</p>';
   }
   var k5S = '', k5C = '';
   var K5_SEA = ['春', '夏', '秋', '冬', '暮', '新年'], K5_CAT = ['時候', '天文', '地理', '生活', '行事', '動物', '植物'];
@@ -3708,7 +3717,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (!keys.length) return h + '<p class="note">この組み合わせの季語は、一覧にありません。</p></details>';
     return h + '<div class="k5g">' + keys.map(function (g) { return '<p class="lb">' + esc(g === k5S ? k5S : g) + '（' + groups[g].length + '）</p><div class="row goonlist">' + groups[g].map(function (w) { return '<button class="chip fit" data-act="goon-q" data-v="' + esc(w) + '">' + esc(w) + '</button>'; }).join('') + '</div>'; }).join('') + '</div><p class="note src">出典：' + esc(K5.src) + '。押すと、きごさい歳時記でしらべます。</p></details>';
   }
-  function k5Update() { var el = document.getElementById('kg-res'); if (el) el.innerHTML = k5Html(kgQ); }
+  function k5Update() { var h = k5Html(kgQ); Array.prototype.forEach.call(document.querySelectorAll('.kg-res'), function (el) { el.innerHTML = h; }); }
+  function k5BrUpdate() { var h = k5Browse(); Array.prototype.forEach.call(document.querySelectorAll('.k5br'), function (el) { el.innerHTML = h; }); }
   /* 連作の部屋：ストッ句（自分の句）を並べて連作にする。直しは連作の中だけ（元のストッ句はそのまま） */
   var renkans = [], rkCur = '', rkMode = 'edit', rkPick = false, rkQ = '', rkEditI = -1, rkEditV = '', rkNew = null, rkDelAsk = false;
   function rkGet(id) { return renkans.filter(function (r) { return r.id === id; })[0] || null; }
@@ -5880,7 +5890,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'ai-test') { if (isAdmin) aiTestRun(); }
     else if (act === 'kg-go') kigoGo(t.dataset.v);
     else if (act === 'goon-s') { goonS = t.dataset.v; render(); }
-    else if (act === 'k5-s' || act === 'k5-c') { if (act === 'k5-s') k5S = t.dataset.v; else k5C = t.dataset.v; if (K5) render(); else k5Load(render); }
+    else if (act === 'k5-s' || act === 'k5-c') { if (act === 'k5-s') k5S = t.dataset.v; else k5C = t.dataset.v; k5BrUpdate(); if (!K5) k5Load(k5BrUpdate); }
     else if (act === 'goon-q') { kgQ = t.dataset.v; kigoGo(); }
     else if (act === 'meiku-next') { meikuNext(); render(); }
     else if (act === 'hito-next') { hitoNext(); render(); }
@@ -6180,7 +6190,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (f === 'sa-d' && stAdd) stAdd.d = String(t.value || '');
     else if (f === 'sa-s' && stAdd) stAdd.s = String(t.value || '');
     else if (f === 'sa-m' && stAdd) stAdd.m = String(t.value || '');
-    else if (f === 'kg-q') { kgQ = String(t.value || ''); if (K5) k5Update(); else k5Load(k5Update); }
+    else if (f === 'kg-q') { kgQ = String(t.value || ''); if (K5) k5Update(); else k5Load(function () { k5Update(); k5BrUpdate(); }); }
     else if (f === 'ksh-t') kshTitle = String(t.value || '');
     else if (f === 'ksh-s') kshSub = String(t.value || '');
     else if (f === 'ksh-from') ksh.from = String(t.value || '');
