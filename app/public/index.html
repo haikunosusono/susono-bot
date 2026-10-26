@@ -126,6 +126,26 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .tmr-row b { font-size: 1.4rem; color: var(--accent); font-variant-numeric: tabular-nums; }
 .tmr-bar { height: 6px; background: var(--muted-soft); border-radius: 99px; overflow: hidden; }
 .tmr-bar i { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width 1s linear; }
+.hito { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; margin: 8px 0 12px; }
+.hito .lb { font-size: .78rem; color: var(--ink-soft); }
+.hq { font-family: var(--serif); font-size: 1.05rem; line-height: 1.8; margin: 4px 0; }
+.hw { text-align: right; margin: 0; color: var(--ink-soft); font-size: .9rem; }
+.hw small { display: block; font-size: .75rem; }
+.hh { margin: 6px 0 0; font-size: .88rem; color: var(--ink-soft); }
+.hitolist { list-style: none; padding: 0; margin: 12px 0; display: flex; flex-direction: column; gap: 10px; }
+.hitolist li { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+.kbase, .kcard { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 10px 0; }
+.kbase p { margin: 4px 0; }
+.kcard ul { margin: 6px 0; padding-left: 1.2em; line-height: 1.7; }
+.katatabs { flex-wrap: wrap; gap: 6px; }
+.katatabs .chip { flex: 1 1 40%; display: flex; flex-direction: column; justify-content: center; line-height: 1.3; padding: 4px 8px; }
+.katatabs .chip small { font-weight: 400; font-size: .75rem; }
+.kex { font-family: var(--serif); font-size: 1.25rem; letter-spacing: .06em; padding: 8px 4px; }
+.kk { color: #2f6db5; background: #e5effa; border-radius: 4px; padding: 0 2px; }
+.kc { color: #c2413a; font-weight: 700; }
+.kap { padding-left: 1.4em; margin: 8px 0 0; }
+.kap li { margin-bottom: 8px; }
+.kap li > span { font-size: .88rem; color: var(--ink-soft); }
 .hyotabs { display: flex; gap: 6px; flex-wrap: wrap; }
 .hyotab { width: 2.2rem; height: 2.2rem; border-radius: 50%; border: 1px solid var(--line); background: var(--paper); font-family: var(--serif); font-weight: 700; cursor: pointer; color: var(--ink-soft); }
 .hyotab.past { background: var(--accent-soft); color: var(--accent); }
@@ -784,7 +804,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27a';
+  var APP_VER = 'v2026.10.27b';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1130,7 +1150,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     h += '<p class="note">「推敲」を押すと、その句の部屋にもどって直せます。画像にして投稿したいときは、「短冊で見る」からどうぞ。</p>';
     return h;
   }
-  function vSolo() { return '<h2 class="sec">俳筋力トレーニング部屋<small>今日の兼題で一句</small></h2><div class="howto"><b>今日の兼題（お題）から、俳句をつくる練習です</b><span>毎日のメニューは、漢字（季語ではない字）を詠み込む、カタカナを詠み込む、テーマで詠む（発想をとばす）の3つがひとまわり。一句つくり、手ごたえ（かんぺき・まあまあ・ふつう・あとで推敲）をつけて記録に残します。記録は自分だけが見られます。人と詠み合いたいときは「定例句会」へ。</span></div><div class="actions"><button class="btn" data-act="trial-start">俳筋トレ体験（保存なし・1分）</button><button class="btn" data-act="tk-start">🧩 句づくり（フレーズと季語で一句）</button></div>' + vComposer() + vRecords('s'); }
+  function vSolo() { return '<h2 class="sec">俳筋力トレーニング部屋<small>今日の兼題で一句</small></h2>' + vHito() + '<div class="howto"><b>今日の兼題（お題）から、俳句をつくる練習です</b><span>毎日のメニューは、漢字（季語ではない字）を詠み込む、カタカナを詠み込む、テーマで詠む（発想をとばす）の3つがひとまわり。一句つくり、手ごたえ（かんぺき・まあまあ・ふつう・あとで推敲）をつけて記録に残します。記録は自分だけが見られます。人と詠み合いたいときは「定例句会」へ。</span></div><div class="actions"><button class="btn" data-act="trial-start">俳筋トレ体験（保存なし・1分）</button><button class="btn" data-act="tk-start">🧩 句づくり（フレーズと季語で一句）</button></div>' + vComposer() + vRecords('s'); }
   function vDiary() { return '<h2 class="sec">俳句の初心者部屋<small>日記のように、何句でも</small></h2><div class="howto"><b>今日の句を、日記のように</b><span>お題はありません。テーマに合わない句でも、季語がなくても、字余りでも大丈夫。今日の気づきや気分を、気軽に残しましょう（1日に何句でも）。記録は自分だけが見られます。慣れたら「俳筋力トレーニング部屋」へ。</span></div><div class="actions"><button class="btn" data-act="tk-start">🧩 句づくり（フレーズと季語で一句・約3分）</button></div>' + vComposer() + vRecords('d'); }
 
   /* ---- みんな：ファスト句会（定員がそろったらすぐ始まる。みんなで歌会と同じ進め方） ---- */
@@ -2883,7 +2903,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var head = function (tag, title) { return '<div class="hyohead"><span>' + tag + '</span><b>' + title + '</b></div>'; };
     var kubox = function (inner) { return '<div class="hyoku">' + (inner || esc(k.ku)) + '</div>'; };
     var lst = function (arr) { return '<div class="hyoex"><span class="lb">言いかたの例</span>' + arr.map(function (x) { return '<p>' + x + '</p>'; }).join('') + '</div>'; };
-    var h = '<div class="sh"><h2 class="sec">評のヒント<small>ダー浜と、5分のれんしゅう</small></h2>' + tabs + '</div>';
+    var h = '<div class="sh"><h2 class="sec">評のトレーニング<small>ダー浜と、5分のれんしゅう</small></h2>' + tabs + '</div>';
     if (s === 0) {
       h += head('ヒント 一', HYO_T[0]) +
         hostSay('まずは声に出して読んでみてや。小さい声でも、頭の中でもええねん。五七五の調べと、どこで一回息が切れるか、耳で確かめるんや。') +
@@ -2942,6 +2962,60 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (act === 'hyo-copy') { var d = hyoDraft(); try { navigator.clipboard.writeText(d).then(function () { toast('評をコピーしました'); }, function () { toast('コピーできませんでした'); }); } catch (_) { toast('コピーできませんでした'); } return true; }
     return false;
   }
+  /* こころえ（ことば）：開くたびに、ちがうひとことを。諭さず、軽く */
+  var HITO = [
+    ['賞を取ったとか、誰かに褒められたとか、そういうのはグリコのおまけなのよ', '夏井いつき', 'ほぼ日「自分のために作る。」より'],
+    ['自分のために俳句を作るんだよ', '夏井いつき', 'ほぼ日「自分のために作る。」より'],
+    ['できた俳句を自分でよろこぶ。', '夏井いつき', 'ほぼ日「自分のために作る。」より'],
+    ['俳句って楽しいですよ！', '夏井いつき', '三省堂「俳句の楽しさ」より'],
+    ['はじめの週のテーマは「自分のために」。自分の目で見て、自分の感動を、自分の俳句に。', '藤田湘子', '『20週俳句入門』第1週より（要旨）'],
+    ['俳諧は三尺の童にさせよ', '松尾芭蕉', '『三冊子』より'],
+    ['松の事は松に習へ、竹の事は竹に習へ', '松尾芭蕉', '『三冊子』より'],
+    ['物の見えたる光、いまだ心に消えざる中にいひとむべし', '松尾芭蕉', '『三冊子』より'],
+    ['俳句は極楽の文学', '高浜虚子', '']
+  ];
+  var HITO_HA = ['ほな、きょうも一句いこか。', 'ええ言葉やなあ。', '散歩ついでに、一句どや。', '肩の力ぬいて、いこ。', 'お茶でも飲みながら、ゆっくりな。', '見たもん、ひとつ拾ってこか。', 'わしは、これ好きやねん。', 'きょうは何が見えるやろな。'];
+  var hitoI = Math.floor(Math.random() * HITO.length), hitoJ = Math.floor(Math.random() * HITO_HA.length);
+  function hitoNext() { hitoI = (hitoI + 1 + Math.floor(Math.random() * (HITO.length - 1))) % HITO.length; hitoJ = (hitoJ + 1 + Math.floor(Math.random() * (HITO_HA.length - 1))) % HITO_HA.length; }
+  function vHito() {
+    var x = HITO[hitoI];
+    return '<div class="hito"><span class="lb">きょうのひとこと</span><p class="hq">「' + esc(x[0]) + '」</p><p class="hw">— ' + esc(x[1]) + (x[2] ? '<small>' + esc(x[2]) + '</small>' : '') + '</p><p class="hh">ダー浜：' + esc(HITO_HA[hitoJ]) + '　<button class="link" data-act="hito-next">ほかのことば</button>　<button class="link" data-act="page" data-p="kokoro">ことば一覧</button></p></div>';
+  }
+  function vKokoro() {
+    var h = '<h2 class="sec">はじめに<small>俳句は、たのしいから</small></h2>' +
+      hostSay('ようこそ。ここは、先生がたの「ええ言葉」を集めた棚や。気が向いたときに、のぞいてってな。') +
+      '<ul class="hitolist">' + HITO.map(function (x) { return '<li><p class="hq">「' + esc(x[0]) + '」</p><p class="hw">— ' + esc(x[1]) + (x[2] ? '<small>' + esc(x[2]) + '</small>' : '') + '</p></li>'; }).join('') + '</ul>' +
+      '<div class="actions"><button class="btn primary" data-act="tk-start">🧩 一句つくってみる</button><button class="btn" data-act="page" data-p="kata">型の基本の部屋</button><button class="btn" data-act="page" data-p="hyo">評のトレーニング</button></div>' +
+      '<p class="note">芭蕉のことばは、弟子の土芳がまとめた『三冊子』に残るものです。湘子のことばは、本の内容を短くまとめたものです。</p>';
+    return h;
+  }
+  /* 型の基本の部屋（藤田湘子『20週俳句入門』より）。例句は、裾野でつくった句。[季語] {切れ字} */
+  var KATA = [
+    { n: '一ノ型', t: '上五で「や」', base: ['上五に季語＋「や」', '中七・下五は、季語と関係ないひと続きのフレーズ', '下五は名詞で止める'], ex: '[小春日]{や}母の財布の鈴の音',
+      ap: [['下五を名詞で止めない', '[小春日]{や}回覧板を隣まで'], ['「や」以外で上五を切る', '[秋深し]母の財布の鈴の音'], ['上五は季語でない言葉＋「や」、季語は中七・下五に', '改札{や}[手袋]の手をふりかへす']] },
+    { n: '二ノ型', t: '中七で「や」', base: ['上五・中七はひと続きのフレーズで、「や」で切る', '下五に季語（名詞）', 'フレーズは、季語と関係ないこと'], ex: '靴ひもを結びなほす{や}[秋の暮]',
+      ap: [['「や」の前と後が、近い内容', '雨音のやさしき夜{や}[虫の声]'], ['季語を上五・中七に', '一枚の[落葉]拾ふ{や}手のひらに'], ['「や」以外で切る・下五に季語', '靴ひもを結びなほせ{り}[秋の暮]'], ['「や」以外で切る・季語を上五・中七に', '[白息]を吐いて走れ{り}橋の上']] },
+    { n: '三ノ型', t: '下五で「かな」', base: ['上五・中七はひと続きのフレーズ', '下五に季語（名詞）＋「かな」', 'フレーズは、季語と関係ないこと'], ex: 'ポケットに切符一枚[夜長]{かな}',
+      ap: [['ひとつのものを、じっと見る（一物仕立て）', 'ひとひらの風にほどける[芒]{かな}'], ['長い季語を、句またがりで', 'ゆふぐれの川の[燈籠流し]{かな}'], ['季語でない言葉に「かな」', '[冬晴]の空のどこまで青き{かな}']] },
+    { n: '四ノ型', t: '下五で「けり」', base: ['上五に季語（名詞）', '中七・下五は、季語と関係ないひと続きのフレーズ', '動詞＋「けり」で結ぶ'], ex: '[木の葉髪]回覧板を回し{けり}',
+      ap: [['上五で切らずに、中七へ続ける', '[秋の蝶]ひくきところを飛びに{けり}'], ['季語に助詞（てにをは）をつける', '[蜜柑の香]指にのこりてゐたり{けり}'], ['季語を中七に', 'てのひらに[冬の日差し]を受けに{けり}']] }
+  ];
+  var kataI = 0, kataMore = false;
+  function kataKu(s) { return '<span class="kataku">' + esc(s).replace(/\[([^\]]+)\]/g, '<span class="kk">$1</span>').replace(/\{([^}]+)\}/g, '<span class="kc">$1</span>') + '</span>'; }
+  function vKata() {
+    var k = KATA[kataI];
+    var h = '<h2 class="sec">型の基本の部屋<small>藤田湘子『20週俳句入門』より</small></h2>' +
+      hostSay('型は、のびのび詠むための道具や。まずは真似して、手になじませよか。', '<button class="link" data-act="page" data-p="kokoro">はじめに（先生がたのことば）</button>') +
+      '<div class="kbase"><b>基本形</b><p>季語（5音）＋ 季語と関係ないフレーズ（12音）</p><p class="note">季語とフレーズの距離が、ほどよく遠いと、句がひろがります。</p><p class="kleg"><span class="kk">季語</span>　<span class="kc">切れ字</span>　フレーズ</p></div>' +
+      '<div class="row katatabs">' + KATA.map(function (x, i) { return '<button class="chip fit' + (i === kataI ? ' on' : '') + '" data-act="kata-go" data-i="' + i + '">' + x.n + '<small>' + x.t + '</small></button>'; }).join('') + '</div>' +
+      '<div class="kcard"><b>' + k.n + '（' + k.t + '）</b><ul>' + k.base.map(function (b) { return '<li>' + esc(b) + '</li>'; }).join('') + '</ul><div class="kex">' + kataKu(k.ex) + '</div>' +
+      '<button class="link" data-act="kata-more">' + (kataMore ? '応用型をとじる' : '応用型を見る（' + k.ap.length + 'つ）') + '</button>' +
+      (kataMore ? '<ol class="kap">' + k.ap.map(function (a) { return '<li><span>' + esc(a[0]) + '</span><div class="kex">' + kataKu(a[1]) + '</div></li>'; }).join('') + '</ol>' : '') + '</div>' +
+      (kataI === 0 ? '<p class="note">湘子のすすめ：はじめは一ノ型だけで、毎日一句。型が手になじむと、ほかの型も楽になります。</p>' : '') +
+      '<div class="actions"><button class="btn primary" data-act="tk-start">🧩 この型で一句つくる</button><button class="btn" data-act="page" data-p="hyo">評のトレーニングへ</button></div>' +
+      '<p class="note">例句は、すべて裾野でつくった句です。型の分け方は、本の紹介や読書ノートをもとにまとめました。くわしくは本でどうぞ。</p>';
+    return h;
+  }
   function vAbout() {
     var L = function (n, ico, t, tag, p, btns) { return '<li class="lstep"><span class="ln">' + n + '</span><div><b>' + ico + ' ' + t + '</b> <small>' + tag + '</small><p>' + p + '</p><div class="actions">' + btns + '</div></div></li>'; };
     var ladder = '<h2 class="sec">はじめの一歩から、段階的に<small>裾野から、すこしずつ</small></h2><ol class="ladder">' +
@@ -2962,11 +3036,14 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<h3>句会アーカイブ</h3><p>参加した句会（終わったものも）が残り、結果をいつでもひらけます。参加した人だけが見られます。</p>' +
       '<h3>マイページ・ストッ句</h3><p>俳号、プロフィール文、アイコンを入れておけます。トロフィーは「画像にする」で、金の額の画像にできます。ストッ句（自分の句の記録）は自分だけが見られ、「あとで推敲」の句は、あとから推敲できます。Excel（CSV）に書き出す・文でコピー・LINEやメールで送る、もできます。句の画像は「デジタル短冊」と「句碑」の2つ。投稿・保存は、作者本人だけができます。設定の「自分のデータを消す」から、ご自分で消せます。</p>' +
       '<h3>句づくり（赤ペン先生）</h3><p>「今日あったこと」を十二音にして、五音の季語をのせるだけの、いちばんかんたんな型。やさしい赤ペン先生が、◎でほめながら案内します。</p>' +
+      '<h3>はじめに（先生がたのことば）</h3><p>夏井いつき・藤田湘子・芭蕉・虚子の「ええ言葉」の棚。俳筋トレ部屋の上にも、開くたびにちがう「きょうのひとこと」が出ます。 <button class="link" data-act="page" data-p="kokoro">ひらく</button></p>' +
+      '<h3>型の基本の部屋</h3><p>藤田湘子『20週俳句入門』の四つの型と応用型を、裾野でつくった例句で。季語・切れ字を色分けして見られます。 <button class="link" data-act="page" data-p="kata">ひらく</button></p>' +
+      '<h3>評のトレーニング</h3><p>司会のダー浜（関西弁）と、評のコツ五つを5分で。例句の言葉を押していくと、評がひとつ組み上がります。 <button class="link" data-act="page" data-p="hyo">ひらく</button></p>' +
       '<h3>句会の評のヒント</h3><p>選評を書くときの見どころ（視点・語順・切れ字・助詞・季語・取り合わせ・オリジナリティ・音数・ルビ）を、例つきでまとめてあります。</p>' +
       '<h3>お問い合わせ</h3><p>ご意見・不具合・権利侵害の申告は「お問い合わせ」から。ボットが定型の返事をし、運営者が内容を確認します。</p>' +
       '<h3>この試作版について</h3><ul><li>メールアドレスとパスワードで登録します。句会でほかの人に見えるのは俳号だけです。</li><li>データは Google の Firebase（東京のサーバー）に保管されます。松風主宰のほめ言葉には、Google の AI（Gemini）を使っています。</li><li>試作中のため、機能や内容は予告なく変わります。大切な句は、手元にも控えてください。</li><li>「みんなで歌会」からひらめきをもらって作りました。</li></ul></div>';
   }
-  function pageView() { return page === 'stock' ? vStock() : page === 'contact' ? vContact() : page === 'terms' ? vTerms() : page === 'my' ? vMy() : page === 'hints' ? vHints() : page === 'hyo' ? vHyo() : page === 'admin' ? vAdmin() : page === 'about' ? vAbout() : page === 'news' ? vNewsPage() : page === 'faq' ? vFaq() : page === 'notify' ? vNotify() : page === 'archive' ? vArchive() : page === 'manner' ? vManner() : vPrivacy(); }
+  function pageView() { return page === 'stock' ? vStock() : page === 'contact' ? vContact() : page === 'terms' ? vTerms() : page === 'my' ? vMy() : page === 'hints' ? vHints() : page === 'hyo' ? vHyo() : page === 'kata' ? vKata() : page === 'kokoro' ? vKokoro() : page === 'admin' ? vAdmin() : page === 'about' ? vAbout() : page === 'news' ? vNewsPage() : page === 'faq' ? vFaq() : page === 'notify' ? vNotify() : page === 'archive' ? vArchive() : page === 'manner' ? vManner() : vPrivacy(); }
   function vManner() {
     return '<h2 class="sec">句のあつかいとマナー<small>ここは練習の場です</small></h2>' +
       '<div class="howto"><b>ここで作った句は、「未発表」のあつかいです</b><span>「俳句の裾野」は、俳句を鍛える練習の場です。ここで作った句は、練習の句なので、未発表のあつかいにします。</span></div>' +
@@ -4338,7 +4415,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var g = function (t, items) { return '<div class="mgrp"><b>' + t + '</b><div class="row">' + items.join('') + '</div></div>'; };
     return '<details class="panel menu"><summary>☰ メニュー・機能まとめ</summary>' +
       g('つくる', [mb('tk-start', '', '🧩 句づくり'), pg('stock', '📒 ストッ句')]) +
-      g('まなぶ', [mb('tut', '', '🌱 一句つくれるチュートリアル'), mb('tutd', '', '🔍 さらに深くチュートリアル'), pg('about', 'できること'), pg('hyo', '🎓 評のれんしゅう'), pg('hints', '句会の評のヒント'), pg('manner', '句のあつかい・マナー'), pg('faq', 'よくある質問'), pg('notify', 'スマホの通知のしかた')]) +
+      g('まなぶ', [mb('tut', '', '🌱 一句つくれるチュートリアル'), mb('tutd', '', '🔍 さらに深くチュートリアル'), pg('about', 'できること'), pg('kokoro', '🍵 はじめに（ことば）'), pg('kata', '📐 型の基本の部屋'), pg('hyo', '🎓 評のトレーニング'), pg('hints', '句会の評のヒント'), pg('manner', '句のあつかい・マナー'), pg('faq', 'よくある質問'), pg('notify', 'スマホの通知のしかた')]) +
       g('じぶん', [pg('my', 'マイページ'), pg('archive', '句会アーカイブ')]) +
       g('声をとどける', [pg('contact', '📮 ご意見・ご要望'), pg('terms', '利用規約'), pg('privacy', 'プライバシー')]) +
       '</details>';
@@ -4891,7 +4968,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       if (!sessions.some(function (x) { return x.id === hsid; }) && db) db.collection('kukai').doc(hsid).get().then(function (d) { if (d && d.exists) { var o = d.data() || {}; o.id = d.id; kExtra[hsid] = o; } render(); }).catch(function () { render(); });
       render(); try { window.scrollTo(0, 0); } catch (_) {} return;
     }
-    if (act === 'tab') { fromArch = false; page = ''; tab = t.dataset.t; if (editing && mineById[editing] && ((mineById[editing].series === 'd') !== (tab === 'diary'))) editing = null; render(); }
+    if (act === 'tab') { fromArch = false; page = ''; if (t.dataset.t === 'solo') hitoNext(); tab = t.dataset.t; if (editing && mineById[editing] && ((mineById[editing].series === 'd') !== (tab === 'diary'))) editing = null; render(); }
     else if (act === 'tut') { openTut(0); }
     else if (act === 'tutd') { openTut(0, 'deep'); }
     else if (act === 'nb-off') { try { localStorage.setItem('ikku-nb-off', String(Date.now())); } catch (_) {} render(); }
@@ -4974,6 +5051,9 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     }
     else if (act === 'tutt') { openTut(0, 'tei'); }
     else if (act.indexOf('hyo-') === 0 && hyoAct(act, t)) {}
+    else if (act === 'hito-next') { hitoNext(); render(); }
+    else if (act === 'kata-go') { kataI = parseInt(t.dataset.i, 10) || 0; kataMore = false; render(); }
+    else if (act === 'kata-more') { kataMore = !kataMore; render(); }
     else if (act === 'page') { page = t.dataset.p || ''; if (page === 'faq') markFirst('f_faq'); else if (page === 'news') markFirst('f_news'); else if (page === 'my') markFirst('f_my'); render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'live-g') { gCur = t.dataset.gid; gNew = false; tab = 'gohyo'; page = ''; render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'live-k') { current = t.dataset.sid; showInv = false; tab = 'together'; page = ''; render(); try { window.scrollTo(0, 0); } catch (_) {} }
