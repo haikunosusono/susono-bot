@@ -817,7 +817,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.27i';
+  var APP_VER = 'v2026.10.27k';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3148,23 +3148,26 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     return { title: (r.name || '仲間と句会') + '　句会報' + (r.round > 1 ? '（' + r.round + '回目）' : ''), sub: [mdLabel(Math.floor(((r.createdAt || Date.now()) + 9 * 3600000) / 86400000)), dais.length ? '題　' + dais.join('・') : '', list.length + '句・' + gMembers(r).length + '人', kinds.map(function (k, i) { return mark(k, i) + k.name; }).join('　')].filter(Boolean), items: items };
   }
   /* わたしのミニ句集：ストッ句（自分の句）から6〜12句 → 折本（A4一枚・8ページ）か、縦書きの一覧 */
-  var kshSel = [], kshTitle = '', kshName = '', kshForm = 'ori';
+  var kshSel = [], kshTitle = '', kshName = '', kshForm = 'ori', kshAto = '', kshSeason = true;
+  function kshMax() { return kshForm === 'ori' ? 12 : 300; }
+  function kshSeasonOf(e) { var m = parseInt(String(e.date || '').slice(5, 7), 10) || 0; return m >= 2 && m <= 4 ? 0 : m >= 5 && m <= 7 ? 1 : m >= 8 && m <= 10 ? 2 : 3; }
   function kshMile(n) {
     var m = n < 12 ? 'あと ' + (12 - n) + ' 句で、12句のミニ句集' : n < 100 ? 'あと ' + (100 - n) + ' 句で、100句（一冊の句集の目安）' : n < 300 ? 'あと ' + (300 - n) + ' 句で、300句（本格的な句集の目安）' : '300句をこえました。もう立派な句集が編めます';
-    return '<div class="panel kshmile"><b>📖 ' + n + '句</b>　<span>' + m + '</span><div class="row"><button class="btn small primary" data-act="page" data-p="kushu">ミニ句集をつくる（6〜12句）</button></div></div>';
+    return '<div class="panel kshmile"><b>📖 ' + n + '句</b>　<span>' + m + '</span><div class="row"><button class="btn small primary" data-act="page" data-p="kushu">句集をつくる（折本・本の句集）</button></div></div>';
   }
   function kshKus() { var by = {}; mine.forEach(function (e) { by[e.id] = e; }); return kshSel.map(function (id) { return by[id]; }).filter(Boolean); }
   function vKushu() {
     var list = mine.slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); }), n = kshSel.length;
-    var h = '<h2 class="sec">わたしのミニ句集<small>ストッ句から6〜12句で</small></h2>' +
+    var h = '<h2 class="sec">わたしの句集<small>ストッ句の自分の句で</small></h2>' +
       hostSay('自分の句だけで、小さな句集をつくろか。A4一枚で、切って折ったら8ページの本になるで。') +
       '<div class="howto"><b>句集づくりの礼儀</b><span>入れられるのは、自分のストッ句の句だけです。句会でほかの人が詠んだ句や、人の評は入れません。句会の句を外に出すときは、仲間にひとこと伝えると安心です。<br>' + esc(KAIHO_NOTE) + '</span></div>';
     if (!myId) return h + '<p class="note">登録すると、ストッ句から句集がつくれます。</p>';
     if (list.length < 6) return h + '<p class="note">ストッ句が6句たまると、つくれます（いま ' + list.length + '句）。</p>';
     h += '<div class="panel"><div class="field"><label for="ksh-t">① 句集の名前</label><input type="text" id="ksh-t" data-f="ksh-t" maxlength="16" value="' + esc(kshTitle) + '" placeholder="例：木枯の町"></div>' +
       '<div class="field"><label for="ksh-h">② 俳号</label><input type="text" id="ksh-h" data-f="ksh-h" maxlength="20" value="' + esc(kshName || haigo || '') + '"></div>' +
-      '<div class="field"><label>③ かたち</label><div class="row"><button class="chip fit' + (kshForm === 'ori' ? ' on' : '') + '" data-act="ksh-form" data-v="ori">折本（A4一枚・8ページ）</button><button class="chip fit' + (kshForm === 'list' ? ' on' : '') + '" data-act="ksh-form" data-v="list">縦書きの一覧</button></div></div></div>';
-    h += '<p class="lead">④ 句をえらぶ（<b>' + n + '</b>／12句・押した順に並びます）</p><ul class="kshlist">' + list.map(function (e) {
+      '<div class="field"><label>③ かたち</label><div class="row"><button class="chip fit' + (kshForm === 'ori' ? ' on' : '') + '" data-act="ksh-form" data-v="ori">折本（A4一枚・8ページ）</button><button class="chip fit' + (kshForm === 'list' ? ' on' : '') + '" data-act="ksh-form" data-v="list">縦書きの一覧</button><button class="chip fit' + (kshForm === 'book' ? ' on' : '') + '" data-act="ksh-form" data-v="book">本の句集（A5）</button></div><p class="note">' + (kshForm === 'ori' ? '折本：6〜12句。A4一枚を切って折ると、8ページの豆本に。' : kshForm === 'book' ? '本の句集：6〜300句。A5・縦書き・1ページ3句。扉・季節の章・あとがき・奥付つき。' : '縦書きの一覧：6〜300句。A4に句を並べます。') + '</p></div>' +
+      (kshForm === 'book' ? '<div class="field"><label><input type="checkbox" data-act="ksh-season"' + (kshSeason ? ' checked' : '') + '> 春・夏・秋・冬の章に分ける（つくった日の月で分けます）</label></div><div class="field"><label for="ksh-a">あとがき（なくてもよい）</label><textarea id="ksh-a" data-f="ksh-a" rows="4" maxlength="800">' + esc(kshAto) + '</textarea></div>' : '') + '</div>';
+    h += '<p class="lead">④ 句をえらぶ（<b>' + n + '</b>／' + kshMax() + '句・押した順に並びます）' + (kshForm !== 'ori' ? '　<button class="link" data-act="ksh-all">ぜんぶえらぶ</button>' : '') + '</p><ul class="kshlist">' + list.map(function (e) {
       var i = kshSel.indexOf(e.id);
       return '<li><button class="chip fit kshpick' + (i >= 0 ? ' on' : '') + '" data-act="ksh-pick" data-id="' + esc(e.id) + '"><span class="kn">' + (i >= 0 ? i + 1 : '＋') + '</span>' + esc(plain(joinKu(e).a)) + '</button></li>';
     }).join('') + '</ul>';
@@ -3202,6 +3205,28 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       /* 右とじ（縦書き）の8ページ折本：上段は逆さ */
       body = '<div class="wrap"><div class="sheet">' + cell(2, true) + cell(3, true) + cell(4, true) + cell(5, true) + cell(1) + cell(8) + cell(7) + cell(6) + '</div></div>' +
         '<div class="how"><b>折本のつくりかた</b><ol><li>A4よこで印刷（「用紙に合わせる」）。</li><li>たて半分、よこ半分、さらに半分と折って、折り目をつける（8つのマスができます）。</li><li>紙をひろげ、よこ半分に折って、まん中の2マス分だけ、折り山からはさみで切る。</li><li>たてに開き、切れ目がひし形にひらくように、両はしを寄せる。</li><li>表紙が外に来るように、たたんでできあがり。</li></ol></div>';
+    } else if (kshForm === 'book') {
+      var SN = ['春', '夏', '秋', '冬'], groups = [];
+      if (kshSeason) { [0, 1, 2, 3].forEach(function (z) { var g = kus.filter(function (e) { return kshSeasonOf(e) === z; }).sort(function (a, b) { return String(a.date).localeCompare(String(b.date)); }); if (g.length) groups.push({ h: SN[z], k: g }); }); }
+      else groups.push({ h: '', k: kus });
+      var pages = [], pno = 0, page = function (inner, cls) { pages.push('<section class="pg' + (cls ? ' ' + cls : '') + '">' + inner + (cls === 'ku' ? '<span class="pn">' + kaihoKan(++pno) + '</span>' : '') + '</section>'); };
+      page('<p class="tt">' + esc(title) + '</p><p class="nm">' + esc(name) + '</p><p class="sb">句集</p>', 'cover');
+      page('', 'blank');
+      groups.forEach(function (g) {
+        if (g.h) page('<p class="ch">' + g.h + '</p>', 'chap');
+        for (var i = 0; i < g.k.length; i += 3) page(g.k.slice(i, i + 3).map(kuP).join(''), 'ku');
+      });
+      if (kshAto.trim()) page('<p class="ah">あとがき</p>' + esc(kshAto.trim()).split(/\n+/).map(function (x) { return '<p class="at">' + x + '</p>'; }).join('') + '<p class="an">' + esc(name) + '</p>', 'ato');
+      page(oku, 'oku');
+      css += '@page{size:A5 portrait;margin:0}.book{display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 0}' +
+        '.pg{width:148mm;height:210mm;background:#fff;position:relative;writing-mode:vertical-rl;padding:22mm 18mm;box-shadow:0 0 0 1px #ccc;page-break-after:always;break-after:page;overflow:hidden}' +
+        '.cover{display:flex;flex-direction:column;justify-content:center}.cover .tt{font-size:26pt;letter-spacing:.25em;margin:0 0 0 10mm}.cover .nm{font-size:13pt;letter-spacing:.2em;margin:40mm 0 0 0}.cover .sb{font-size:10pt;color:#777;margin:0}' +
+        '.chap{display:flex;justify-content:center}.ch{font-size:20pt;letter-spacing:.3em;margin:30mm 0 0 0}' +
+        '.ku{display:flex;flex-direction:column;justify-content:flex-start;gap:14mm}.k{font-size:14pt;letter-spacing:.08em;line-height:1.6;margin:0}.pn{position:absolute;bottom:9mm;left:50%;writing-mode:horizontal-tb;font-size:8pt;color:#777}' +
+        '.ato .ah{font-size:13pt;margin:0 0 0 8mm;letter-spacing:.2em}.ato .at{font-size:10.5pt;line-height:1.9;margin:0 0 0 2mm;text-indent:1em}.ato .an{text-align:end;margin:0 6mm 0 0;font-size:10.5pt}' +
+        '.oku{display:flex;flex-direction:column;justify-content:flex-end}.ok{font-size:9pt;line-height:1.9}.ok p{margin:0 0 0 1.5mm}.ok .n{font-size:7pt;color:#666;margin-top:6mm}' +
+        '@media print{body{background:#fff}.bar,.how{display:none}.book{padding:0;gap:0;display:block}.pg{box-shadow:none}}';
+      body = '<div class="how">A5で印刷すると、そのまま本のページになります（A4に2ページずつ並べて刷り、半分に切っても）。ページ数：' + pages.length + '</div><div class="book">' + pages.join('') + '</div>';
     } else {
       css += '@page{size:A4 portrait;margin:16mm 14mm}.sheet{max-width:182mm;margin:12px auto;background:#fff;padding:10mm 6mm;writing-mode:vertical-rl;height:250mm;overflow-x:auto}' +
         '.cv2{margin-left:12mm}.cv2 .tt{font-size:22pt;letter-spacing:.2em;margin:0}.cv2 .nm{font-size:12pt;margin:0 0 0 0;text-align:end}.k{font-size:15pt;letter-spacing:.1em;margin:0 0 0 8mm}' +
@@ -3211,9 +3236,11 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     return '<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + esc(title) + '</title><style>' + css + '</style></head><body><div class="bar"><button class="p" onclick="window.print()">🖨 印刷・PDFにする</button><button onclick="window.close()">とじる</button></div>' + body + '</body></html>';
   }
   function kshAct(act, t) {
-    if (act === 'ksh-pick') { var id = t.dataset.id, i = kshSel.indexOf(id); if (i >= 0) kshSel.splice(i, 1); else if (kshSel.length >= 12) { toast('12句までです'); return true; } else kshSel.push(id); render(); return true; }
+    if (act === 'ksh-pick') { var id = t.dataset.id, i = kshSel.indexOf(id); if (i >= 0) kshSel.splice(i, 1); else if (kshSel.length >= kshMax()) { toast(kshMax() + '句までです'); return true; } else kshSel.push(id); render(); return true; }
     if (act === 'ksh-clear') { kshSel = []; render(); return true; }
-    if (act === 'ksh-form') { kshForm = t.dataset.v === 'list' ? 'list' : 'ori'; render(); return true; }
+    if (act === 'ksh-form') { kshForm = t.dataset.v === 'list' ? 'list' : t.dataset.v === 'book' ? 'book' : 'ori'; if (kshSel.length > kshMax()) kshSel = kshSel.slice(0, kshMax()); render(); return true; }
+    if (act === 'ksh-all') { kshSel = mine.slice().sort(function (a, b) { return (a.at || 0) - (b.at || 0); }).map(function (e) { return e.id; }).slice(0, kshMax()); render(); return true; }
+    if (act === 'ksh-season') { kshSeason = !kshSeason; render(); return true; }
     if (act === 'ksh-make') {
       if (kshKus().length < 6) { toast('6句えらんでください'); return true; }
       var w = null; try { w = window.open('', '_blank'); } catch (_) {}
@@ -3437,14 +3464,12 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function tkYomiOut(v, split) {
     v = String(v || '').trim(); if (!v) return 'ひらがなで書くと、ここに音数が出ます。';
     if (!split) { var n = tkMora(v); if (n < 0) return 'ひらがな（カタカナ）だけで書いてください。'; return 'よみは <b>' + n + '</b> 音。' + (n >= 11 && n <= 13 ? '十二音くらい。◎です！' : n < 11 ? 'ことばをひとつ足しても、よさそうです。' : 'すこし長めです。気になったら、ことばをひとつへらしても。'); }
-    var segs = v.split(/[\s　]+/).filter(Boolean), ns = segs.map(tkMora);
-    if (ns.some(function (n) { return n < 0; })) return 'ひらがな（カタカナ）だけで書いてください。';
-    var tot = ns.reduce(function (a, b) { return a + b; }, 0);
-    var out = 'よみは <b>' + tot + '</b> 音' + (segs.length > 1 ? '（' + ns.join('・') + '）' : '') + '。';
-    if (segs.length === 3 && ns[0] === 5 && ns[1] === 7 && ns[2] === 5) out += '五・七・五、ぴったり。◎';
+    var tot = tkMora(v.replace(/[\s　]+/g, ''));
+    if (tot < 0) return 'ひらがな（カタカナ）だけで書いてください。';
+    var out = 'よみは <b>' + tot + '</b> 音。';
+    if (tot === 17) out += '十七音、ぴったり。◎';
     else if (tot >= 15 && tot <= 19) out += '十七音くらい。◎ 少しの字余り・字足らずは、気にしなくて大丈夫です。';
     else out += 'まずは十七音くらいを目安に。きっちりでなくて大丈夫です。';
-    if (segs.length < 3) out += '<br><small>五・七・五のあいだを空けて書くと、ひとつずつ数えます。</small>';
     return out;
   }
   function tkMoraBadge(v) {
@@ -3481,7 +3506,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       h += '<div class="actions"><button class="btn primary" data-act="tk-next">次へ</button></div>';
     } else if (t.step === 2) {
       h += penSay('いいですね。つぎは、ことばの長さを、ちょっと整えてみましょう。「七音＋五音」か「五音＋七音」がめやすです。', '「昼はラーメンたべました（十三音）」なら、「昼にラーメン（七）たべました（五）」。「は」を「に」にかえたり、ことばを一つへらしたり。ぴったりでなくても、だいたいで大丈夫です。');
-      h += '<div class="panel"><div class="field"><label for="tk-f">フレーズ（ここで直せます）</label><input type="text" id="tk-f" data-f="tk-f" maxlength="30" value="' + esc(t.phrase) + '"></div>' + tkMoraBadge(t.phrase) + (tkMora(t.phrase) < 0 ? '<div class="field"><label for="tk-y">よみ（ひらがなで）</label><input type="text" id="tk-y" data-f="tk-y" maxlength="40" value="' + esc(t.yomi || '') + '" placeholder="例：ひるにらあめん たべました"></div><p class="note" id="tk-yo">' + tkYomiOut(t.yomi) + '</p>' : '') + '</div>';
+      h += '<div class="panel"><div class="field"><label for="tk-f">フレーズ（ここで直せます）</label><input type="text" id="tk-f" data-f="tk-f" maxlength="30" value="' + esc(t.phrase) + '"></div>' + tkMoraBadge(t.phrase) + (tkMora(t.phrase) < 0 ? '<div class="field"><label for="tk-y">よみ（ひらがなで）</label><input type="text" id="tk-y" data-f="tk-y" maxlength="40" value="' + esc(t.yomi || '') + '" placeholder="例：ひるにらあめんたべました"></div><p class="note" id="tk-yo">' + tkYomiOut(t.yomi) + '</p>' : '') + '</div>';
       h += '<div class="actions"><button class="btn" data-act="tk-back">← もどる</button><button class="btn primary" data-act="tk-next">だいたい十二音になった</button></div>';
     } else if (t.step === 3) {
       h += penSay('「' + esc(String(t.phrase || '').trim()) + '」、すてきなフレーズです◎ さいごに、五音の季語をのせましょう。', 'まず、いまの気分をひとつ。気分にあう季語をならべます。いくつか置きくらべて、「これだ」と思うものを、どうぞ。');
@@ -3500,7 +3525,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       h += '<div class="field"><label>季語をかえて、ためす</label><div class="row">' + TK_MOODS.map(function (k) { return '<button class="chip fit' + (t.mood === k ? ' on' : '') + '" data-act="tk-pick" data-k="mood" data-v="' + esc(k) + '">' + esc(k) + '</button>'; }).join('') + '</div><div class="row">' + kigoC.map(function (k) { return '<button class="chip fit' + (t.kigo === k ? ' on' : '') + '" data-act="tk-pick" data-k="kigo" data-v="' + esc(k) + '">' + esc(k) + '</button>'; }).join('') + '</div></div></div>';
       var d = { a: tkText(), b: '', c: '' };
       h += penSay('できあがりです。おめでとうございます！ この一句は、あなたの今日から生まれました。', t.saved ? 'ストッ句に残しました（「あとで推敲」付き）。いつでも直せます。' : (!myId ? '登録すると、できた句を「ストッ句」に残せます。' : ''));
-      h += '<div class="tan">' + ku(d) + '</div>' + '<div class="panel"><div class="field"><label for="tk-ky">音数をたしかめる（ひらがなで、五・七・五のあいだを空けて）</label><input type="text" id="tk-ky" data-f="tk-ky" maxlength="50" value="' + esc(t.kyomi || '') + '" placeholder="例：あきのくれ ひるにらあめん たべました"></div><p class="note" id="tk-kyo">' + tkYomiOut(t.kyomi, true) + '</p></div>' + penNote(pf, t.kigo) + checkBox(String(d.a || '') + String(d.b || '') + String(d.c || ''));
+      h += '<div class="tan">' + ku(d) + '</div>' + '<div class="panel"><div class="field"><label for="tk-ky">音数をたしかめる（よみを、ひらがなで）</label><input type="text" id="tk-ky" data-f="tk-ky" maxlength="50" value="' + esc(t.kyomi || '') + '" placeholder="例：あきのくれひるにらあめんたべました"></div><p class="note" id="tk-kyo">' + tkYomiOut(t.kyomi, true) + '</p></div>' + penNote(pf, t.kigo) + checkBox(String(d.a || '') + String(d.b || '') + String(d.c || ''));
       h += myId ? '<div class="actions"><button class="btn primary" data-act="tk-save"' + (t.saved ? ' disabled' : '') + '>' + (t.saved ? 'ストッ句に残しました' : 'ストッ句に残す（あとで推敲）') + '</button><button class="btn" data-act="tk-copy">この句をひかえる（コピー）</button></div>'
         : '<div class="actions"><button class="btn primary" data-act="fbgate">登録してはじめる（メールだけ・無料）</button><button class="btn" data-act="tk-copy">この句をひかえる（コピー）</button></div>';
       h += '<div class="actions"><button class="btn" data-act="tk-again">はじめから</button><button class="btn" data-act="tk-end">とじる</button></div>';
@@ -4704,7 +4729,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     function pg(p, label) { return mb('page', ' data-p="' + p + '"', label); }
     var g = function (t, items) { return '<div class="mgrp"><b>' + t + '</b><div class="row">' + items.join('') + '</div></div>'; };
     return '<details class="panel menu"><summary>☰ メニュー・機能まとめ</summary>' +
-      g('つくる', [mb('tk-start', '', '🧩 句づくり'), pg('stock', '📒 ストッ句'), pg('kushu', '📖 ミニ句集')]) +
+      g('つくる', [mb('tk-start', '', '🧩 句づくり'), pg('stock', '📒 ストッ句'), pg('kushu', '📖 句集づくり')]) +
       g('まなぶ', [mb('tut', '', '🌱 一句つくれるチュートリアル'), mb('tutd', '', '🔍 さらに深くチュートリアル'), pg('about', 'できること'), pg('kokoro', '🍵 はじめに（ことば）'), pg('kata', '📐 型の基本の部屋'), pg('hyo', '🎓 評のトレーニング'), pg('hints', '句会の評のヒント'), pg('manner', '句のあつかい・マナー'), pg('faq', 'よくある質問'), pg('notify', 'スマホの通知のしかた')]) +
       g('じぶん', [pg('my', 'マイページ'), pg('archive', '句会アーカイブ')]) +
       g('声をとどける', [pg('contact', '📮 ご意見・ご要望'), pg('terms', '利用規約'), pg('privacy', 'プライバシー')]) +
@@ -5634,6 +5659,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (f === 'kg-q') kgQ = String(t.value || '');
     else if (f === 'ksh-t') kshTitle = String(t.value || '');
     else if (f === 'ksh-h') kshName = String(t.value || '');
+    else if (f === 'ksh-a') kshAto = String(t.value || '');
     else if (f === 'tk-y') { if (tsuku) { tsuku.yomi = String(t.value || ''); var yo = document.getElementById('tk-yo'); if (yo) yo.innerHTML = tkYomiOut(tsuku.yomi); } }
     else if (f === 'tk-ky') { if (tsuku) { tsuku.kyomi = String(t.value || ''); var kyo = document.getElementById('tk-kyo'); if (kyo) kyo.innerHTML = tkYomiOut(tsuku.kyomi, true); } }
     else if (f === 'tk-f') { if (tsuku) { var vv = String(t.value || ''); if (tsuku.step === 1 || tsuku.step === 2) { tsuku.phrase = vv; var ce = document.getElementById('tk-cnt'), mn = tkMora(vv); if (ce && mn >= 0) ce.textContent = mn; } else if (tsuku.step === 3) { tsuku.kigo = vv.trim() || tsuku.kigo; } } }
