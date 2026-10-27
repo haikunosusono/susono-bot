@@ -895,7 +895,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.28p';
+  var APP_VER = 'v2026.10.28q';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3143,18 +3143,33 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   var HM_PR = ['欲を言えば、場所や時間がもう一言あると、景がくっきりしそうです', '結びは言い切らず、少し開いて終える手もありそうです', '「の」が続くところを一つ変えると、軽くなるかもしれません', 'ここはどんな景なのか、作者に聞いてみたいです'];
   function hmWords(ku) {
     var s = String(ku || '').replace(/《[^》]*》/g, '').replace(/[\s　、。・]/g, '');
-    var P = /^(は|が|を|に|へ|で|と|や|も|よ|て|かな|けり|ぬ|り|たり|なり|より|から|まで|ば|つつ)$/;
-    var out = [], cur = '';
-    var push = function () { if (cur.length >= 2 && out.indexOf(cur) < 0) out.push(cur); cur = ''; };
-    try {
-      var seg = new Intl.Segmenter('ja', { granularity: 'word' });
-      Array.from(seg.segment(s)).forEach(function (x) { if (P.test(x.segment)) push(); else cur += x.segment; });
-    } catch (_) {
-      s.split(/(かな|けり|[はがをにへでとやもよ])/).forEach(function (x) { if (P.test(x)) push(); else cur += x; });
-    }
-    push();
+    /* 助詞は、前のことばにつけたまま。そのうしろを、区切りの目安にする（「の」のうしろでは切らない） */
+    var P = /^(は|が|を|に|へ|で|と|や|も|よ|ね|さ|て|ば|つつ|より|から|まで|かな|けり)$/;
+    var segs = [];
+    try { segs = Array.from(new Intl.Segmenter('ja', { granularity: 'word' }).segment(s)).map(function (x) { return x.segment; }); } catch (_) { segs = s.split(/(かな|けり|[はがをにへでとやもよの])/).filter(Boolean); }
+    var bd = {}, good = {}, noCut = {}, pos = 0;
+    bd[0] = 1; segs.forEach(function (w) { pos += w.length; bd[pos] = 1; if (P.test(w)) good[pos] = 1; if (w === 'の') noCut[pos] = 1; });
+    /* 季語は、ひとかたまりに（単語の境目にそっているものだけ） */
+    var kg = null; try { kgAll().forEach(function (w) { if (w.length < 2) return; var i = s.indexOf(w); if (i >= 0 && bd[i] && bd[i + w.length] && (!kg || w.length > kg.w.length)) kg = { w: w, i: i }; }); } catch (_) {}
+    var out = [];
+    var add = function (w) { w = w.replace(/(や|かな|けり)$/, ''); if (w.length >= 2 && out.indexOf(w) < 0) out.push(w); };
+    /* 7字より長いかたまりは、まん中に近い境目で分ける（助詞のうしろを先に） */
+    var cut = function (a, z) {
+      if (z - a <= 7) { add(s.slice(a, z)); return; }
+      var mid = (a + z) / 2, pick = function (ok) { var b = -1; for (var k = a + 2; k <= z - 2; k++) if (ok(k) && (b < 0 || Math.abs(k - mid) < Math.abs(b - mid))) b = k; return b; };
+      var best = pick(function (k) { return good[k]; });
+      if (best < 0 && z - a <= 10 && /[ァ-ヶー]{4,}/.test(s.slice(a, z))) { add(s.slice(a, z)); return; } /* 長いカタカナ語は切らない */
+      if (best < 0) best = pick(function (k) { return bd[k] && !noCut[k]; });
+      if (best < 0) { add(s.slice(a, z)); return; }
+      cut(a, best); cut(best, z);
+    };
+    if (kg) {
+      /* 季語のすぐあとの助詞（が・を…）は、季語につける */
+      var ke = kg.i + kg.w.length, q = 0; segs.some(function (w) { if (q === ke) { if (P.test(w) && w !== 'や' && w !== 'かな' && w !== 'けり') ke += w.length; return true; } q += w.length; return q > ke; });
+      cut(0, kg.i); add(s.slice(kg.i, ke)); cut(ke, s.length);
+    } else cut(0, s.length);
     out = out.filter(function (w) { return w.length <= 12; });
-    if (out.length < 2 && s.length > 4) { var n = Math.ceil(s.length / 3); out = [s.slice(0, n), s.slice(n, n * 2), s.slice(n * 2)].filter(function (w) { return w.length >= 2; }); }
+    out.sort(function (x, y) { return s.indexOf(x) - s.indexOf(y); });
     return out.slice(0, 7);
   }
   function hmDraft(eid) {
