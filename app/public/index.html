@@ -895,7 +895,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.28s';
+  var APP_VER = 'v2026.10.28t';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1757,6 +1757,13 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     'ご質問ありがとうございます。迷った末に、いちばん音がすわることばを選びました。ほかの読みも、ぜひ聞かせてください。',
     'ありがとうございます。じつは、そこは自分でも迷ったところです。そう読んでいただけて、ほっとしました。'
   ];
+  /* 質問でない評にも、ボットの作者がひとこと返す（言いっぱなしにしない） */
+  var BOT_THX = [
+    'ありがとうございます。そこを読んでいただけて、うれしいです。',
+    '温かい評をありがとうございます。励みになります。またぜひ読んでください。',
+    'ていねいに読んでいただき、ありがとうございます。そう感じていただけて、ほっとしました。',
+    'ありがとうございます。ことばを選んだところに目をとめていただけて、しあわせです。'
+  ];
   function botAnswer(s0, bid, q, key) {
     var es = s0.entries || {}, be = es[bid]; if (!be || !be.bot) return;
     var ku = joinKu(be).a, done = false;
@@ -1766,10 +1773,11 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       co[k2] = { eid: bid, uid: bid, text: String(text).slice(0, 140), tone: 'やさしく', part: [], at: Date.now(), re: key || '', jiku: true, anon: true, bot: true };
       setTimeout(function () { write(s0.id, { comments: co }); }, 1500 + Math.random() * 2500);
     }
-    var fb = BOT_ANS[hash(s0.id + bid + key) % BOT_ANS.length];
+    var isQ = /[？?]/.test(String(q));
+    var fb = isQ ? BOT_ANS[hash(s0.id + bid + key) % BOT_ANS.length] : BOT_THX[hash(s0.id + bid + key) % BOT_THX.length];
     if (!SENSEI_API) { put(fb); return; }
     var ctrl = null; try { ctrl = new AbortController(); setTimeout(function () { ctrl.abort(); }, 40000); } catch (_) {}
-    fetch(SENSEI_API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ reply: { ku: ku, q: String(q).slice(0, 140), name: String(be.haigo || '').replace('（ボット）', '') } }), signal: ctrl ? ctrl.signal : undefined, redirect: 'follow' })
+    fetch(SENSEI_API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ reply: { ku: ku, q: (isQ ? '' : '【質問ではなく評です。お礼と、うれしかった点をひとこと返してください】') + String(q).slice(0, 140), name: String(be.haigo || '').replace('（ボット）', '') } }), signal: ctrl ? ctrl.signal : undefined, redirect: 'follow' })
       .then(function (r) { return r.json(); }).then(function (o) { sLog('質問への返事: ' + (o && o.ok ? 'OK' : '失敗 ' + (o && o.err || ''))); put(o && o.ok && o.text && aiKigoOk(o.text) ? o.text : fb); })
       .catch(function (e) { sLog('質問への返事: 通信エラー ' + (e && e.message || '')); put(fb); });
   }
@@ -6168,7 +6176,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       cmDraft[eid2] = ''; cmTone[eid2] = ''; cmPart[eid2] = []; cmReply[eid2] = '';
       try { var cie = document.getElementById('cm-' + eid2); if (cie) cie.value = ''; } catch (_) {}
       write(sm.id, { comments: cobj }); try { var tp = {}; tp[myId] = null; write(sm.id, { typing: tp }); } catch (_) {}
-      try { var be0 = sm.entries && sm.entries[eid2]; if (be0 && be0.bot && /[？?]/.test(text)) botAnswer(sm, eid2, text, key); else if (eid2 === myId && ASK_RE.test(text)) senseiAnswer(sm, eid2, text, key); } catch (_) {}
+      try { var be0 = sm.entries && sm.entries[eid2]; if (be0 && be0.bot) botAnswer(sm, eid2, text, key); else if (eid2 === myId && ASK_RE.test(text)) senseiAnswer(sm, eid2, text, key); } catch (_) {}
     }
     else if (act === 'finish') { var sf = scur(); if (sf) write(sf.id, { status: 'done' }); }
     else if (act === 'yaku-close') { var sy = scur(); if (sy) { yakuOpen[sy.id] = false; render(); } }
