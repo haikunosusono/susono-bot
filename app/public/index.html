@@ -895,7 +895,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.28q';
+  var APP_VER = 'v2026.10.28r';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1793,7 +1793,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var fb = SENSEI_ANS[hash(s0.id + eid + key) % SENSEI_ANS.length];
     if (!SENSEI_API) { put(fb); return; }
     var ctrl = null; try { ctrl = new AbortController(); setTimeout(function () { ctrl.abort(); }, 40000); } catch (_) {}
-    fetch(SENSEI_API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ ask: { ku: ku, q: String(q).slice(0, 140) } }), signal: ctrl ? ctrl.signal : undefined, redirect: 'follow' })
+    fetch(SENSEI_API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ ask: { ku: ku, q: ('【先生へ：遠慮せず、気になる点をはっきり一つ挙げ、直した形の案を一つ示してください】' + String(q)).slice(0, 140) } }), signal: ctrl ? ctrl.signal : undefined, redirect: 'follow' })
       .then(function (r) { return r.json(); }).then(function (o) { sLog('先生への質問: ' + (o && o.ok ? 'OK' : '失敗 ' + (o && o.err || ''))); put(o && o.ok && o.text && aiKigoOk(o.text) ? o.text : fb); })
       .catch(function (e) { sLog('先生への質問: 通信エラー ' + (e && e.message || '')); put(fb); });
   }
