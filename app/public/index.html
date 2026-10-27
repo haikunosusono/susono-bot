@@ -895,7 +895,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.28l';
+  var APP_VER = 'v2026.10.28m';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3872,7 +3872,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     ]]
   ];
   function vSaijikiShelf() {
-    return '<details class="kglinks"><summary>📖 歳時記の本棚（初心者むけ・中級むけ）</summary>' + SAIJIKI_BOOKS.map(function (g) {
+    return '<details class="kglinks kgshelf"><summary>📖 歳時記の本棚（初心者むけ・中級むけ）</summary>' + SAIJIKI_BOOKS.map(function (g) {
       return '<p class="k5lb">' + esc(g[0]) + '</p><ul class="shelf">' + g[1].map(function (b) { return '<li><a href="' + b[3] + '" target="_blank" rel="noopener"><b>' + esc(b[0]) + '</b></a>　<small>' + esc(b[1]) + '</small><br><span>' + esc(b[2]) + '</span></li>'; }).join('') + '</ul>';
     }).join('') + '<p class="note">紹介だけです（本の中身はアプリに載せていません）。リンクは通販の検索結果です。手もとの歳時記で、解説と例句をじっくり味わってください。</p></details>';
   }
@@ -5353,6 +5353,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   var actUntil = 0, pendRender = false, pendT = null;
   function markAct() { actUntil = Date.now() + 2500; }
   function isTyping(a) { return !!(a && app && app.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && !/^(checkbox|radio|button|submit)$/.test(a.tagName === 'INPUT' ? (a.type || '') : '')); }
+  var detOpen = {}; /* 季語しらべの折りたたみ：画面を描きなおしても、ひらいたままにする */
+  function detKeep() { Object.keys(detOpen).forEach(function (c) { Array.prototype.forEach.call(document.querySelectorAll('details.' + c + (c === 'kglinks' ? ':not(.kgshelf)' : '')), function (d) { if (d.open !== detOpen[c]) d.open = detOpen[c]; }); }); }
   function render() {
     var a = document.activeElement, aid = a && a.id, adf = a && a.getAttribute && a.getAttribute('data-f'), selr = a && a.selectionStart != null ? [a.selectionStart, a.selectionEnd] : null;
     if (isTyping(a) && Date.now() > actUntil) { pendRender = true; return; }
@@ -5377,7 +5379,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     /* こそこそ話：描きなおしても、いちばん下（最新）に。読み返し中（上にスクロール中）なら、その位置を保つ */
     var ch0 = app.querySelector('.chat'), chKeep = null;
     if (ch0) { var atBottom = ch0.scrollHeight - ch0.scrollTop - ch0.clientHeight < 24; chKeep = atBottom ? 'bottom' : ch0.scrollTop; }
-    app.innerHTML = addRuby('<div class="wrap">' + body + '</div>');
+    app.innerHTML = addRuby('<div class="wrap">' + body + '</div>'); try { detKeep(); } catch (_) {}
     var ch1 = app.querySelector('.chat'); if (ch1) { try { ch1.scrollTop = chKeep === 'bottom' || chKeep === null ? ch1.scrollHeight : chKeep; } catch (_) {} }
     if (trial) updateTrial(); else if (tsuku) { } else if (demo) updateDemo(); else if (!page) { if (tab === 'solo' || tab === 'diary') updateForm(); else updateGForm(); }
     if (aid || adf) {
@@ -6303,7 +6305,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var t = e.target; if (!t || !t.dataset || t.dataset.f !== 'ksh-photo' || !t.files || !t.files[0]) return;
     var fr = new FileReader(); fr.onload = function () { var im = new Image(); im.onload = function () { kshPhoto = im; ksh.style = 'photo'; if (kshOut && ksh.form === 'img') kshShowImg(); else { toast('写真を入れました'); render(); } }; im.src = fr.result; }; fr.readAsDataURL(t.files[0]);
   });
-  app.addEventListener('toggle', function (e) { var d = e.target; if (d && d.classList && d.classList.contains('qcm') && d.dataset.qeid) qOpen[d.dataset.qeid] = d.open; if (d && d.classList && d.classList.contains('hmk') && d.dataset.heid) hmOpen[d.dataset.heid] = d.open; }, true);
+  app.addEventListener('toggle', function (e) { var d = e.target; try { var dk = d && d.classList && ['kgbox', 'k5b', 'goon', 'kgshelf', 'kglinks'].filter(function (c) { return d.classList.contains(c); })[0]; if (dk) detOpen[dk] = d.open; } catch (_) {} if (d && d.classList && d.classList.contains('qcm') && d.dataset.qeid) qOpen[d.dataset.qeid] = d.open; if (d && d.classList && d.classList.contains('hmk') && d.dataset.heid) hmOpen[d.dataset.heid] = d.open; }, true);
   app.addEventListener('change', onInput);
   ['click', 'touchstart', 'keydown'].forEach(function (ev) { document.addEventListener(ev, function (e) { if (ev === 'keydown') { if (e.key === 'Enter') markAct(); return; } var t = e.target; if (t && t.closest && !isTyping(t)) markAct(); }, true); });
   app.addEventListener('focusout', function () { if (!pendRender) return; clearTimeout(pendT); pendT = setTimeout(function () { if (pendRender && !isTyping(document.activeElement)) render(); }, 350); });
