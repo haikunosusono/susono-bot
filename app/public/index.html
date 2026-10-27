@@ -895,7 +895,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.28u';
+  var APP_VER = 'v2026.10.28v';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2562,7 +2562,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       if (c.anon) who = opened ? '✎ 作者 ' + esc(nameOf(s, c.uid)) : '✎ 作者（名前は結果発表まで伏せます）' + (own ? '＝あなた' : '');
       var pc = isRe && c.re ? (s.comments || {})[c.re] : null, quote = '';
       if (pc) { var pwho = opened ? nameOf(s, pc.uid) : (pc.uid === myId ? 'あなた' : (PERSONAS_[pc.uid] ? personaName(s, pc.uid) : '選者')); quote = '<div class="cmquote">↳ ' + esc(pwho) + ': ' + esc(String(pc.text || '').slice(0, 22)) + (String(pc.text || '').length > 22 ? '…' : '') + '</div>'; }
-      return '<div class="cmi' + (isRe ? ' reply' : '') + (isBot ? ' chara' : '') + (own ? ' own' : '') + (c.anon ? ' anon' : '') + '">' + (opened && !isBot && !c.anon ? avOf(c.uid, nameOf(s, c.uid)) : '') + '<b>' + who + '</b>' + (isBot ? '<span class="cmtag bot">ボットのコメント例</span>' : '') + (c.jiku ? '<span class="cmtag jiku">🪶 自句自解</span>' : '') + quote +
+      return '<div class="cmi' + (isRe ? ' reply' : '') + (isBot ? ' chara' : '') + (own ? ' own' : '') + (c.anon ? ' anon' : '') + '">' + (opened && !isBot && !c.anon ? avOf(c.uid, nameOf(s, c.uid)) : '') + '<b>' + who + '</b>' + (isBot ? '<span class="cmtag bot">ボットのコメント例</span>' : '') + (c.jiku ? '<span class="cmtag jiku">🪶 作者から</span>' : '') + quote +
         (c.tone ? '<span class="cmtag' + (c.tone === 'きびしく' ? ' kb' : '') + '">' + esc(c.tone) + '</span>' : '') +
         (c.part || []).map(function (q) { return '<span class="cmtag">' + esc(q) + '</span>'; }).join('') + esc(c.text) + (c.ed ? ' <small class="note">（編集済み）</small>' : '') +
         '<div class="cmact">' + chips +
@@ -2622,7 +2622,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
         (isCur && !opened ? '<div class="cmi hostline"><b>ダー浜（司会）</b>' + esc(goQ(s, num - 1)) + '</div>' : '') +
         (isCur && !opened ? '<div id="halfway" class="cmi hostline" style="display:none"><b>ダー浜（司会）</b>講評の時間、半分すぎたで。のこりは<b id="hw-left"></b>や（上のタイマーも見てや）。まだの人も、ひとことどうぞ。時間が足りんかったら、下のボタンで。<div><button class="btn primary small" data-act="cm-ext" data-i="' + (num - 1) + '"' + (((s.ext || {})[num - 1] || 0) >= 4 ? ' disabled' : '') + '>⏳ +2分 のばす （あと' + Math.max(0, 4 - ((s.ext || {})[num - 1] || 0)) + '回まで）</button></div></div>' : '') +
         (isCur && !opened && live && entrant && e.id === myId ? askBox(s, e) : '') +
-        (canC && opened && e.id === myId ? '<p class="note">🪶 <b>自句自解（作者から）</b>：自分の句のことを、自由に語ってください。どんな場面だったか、どうしてこの季語・この語順にしたか、質問への答え、こめた思い。長くなっても大丈夫。だまっていても、もちろん大丈夫です。</p>' : '') +
+        (canC && opened && e.id === myId ? '<p class="note">🪶 <b>作者からコメント</b>：質問への答えや、ひとこと挨拶など、自由に書いてください。句の説明は、しなくても大丈夫です。だまっていても、もちろん大丈夫です。</p>' : '') +
         (canC && !opened ? '<p class="note">「ここがすき」だけでも、立派な選評です。気になる点や質問も、ひとつあると、作者の学びになります。 <button class="link" data-act="page" data-p="hints">句会の評のヒント</button>' + (hyoDone() ? '<br><b>評の型：</b>① ことばを引く　② 感じたこと　③ 提案ひとつ（なくてもよい）' : '　<button class="link" data-act="page" data-p="hyo">5分でれんしゅう</button>') + '</p>' : '') +
         (canC && !opened && e.id !== myId ? hmBox(e) : '') +
         (canC ? '<p class="note typing" id="typing-' + esc(e.id) + '">' + typingText(s) + '</p>' : '') +
