@@ -149,6 +149,9 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .goontabs .chip { flex: none; }
 .goonlist { flex-wrap: wrap; gap: 6px; }
 .goonlist .chip { flex: none; min-height: 36px; padding: 0 .8em; font-family: var(--serif); font-weight: 500; }
+.shelf { list-style: none; padding: 0; margin: 4px 0 8px; }
+.shelf li { padding: 6px 0; border-bottom: 1px dotted var(--line); line-height: 1.6; }
+.shelf li span { font-size: .85rem; color: var(--ink-soft); }
 .kglinks summary { cursor: pointer; font-size: .9rem; color: var(--accent); }
 .kglinks ul { margin: 4px 0; padding-left: 1.2em; font-size: .9rem; line-height: 1.9; }
 .k5y { font-size: .75rem; color: var(--ink-soft); }
@@ -892,7 +895,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.28f';
+  var APP_VER = 'v2026.10.28g';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3580,7 +3583,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   /* 季語をしらべる：判定はせず、出典のしっかりした歳時記（きごさい歳時記）を検索して確かめる */
   var kgQ = '';
   function kigoBox() {
-    return '<details class="kgbox"><summary>🔍 季語をしらべる（きごさい歳時記・おウチde俳句くらぶの季語辞典）</summary><div class="row"><input type="text" data-f="kg-q" maxlength="20" value="' + esc(kgQ) + '" placeholder="例：凩・こがらし（漢字でもひらがなでも）"><button class="chip fit" data-act="kg-go">きごさい歳時記で</button><button class="chip fit" data-act="kg-go" data-v="ouchi">おウチde俳句くらぶの季語辞典で</button></div><div class="kg-res">' + k5Html(kgQ) + '</div><div class="k5br">' + k5Browse() + '</div><p class="note"><a href="https://ouchidehaiku.com/' + ({ haru: 'spring', natsu: 'summer', aki: 'autumn', fuyu: 'winter' })[tkSeason()] + '/contents/seasonwords" target="_blank" rel="noopener">おウチde俳句くらぶ「俳句季語辞典」（いまの季節）をひらく</a></p><p class="note"><a href="https://kigosai.sub.jp/001/27701-2" target="_blank" rel="noopener">きごさい歳時記「5000季語一覧」（季節・分類べつ）をひらく</a>　<a href="https://kigosai.sub.jp/" target="_blank" rel="noopener">きごさい歳時記のトップ（ことば検索・50音検索）</a></p><details class="kglinks"><summary>ほかの調べもの（リンク集）</summary><ul><li><a href="https://haiku-textbook.com/" target="_blank" rel="noopener">俳句の教科書（初心者向けの解説・季語の一覧）</a></li><li><a href="https://lapis.nichibun.ac.jp/haikai/haikai_kigo_search.html" target="_blank" rel="noopener">俳諧データベース・季語検索（国際日本文化研究センター／江戸の俳諧）</a></li><li><a href="http://www.haiku-data.jp/index.php" target="_blank" rel="noopener">現代俳句データベース（現代俳句協会／明治以降の句を季語で）</a></li><li><a href="http://www.haijinkyokai.jp/system/saijiki/" target="_blank" rel="noopener">俳句検索（俳人協会／季語で例句を）</a></li></ul><p class="note src">参考：国立国会図書館「リサーチ・ナビ」の調べ方案内</p></details><p class="note">「きごさい歳時記」（NPO法人 季語と歳時記の会）と、「おウチde俳句くらぶ」の俳句季語辞典（『俳句季語よみかた辞典』日外アソシエーツのデータ・朝日出版社提供）のサイトの中を、Googleで検索します。季語のあつかいは歳時記によってちがうことがあります。無季・自由律・季重なりも、句によっては立派な表現です。</p>' + vGoon('', '') + '</details>';
+    return '<details class="kgbox"><summary>🔍 季語をしらべる（きごさい歳時記・おウチde俳句くらぶの季語辞典）</summary><div class="row"><input type="text" data-f="kg-q" maxlength="20" value="' + esc(kgQ) + '" placeholder="例：凩・こがらし（漢字でもひらがなでも）"><button class="chip fit" data-act="kg-go">きごさい歳時記で</button><button class="chip fit" data-act="kg-go" data-v="ouchi">おウチde俳句くらぶの季語辞典で</button></div><div class="kg-res">' + k5Html(kgQ) + '</div><div class="k5br">' + k5Browse() + '</div><p class="note"><a href="https://ouchidehaiku.com/' + ({ haru: 'spring', natsu: 'summer', aki: 'autumn', fuyu: 'winter' })[tkSeason()] + '/contents/seasonwords" target="_blank" rel="noopener">おウチde俳句くらぶ「俳句季語辞典」（いまの季節）をひらく</a></p><p class="note"><a href="https://kigosai.sub.jp/001/27701-2" target="_blank" rel="noopener">きごさい歳時記「5000季語一覧」（季節・分類べつ）をひらく</a>　<a href="https://kigosai.sub.jp/" target="_blank" rel="noopener">きごさい歳時記のトップ（ことば検索・50音検索）</a></p><details class="kglinks"><summary>ほかの調べもの（リンク集）</summary><ul><li><a href="https://haiku-textbook.com/" target="_blank" rel="noopener">俳句の教科書（初心者向けの解説・季語の一覧）</a></li><li><a href="https://lapis.nichibun.ac.jp/haikai/haikai_kigo_search.html" target="_blank" rel="noopener">俳諧データベース・季語検索（国際日本文化研究センター／江戸の俳諧）</a></li><li><a href="http://www.haiku-data.jp/index.php" target="_blank" rel="noopener">現代俳句データベース（現代俳句協会／明治以降の句を季語で）</a></li><li><a href="http://www.haijinkyokai.jp/system/saijiki/" target="_blank" rel="noopener">俳句検索（俳人協会／季語で例句を）</a></li></ul><p class="note src">参考：国立国会図書館「リサーチ・ナビ」の調べ方案内</p></details><p class="note">「きごさい歳時記」（NPO法人 季語と歳時記の会）と、「おウチde俳句くらぶ」の俳句季語辞典（『俳句季語よみかた辞典』日外アソシエーツのデータ・朝日出版社提供）のサイトの中を、Googleで検索します。季語のあつかいは歳時記によってちがうことがあります。無季・自由律・季重なりも、句によっては立派な表現です。</p>' + vGoon('', '') + vSaijikiShelf() + '</details>';
   }
   function kigoGo(where) {
     var q = String(kgQ || '').trim(); if (!q) { toast('しらべたい言葉を入れてください'); return; }
@@ -3843,6 +3846,24 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (b.getAttribute('data-dv') === 'close') { if (el) { el.hidden = true; el.innerHTML = ''; } document.body.classList.remove('docopen'); }
     else { var f = document.getElementById('docf'); try { f.contentWindow.focus(); f.contentWindow.print(); } catch (_) { toast('「別の画面で開く」から印刷してください'); } }
   });
+  /* 歳時記の本棚（紹介だけ。中身は写さない） */
+  var SAIJIKI_BOOKS = [
+    ['はじめの一冊（初心者むけ）', [
+      ['五音の俳句歳時記', '句具', '五音の季語だけを集めた、手のひらサイズの小冊子。裾野の句づくり（フレーズ＋五音の季語）に、そのまま使えます。', 'https://ku-gu.com/items/6741d16b9b0fd517745d6466'],
+      ['夏井いつきの365日季語手帖', '夏井いつき', '一日ひとつの季語を、手帳のように。毎年出ているので、その年の一冊を。', 'https://www.amazon.co.jp/s?k=' + encodeURIComponent('夏井いつきの365日季語手帖')],
+      ['ハンディ版 入門歳時記 新版', '角川書店 編', '初心者むけに季語をしぼった、持ち歩ける歳時記。総索引で読みからも引けます。', 'https://www.amazon.co.jp/s?k=' + encodeURIComponent('ハンディ版 入門歳時記 新版')]
+    ]],
+    ['じっくり深める（中級むけ）', [
+      ['俳句歳時記 第五版（春・夏・秋・冬・新年）', '角川書店 編', '文庫で季節ごとの5冊。解説と例句がゆたかで、句会で迷ったときの定番。', 'https://www.amazon.co.jp/s?k=' + encodeURIComponent('俳句歳時記 第五版 角川ソフィア文庫')],
+      ['合本俳句歳時記 第五版', '角川書店 編', '5冊を1冊にまとめた大きな歳時記。作句のポイントの解説つき。Kindle版もあります。', 'https://www.amazon.co.jp/s?k=' + encodeURIComponent('合本俳句歳時記 第五版')],
+      ['絶滅寸前季語辞典', '夏井いつき', '使われなくなりかけた季語を、夏井先生が面白く案内。季語の世界が広がります。', 'https://www.amazon.co.jp/s?k=' + encodeURIComponent('絶滅寸前季語辞典 夏井いつき')]
+    ]]
+  ];
+  function vSaijikiShelf() {
+    return '<details class="kglinks"><summary>📖 歳時記の本棚（初心者むけ・中級むけ）</summary>' + SAIJIKI_BOOKS.map(function (g) {
+      return '<p class="k5lb">' + esc(g[0]) + '</p><ul class="shelf">' + g[1].map(function (b) { return '<li><a href="' + b[3] + '" target="_blank" rel="noopener"><b>' + esc(b[0]) + '</b></a>　<small>' + esc(b[1]) + '</small><br><span>' + esc(b[2]) + '</span></li>'; }).join('') + '</ul>';
+    }).join('') + '<p class="note">紹介だけです（本の中身はアプリに載せていません）。リンクは通販の検索結果です。手もとの歳時記で、解説と例句をじっくり味わってください。</p></details>';
+  }
   function vAbout() {
     var L = function (n, ico, t, tag, p, btns) { return '<li class="lstep"><span class="ln">' + n + '</span><div><b>' + ico + ' ' + t + '</b> <small>' + tag + '</small><p>' + p + '</p><div class="actions">' + btns + '</div></div></li>'; };
     var ladder = '<h2 class="sec">はじめの一歩から、段階的に<small>裾野から、すこしずつ</small></h2><ol class="ladder">' +
@@ -3863,7 +3884,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<h3>句会アーカイブ</h3><p>参加した句会（終わったものも）が残り、結果をいつでもひらけます。参加した人だけが見られます。</p>' +
       '<h3>マイページ・ストッ句</h3><p>俳号、プロフィール文、アイコンを入れておけます。トロフィーは「画像にする」で、金の額の画像にできます。ストッ句（自分の句の記録）は自分だけが見られ、「あとで推敲」の句は、あとから推敲できます。Excel（CSV）に書き出す・文でコピー・LINEやメールで送る、もできます。句の画像は「デジタル短冊」と「句碑」の2つ。投稿・保存は、作者本人だけができます。設定の「自分のデータを消す」から、ご自分で消せます。</p>' +
       '<h3>句づくり（赤ペン先生）</h3><p>「今日あったこと」を十二音にして、五音の季語をのせるだけの、いちばんかんたんな型。やさしい赤ペン先生が、◎でほめながら案内します。季語は、夏井&カンパニー作成の「五音の季語集」から選べます。ひらがなで読みを書くと、音数も数えます（少しの字余り・字足らずは気にしなくて大丈夫）。</p>' +
-      '<h3>季語をしらべる</h3><p>約5000の季語を、アプリの中で引けます（漢字でも、ひらがなでも）。季節と分類（時候・天文・地理・生活・行事・動物・植物）で一覧も見られます。くわしい意味や例句は、きごさい歳時記・おウチde俳句くらぶの俳句季語辞典（『俳句季語よみかた辞典』日外アソシエーツのデータ）へ。日文研の俳諧データベースなどのリンク集もあります。出典：国土交通省 東北地方整備局「5,000季語 一覧集」（きごさい歳時記による）。</p>' +
+      '<h3>季語をしらべる</h3><p>約5000の季語を、アプリの中で引けます（漢字でも、ひらがなでも）。季節と分類（時候・天文・地理・生活・行事・動物・植物）で一覧も見られます。くわしい意味や例句は、きごさい歳時記・おウチde俳句くらぶの俳句季語辞典（『俳句季語よみかた辞典』日外アソシエーツのデータ）へ。日文研の俳諧データベースなどのリンク集と、初心者むけ・中級むけの「歳時記の本棚」もあります。出典：国土交通省 東北地方整備局「5,000季語 一覧集」（きごさい歳時記による）。</p>' +
       '<h3>今日の一句（名句）</h3><p>トップに、季節の名句が開くたびにちがう一句。芭蕉・蕪村・一茶から、子規・虚子・山頭火・放哉・久女・蛇笏・三鬼まで（著作権の切れた俳人）。作者と出典つき。</p>' +
       '<h3>ストッ句のメモ・書き足し</h3><p>ストッ句の句に「📝メモ」（入選・掲載・詞書など）を書けます。外で詠んだ句や大会に出した句は「＋ 句を書き足す」から入れられます。入るのは自分の句だけです。</p>' +
       '<h3>連作の部屋</h3><p>ストッ句の句を並べて、ひとつの連作に。題と、目ざす句数（大会の20句・30句・50句など）を決め、↑↓で並べかえ。連作の中だけで句を直せて、元のストッ句はそのまま残ります。「味わう」で縦書きの通し読み。 <button class="link" data-act="page" data-p="renkan">ひらく</button></p>' +
