@@ -895,7 +895,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.28r';
+  var APP_VER = 'v2026.10.28s';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3149,6 +3149,15 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     try { segs = Array.from(new Intl.Segmenter('ja', { granularity: 'word' }).segment(s)).map(function (x) { return x.segment; }); } catch (_) { segs = s.split(/(かな|けり|[はがをにへでとやもよの])/).filter(Boolean); }
     var bd = {}, good = {}, noCut = {}, pos = 0;
     bd[0] = 1; segs.forEach(function (w) { pos += w.length; bd[pos] = 1; if (P.test(w)) good[pos] = 1; if (w === 'の') noCut[pos] = 1; });
+    /* 漢字のつながり（自転車など）は、なかで切らない。「の」の手前でも切らない */
+    var kj = /[一-龥々]/, ka = /[ァ-ヶー]/;
+    for (var ci = 1; ci < s.length; ci++) {
+      var c1 = s[ci - 1], c2 = s[ci];
+      if (c2 === 'の') noCut[ci] = 1;
+      var re = kj.test(c1) && kj.test(c2) ? kj : (ka.test(c1) && ka.test(c2) ? ka : null);
+      if (re) { var st = ci, en = ci; while (st > 0 && re.test(s[st - 1])) st--; while (en < s.length && re.test(s[en])) en++; if (en - ci < 2 || en - st < 4 && ci - st < 2) noCut[ci] = 1; }
+    }
+    var okAt = function (k) { return !!bd[k] && !noCut[k]; };
     /* 季語は、ひとかたまりに（単語の境目にそっているものだけ） */
     var kg = null; try { kgAll().forEach(function (w) { if (w.length < 2) return; var i = s.indexOf(w); if (i >= 0 && bd[i] && bd[i + w.length] && (!kg || w.length > kg.w.length)) kg = { w: w, i: i }; }); } catch (_) {}
     var out = [];
@@ -3157,9 +3166,11 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var cut = function (a, z) {
       if (z - a <= 7) { add(s.slice(a, z)); return; }
       var mid = (a + z) / 2, pick = function (ok) { var b = -1; for (var k = a + 2; k <= z - 2; k++) if (ok(k) && (b < 0 || Math.abs(k - mid) < Math.abs(b - mid))) b = k; return b; };
-      var best = pick(function (k) { return good[k]; });
+      var best = pick(function (k) { return good[k] && !noCut[k]; });
       if (best < 0 && z - a <= 10 && /[ァ-ヶー]{4,}/.test(s.slice(a, z))) { add(s.slice(a, z)); return; } /* 長いカタカナ語は切らない */
-      if (best < 0) best = pick(function (k) { return bd[k] && !noCut[k]; });
+      if (best < 0) best = pick(okAt);
+      if (best < 0) best = pick(function (k) { return !noCut[k]; });
+      if (best < 0) best = pick(function (k) { return bd[k]; });
       if (best < 0) { add(s.slice(a, z)); return; }
       cut(a, best); cut(best, z);
     };
