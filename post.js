@@ -1,6 +1,6 @@
 // 俳句の裾野 つぶやきBot（Node 18以上。追加パッケージ不要）
 // 環境変数: X_API_KEY X_API_SECRET X_ACCESS_TOKEN X_ACCESS_SECRET
-//   INCLUDE_LINK=1 でURLを本文に入れる（既定は入れない：料金が高くなるため）
+//   INCLUDE_LINK=1 でURLを本文に入れる（いまは入れる設定。URLつきは料金が少し高い）
 //   DRY_RUN=1 または鍵なし → 投稿せず、文面だけ表示
 //   FORCE_DATE=2026-10-09 / FORCE_KIND=menu|feature  → テスト用（毎朝の1つぶやき）
 //   KIND=auto（既定）|daily|announce|start|thanks … どのつぶやきをするか。auto は、いまの時刻で決める
@@ -8,7 +8,7 @@
 //   FORCE_NOW=2026-10-10T21:00:00+09:00 … テスト用に、いまの時刻を指定
 const crypto = require('crypto');
 const menu = require('./menu.json');
-const URL_ = 'haikunosusono.web.app';
+const URL_ = 'https://haikunosusono.web.app';
 const TAGS = '#俳句の裾野 #チームすその #俳句 #haiku #俳筋力 #俳句初心者';
 const TEI_TAGS = '#俳句の裾野 #チームすその #俳句 #句会 #当季雑詠';
 const PROJECT = process.env.FB_PROJECT || 'haikunosusono';

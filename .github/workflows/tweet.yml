@@ -48,7 +48,7 @@ jobs:
           X_API_SECRET: ${{ secrets.X_API_SECRET }}
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
           X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
-          INCLUDE_LINK: ${{ vars.INCLUDE_LINK }}
+          INCLUDE_LINK: ${{ vars.INCLUDE_LINK || '1' }}
           TEI_POSTS: ${{ vars.TEI_POSTS }}
           KIND: ${{ github.event.inputs.kind || 'auto' }}
           TEXT: ${{ github.event.inputs.text }}
