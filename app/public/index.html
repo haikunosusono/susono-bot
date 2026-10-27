@@ -895,7 +895,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.28v';
+  var APP_VER = 'v2026.10.28w';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1069,7 +1069,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   }
   var BASE_URL = 'https://haikunosusono.web.app/';
   function inviteLink(s) { return /^[A-Za-z0-9._~-]+$/.test(s.id) ? BASE_URL + '#' + s.id : BASE_URL; }
-  function inviteText(s) { if (s.tei) return '「俳句の裾野」の定例句会（デモ）' + teiSlotName(dn(s.date), s.slot) + '　' + mdLabel(dn(s.date)) + s.slot + '時。お題は当季雑詠。見学もできます。 ' + inviteLink(s) + '\n#俳句の裾野 #俳句 #句会'; return '「俳句の裾野」で句会をひらいています。兼題は「' + s.ch + '」。あと' + Math.max(0, s.size - count(s)) + '人で始まります。 ' + inviteLink(s) + '\n#俳句の裾野 #俳句 #haiku'; }
+  function inviteText(s) { if (s.tei) return '「俳句の裾野」の定例句会（デモ）' + teiSlotName(dn(s.date), s.slot) + '　' + mdLabel(dn(s.date)) + s.slot + '時。お題は当季雑詠。見学もできます。 ' + inviteLink(s) + '\n#俳句の裾野 #俳句 #句会'; return '「俳句の裾野」で句会をひらいています。兼題は「' + s.ch + '」。あと' + Math.max(0, s.size - count(s)) + '人で始まります。 ' + inviteLink(s) + '\n#俳句の裾野 #俳句 #haiku\nhttps://haikunosusono.web.app'; }
   function ready() {
     if (!db) { toast('保存先につながっていません'); return false; }
     if (!myId) { toast('ログインすると保存できます'); return false; }
@@ -3466,7 +3466,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function kshShowImg() { kshLoadFont(kshShowImg2); }
   function kshShowImg2() {
     var cv = kshDrawImg();
-    cardKey = null; cardText = kshTitleV() + (kshNameV() ? '　' + kshNameV() : '') + '\n#俳句 #自選十句 #俳句の裾野';
+    cardKey = null; cardText = kshTitleV() + (kshNameV() ? '　' + kshNameV() : '') + '\n#俳句 #自選十句 #俳句の裾野\nhttps://haikunosusono.web.app';
     try { cv.toBlob(function (b) { cardBlob = b; if (kshImgUrl) { try { URL.revokeObjectURL(kshImgUrl); } catch (_) {} } kshImgUrl = b ? URL.createObjectURL(b) : cv.toDataURL('image/png'); kshOut = '<div class="kshout"><img src="' + kshImgUrl + '" alt="自選の画像"><div class="actions"><button class="btn primary" data-act="card-save">画像を保存</button><button class="btn" data-act="card-share">投稿する（X・Instagramなど）</button></div><p class="note">' + esc(KAIHO_NOTE) + '</p></div>'; render(); }, 'image/png'); } catch (_) {}
   }
   /* ---- 句帳に貼る紙片 ---- */
@@ -5043,7 +5043,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var o = cardSrc[key], el = document.getElementById('cardv'); if (!o || !el) return;
     if (o.trophy && cardStyle === 'card') cardStyle = 'trophy';
     var cv = cardStyle === 'kuhi' ? drawKuhi(o) : cardStyle === 'trophy' ? drawTrophy(o) : drawCard(o), full = plain(String(o.text || '')).replace(/[ ]/g, '　');
-    cardText = '「' + full + '」' + (o.haigo ? '\n' + o.haigo : '') + '\n#俳句の裾野 #俳句 #haiku';
+    cardText = '「' + full + '」' + (o.haigo ? '\n' + o.haigo : '') + '\n#俳句の裾野 #俳句 #haiku\nhttps://haikunosusono.web.app';
     markFirst('f_card');
     el.hidden = false;
     el.innerHTML = '<img id="cardimg" alt="句のカード"' + (o.own === false ? ' class="noown" draggable="false"' : '') + '><div class="cbtns"><button class="btn small' + (cardStyle === 'card' ? ' primary' : '') + '" data-act="card-style" data-v="card">📱 デジタル短冊</button>' + (o.trophy ? '<button class="btn small' + (cardStyle === 'trophy' ? ' primary' : '') + '" data-act="card-style" data-v="trophy">🏆 トロフィー</button>' : '') + '<button class="btn small' + (cardStyle === 'kuhi' ? ' primary' : '') + '" data-act="card-style" data-v="kuhi">🪨 句碑</button></div><div class="cbtns">' + (o.own === false ? '' : '<button class="btn primary" data-act="card-share">Xに投稿</button><button class="btn" data-act="card-save">画像を保存</button>') + '<button class="btn" data-act="card-close">閉じる</button></div>' + (o.own === false ? '<p class="cnote">この句の投稿・保存は、作者ご本人だけができます。ほかの人の句を、本人の了解なしに公開しないでください。</p>' : '<p class="cnote">「Xに投稿」で、画像と文面がそのまま共有画面に渡ります。出ないときは、画像を保存して、Xの投稿に添付してください（画像を長押しでも保存できます）。</p><p class="cnote">自分の句だけを投稿してください。Xなどに公開した句は、大会によって「既発表」とされることがあります。大会に出す句は、募集のきまりを確かめてから。</p>');
