@@ -91,11 +91,11 @@ function doPost(e) {
     }
     /* 作者からの問いに、先生が答える。{"ask":{"ku":"句","q":"問い"}} → {"ok":true,"text":"答え"} */
     if (body.ask && body.ask.ku) {
-      var ap = ['あなたは句会の先生「松風主宰」です。作者が、自分の句について問いかけています。やさしい丁寧語で、120字以内で答えてください。', '守ること：まず句をどう読んだかを一文で。問いには、具体的に答える（例：語順を入れかえた形を一つ示す、季語が動くかどうかの考えを言う）。けなさない。確信のないことは断定しない。相手の名前は呼ばない。', '出力は JSON だけ：{"text": "<答え>"}', '', '句：' + String(body.ask.ku).slice(0, 60), '問い：' + String(body.ask.q).slice(0, 140)].join('\n');
+      var ap = ['あなたは句会の先生「松風主宰」です。作者が、自分の句について問いかけ、意見や指摘を求めています。やさしい丁寧語で、200字以内で答えてください。', '守ること：まず句をどう読んだかを一文で。よいところを一つ認めたうえで、問いには遠慮せず具体的に答える。直しや指摘を求められたら、気になる点をはっきり一つ言い、直した形の案を一つ示す（例：語順の入れかえ、説明的なことばを映像のことばに、季語が動くか、取り合わせの距離）。けなさない。確信のないことは断定しない。「季語がない」とは言わない。相手の名前は呼ばない。', '出力は JSON だけ：{"text": "<答え>"}', '', '句：' + String(body.ask.ku).slice(0, 60), '問い：' + String(body.ask.q).slice(0, 140)].join('\n');
       var ar = askGemini(ap);
       if (!ar) throw new Error('答えが作れませんでした');
       var ao = (parseAI(ar) || {});
-      out = { ok: true, text: String(ao.text || '').slice(0, 220) };
+      out = { ok: true, text: String(ao.text || '').slice(0, 320) };
       return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
     }
     /* 質問への返事（ボット作者として）。{"reply":{"ku":"句","q":"質問","name":"作者名"}} → {"ok":true,"text":"返事"} */

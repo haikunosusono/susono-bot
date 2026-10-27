@@ -895,7 +895,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.28o';
+  var APP_VER = 'v2026.10.28p';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1779,13 +1779,15 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     'ご質問ありがとうございます。迷いどころは、句の面白さでもあります。わたしは、いまのことばの並びに、作者の実感を感じました。声に出して、いくつか並べくらべてみるのも、よい稽古です。',
     'よいところに気づいていますね。正解はひとつではありませんが、わたしの読みでは、いまの季語と景の距離が、ちょうどよく息をしています。みなさんの感じかたも、聞いてみましょう。'
   ];
+  /* 作者の問いかけ（？のほか「聞かせて」「教えて」「指摘」など）には、主宰が答える */
+  var ASK_RE = /[？?]|聞かせて|きかせて|教えて|おしえて|どう(でしょう|ですか|思|か)|アドバイス|指摘|ご意見|直し|添削|助言|改善/;
   function senseiAnswer(s0, eid, q, key) {
     var es = s0.entries || {}, e0 = es[eid]; if (!e0 || e0.bot) return;
     var ku = joinKu(e0).a, done = false;
     function put(text) {
       if (done) return; done = true;
       var k2 = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), co = {};
-      co[k2] = { eid: eid, uid: 'benico', text: String(text).slice(0, 220), tone: 'やさしく', part: [], at: Date.now(), re: key || '' };
+      co[k2] = { eid: eid, uid: 'benico', text: String(text).slice(0, 320), tone: 'やさしく', part: [], at: Date.now(), re: key || '' };
       setTimeout(function () { write(s0.id, { comments: co }); }, 1500 + Math.random() * 2500);
     }
     var fb = SENSEI_ANS[hash(s0.id + eid + key) % SENSEI_ANS.length];
@@ -6140,7 +6142,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       cmDraft[eid2] = ''; cmTone[eid2] = ''; cmPart[eid2] = []; cmReply[eid2] = '';
       try { var cie = document.getElementById('cm-' + eid2); if (cie) cie.value = ''; } catch (_) {}
       write(sm.id, { comments: cobj }); try { var tp = {}; tp[myId] = null; write(sm.id, { typing: tp }); } catch (_) {}
-      try { var be0 = sm.entries && sm.entries[eid2]; if (be0 && be0.bot && /[？?]/.test(text)) botAnswer(sm, eid2, text, key); else if (eid2 === myId && /[？?]/.test(text)) senseiAnswer(sm, eid2, text, key); } catch (_) {}
+      try { var be0 = sm.entries && sm.entries[eid2]; if (be0 && be0.bot && /[？?]/.test(text)) botAnswer(sm, eid2, text, key); else if (eid2 === myId && ASK_RE.test(text)) senseiAnswer(sm, eid2, text, key); } catch (_) {}
     }
     else if (act === 'finish') { var sf = scur(); if (sf) write(sf.id, { status: 'done' }); }
     else if (act === 'yaku-close') { var sy = scur(); if (sy) { yakuOpen[sy.id] = false; render(); } }
