@@ -1,22 +1,23 @@
 /* 俳句の裾野：松風主宰（ほめる先生）の頭脳。Google Apps Script に、このまま貼りつけて「ウェブアプリ」として公開します。
-   使うのは Google Gemini の無料枠。鍵（API キー）は、下の KEY に貼ります。 */
+   使うのは Google Gemini（前払いのクレジット）。鍵（API キー）は、下の KEY に貼ります。 */
 var KEY = 'ここに Gemini の鍵を貼る';
 /* 使えるモデルは、Google に聞いて自動で決める（名前が変わっても動くように） */
 function listModels() {
-  var cache = CacheService.getScriptCache(), c = cache.get('models');
+  var cache = CacheService.getScriptCache(), c = cache.get('models2');
   if (c) return JSON.parse(c);
   var res = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key=' + KEY, { muteHttpExceptions: true });
   var out = [];
   if (res.getResponseCode() === 200) {
     var ms = (JSON.parse(res.getContentText()).models || []).filter(function (m) {
-      return (m.supportedGenerationMethods || []).indexOf('generateContent') >= 0 && /gemini/.test(m.name) && !/embedding|tts|image|audio|live|vision|thinking|exp|preview/.test(m.name);
+      return (m.supportedGenerationMethods || []).indexOf('generateContent') >= 0 && /gemini/.test(m.name) && /flash/.test(m.name) && !/embedding|tts|image|audio|live|vision|thinking|exp|preview/.test(m.name);
     }).map(function (m) { return m.name.replace(/^models\//, ''); });
-    /* 無料枠向きの flash を先に。新しい番号が先 */
-    ms.sort(function (a, b) { var fa = /flash/.test(a) ? 0 : 1, fb = /flash/.test(b) ? 0 : 1; if (fa !== fb) return fa - fb; return b.localeCompare(a); });
-    out = ms.slice(0, 4);
+    /* 賢い flash を先に（新しい番号が先）。flash-lite は、混んでいたときの予備として、うしろに */
+    ms.sort(function (a, b) { var la = /lite/.test(a) ? 1 : 0, lb = /lite/.test(b) ? 1 : 0; if (la !== lb) return la - lb; return b.localeCompare(a); });
+    var full = ms.filter(function (m) { return !/lite/.test(m); }).slice(0, 3), lite = ms.filter(function (m) { return /lite/.test(m); }).slice(0, 2);
+    out = full.concat(lite);
   }
-  if (!out.length) out = ['gemini-2.5-flash', 'gemini-2.0-flash'];
-  cache.put('models', JSON.stringify(out), 21600);
+  if (!out.length) out = ['gemini-flash-latest', 'gemini-flash-lite-latest'];
+  cache.put('models2', JSON.stringify(out), 21600);
   return out;
 }
 
@@ -43,13 +44,19 @@ var RULE = [
 
 /* Gemini にたずねて、返事の文字をもらう（モデルは順にためす） */
 function askGemini(prompt) {
-  var MODELS = listModels();
-  for (var i = 0; i < MODELS.length; i++) {
-    var res = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + MODELS[i] + ':generateContent?key=' + KEY, {
-      method: 'post', contentType: 'application/json', muteHttpExceptions: true,
-      payload: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.4, maxOutputTokens: 400, responseMimeType: 'application/json' } })
-    });
-    if (res.getResponseCode() === 200) { try { return JSON.parse(res.getContentText()).candidates[0].content.parts[0].text; } catch (_) {} }
+  var MODELS = listModels(), last = '';
+  /* 混んでいる（503）・回数が多い（429）ときは、少し待って、次の種類のAIにたのむ（裾野の画面は45秒で待つのをやめるので、1周だけ） */
+  for (var round = 0; round < 1; round++) {
+    for (var i = 0; i < MODELS.length; i++) {
+      var res = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + MODELS[i] + ':generateContent?key=' + KEY, {
+        method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+        payload: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.4, maxOutputTokens: 400, responseMimeType: 'application/json' } })
+      });
+      var code = res.getResponseCode();
+      if (code === 200) { try { return JSON.parse(res.getContentText()).candidates[0].content.parts[0].text; } catch (_) {} }
+      last = code + ' ' + MODELS[i];
+      if (code === 503 || code === 429 || code >= 500) Utilities.sleep(1000);
+    }
   }
   return '';
 }
