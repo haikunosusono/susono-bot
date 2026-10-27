@@ -895,7 +895,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.28t';
+  var APP_VER = 'v2026.10.28u';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -6176,7 +6176,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       cmDraft[eid2] = ''; cmTone[eid2] = ''; cmPart[eid2] = []; cmReply[eid2] = '';
       try { var cie = document.getElementById('cm-' + eid2); if (cie) cie.value = ''; } catch (_) {}
       write(sm.id, { comments: cobj }); try { var tp = {}; tp[myId] = null; write(sm.id, { typing: tp }); } catch (_) {}
-      try { var be0 = sm.entries && sm.entries[eid2]; if (be0 && be0.bot) botAnswer(sm, eid2, text, key); else if (eid2 === myId && ASK_RE.test(text)) senseiAnswer(sm, eid2, text, key); } catch (_) {}
+      try { var be0 = sm.entries && sm.entries[eid2]; if (be0 && be0.bot) botAnswer(sm, eid2, text, key); else { var rc = cobj[key].re && sm.comments && sm.comments[cobj[key].re]; if (be0 && ((eid2 === myId && ASK_RE.test(text)) || (rc && rc.uid === 'benico'))) senseiAnswer(sm, eid2, text, key); } } catch (_) {}
     }
     else if (act === 'finish') { var sf = scur(); if (sf) write(sf.id, { status: 'done' }); }
     else if (act === 'yaku-close') { var sy = scur(); if (sy) { yakuOpen[sy.id] = false; render(); } }
