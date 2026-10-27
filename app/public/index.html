@@ -727,7 +727,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
 <script src="vendor/firebase-auth-compat.js"></script>
 <script src="vendor/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
-<script src="shim.js"></script>
+<script src="shim.js?v=28l"></script>
 <script>
 (function () {
   'use strict';
@@ -895,7 +895,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.28k';
+  var APP_VER = 'v2026.10.28l';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2919,7 +2919,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function vPrivacy() {
     return '<h2 class="sec">プライバシー<small>試作版</small></h2><div class="panel legal">' +
       '<p class="note">仲間内で安心して使うための、かんたんな案内です（専門家の確認は受けていません）。</p>' +
-      '<h3>1. あつかう情報</h3><ul><li>ログインに使うメールアドレスとパスワード（ほかの人には見えません。アプリの中で使うのは、内部の識別IDだけです）</li><li>裾野の統計のための、最後に来た日時の印と、句を残した回数（個人の句の中身は含みません）</li><li>俳号、句、点付け、選評、ストッ句（かんぺき・まあまあ・ふつう・あとで推敲）、マイページの入力（X・Instagramのアカウント名、都道府県、句歴。自分だけが見られます）</li><li>お問い合わせの内容と、ボットの返信</li></ul>' +
+      '<h3>1. あつかう情報</h3><ul><li>ログインに使うメールアドレスとパスワード、またはXのアカウント（Xでログインした場合。名前・アイコン・識別番号を受けとりますが、Xへの投稿や、Xの中身の読みとりはしません）（ほかの人には見えません。アプリの中で使うのは、内部の識別IDだけです）</li><li>裾野の統計のための、最後に来た日時の印と、句を残した回数（個人の句の中身は含みません）</li><li>俳号、句、点付け、選評、ストッ句（かんぺき・まあまあ・ふつう・あとで推敲）、マイページの入力（X・Instagramのアカウント名、都道府県、句歴。自分だけが見られます）</li><li>お問い合わせの内容と、ボットの返信</li></ul>' +
       '<h3>2. 使いみち</h3><p>句会や記録を動かすため、ご質問に答えるため、不具合を直すためだけに使います。</p>' +
       '<h3>3. 見える範囲</h3><ul><li>ひとりの記録：自分だけ</li><li>句会の句・点付け・選評：その句会の参加者（定例句会は、見学の人にも見えます。仲間と句会は、参加者だけ）。俳号は、オープンまで伏せられます</li><li>定例句会の参加の人数：人数だけの記録が、公開されます（句や俳号は含みません）。Xのお礼のつぶやきに使います</li><li>お問い合わせ：運営者だけが読めます</li></ul>' +
       '<h3>4. 保管場所</h3><p>データは、Google の Firebase（東京のサーバー）に保管されます。お問い合わせへのボットの返信は、アプリの中に用意した定型の案内から選ばれ、外部のAIには送られません。</p>' +
@@ -2955,6 +2955,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     h += '<div class="field"><label for="p-x">X（旧Twitter）のアカウント名</label><input type="text" id="p-x" data-f="p-x" maxlength="40" value="' + esc(prof.x) + '" placeholder="例：haiku_nin（@はなくてかまいません）">' + (hn(prof.x) ? '<a class="link" href="https://x.com/' + esc(hn(prof.x)) + '" target="_blank" rel="noopener">@' + esc(hn(prof.x)) + ' をひらく</a>' : '') + '</div>';
     h += '<div class="field"><label for="p-ig">Instagramのアカウント名</label><input type="text" id="p-ig" data-f="p-ig" maxlength="40" value="' + esc(prof.ig) + '" placeholder="例：haiku_nin">' + (hn(prof.ig) ? '<a class="link" href="https://www.instagram.com/' + esc(hn(prof.ig)) + '/" target="_blank" rel="noopener">' + esc(hn(prof.ig)) + ' をひらく</a>' : '') + '</div>';
     h += '<p class="note">入力すると、そのつど保存されます。いまは自分だけに見えます。ほかの人に見せる機能は、いまはありません。' + (!db ? '（ログインしていないので、このブラウザにだけ保存されます）' : '') + '</p></div>';
+    if (window.fbLinkX && myId && window.fbHasMail && window.fbHasMail()) h += '<div class="panel"><b>𝕏 Xのアカウント</b>' + (window.fbHasX() ? '<p class="note">Xがつながっています。メールアドレスでも、Xでも、同じ記録でログインできます。</p>' : '<p class="note">Xをつなぐと、次からは「Xのアカウントでログイン」でも入れます。記録は、いまのまま同じです。Xに投稿されることはありません。</p><div class="actions"><button class="btn" data-act="linkx">Xをつなぐ</button></div>') + '</div>';
     if (window.fbLogout) h += '<div class="actions"><button class="btn" data-act="fblogout">ログアウト</button></div><p class="note">ログアウトしても、ストッ句や句会の記録は消えません。次にログインすると、また見られます。</p>';
     return h;
   }
@@ -5962,6 +5963,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'nw-post') postNews();
     else if (act === 'nw-del') { if (isAdmin && db && db.doc('news/' + t.dataset.id).delete) db.doc('news/' + t.dataset.id).delete().then(function () { toast('消しました'); }).catch(failMsg); }
     else if (act === 'inq-seen') { if (!isAdmin || !db) return; var sp = { seen: {} }; sp.seen[t.dataset.key] = true; db.doc('inquiries/' + t.dataset.uid).update(sp).catch(failMsg); }
+    else if (act === 'linkx') { if (window.fbLinkX) window.fbLinkX().then(function () { toast('Xがつながりました'); render(); }).catch(function (e) { toast((e && e.msg) || 'つなげませんでした'); }); }
     else if (act === 'fblogout') { if (window.fbLogout) window.fbLogout(); }
     else if (act === 'fbgate') { try { if (window.fbShowGate) window.fbShowGate(); } catch (_) {} }
     else if (act === 'inqstart') { var qq = [['req', 'こんな機能がほしいです。'], ['req', 'ここが使いにくいです。'], ['gen', '不具合かもしれません。'], ['gen', 'これは、どうすればいいですか？']][parseInt(t.dataset.i, 10) || 0]; inq.kind = qq[0]; if (!String(inq.text || '').trim()) inq.text = qq[1] + '\n'; render(); }
