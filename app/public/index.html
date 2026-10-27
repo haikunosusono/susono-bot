@@ -895,7 +895,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.28j';
+  var APP_VER = 'v2026.10.28k';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3588,8 +3588,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   }
   /* 季語をしらべる：判定はせず、出典のしっかりした歳時記（きごさい歳時記）を検索して確かめる */
   var kgQ = '';
-  function kigoBox() {
-    return '<details class="kgbox"><summary>🔍 季語をしらべる（きごさい歳時記・おウチde俳句くらぶの季語辞典）</summary><div class="row"><input type="text" data-f="kg-q" maxlength="20" value="' + esc(kgQ) + '" placeholder="例：凩・こがらし（漢字でもひらがなでも）"><button class="chip fit" data-act="kg-go">きごさい歳時記で</button><button class="chip fit" data-act="kg-go" data-v="ouchi">おウチde俳句くらぶの季語辞典で</button></div><div class="kg-res">' + k5Html(kgQ) + '</div><div class="k5br">' + k5Browse() + '</div><p class="note"><a href="https://ouchidehaiku.com/' + ({ haru: 'spring', natsu: 'summer', aki: 'autumn', fuyu: 'winter' })[tkSeason()] + '/contents/seasonwords" target="_blank" rel="noopener">おウチde俳句くらぶ「俳句季語辞典」（いまの季節）をひらく</a></p><p class="note"><a href="https://kigosai.sub.jp/001/27701-2" target="_blank" rel="noopener">きごさい歳時記「5000季語一覧」（季節・分類べつ）をひらく</a>　<a href="https://kigosai.sub.jp/" target="_blank" rel="noopener">きごさい歳時記のトップ（ことば検索・50音検索）</a></p><details class="kglinks"><summary>ほかの調べもの（リンク集）</summary><ul><li><a href="https://haiku-textbook.com/" target="_blank" rel="noopener">俳句の教科書（初心者向けの解説・季語の一覧）</a></li><li><a href="https://lapis.nichibun.ac.jp/haikai/haikai_kigo_search.html" target="_blank" rel="noopener">俳諧データベース・季語検索（国際日本文化研究センター／江戸の俳諧）</a></li><li><a href="http://www.haiku-data.jp/index.php" target="_blank" rel="noopener">現代俳句データベース（現代俳句協会／明治以降の句を季語で）</a></li><li><a href="http://www.haijinkyokai.jp/system/saijiki/" target="_blank" rel="noopener">俳句検索（俳人協会／季語で例句を）</a></li></ul><p class="note src">参考：国立国会図書館「リサーチ・ナビ」の調べ方案内</p></details><p class="note">「きごさい歳時記」（NPO法人 季語と歳時記の会）と、「おウチde俳句くらぶ」の俳句季語辞典（『俳句季語よみかた辞典』日外アソシエーツのデータ・朝日出版社提供）のサイトの中を、Googleで検索します。季語のあつかいは歳時記によってちがうことがあります。無季・自由律・季重なりも、句によっては立派な表現です。</p>' + vGoon('', '') + vSaijikiShelf() + '</details>';
+  function kigoBox(open) {
+    return '<details class="kgbox"' + (open ? ' open' : '') + '><summary>🔍 季語をしらべる（きごさい歳時記・おウチde俳句くらぶの季語辞典）</summary><div class="row"><input type="text" data-f="kg-q" maxlength="20" value="' + esc(kgQ) + '" placeholder="例：凩・こがらし（漢字でもひらがなでも）"><button class="chip fit" data-act="kg-go">きごさい歳時記で</button><button class="chip fit" data-act="kg-go" data-v="ouchi">おウチde俳句くらぶの季語辞典で</button></div><div class="kg-res">' + k5Html(kgQ) + '</div><div class="k5br">' + k5Browse() + '</div><p class="note"><a href="https://ouchidehaiku.com/' + ({ haru: 'spring', natsu: 'summer', aki: 'autumn', fuyu: 'winter' })[tkSeason()] + '/contents/seasonwords" target="_blank" rel="noopener">おウチde俳句くらぶ「俳句季語辞典」（いまの季節）をひらく</a></p><p class="note"><a href="https://kigosai.sub.jp/001/27701-2" target="_blank" rel="noopener">きごさい歳時記「5000季語一覧」（季節・分類べつ）をひらく</a>　<a href="https://kigosai.sub.jp/" target="_blank" rel="noopener">きごさい歳時記のトップ（ことば検索・50音検索）</a></p><details class="kglinks"><summary>ほかの調べもの（リンク集）</summary><ul><li><a href="https://haiku-textbook.com/" target="_blank" rel="noopener">俳句の教科書（初心者向けの解説・季語の一覧）</a></li><li><a href="https://lapis.nichibun.ac.jp/haikai/haikai_kigo_search.html" target="_blank" rel="noopener">俳諧データベース・季語検索（国際日本文化研究センター／江戸の俳諧）</a></li><li><a href="http://www.haiku-data.jp/index.php" target="_blank" rel="noopener">現代俳句データベース（現代俳句協会／明治以降の句を季語で）</a></li><li><a href="http://www.haijinkyokai.jp/system/saijiki/" target="_blank" rel="noopener">俳句検索（俳人協会／季語で例句を）</a></li></ul><p class="note src">参考：国立国会図書館「リサーチ・ナビ」の調べ方案内</p></details><p class="note">「きごさい歳時記」（NPO法人 季語と歳時記の会）と、「おウチde俳句くらぶ」の俳句季語辞典（『俳句季語よみかた辞典』日外アソシエーツのデータ・朝日出版社提供）のサイトの中を、Googleで検索します。季語のあつかいは歳時記によってちがうことがあります。無季・自由律・季重なりも、句によっては立派な表現です。</p>' + vGoon('', '') + vSaijikiShelf() + '</details>';
   }
   function kigoGo(where) {
     var q = String(kgQ || '').trim(); if (!q) { toast('しらべたい言葉を入れてください'); return; }
@@ -3702,9 +3702,10 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   }
   /* 5000季語：アプリの中で引く（出典：国土交通省 東北地方整備局「～5,000季語 一覧集～」／きごさい歳時記「5000季語一覧」による） */
   var K5 = null, K5busy = false;
+  var K5cbs = [];
   function k5Load(cb) {
-    if (K5) { cb(); return; } if (K5busy) return; K5busy = true;
-    fetch('kigo5000.json').then(function (r) { return r.json(); }).then(function (j) { K5 = j; K5busy = false; KG_ALL_ = null; cb(); }).catch(function () { K5busy = false; });
+    if (K5) { cb(); return; } K5cbs.push(cb); if (K5busy) return; K5busy = true;
+    fetch('kigo5000.json').then(function (r) { return r.json(); }).then(function (j) { K5 = j; K5busy = false; KG_ALL_ = null; var q = K5cbs; K5cbs = []; q.forEach(function (f) { try { f(); } catch (_) {} }); }).catch(function () { K5busy = false; K5cbs = []; });
   }
   /* 季語の見つけ役にも5000季語を使うので、ひらいて少ししたら、そっと読みこんでおく */
   setTimeout(function () { try { if (location.protocol !== 'file:') k5Load(function () {}); } catch (_) {} }, 5000);
@@ -3908,7 +3909,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<h3>お問い合わせ</h3><p>ご意見・不具合・権利侵害の申告は「お問い合わせ」から。ボットが定型の返事をし、運営者が内容を確認します。</p>' +
       '<h3>この試作版について</h3><ul><li>メールアドレスとパスワードで登録します。句会でほかの人に見えるのは俳号だけです。</li><li>データは Google の Firebase（東京のサーバー）に保管されます。松風主宰のほめ言葉には、Google の AI（Gemini）を使っています。</li><li>試作中のため、機能や内容は予告なく変わります。大切な句は、手元にも控えてください。</li><li>「みんなで歌会」からひらめきをもらって作りました。</li></ul></div>';
   }
-  function pageView() { return page === 'stock' ? vStock() : page === 'contact' ? vContact() : page === 'terms' ? vTerms() : page === 'my' ? vMy() : page === 'hints' ? vHints() : page === 'hyo' ? vHyo() : page === 'kata' ? vKata() : page === 'kushu' ? vKushu() : page === 'renkan' ? vRenkanPage() : page === 'kokoro' ? vKokoro() : page === 'admin' ? vAdmin() : page === 'about' ? vAbout() : page === 'news' ? vNewsPage() : page === 'faq' ? vFaq() : page === 'notify' ? vNotify() : page === 'archive' ? vArchive() : page === 'manner' ? vManner() : vPrivacy(); }
+  function vKigoPage() { return '<h2 class="sec">季語をしらべる<small>漢字でも、ひらがなでも</small></h2>' + kigoBox(true); }
+  function pageView() { return page === 'kigo' ? vKigoPage() : page === 'stock' ? vStock() : page === 'contact' ? vContact() : page === 'terms' ? vTerms() : page === 'my' ? vMy() : page === 'hints' ? vHints() : page === 'hyo' ? vHyo() : page === 'kata' ? vKata() : page === 'kushu' ? vKushu() : page === 'renkan' ? vRenkanPage() : page === 'kokoro' ? vKokoro() : page === 'admin' ? vAdmin() : page === 'about' ? vAbout() : page === 'news' ? vNewsPage() : page === 'faq' ? vFaq() : page === 'notify' ? vNotify() : page === 'archive' ? vArchive() : page === 'manner' ? vManner() : vPrivacy(); }
   function vManner() {
     return '<h2 class="sec">句のあつかいとマナー<small>ここは練習の場です</small></h2>' +
       '<div class="howto"><b>ここで作った句は、「未発表」のあつかいです</b><span>「俳句の裾野」は、俳句を鍛える練習の場です。ここで作った句は、練習の句なので、未発表のあつかいにします。</span></div>' +
@@ -5294,7 +5296,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     function pg(p, label) { return mb('page', ' data-p="' + p + '"', label); }
     var g = function (t, items) { return '<div class="mgrp"><b>' + t + '</b><div class="row">' + items.join('') + '</div></div>'; };
     return '<details class="panel menu"><summary>☰ メニュー・機能まとめ</summary>' +
-      g('つくる', [mb('tk-start', '', '🧩 句づくり'), pg('stock', '📒 ストッ句'), pg('renkan', '🧵 連作の部屋'), pg('kushu', '📖 句集づくり')]) +
+      g('つくる', [mb('tk-start', '', '🧩 句づくり'), pg('kigo', '🔍 季語をしらべる'), pg('stock', '📒 ストッ句'), pg('renkan', '🧵 連作の部屋'), pg('kushu', '📖 句集づくり')]) +
       g('まなぶ', [mb('tut', '', '🌱 一句つくれるチュートリアル'), mb('tutd', '', '🔍 さらに深くチュートリアル'), pg('about', 'できること'), pg('kokoro', '🍵 はじめに（ことば）'), pg('kata', '📐 俳句の型と技の部屋'), pg('hyo', '🎓 評のトレーニング'), pg('hints', '句会の評のヒント'), pg('manner', '句のあつかい・マナー'), pg('faq', 'よくある質問'), pg('notify', 'スマホの通知のしかた')]) +
       g('じぶん', [pg('my', 'マイページ'), pg('archive', '句会アーカイブ')]) +
       g('声をとどける', [pg('contact', '📮 ご意見・ご要望'), pg('terms', '利用規約'), pg('privacy', 'プライバシー')]) +
