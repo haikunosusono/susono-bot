@@ -129,6 +129,16 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .stmemo { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
 .stmemo input { flex: 1; min-width: 10em; }
 .stm { margin: 2px 0 0; font-size: .8rem; color: var(--ink-soft); font-family: var(--sans); letter-spacing: 0; writing-mode: horizontal-tb; }
+.k5lb { margin: 8px 0 4px; font-weight: 700; font-size: .85rem; }
+.k5sea { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.k5t { min-height: 52px; border: 2px solid transparent; border-radius: 10px; font-family: var(--serif); font-size: 1.25rem; font-weight: 700; cursor: pointer; color: #2b2418; }
+.k5t.haru { background: linear-gradient(135deg, #fbe3ea, #f4b8c8); }
+.k5t.natsu { background: linear-gradient(135deg, #fff3b8, #f6cf3c); }
+.k5t.aki { background: linear-gradient(135deg, #fbd3a6, #e9783c); color: #fff; }
+.k5t.fuyu { background: linear-gradient(135deg, #f2f4f7, #b9c3cf); }
+.k5t.kure { background: linear-gradient(135deg, #8a95a8, #3b4658); color: #fff; }
+.k5t.shin { background: linear-gradient(135deg, #d9c27a, #1f2d4a); color: #fff; }
+.k5t.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .k5b { margin: 8px 0; }
 .k5b summary { cursor: pointer; font-weight: 700; color: var(--accent); }
 .k5g { max-height: 360px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; background: var(--paper); }
@@ -882,7 +892,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.28e';
+  var APP_VER = 'v2026.10.28f';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3709,7 +3719,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   var K5_SEA = ['春', '夏', '秋', '冬', '暮', '新年'], K5_CAT = ['時候', '天文', '地理', '生活', '行事', '動物', '植物'];
   function k5Browse() {
     var chip = function (act, v, on) { return '<button class="chip fit' + (on ? ' on' : '') + '" data-act="' + act + '" data-v="' + v + '">' + v + '</button>'; };
-    var h = '<details class="k5b"' + (k5S || k5C ? ' open' : '') + '><summary>📚 季節と分類で見る（約5000の季語）</summary><div class="row goontabs">' + K5_SEA.map(function (x) { return chip('k5-s', x, k5S === x); }).join('') + '</div><div class="row goontabs">' + K5_CAT.map(function (x) { return chip('k5-c', x, k5C === x); }).join('') + '</div>';
+    var SK = { '春': 'haru', '夏': 'natsu', '秋': 'aki', '冬': 'fuyu', '暮': 'kure', '新年': 'shin' }, CN = { '生活': '生活（人事）', '行事': '行事（宗教・行事）' };
+    var h = '<details class="k5b"' + (k5S || k5C ? ' open' : '') + '><summary>📚 季節と分類で見る（約5000の季語）</summary><p class="k5lb">▼ 季節</p><div class="k5sea">' + K5_SEA.map(function (x) { return '<button class="k5t ' + SK[x] + (k5S === x ? ' on' : '') + '" data-act="k5-s" data-v="' + x + '">' + x + '</button>'; }).join('') + '</div><p class="k5lb">▼ 分類</p><div class="row goontabs">' + K5_CAT.map(function (x) { return '<button class="chip fit' + (k5C === x ? ' on' : '') + '" data-act="k5-c" data-v="' + x + '">' + (CN[x] || x) + '</button>'; }).join('') + '</div>';
     if (!k5S || !k5C) return h + '<p class="note">季節と分類を、ひとつずつ選んでください。</p></details>';
     if (!K5) return h + '<p class="note">読みこんでいます…</p></details>';
     var groups = {};
