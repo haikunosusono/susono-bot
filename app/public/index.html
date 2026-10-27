@@ -895,7 +895,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.28w';
+  var APP_VER = 'v2026.10.28x';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2021,7 +2021,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     h += '<div class="panel"><b>' + esc(monLabel(id)) + 'の結果</b><p class="note">' + kus.length + '句・' + Object.keys(d.entries || {}).length + '人・互選' + nv + '人</p></div>';
     if (win.length) {
       win.forEach(function (w) { if (w.uid === myId) awardTrophy('m-' + id + '-' + w.id.split(':')[1], { kind: 'すその句会（月例）', ch: monLabel(id) + '　' + monKendai(id).t, date: id + '-' + monEnds(id).s, pts: max, a: w.a, b: '', c: '' }); });
-      h += winCard(win.map(function (w) { return w.haigo; }), max, win.length === 1 ? Object.assign({ id: win[0].uid }, win[0]) : null, '（すその句会・' + monLabel(id) + '）', win.length > 1 ? '同点優勝です' : '');
+      h += winCard(win.map(function (w) { return w.haigo; }), max, win.length === 1 ? Object.assign({ id: win[0].uid }, win[0]) : null, '（すその句会・' + monLabel(id) + '）', win.length > 1 ? '同点優勝です' : '', { head: 'すその句会 ' + monLabel(id), res: kuhiRes(T[win[0].id].toku.length, T[win[0].id].nami.length, max) });
     }
     /* 句会報 */
     var txt = '【すその句会報　' + monLabel(id) + '】\n兼題：' + monKendai(id).t + '（' + monKendai(id).kind + '）\n' + kus.length + '句・' + Object.keys(d.entries || {}).length + '人・互選' + nv + '人\n\n' + sorted.map(function (k, i) {
@@ -2412,7 +2412,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       w = w.filter(function (x) { return (T[x.id].toku || []).length === mt; });
     }
     if (w.some(function (x) { return x.id === myId; })) { var me = w.filter(function (x) { return x.id === myId; })[0]; awardTrophy('k-' + s.id, { kind: s.tei ? '定例句会（デモ）' : s.std === 'flat' ? 'ふらっと句会' : '定例句会', ch: s.tei ? '当季雑詠　' + mdLabel(dn(s.date)) + s.slot + '時' : (s.ch || ''), date: s.date || ds(dayNum()), pts: max, a: me.a, b: me.b, c: me.c }); }
-    return (botTop ? '<div class="cmi hostline"><b>松風主宰（先生）</b>今回の最高点は、ボットの句でした。優勝は、先生からの推薦として、参加した方の句から選びます。ボットの句をしっかり読みとれたのは、すばらしいこと。こうして鑑賞力・俳筋力をつけていきましょう。</div>' : '') + winCard(w.map(function (x) { return x.haigo || '名無し'; }), max, w[0], s.tei ? '（定例句会・定例デモ）' : s.std === 'flat' ? '（ふらっと句会）' : '（定例句会）', s.tei ? '句碑のトロフィーが、優勝の方に贈られます（マイページに飾られます）' : '');
+    return (botTop ? '<div class="cmi hostline"><b>松風主宰（先生）</b>今回の最高点は、ボットの句でした。優勝は、先生からの推薦として、参加した方の句から選びます。ボットの句をしっかり読みとれたのは、すばらしいこと。こうして鑑賞力・俳筋力をつけていきましょう。</div>' : '') + winCard(w.map(function (x) { return x.haigo || '名無し'; }), max, w[0], s.tei ? '（定例句会・定例デモ）' : s.std === 'flat' ? '（ふらっと句会）' : '（定例句会）', s.tei ? '句碑のトロフィーが、優勝の方に贈られます（マイページに飾られます）' : '', kuhiMeta(s, w[0], T));
   }
   var yakuOpen = {}, watchAt = {};
   var K_STAMPS = [['🌸', 'すき'], ['👏', 'うまい'], ['😮', 'おどろき'], ['🍵', 'しみじみ']];
@@ -4870,17 +4870,29 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   }
   /* 優勝の句碑：画像を一度だけ描いて、おぼえておく（render のたびに描きなおさない） */
   var kuhiCache = {}, kuhiShown = {};
-  function kuhiImg(kuObj, haigo) {
+  /* 句碑を投稿するときの見出し（どの句会か・日時）と成績（特選2 など） */
+  function kuhiRes(tk, nm, pts) { return (tk ? '特選' + tk : '') + (nm ? (tk ? '・' : '') + '並選' + nm : '') || (pts + '点'); }
+  function kuhiMeta(s, row, T) {
+    var head = '句会', res = '';
+    try {
+      if (s.tei && s.date) head = '定例句会 ' + teiSlotName(dn(s.date), +s.slot) + ' ' + mdLabel(dn(s.date)) + s.slot + '時';
+      else if (s.std === 'flat') head = 'ふらっと句会' + (s.date ? ' ' + mdLabel(dn(s.date)) : '');
+      var r = T && T[row.id]; if (r) res = kuhiRes((r.toku || []).length, (r.nami || []).length, r.pts);
+    } catch (_) {}
+    return { head: head, res: res };
+  }
+  function kuhiImg(kuObj, haigo, meta) {
     try {
       var text = plain(String(kuObj.a || '') + String(kuObj.b || '') + String(kuObj.c || '')), key = text + '|' + (haigo || '');
       if (!kuhiCache[key]) kuhiCache[key] = drawKuhi({ text: text, haigo: haigo || '' }).toDataURL('image/jpeg', 0.88);
-      var own = !!(kuObj.id && kuObj.id === myId), ck = ckSet('wk-' + hash(key), { text: text, haigo: haigo || '', own: own }), first = !kuhiShown[key]; kuhiShown[key] = 1;
+      meta = meta || {};
+      var own = !!(kuObj.id && kuObj.id === myId), ck = ckSet('wk-' + hash(key), { text: text, haigo: haigo || '', own: own, head: meta.head || '', res: meta.res || '' }), first = !kuhiShown[key]; kuhiShown[key] = 1;
       return '<div class="cmi hostline"><b>ダー浜（司会）</b>優勝の句碑を、除幕します。みなさん、拍手を！　🎉👏</div>' +
         '<button class="kuhi-win" data-act="card" data-ck="' + esc(ck) + '" data-style="kuhi" title="大きく見る・保存する"><span class="kw-frame"><img src="' + kuhiCache[key] + '" alt="句碑"' + (own ? '' : ' class="noown" draggable="false"') + '>' + (first ? '<i class="kw-cloth" aria-hidden="true"></i>' : '') + '</span><span>' + (own ? '🪨 句碑（押すと大きく・保存できます）' : '🪨 句碑（押すと大きく見られます。保存・投稿は作者だけ）') + '</span></button>';
     } catch (_) { return ''; }
   }
-  function winCard(names, pts, kuObj, label, note) {
-    return '<div class="trophy">' + TROPHY_SVG + '<div><b>優勝 ' + esc(label || '') + '</b><span class="tw">' + esc(names.join('・')) + '</span><small>' + pts + '点' + (kuObj ? '　' + esc(plain((kuObj.a || '') + ' ' + (kuObj.b || '') + ' ' + (kuObj.c || ''))) : '') + '</small>' + (note ? '<small>' + esc(note) + '</small>' : '') + '</div></div>' + (kuObj && names.length === 1 ? kuhiImg(kuObj, names[0]) : '');
+  function winCard(names, pts, kuObj, label, note, meta) {
+    return '<div class="trophy">' + TROPHY_SVG + '<div><b>優勝 ' + esc(label || '') + '</b><span class="tw">' + esc(names.join('・')) + '</span><small>' + pts + '点' + (kuObj ? '　' + esc(plain((kuObj.a || '') + ' ' + (kuObj.b || '') + ' ' + (kuObj.c || ''))) : '') + '</small>' + (note ? '<small>' + esc(note) + '</small>' : '') + '</div></div>' + (kuObj && names.length === 1 ? kuhiImg(kuObj, names[0], meta) : '');
   }
   var BADGES = [];
   function fam(cat, key, label, defs) {
@@ -4894,6 +4906,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   var cardSrc = {}, cardBlob = null, cardText = '';
   function ckSet(key, o) { cardSrc[key] = o; return key; }
   function cardBtn(key, o) { return '<button class="link" data-act="card" data-ck="' + esc(ckSet(key, o)) + '">画像にして投稿</button>'; }
+  var KUHI_FONT_CUR = null;
   var CARD_FONT = '"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","Noto Serif CJK JP","MS PMincho",serif';
   function cardCells(str) {
     var out = [], re = /([一-龥々〇ヶ]+)[《（(]([ぁ-ゖァ-ヶー]+)[》）)]/g, last = 0, m;
@@ -4911,7 +4924,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     ctx.fillStyle = color; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     for (i = 0; i < cells.length; i++) {
       var c = cells[i].c, cx = x, cy = y + adv / 2;
-      ctx.font = s + 'px ' + CARD_FONT;
+      ctx.font = s + 'px ' + (KUHI_FONT_CUR || CARD_FONT);
       if (/[　 ]/.test(c)) { y += adv * 0.7; continue; }
       if (/[、。，．]/.test(c)) { ctx.fillText(c, cx + s * 0.5, cy - s * 0.45); }
       else if (/[ーｰ～〜…―—「」『』（）()\[\]]/.test(c)) { ctx.save(); ctx.translate(cx, cy); ctx.rotate(Math.PI / 2); ctx.fillText(c === 'ー' || c === 'ｰ' ? 'ー' : c, 0, 0); ctx.restore(); }
@@ -4919,7 +4932,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       else ctx.fillText(c, cx, cy);
       if (cells[i].rb) {
         var rs = s * 0.4, rc = Array.from(cells[i].rb), rh = rc.length * rs * 1.05, mid = y + adv * cells[i].span / 2, ry = mid - rh / 2;
-        ctx.font = rs + 'px ' + CARD_FONT;
+        ctx.font = rs + 'px ' + (KUHI_FONT_CUR || CARD_FONT);
         rc.forEach(function (ch, k) { ctx.fillText(ch, x + s * 0.5 + rs * 0.62, ry + rs * 1.05 * (k + 0.5)); });
       }
       y += adv;
@@ -4964,48 +4977,92 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     ctx.fillStyle = '#8f8a78'; ctx.font = '22px ' + CARD_FONT; ctx.fillText('haikunosusono.web.app', W - 84, H - 112);
     return cv;
   }
-  /* 句碑：石に刻んだふうの画像（遊び心のある書き出し） */
+  /* 句碑：石に刻んだふうの画像（かたち・石・書体を、いろいろ選べる） */
+  var KUHI_FONTS = [
+    { n: '明朝', f: CARD_FONT },
+    { n: '角ゴシック', f: '"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic","YuGothic","Noto Sans CJK JP","Noto Sans JP","Meiryo",sans-serif' },
+    { n: '丸ゴシック', f: '"Hiragino Maru Gothic ProN","Yu Gothic","YuGothic","Noto Sans CJK JP","Noto Sans JP",sans-serif' },
+    { n: '行書ふう', f: '"HGP行書体","HG行書体","Yuji Syuku","Klee One","Hiragino Mincho ProN","Yu Mincho","Noto Serif CJK JP",serif' }
+  ];
+  var KUHI_TYPES = [
+    { n: '自然石', shape: 'nat', sky: ['#dfe7e4', '#eef0e8', '#7f8f6a', '#4f6040'], st: ['#9a9893', '#7d7b76', '#5f5d58'], pol: ['#b9b7b1', '#a3a09a'], ink: '#1a1714', edge: '#141210', hi: 'rgba(255,255,255,.55)', moss: 0 },
+    { n: '角柱（黒御影）', shape: 'rect', sky: ['#e6e3da', '#f1eee4', '#8a8f78', '#566248'], st: ['#4a4a4f', '#2f2f33', '#1f1f22'], pol: ['#3a3a3f', '#26262a'], ink: '#e8d9a2', edge: null, hi: 'rgba(0,0,0,.5)', moss: 0 },
+    { n: '丸い川石', shape: 'oval', sky: ['#dbe6ea', '#eef2ec', '#86987a', '#566a4a'], st: ['#a49b8c', '#8a8172', '#6c6458'], pol: ['#b9b0a1', '#a69d8e'], ink: '#2a2420', edge: '#1c1814', hi: 'rgba(255,255,255,.5)', moss: 0 },
+    { n: '板碑（白御影）', shape: 'slab', sky: ['#cfe0ee', '#eaf1ee', '#86a07a', '#587048'], st: ['#e0ddd5', '#cbc7bd', '#aeaa9f'], pol: ['#ece9e1', '#d9d5cb'], ink: '#2b2622', edge: null, hi: 'rgba(255,255,255,.8)', moss: 0 },
+    { n: '苔むす古碑', shape: 'nat', sky: ['#c9d3c4', '#dde2d2', '#5f7a4e', '#3b5030'], st: ['#85897a', '#6d7364', '#52584a'], pol: ['#9ea392', '#8a907f'], ink: '#1b1f17', edge: '#10130d', hi: 'rgba(255,255,255,.4)', moss: 1 },
+    { n: '月夜の碑', shape: 'rect', night: 1, sky: ['#141b33', '#27325a', '#2c3a3a', '#16241e'], st: ['#6a6f82', '#4a4e60', '#2f3242'], pol: ['#5b6074', '#464a5c'], ink: '#f4f1e2', edge: null, hi: 'rgba(0,0,0,.55)', moss: 0 }
+  ];
+  var kuhiV = null, kuhiF = null;
+  function kuhiPick(o) {
+    var h = hash(String(o.text || '') + 'v'), v = o.kv != null ? o.kv : (kuhiV != null ? kuhiV : h % KUHI_TYPES.length), f = o.kf != null ? o.kf : (kuhiF != null ? kuhiF : 0);
+    return { v: v % KUHI_TYPES.length, f: f % KUHI_FONTS.length };
+  }
   function drawKuhi(o) {
     var W = 1200, H = 1200, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
-    var ctx = cv.getContext('2d');
+    var ctx = cv.getContext('2d'), pk = kuhiPick(o), T = KUHI_TYPES[pk.v];
+    KUHI_FONT_CUR = KUHI_FONTS[pk.f].f;
     /* 空と地面 */
-    var sky = ctx.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, '#dfe7e4'); sky.addColorStop(0.62, '#eef0e8'); sky.addColorStop(0.63, '#7f8f6a'); sky.addColorStop(1, '#4f6040');
+    var sky = ctx.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, T.sky[0]); sky.addColorStop(0.62, T.sky[1]); sky.addColorStop(0.63, T.sky[2]); sky.addColorStop(1, T.sky[3]);
     ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
-    /* 苔・草むら（点々） */
     var rnd = (function (seed) { return function () { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }; })(hash(String(o.text || '') + 'k') % 1000 + 7);
-    for (var i = 0; i < 900; i++) { var gx = rnd() * W, gy = H * 0.63 + rnd() * H * 0.37; ctx.fillStyle = rnd() < 0.5 ? 'rgba(120,150,90,.55)' : 'rgba(60,80,45,.5)'; ctx.beginPath(); ctx.ellipse(gx, gy, 6 + rnd() * 14, 3 + rnd() * 6, 0, 0, Math.PI * 2); ctx.fill(); }
+    if (T.night) {
+      for (var si = 0; si < 90; si++) { ctx.fillStyle = 'rgba(255,255,240,' + (0.3 + rnd() * 0.6) + ')'; ctx.fillRect(rnd() * W, rnd() * H * 0.55, 2 + rnd() * 2, 2 + rnd() * 2); }
+      var mg = ctx.createRadialGradient(1010, 170, 10, 1010, 170, 190); mg.addColorStop(0, 'rgba(255,250,225,.95)'); mg.addColorStop(0.3, 'rgba(255,248,215,.55)'); mg.addColorStop(1, 'rgba(255,248,215,0)');
+      ctx.fillStyle = mg; ctx.fillRect(780, 0, 420, 420); ctx.fillStyle = '#fdf8e2'; ctx.beginPath(); ctx.arc(1010, 170, 62, 0, Math.PI * 2); ctx.fill();
+    }
+    /* 草むら（点々） */
+    for (var i = 0; i < 900; i++) { var gx = rnd() * W, gy = H * 0.63 + rnd() * H * 0.37; ctx.fillStyle = T.night ? (rnd() < 0.5 ? 'rgba(60,90,70,.5)' : 'rgba(20,40,30,.55)') : (rnd() < 0.5 ? 'rgba(120,150,90,.55)' : 'rgba(60,80,45,.5)'); ctx.beginPath(); ctx.ellipse(gx, gy, 6 + rnd() * 14, 3 + rnd() * 6, 0, 0, Math.PI * 2); ctx.fill(); }
     /* 台座 */
-    ctx.fillStyle = '#6f6a62'; ctx.beginPath(); ctx.moveTo(250, 1010); ctx.lineTo(950, 1010); ctx.lineTo(1000, 1080); ctx.lineTo(200, 1080); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#56524b'; ctx.fillRect(200, 1080, 800, 28);
-    /* 石（ややいびつな形） */
-    var px = [[330, 1012], [300, 760], [330, 420], [380, 230], [470, 150], [640, 120], [800, 150], [880, 250], [905, 480], [890, 780], [870, 1012]];
-    ctx.save(); ctx.beginPath(); ctx.moveTo(px[0][0], px[0][1]); for (var j = 1; j < px.length; j++) { var p0 = px[j - 1], p1 = px[j]; ctx.quadraticCurveTo(p0[0] + (p1[0] - p0[0]) * 0.3 + (rnd() - 0.5) * 30, p0[1] + (p1[1] - p0[1]) * 0.6, p1[0], p1[1]); } ctx.closePath();
-    var stone = ctx.createLinearGradient(300, 120, 900, 1010); stone.addColorStop(0, '#9a9893'); stone.addColorStop(0.5, '#7d7b76'); stone.addColorStop(1, '#5f5d58');
+    ctx.fillStyle = T.night ? '#3a3d4c' : '#6f6a62'; ctx.beginPath(); ctx.moveTo(250, 1010); ctx.lineTo(950, 1010); ctx.lineTo(1000, 1080); ctx.lineTo(200, 1080); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = T.night ? '#2a2c38' : '#56524b'; ctx.fillRect(200, 1080, 800, 28);
+    /* 石のかたち */
+    var pxs = {
+      nat: [[330, 1012], [300, 760], [330, 420], [380, 230], [470, 150], [640, 120], [800, 150], [880, 250], [905, 480], [890, 780], [870, 1012]],
+      oval: [[340, 1012], [290, 800], [300, 520], [380, 300], [520, 190], [690, 190], [830, 290], [915, 500], [920, 800], [880, 1012]],
+      rect: [[340, 1012], [340, 120], [900, 120], [900, 1012]],
+      slab: [[350, 1012], [350, 300], [640, 110], [890, 300], [890, 1012]]
+    }, px = pxs[T.shape];
+    ctx.save(); ctx.beginPath(); ctx.moveTo(px[0][0], px[0][1]);
+    for (var j = 1; j < px.length; j++) {
+      var p0 = px[j - 1], p1 = px[j];
+      if (T.shape === 'rect' || T.shape === 'slab') ctx.lineTo(p1[0], p1[1]);
+      else ctx.quadraticCurveTo(p0[0] + (p1[0] - p0[0]) * 0.3 + (rnd() - 0.5) * 30, p0[1] + (p1[1] - p0[1]) * 0.6, p1[0], p1[1]);
+    }
+    ctx.closePath();
+    var stone = ctx.createLinearGradient(300, 120, 900, 1010); stone.addColorStop(0, T.st[0]); stone.addColorStop(0.5, T.st[1]); stone.addColorStop(1, T.st[2]);
     ctx.fillStyle = stone; ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 20; ctx.fill(); ctx.shadowColor = 'transparent';
     ctx.clip();
     /* 石の肌：ざらつき */
     for (var k = 0; k < 2600; k++) { ctx.fillStyle = rnd() < 0.5 ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.07)'; var rx = 290 + rnd() * 640, ry = 110 + rnd() * 920; ctx.fillRect(rx, ry, 2 + rnd() * 5, 2 + rnd() * 5); }
+    if (T.moss) { for (var mm = 0; mm < 420; mm++) { var my = 700 + rnd() * 320, mx = 290 + rnd() * 640; ctx.fillStyle = 'rgba(' + (70 + Math.floor(rnd() * 40)) + ',' + (110 + Math.floor(rnd() * 50)) + ',50,' + (0.25 + rnd() * 0.35) + ')'; ctx.beginPath(); ctx.ellipse(mx, my, 6 + rnd() * 16, 3 + rnd() * 7, 0, 0, Math.PI * 2); ctx.fill(); } }
     ctx.restore();
     /* 磨いた面（字が読みやすいように、石の中央をなめらかに） */
     var cells = cardCells(String(o.text || '')), n = 0; cells.forEach(function (c) { n += /[　 ]/.test(c.c) ? 0.7 : 1; });
     var top = 200, avail = 760, sz = Math.max(24, Math.min(84, Math.floor(avail / (Math.max(n, 1) * 1.12))));
     var kx = 625, hg = Array.from(String(o.haigo || '').trim()), hs = Math.max(24, Math.round(sz * 0.55));
     var px0 = kx - sz * 1.6 - hs - 30, px1 = kx + sz * 0.9, py0 = top - 40, py1 = top + Math.max(n, 1) * sz * 1.12 + 50;
+    if (T.shape === 'slab') { py0 = Math.max(py0, 260); py1 = Math.max(py1, py0 + 120); }
     ctx.save(); ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(px0, py0, px1 - px0, py1 - py0, 18); else ctx.rect(px0, py0, px1 - px0, py1 - py0);
-    var pol = ctx.createLinearGradient(px0, py0, px1, py1); pol.addColorStop(0, '#b9b7b1'); pol.addColorStop(1, '#a3a09a'); ctx.fillStyle = pol; ctx.fill();
+    var pol = ctx.createLinearGradient(px0, py0, px1, py1); pol.addColorStop(0, T.pol[0]); pol.addColorStop(1, T.pol[1]); ctx.fillStyle = pol; ctx.fill();
     ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = 3; ctx.stroke(); ctx.restore();
-    /* 刻字（太く・濃く：縁どり＋塗り、右下に白のハイライト） */
+    /* 刻字（縁どり＋塗り、ずらしたハイライト） */
     function carve(cl, x, y, sz0) {
-      drawVertical(ctx, cl, x + 3, y + 3, sz0, 'rgba(255,255,255,.55)');
-      ctx.save(); ctx.lineWidth = Math.max(2, sz0 * 0.06); ctx.strokeStyle = '#141210'; ctx.lineJoin = 'round';
-      var of = ctx.fillText; ctx.fillText = function (t, a, b) { ctx.strokeText(t, a, b); of.call(ctx, t, a, b); };
-      var e = drawVertical(ctx, cl, x, y, sz0, '#1a1714'); ctx.fillText = of; ctx.restore(); return e;
+      drawVertical(ctx, cl, x + 3, y + 3, sz0, T.hi);
+      ctx.save();
+      if (T.edge) {
+        ctx.lineWidth = Math.max(2, sz0 * 0.06); ctx.strokeStyle = T.edge; ctx.lineJoin = 'round';
+        var of = ctx.fillText; ctx.fillText = function (tx, a, b) { ctx.strokeText(tx, a, b); of.call(ctx, tx, a, b); };
+        var e = drawVertical(ctx, cl, x, y, sz0, T.ink); ctx.fillText = of; ctx.restore(); return e;
+      }
+      var e2 = drawVertical(ctx, cl, x, y, sz0, T.ink); ctx.restore(); return e2;
     }
     var endY = carve(cells, kx, top, sz);
     if (hg.length) { var hh = hg.length * hs * 1.12, hy = Math.max(top + 80, endY - hh); carve(hg.map(function (c) { return { c: c }; }), kx - sz * 1.6 - hs * 0.5, hy, hs); }
     /* 隅の小さなしるし */
-    ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left'; ctx.fillStyle = 'rgba(40,50,40,.75)'; ctx.font = '26px ' + CARD_FONT; ctx.fillText('俳句の裾野　句碑', 60, 1160);
-    ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(40,50,40,.6)'; ctx.font = '22px ' + CARD_FONT; ctx.fillText('haikunosusono.web.app', W - 60, 1160);
+    var tint = T.night ? 'rgba(235,235,225,.8)' : 'rgba(40,50,40,.75)';
+    ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left'; ctx.fillStyle = tint; ctx.font = '26px ' + CARD_FONT; ctx.fillText('俳句の裾野　句碑', 60, 1160);
+    ctx.textAlign = 'right'; ctx.fillStyle = tint; ctx.font = '22px ' + CARD_FONT; ctx.fillText('haikunosusono.web.app', W - 60, 1160);
+    KUHI_FONT_CUR = null;
     return cv;
   }
   /* 優勝トロフィーの画像：金色の額に、句とトロフィー */
@@ -5044,11 +5101,18 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (o.trophy && cardStyle === 'card') cardStyle = 'trophy';
     var cv = cardStyle === 'kuhi' ? drawKuhi(o) : cardStyle === 'trophy' ? drawTrophy(o) : drawCard(o), full = plain(String(o.text || '')).replace(/[ ]/g, '　');
     cardText = '「' + full + '」' + (o.haigo ? '\n' + o.haigo : '') + '\n#俳句の裾野 #俳句 #haiku\nhttps://haikunosusono.web.app';
+    if (cardStyle === 'kuhi' && o.head) cardText = '#俳句の裾野 ' + o.head + (o.res ? '　' + o.res : '') + '\n「' + full + '」' + (o.haigo ? '　' + o.haigo : '') + '\n\n#俳句の裾野 #俳句 #haiku\nhttps://haikunosusono.web.app';
     markFirst('f_card');
     el.hidden = false;
-    el.innerHTML = '<img id="cardimg" alt="句のカード"' + (o.own === false ? ' class="noown" draggable="false"' : '') + '><div class="cbtns"><button class="btn small' + (cardStyle === 'card' ? ' primary' : '') + '" data-act="card-style" data-v="card">📱 デジタル短冊</button>' + (o.trophy ? '<button class="btn small' + (cardStyle === 'trophy' ? ' primary' : '') + '" data-act="card-style" data-v="trophy">🏆 トロフィー</button>' : '') + '<button class="btn small' + (cardStyle === 'kuhi' ? ' primary' : '') + '" data-act="card-style" data-v="kuhi">🪨 句碑</button></div><div class="cbtns">' + (o.own === false ? '' : '<button class="btn primary" data-act="card-share">Xに投稿</button><button class="btn" data-act="card-save">画像を保存</button>') + '<button class="btn" data-act="card-close">閉じる</button></div>' + (o.own === false ? '<p class="cnote">この句の投稿・保存は、作者ご本人だけができます。ほかの人の句を、本人の了解なしに公開しないでください。</p>' : '<p class="cnote">「Xに投稿」で、画像と文面がそのまま共有画面に渡ります。出ないときは、画像を保存して、Xの投稿に添付してください（画像を長押しでも保存できます）。</p><p class="cnote">自分の句だけを投稿してください。Xなどに公開した句は、大会によって「既発表」とされることがあります。大会に出す句は、募集のきまりを確かめてから。</p>');
+    el.innerHTML = '<img id="cardimg" alt="句のカード"' + (o.own === false ? ' class="noown" draggable="false"' : '') + '><div class="cbtns"><button class="btn small' + (cardStyle === 'card' ? ' primary' : '') + '" data-act="card-style" data-v="card">📱 デジタル短冊</button>' + (o.trophy ? '<button class="btn small' + (cardStyle === 'trophy' ? ' primary' : '') + '" data-act="card-style" data-v="trophy">🏆 トロフィー</button>' : '') + '<button class="btn small' + (cardStyle === 'kuhi' ? ' primary' : '') + '" data-act="card-style" data-v="kuhi">🪨 句碑</button></div>' + (cardStyle === 'kuhi' ? kuhiPicker(o) : '') + '<div class="cbtns">' + (o.own === false ? '' : '<button class="btn primary" data-act="card-share">Xに投稿</button><button class="btn" data-act="card-save">画像を保存</button>') + '<button class="btn" data-act="card-close">閉じる</button></div>' + (o.own === false ? '<p class="cnote">この句の投稿・保存は、作者ご本人だけができます。ほかの人の句を、本人の了解なしに公開しないでください。</p>' : '<p class="cnote">「Xに投稿」で、画像と文面がそのまま共有画面に渡ります。出ないときは、画像を保存して、Xの投稿に添付してください（画像を長押しでも保存できます）。</p><p class="cnote">自分の句だけを投稿してください。Xなどに公開した句は、大会によって「既発表」とされることがあります。大会に出す句は、募集のきまりを確かめてから。</p>');
     var im = document.getElementById('cardimg');
     try { cv.toBlob(function (b) { cardBlob = b; if (b) im.src = URL.createObjectURL(b); }, 'image/png'); } catch (_) { im.src = cv.toDataURL('image/png'); }
+  }
+  /* 句碑のかたち・書体を選ぶ */
+  function kuhiPicker(o) {
+    var pk = kuhiPick(o);
+    return '<p class="cnote">かたち・石</p><div class="cbtns">' + KUHI_TYPES.map(function (x, i) { return '<button class="btn small' + (pk.v === i ? ' primary' : '') + '" data-act="kuhi-v" data-v="' + i + '">' + esc(x.n) + '</button>'; }).join('') + '</div>' +
+      '<p class="cnote">書体</p><div class="cbtns">' + KUHI_FONTS.map(function (x, i) { return '<button class="btn small' + (pk.f === i ? ' primary' : '') + '" data-act="kuhi-f" data-v="' + i + '">' + esc(x.n) + '</button>'; }).join('') + '</div>';
   }
   function cardOwn() { var o = cardKey && cardSrc[cardKey]; return !(o && o.own === false); }
   function cardShare() {
@@ -5862,7 +5926,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       if (e.target === cvEl) { cvClose(); return; }
       var b = e.target.closest('[data-act]'); if (!b) return;
       var ac = b.getAttribute('data-act');
-      if (ac === 'card-share') cardShare(); else if (ac === 'card-save') cardSave(); else if (ac === 'card-close') cvClose(); else if (ac === 'card-style') openCard(cardKey, b.getAttribute('data-v'));
+      if (ac === 'card-share') cardShare(); else if (ac === 'card-save') cardSave(); else if (ac === 'card-close') cvClose(); else if (ac === 'card-style') openCard(cardKey, b.getAttribute('data-v')); else if (ac === 'kuhi-v') { kuhiV = +b.getAttribute('data-v'); openCard(cardKey); } else if (ac === 'kuhi-f') { kuhiF = +b.getAttribute('data-v'); openCard(cardKey); }
     });
   })();
   app.addEventListener('click', function (e) {
