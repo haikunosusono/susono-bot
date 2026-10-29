@@ -703,7 +703,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
 .tmr-btns{display:flex;gap:8px;margin-left:auto}
 .fold{width:44px;height:44px;border-radius:50%;border:2px solid #c65a3a;background:#fff;color:#c65a3a;font-size:1.3rem;font-weight:700;cursor:pointer;display:grid;place-items:center;padding:0}
 .fold[aria-pressed="true"]{background:#c65a3a;color:#fff}
-.fold.yk{border-color:var(--line);color:inherit;font-size:1.2rem}
+.fold.yk{border-color:var(--line);color:inherit;font-size:.7rem;line-height:1.15;width:auto;min-width:44px;height:44px;border-radius:22px;padding:0 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;white-space:nowrap}
 .tmr-ku{font-family:var(--serif);font-size:1rem;padding:6px 2px 0;color:#444}
 .stagefold .res.stage .tan,.stagefold .res.stage .meta,.stagefold .stagebadge{display:none}
 
@@ -896,7 +896,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.30h';
+  var APP_VER = 'v2026.10.30i';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2748,7 +2748,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       var ci = Math.min(idx, rows.length - 1);
       var left = Math.max(0, cmtSecS(s) - (Math.floor(cmtElapsed(s) / 1000) % cmtSecS(s)));
       var curRow = rows[ci], ct = T[curRow.id], curOwn = curRow.id === myId;
-      h = '<div class="tmr stk"><div class="tmr-row"><span class="vbadge">講評 ' + (ci + 1) + '/' + rows.length + '</span>' + wbadge + '<span>残り <b id="oclock">' + fmt(left) + '</b></span><span class="tmr-btns"><button class="fold" data-act="stage-fold" aria-pressed="' + stageFold + '" aria-label="' + (stageFold ? '句と案内をひろげる' : '句と案内をたたんで、コメントを見る') + '" title="' + (stageFold ? 'ひろげる' : 'たたんで、コメントを見る') + '">' + (stageFold ? '▼' : '▲') + '</button><button class="fold yk" data-act="yaku-open" aria-label="みっつのおやくそく" title="おやくそく">🪢</button></span></div><div class="tmr-bar"><i id="obar" style="width:' + (left / cmtSecS(s) * 100).toFixed(1) + '%"></i></div>' + (stageFold ? '<div class="tmr-ku">' + kuS(curRow) + '</div>' : '') + '</div>';
+      h = '<div class="tmr stk"><div class="tmr-row"><span class="vbadge">講評 ' + (ci + 1) + '/' + rows.length + '</span>' + wbadge + '<span>残り <b id="oclock">' + fmt(left) + '</b></span><span class="tmr-btns"><button class="fold" data-act="stage-fold" aria-pressed="' + stageFold + '" aria-label="' + (stageFold ? '句と案内をひろげる' : '句と案内をたたんで、コメントを見る') + '" title="' + (stageFold ? 'ひろげる' : 'たたんで、コメントを見る') + '">' + (stageFold ? '▼' : '▲') + '</button><button class="fold yk" data-act="yaku-open" aria-label="ゆびきり（みっつのおやくそく）" title="ゆびきり：おやくそくを見る">☝<br>ゆびきり</button></span></div><div class="tmr-bar"><i id="obar" style="width:' + (left / cmtSecS(s) * 100).toFixed(1) + '%"></i></div>' + (stageFold ? '<div class="tmr-ku">' + kuS(curRow) + '</div>' : '') + '</div>';
       var yAuto = yakuOpen[s.id] === undefined && cmtElapsed(s) < 45000;
       if (yAuto || yakuOpen[s.id]) return h + yakuCard();
       if (!stageFold) h += hostSay('一句ずつ、壇上にあげて、ゆっくり話しましょう。講評の仕切りは、わたしダー浜にまかせてや。いま ' + (ci + 1) + ' 句め（全 ' + rows.length + ' 句）。この句は 特選 ' + ct.toku.length + '票・並選 ' + ct.nami.length + '票 を集めました（予選 ' + ct.yo.length + '票）。' + (curOwn ? '<br>いま壇上にあるのは、あなたの句です。作者は、講評のあいだは聞き役です。コメントは書かずに、みんなの言葉をゆっくり受け取りましょう。' : ''), '一句' + (cmtSecS(s) / 60) + '分で、時間が来ると次の句へ進みます。だれかが抜けても、タイマーが進めます。作者は、最後のオープンまで伏せられています。');
