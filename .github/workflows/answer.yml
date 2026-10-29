@@ -22,4 +22,5 @@ jobs:
         env:
           SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           DRY_RUN: ${{ github.event.inputs.dry || '0' }}
+          DEBUG: '1'
         run: node tools/answer-bot.js

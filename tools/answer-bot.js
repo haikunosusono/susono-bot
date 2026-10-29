@@ -51,6 +51,7 @@ async function ask(kind, payload) {
     const sid = d.name.split('/').pop(), f = {}; Object.entries(d.fields || {}).forEach(([k, x]) => { f[k] = val(x); });
     const cm = f.comments || {}, es = f.entries || {}, keys = Object.keys(cm);
     if (!keys.length) continue;
+    if (process.env.DEBUG === '1' && sid.indexOf('t20261029') === 0) { const an = keys.filter((k) => cm[k].anon && cm[k].uid === cm[k].eid && !cm[k].bot); note('DBG ' + sid, keys.length + '件 / 作者のひとこと ' + an.length + ' ' + an.map((k) => k + ':' + Math.round((Date.now() - cm[k].at) / 60000) + '分前:' + String(cm[k].text).slice(0, 12) + ':返信' + (keys.some((z) => cm[z].re === k) ? 'あり' : 'なし')).join(' | ')); }
     const replied = {}; keys.forEach((k) => { const re = cm[k] && cm[k].re; if (re) replied[re] = 1; });
     for (const k of keys.sort((a, b) => (cm[a].at || 0) - (cm[b].at || 0))) {
       const c = cm[k]; if (!c || !c.text || !c.at) continue;
