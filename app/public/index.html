@@ -656,6 +656,7 @@ img.noown { -webkit-touch-callout: none; -webkit-user-select: none; user-select:
 .rxb i{font-style:normal;font-size:1.5rem}
 .rxb.on{background:var(--tile2)}
 .cmtag.bot{background:#fff;border:1px dashed #c9b97a;color:#8a7f6e}
+.cmtag.easy{background:#f1ece0;color:#8a7f6e}
 .cmi.own{background:#c65a3a;color:#fff;border-color:#c65a3a;margin-left:12%}
 .cmi.own b,.cmi.own .note,.cmi.own small{color:#fff}
 .cmi.own .cmtag{background:rgba(255,255,255,.22);color:#fff}
@@ -895,7 +896,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.30a';
+  var APP_VER = 'v2026.10.30b';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1342,6 +1343,31 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   var BOT_PARTS = ['景色', '調べ', '切れ・余韻', '季語', '言葉選び', '取り合わせ', '発想'];
   var BOT_OK = { '景色': 'その場の景色が、すっと目に浮かびました。', '調べ': '声に出して読むと、調べがなめらかで心地よいです。', '切れ・余韻': '言い切らないところに、余韻が残りますね。', '季語': '季語が、句の気分をしっかり決めています。', '言葉選び': 'ことばの選びかたに、確かさを感じます。', '取り合わせ': '二つのものの距離が、ちょうどよく感じます。', '発想': 'ものの見かたに、新鮮さがあります。' };
   var BOT_ASK = { '景色': 'どこで見た景色か、もう少し見えてくると、さらに近くなりそうです。', '調べ': '読んだときに、つかえるところがないか、声に出して確かめてみては。', '切れ・余韻': '最後の言い方を、もう少し余白のあるかたちにしてみるのも、一案です。', '季語': '季語の気分と、ほかのことばの気分が、寄りすぎていないか見てみましょう。', '言葉選び': '説明に近いことばがあれば、ものの名前に置きかえられるかもしれません。', '取り合わせ': '二つのものの距離を、もう少しはなしても、おもしろいかもしれません。', '発想': 'ここから、ひとつ先の見かたがあると、さらに深まりそうです。' };
+
+  /* ---- 句を引いて、いろいろな言いかたで感想を言う（AIが使えないときの「かんたん」コメント）---- */
+  function kuQuotes(ku) {
+    var ws = []; try { ws = hmWords(ku).filter(function (w) { return Array.from(w).length >= 2 && Array.from(w).length <= 8; }); } catch (_) {}
+    if (!ws.length) { var s = plain(ku).replace(/[\\s　]/g, ''); ws = [Array.from(s).slice(0, 5).join('')]; }
+    return ws;
+  }
+  var KS_T = {
+    '景色': ['「{w}」から、そのときの景が、ありありと見えてきます。', '「{w}」と置かれて、目の前にひとつの場面が立ちあがりました。', '「{w}」のところで、光や空気まで感じられました。', '「{w}」が、景のまんなかにすっと立っていますね。', '「{w}」を読んだとたん、その場に立っているような気持ちになりました。', '「{w}」という眺めが、しずかに心に残ります。'],
+    '調べ': ['「{w}」のあたり、声に出すと、息がきれいに運ばれますね。', '「{w}」を口にすると、音がやわらかく転がっていきます。', '「{w}」の響きが、句全体のリズムをつくっています。', '声に出して読むと、「{w}」で自然に息がつぎます。', '「{w}」の音の並びが、耳に心地よいです。'],
+    '切れ・余韻': ['「{w}」のあとに、ふっと間があいて、余韻が残ります。', '「{w}」で言いきらないところに、続きを想像したくなりました。', '「{w}」のうしろの余白が、この句の呼吸になっていますね。', '「{w}」まで読んで、一拍おきたくなる句です。', '「{w}」のあとの静けさが、いいですね。'],
+    '季語': ['「{w}」が、季節の空気をしっかり連れてきています。', '「{w}」ということばに、その季節ならではの手ざわりがあります。', '「{w}」があることで、句の気分がやさしく決まりますね。', '「{w}」の季節感が、ほかのことばをそっと照らしています。', '「{w}」から、その時季のにおいまで届くようです。'],
+    '言葉選び': ['「{w}」という言葉の選びかたに、作者らしさを感じます。', '「{w}」を選んだところに、ものを見る目の確かさが出ています。', '「{w}」のひとことが、この句の味になっていますね。', '「{w}」という言いかた、ほかにない感じがして、好きです。', '「{w}」のところに、作者の目がやどっています。', '「{w}」と言いとめたことばの手ざわりが、いいですね。'],
+    '取り合わせ': ['「{w}」とほかのことばの組み合わせが、おもしろいです。', '「{w}」と、そのほかのものの距離感が、ちょうどよく感じます。', '「{w}」が隣のことばと響きあって、ふしぎな広がりがあります。', '「{w}」と並んだものたちが、静かに話しているようです。', '「{w}」の取り合わせに、はっとしました。'],
+    '発想': ['「{w}」に目をとめた発想が、すてきです。', '「{w}」という見かたが、新鮮でした。', '「{w}」に気づいたところが、この句の宝ですね。', '「{w}」を詠みたくなった気持ちが、伝わってきます。', '「{w}」に目がいく感じ、わかる気がしました。', '「{w}」を句にしたところに、作者の暮らしが見えるようです。']
+  };
+  var KS_TAIL = ['', '', '', 'また読みたくなる一句です。', 'もう一度、声に出してみました。', '読んだあと、すこし気持ちがほどけました。', 'しずかに、いい余韻です。', '素直な読み心地が、うれしいです。', '読めてよかったです。'];
+  function botKansou(ku, seed) {
+    var ws = kuQuotes(ku), sh = ws.filter(function (w) { return Array.from(w).length <= 6; }); if (sh.length) ws = sh;
+    var kws = []; try { var ka = kgAll(); kws = ws.filter(function (w) { return ka.indexOf(w) >= 0 || ka.indexOf(w.replace(/[がをにへでとはもや]$/, '')) >= 0; }); } catch (_) {}
+    var parts = Object.keys(KS_T).filter(function (x) { return x !== '季語' || kws.length; }), h = hash(String(seed || '') + 'ks');
+    var part = parts[h % parts.length], pool = part === '季語' ? kws : ws, w = pool[Math.floor(h / 7) % pool.length], arr = KS_T[part];
+    var tx = arr[Math.floor(h / 53) % arr.length].replace('{w}', w), tail = KS_TAIL[Math.floor(h / 331) % KS_TAIL.length];
+    return { part: part, text: tx + (tail ? tail : '') };
+  }
   function botSay(key, ask) { var p = BOT_PARTS[hash(key) % BOT_PARTS.length]; return { part: p, text: (ask ? BOT_ASK : BOT_OK)[p] }; }
   function teiStartOf(d, h) { return d * 86400000 - 9 * 3600000 + h * 3600000; }
   function teiSid(d, h) { return 't' + ds(d).replace(/-/g, '') + '-' + (h < 10 ? '0' : '') + h; }
@@ -1527,8 +1553,10 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (!pts.length) pts.push(['発想', '見たものをそのまま、飾らずに差し出しているところがいいですね。日常の一瞬をつかまえる、その目が俳句です']);
     /* 2つまで。ならび順は、読みとりの確かな順（切れ・季語が先） */
     var pick = pts.slice(0, 2);
-    var OPEN = ['ご投句、ありがとうございます。まず声に出して読みました。', 'この一句、まっすぐ届きましたよ。', 'よく詠んでくださいました。ていねいに読ませていただきました。'];
-    var CLOSE = ['すてきな一句です。次の句も、楽しみにしています。', 'この調子で、どんどん詠んでください。', 'この句に出会えてよかったです。'];
+    var QW = []; try { QW = kuQuotes(raw); } catch (_) {}
+    var qw = QW.length ? QW[hash(sd + 'Q') % QW.length] : '';
+    var OPEN = ['ご投句、ありがとうございます。まず声に出して読みました。', 'この一句、まっすぐ届きましたよ。', 'よく詠んでくださいました。ていねいに読ませていただきました。', qw ? '「' + qw + '」のところで、ふと読む足が止まりました。' : 'ゆっくり二度、読ませていただきました。', qw ? '「' + qw + '」が、まず目にとまりました。' : '読みはじめて、すぐに景が立ちました。', 'ひらがなの流れまで、味わって読みました。', qw ? '「' + qw + '」を中心に、この一句を味わいました。' : '一語ずつ、たしかめながら読みました。', 'ことばの置きかたが、しずかに伝わってきました。'];
+    var CLOSE = ['すてきな一句です。次の句も、楽しみにしています。', 'この調子で、どんどん詠んでください。', 'この句に出会えてよかったです。', '読後に、すこし温かいものが残りました。', 'また、この作者の句に会いたくなります。', 'いい一句を、ありがとうございました。', '声に出して、何度か味わいたい句です。', 'ここから、さらにふくらんでいきそうな句です。'];
     var txt = OPEN[hash(sd + 'O') % OPEN.length] + pick.map(function (p) { return p[1] + '。'; }).join('') + CLOSE[hash(sd + 'C') % CLOSE.length];
     return { t: txt, part: pick[0][0] };
   }
@@ -1642,7 +1670,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var ids = Object.keys(s.entries || {}), bots = ids.filter(function (k) { return s.entries[k] && s.entries[k].bot; }), out = {}, n = 0;
     ids.filter(function (k) { return !(s.entries[k] && s.entries[k].bot); }).forEach(function (eid) {
       bots.filter(function (b) { return b !== eid; }).sort(function (x, y) { return hash(s.id + eid + x) - hash(s.id + eid + y); }).slice(0, 1).forEach(function (b) {
-        var sy = botSay(s.id + eid + b, false); n++;
+        var sy = botKansou(joinKu(s.entries[eid]).a, s.id + eid + b); n++;
         out['cb' + n] = { eid: eid, uid: b, text: sy.text, tone: 'やさしく', part: [sy.part], at: Date.now() + n };
       });
       /* 先生はひとり（松風主宰）。ほめるだけで、句の型や季語は決めつけない */
@@ -1712,7 +1740,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       if (s.status === 'selecting' && inEntry) {
         var left = selSec(s) - (Date.now() - (s.selectStart || Date.now())) / 1000;
         if ((allDone(s) || left <= 0) && !flags['r' + s.id]) {
-          flags['r' + s.id] = 1; writeIf(s.id, function (c) { return c.status === 'selecting'; }, function (c) { return revealPatch(c); }).then(function (c) { try { senseiAI(c); senseiJudge(c); } catch (_) {} });
+          flags['r' + s.id] = 1; writeIf(s.id, function (c) { return c.status === 'selecting'; }, function (c) { return revealPatch(c); }).then(function (c) { try { senseiAI(c); botAI(c); senseiJudge(c); } catch (_) {} });
         }
       }
     });
@@ -1767,10 +1795,10 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function botAnswer(s0, bid, q, key) {
     var es = s0.entries || {}, be = es[bid]; if (!be || !be.bot) return;
     var ku = joinKu(be).a, done = false;
-    function put(text) {
+    function put(text, isAI) {
       if (done) return; done = true;
       var k2 = key ? 'r_' + key : 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), co = {};
-      co[k2] = { eid: bid, uid: bid, text: String(text).slice(0, 140), tone: 'やさしく', part: [], at: Date.now(), re: key || '', jiku: true, anon: true, bot: true };
+      co[k2] = { eid: bid, uid: bid, text: String(text).slice(0, 140), tone: 'やさしく', part: [], at: Date.now(), re: key || '', jiku: true, anon: true, bot: true, ai: !!isAI };
       setTimeout(function () { write(s0.id, { comments: co }); }, 1500 + Math.random() * 2500);
     }
     var isQ = /[？?]/.test(String(q));
@@ -1778,7 +1806,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (!SENSEI_API) { put(fb); return; }
     var ctrl = null; try { ctrl = new AbortController(); setTimeout(function () { ctrl.abort(); }, 40000); } catch (_) {}
     fetch(SENSEI_API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ reply: { ku: ku, q: (isQ ? '' : '【質問ではなく評です。お礼と、うれしかった点をひとこと返してください】') + String(q).slice(0, 140), name: String(be.haigo || '').replace('（ボット）', '') } }), signal: ctrl ? ctrl.signal : undefined, redirect: 'follow' })
-      .then(function (r) { return r.json(); }).then(function (o) { sLog('質問への返事: ' + (o && o.ok ? 'OK' : '失敗 ' + (o && o.err || ''))); put(o && o.ok && o.text && aiKigoOk(o.text) ? o.text : fb); })
+      .then(function (r) { return r.json(); }).then(function (o) { sLog('質問への返事: ' + (o && o.ok ? 'OK' : '失敗 ' + (o && o.err || ''))); put(o && o.ok && o.text && aiKigoOk(o.text) ? o.text : fb, !!(o && o.ok && o.text && aiKigoOk(o.text))); })
       .catch(function (e) { sLog('質問への返事: 通信エラー ' + (e && e.message || '')); put(fb); });
   }
   /* 作者が自分の句について「？」で問いかけたら、松風主宰が答える（AI があれば AI、だめなら決まった言い方） */
@@ -1818,17 +1846,17 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function senseiAnswer(s0, eid, q, key) {
     var es = s0.entries || {}, e0 = es[eid]; if (!e0 || e0.bot) return;
     var ku = joinKu(e0).a, done = false;
-    function put(text) {
+    function put(text, isAI) {
       if (done) return; done = true;
       var k2 = key ? 'r_' + key : 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), co = {};
-      co[k2] = { eid: eid, uid: 'benico', text: String(text).slice(0, 320), tone: 'やさしく', part: [], at: Date.now(), re: key || '' };
+      co[k2] = { eid: eid, uid: 'benico', text: String(text).slice(0, 320), tone: 'やさしく', part: [], at: Date.now(), re: key || '', ai: !!isAI };
       setTimeout(function () { write(s0.id, { comments: co }); }, 1500 + Math.random() * 2500);
     }
     var fb = SENSEI_ANS[hash(s0.id + eid + key) % SENSEI_ANS.length];
     if (!SENSEI_API) { put(fb); return; }
     var ctrl = null; try { ctrl = new AbortController(); setTimeout(function () { ctrl.abort(); }, 40000); } catch (_) {}
-    fetch(SENSEI_API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ ask: { ku: ku, q: ('【先生へ：遠慮せず、気になる点をはっきり一つ挙げ、直した形の案を一つ示してください】' + String(q)).slice(0, 140) } }), signal: ctrl ? ctrl.signal : undefined, redirect: 'follow' })
-      .then(function (r) { return r.json(); }).then(function (o) { sLog('先生への質問: ' + (o && o.ok ? 'OK' : '失敗 ' + (o && o.err || ''))); put(o && o.ok && o.text && aiKigoOk(o.text) ? o.text : fb); })
+    fetch(SENSEI_API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ ask: { ku: ku, q: ('【やさしく。よい点を先に、気になる点は一つだけ、直し案つきで】' + String(q)).slice(0, 140) } }), signal: ctrl ? ctrl.signal : undefined, redirect: 'follow' })
+      .then(function (r) { return r.json(); }).then(function (o) { sLog('先生への質問: ' + (o && o.ok ? 'OK' : '失敗 ' + (o && o.err || ''))); put(o && o.ok && o.text && aiKigoOk(o.text) ? o.text : fb, !!(o && o.ok && o.text && aiKigoOk(o.text))); })
       .catch(function (e) { sLog('先生への質問: 通信エラー ' + (e && e.message || '')); put(fb); });
   }
   /* AI が「季語がない」「無季」などと言ったら、その文は使わない（歳時記にある季語を、ないと決めつけないため） */
@@ -1852,6 +1880,26 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
           var p = {}; p['comments.' + key + '.text'] = String(o.text).slice(0, 400); p['comments.' + key + '.part'] = [String(o.part || c.part[0])]; p['comments.' + key + '.ai'] = true;
           writeIf(s0.id, function (cur) { return cur.status === 'reveal' && cur.comments && cur.comments[key]; }, function () { return p; });
         }).catch(function (e) { sLog('通信エラー: ' + (e && e.message || e)); });
+    });
+  }
+  /* ボット（雫・蛍など）の感想も、AI に句を読ませて、その句ごとのひとことにする（だめなら、句のことばを引いた「かんたん」コメントのまま） */
+  function botAI(s0) {
+    if (!SENSEI_API || !s0 || !db) return;
+    var cm = teiBotComments(s0), es = s0.entries || {};
+    Object.keys(cm).forEach(function (key) {
+      var c = cm[key]; if (c.uid === 'benico' || !es[c.eid] || es[c.eid].bot || !es[c.uid] || !es[c.uid].bot) return;
+      var nm = String(es[c.uid].haigo || '').replace('（ボット）', ''), ku = joinKu(es[c.eid]).a, ctrl = null, timer = null;
+      try { ctrl = new AbortController(); timer = setTimeout(function () { ctrl.abort(); }, 45000); } catch (_) {}
+      fetch(SENSEI_API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ ask: { ku: ku, q: ('【あなたは参加者「' + nm + '」。句の語を「」で引き、感じたことを60字で。直しは書かない】感想をください').slice(0, 140) } }), signal: ctrl ? ctrl.signal : undefined, redirect: 'follow' })
+        .then(function (r) { return r.json(); })
+        .then(function (o) {
+          if (timer) clearTimeout(timer);
+          var tx = o && o.ok && o.text ? String(o.text).replace(/\s+/g, ' ').trim() : '';
+          if (!tx || !aiKigoOk(tx) || tx.length > 140 || /松風|主宰|先生/.test(tx)) { sLog('ボットの感想: AIは使わず（' + nm + '）'); return; }
+          sLog('ボットの感想OK（' + nm + '）');
+          var p = {}; p['comments.' + key + '.text'] = tx.slice(0, 140); p['comments.' + key + '.ai'] = true;
+          writeIf(s0.id, function (cur) { return cur.status === 'reveal' && cur.comments && cur.comments[key]; }, function () { return p; });
+        }).catch(function (e) { sLog('ボットの感想: 通信エラー ' + (e && e.message || e)); });
     });
   }
   /* 2人の回：AI（Gemini）に2句を読ませて、ボットの特選を決める。届かなければ、並選どうしのまま */
@@ -2588,7 +2636,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       if (c.anon) who = opened ? '✎ 作者 ' + esc(nameOf(s, c.uid)) : '✎ 作者（名前は結果発表まで伏せます）' + (own ? '＝あなた' : '');
       var pc = isRe && c.re ? (s.comments || {})[c.re] : null, quote = '';
       if (pc) { var pwho = opened ? nameOf(s, pc.uid) : (pc.uid === myId ? 'あなた' : (PERSONAS_[pc.uid] ? personaName(s, pc.uid) : '選者')); quote = '<div class="cmquote">↳ ' + esc(pwho) + ': ' + esc(String(pc.text || '').slice(0, 22)) + (String(pc.text || '').length > 22 ? '…' : '') + '</div>'; }
-      return '<div class="cmi' + (isRe ? ' reply' : '') + (isBot ? ' chara' : '') + (own ? ' own' : '') + (c.anon ? ' anon' : '') + '">' + (opened && !isBot && !c.anon ? avOf(c.uid, nameOf(s, c.uid)) : '') + '<b>' + who + '</b>' + (isBot ? '<span class="cmtag bot">ボットのコメント例</span>' : '') + (c.jiku ? '<span class="cmtag jiku">🪶 作者から</span>' : '') + quote +
+      return '<div class="cmi' + (isRe ? ' reply' : '') + (isBot ? ' chara' : '') + (own ? ' own' : '') + (c.anon ? ' anon' : '') + '">' + (opened && !isBot && !c.anon ? avOf(c.uid, nameOf(s, c.uid)) : '') + '<b>' + who + '</b>' + (isBot ? '<span class="cmtag bot">ボットのコメント例</span>' : '') + (c.ai === true ? '<span class="cmtag ok">🔍 しっかり読みました</span>' : (isBot ? '<span class="cmtag easy">かんたん</span>' : '')) + (c.jiku ? '<span class="cmtag jiku">🪶 作者から</span>' : '') + quote +
         (c.tone ? '<span class="cmtag' + (c.tone === 'きびしく' ? ' kb' : '') + '">' + esc(c.tone) + '</span>' : '') +
         (c.part || []).map(function (q) { return '<span class="cmtag">' + esc(q) + '</span>'; }).join('') + esc(c.text) + (c.ed ? ' <small class="note">（編集済み）</small>' : '') +
         '<div class="cmact">' + chips +

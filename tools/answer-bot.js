@@ -72,13 +72,15 @@ async function ask(kind, payload) {
       const nk = 'r_' + k;
       if (kind === 'bot') {
         const isQ = /[？?]/.test(q);
+        let aiOk = true;
         text = await ask('bot', { reply: { ku, q: (isQ ? '' : '【質問ではなく評です。お礼と、うれしかった点をひとこと返してください】') + q, name: String(e.haigo || '').replace('（ボット）', '') } });
-        if (!text) text = BOT_THX[Math.floor(Math.random() * BOT_THX.length)];
-        co = { eid: c.eid, uid: c.eid, text: text.slice(0, 140), tone: 'やさしく', part: [], at: Date.now(), re: k, jiku: true, anon: true, bot: true };
+        if (!text) { aiOk = false; text = BOT_THX[Math.floor(Math.random() * BOT_THX.length)]; }
+        co = { eid: c.eid, uid: c.eid, text: text.slice(0, 140), tone: 'やさしく', part: [], at: Date.now(), re: k, jiku: true, anon: true, bot: true, ai: aiOk };
       } else {
-        text = await ask('sensei', { ask: { ku, q: ('【先生へ：遠慮せず、気になる点をはっきり一つ挙げ、直した形の案を一つ示してください】' + q).slice(0, 140) } });
-        if (!text) text = SENSEI_FB;
-        co = { eid: c.eid, uid: 'benico', text: text.slice(0, 320), tone: 'やさしく', part: [], at: Date.now(), re: k };
+        let aiOk = true;
+        text = await ask('sensei', { ask: { ku, q: ('【やさしく。よい点を先に、気になる点は一つだけ、直し案つきで】' + q).slice(0, 140) } });
+        if (!text) { aiOk = false; text = SENSEI_FB; }
+        co = { eid: c.eid, uid: 'benico', text: text.slice(0, 320), tone: 'やさしく', part: [], at: Date.now(), re: k, ai: aiOk };
       }
       console.log((DRY ? '[DRY] ' : '') + sid + ' ' + kind + ' ← 「' + q + '」→ ' + text.slice(0, 80));
       if (!DRY) {
