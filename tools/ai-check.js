@@ -43,4 +43,37 @@ async function checkKukai() {
   });
   note('合評の先生の評（36時間）', lines.length ? lines.slice(0, 6).join(' ／ ') : 'この36時間に、先生の評のついた句会はありません');
 }
-(async () => { await checkSensei(); await checkKukai(); })().catch((e) => { note('点検係', 'エラー ' + e.message); });
+
+/* 定例句会の評の点検：直近の定例句会（開始から4時間以内）で、
+   主宰の評・ボットの感想が、AIか「かんたん」か／同じ文のくり返し／返事のこし／評のない句 を数える */
+async function checkTei() {
+  const tk = await token(); if (!tk) { note('定例句会の点検', 'しらべられません（鍵がない）'); return; }
+  const base = 'https://firestore.googleapis.com/v1/projects/' + PROJECT + '/databases/(default)/documents/kukai?pageSize=300&mask.fieldPaths=comments&mask.fieldPaths=entries&mask.fieldPaths=status';
+  let docs = [], pt = '';
+  for (let i = 0; i < 15; i++) {
+    const r = await fetch(base + (pt ? '&pageToken=' + encodeURIComponent(pt) : ''), { headers: { Authorization: 'Bearer ' + tk } });
+    if (!r.ok) { note('定例句会の点検', 'しらべられません ' + r.status); return; }
+    const j = await r.json(); docs = docs.concat(j.documents || []); pt = j.nextPageToken || ''; if (!pt) break;
+  }
+  const now = Date.now(), seenText = {}, lines = [];
+  const all = docs.map((d) => { const id = d.name.split('/').pop(), f = {}; Object.entries(d.fields || {}).forEach(([k, x]) => { f[k] = val(x); }); return { id, f }; }).filter((x) => /^t\d{8}-\d{2}$/.test(x.id));
+  /* 36時間ぶんの文を集めて、同じ文のくり返しを数える */
+  all.forEach((x) => Object.values(x.f.comments || {}).forEach((c) => { if (c && (c.uid === 'benico' || c.bot || (x.f.entries && x.f.entries[c.uid] && x.f.entries[c.uid].bot)) && c.text && (now - (c.at || 0)) < 36 * 3600000) { const k = String(c.text).slice(0, 24); seenText[k] = (seenText[k] || 0) + 1; } }));
+  const rep = Object.entries(seenText).filter(([, n]) => n >= 3).map(([k, n]) => '「' + k + '…」' + n + '回');
+  all.forEach((x) => {
+    const m = /^t(\d{4})(\d{2})(\d{2})-(\d{2})$/.exec(x.id), h = +m[4];
+    const startMs = Date.UTC(+m[1], +m[2] - 1, +m[3]) - 9 * 3600000 + h * 3600000;
+    if (now - startMs > 4 * 3600000 || now < startMs) return;
+    const es = x.f.entries || {}, cm = x.f.comments || {}, cs = Object.values(cm).filter(Boolean);
+    const humans = Object.keys(es).filter((k) => es[k] && !es[k].bot), bots = Object.keys(es).filter((k) => es[k] && es[k].bot);
+    const bens = cs.filter((c) => c.uid === 'benico' && !c.re), benAI = bens.filter((c) => c.ai === true).length;
+    const bk = cs.filter((c) => !c.re && c.uid !== 'benico' && es[c.uid] && es[c.uid].bot && es[c.eid] && !es[c.eid].bot), bkAI = bk.filter((c) => c.ai === true).length;
+    const noBen = humans.filter((k) => !bens.some((c) => c.eid === k)).length;
+    const ng = cs.filter((c) => (c.uid === 'benico' || c.bot) && /無季|季語(が|は)?(な[いく]|ありませ|見当たら)/.test(c.text || '')).length;
+    const replied = {}; cs.forEach((c) => { if (c.re && (c.uid === 'benico' || c.bot)) replied[c.re] = 1; });
+    const pend = Object.keys(cm).filter((k) => { const c = cm[k]; return c && !c.bot && c.uid !== 'benico' && (now - (c.at || 0)) > 10 * 60000 && ((es[c.eid] && es[c.eid].bot && c.uid !== c.eid) || (c.re && cm[c.re] && cm[c.re].uid === 'benico')) && !replied[k]; }).length;
+    lines.push(x.id + '：人' + humans.length + '・ボット' + bots.length + '／主宰の評 ' + bens.length + '件（しっかり ' + benAI + '・かんたん ' + (bens.length - benAI) + '）／ボットの感想 ' + bk.length + '件（しっかり ' + bkAI + '・かんたん ' + (bk.length - bkAI) + '）' + (noBen ? '／評のない句 ' + noBen : '') + (pend ? '／返事のこし ' + pend : '') + (ng ? '／「季語がない」系 ' + ng : ''));
+  });
+  note('定例句会の評の点検', (lines.length ? lines.join(' ／ ') : '直近4時間に、定例句会はありません') + (rep.length ? ' ／ 同じ文のくり返し（36時間）：' + rep.slice(0, 4).join('、') : ''));
+}
+(async () => { await checkSensei(); await checkKukai(); await checkTei(); })().catch((e) => { note('点検係', 'エラー ' + e.message); });
