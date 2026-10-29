@@ -896,7 +896,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.30k';
+  var APP_VER = 'v2026.10.30l';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2748,7 +2748,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       var ci = Math.min(idx, rows.length - 1);
       var left = Math.max(0, cmtSecS(s) - (Math.floor(cmtElapsed(s) / 1000) % cmtSecS(s)));
       var curRow = rows[ci], ct = T[curRow.id], curOwn = curRow.id === myId;
-      h = '<div class="tmr stk"><div class="tmr-row"><span class="vbadge">講評 ' + (ci + 1) + '/' + rows.length + '</span>' + wbadge + '<span>残り <b id="oclock">' + fmt(left) + '</b></span><span class="tmr-btns"><button class="fold" data-act="stage-fold" aria-pressed="' + stageFold + '" aria-label="' + (stageFold ? '句と案内をひろげる' : '句と案内をたたんで、コメントを見る') + '" title="' + (stageFold ? 'ひろげる' : 'たたんで、コメントを見る') + '">' + (stageFold ? '▼' : '▲') + '</button><button class="fold yk" data-act="yaku-open" aria-label="わかばマーク：おやくそくを見る" title="おやくそくを見る"><svg viewBox="0 0 40 40" width="26" height="26" aria-hidden="true"><path d="M20 3 C8 8 4 20 8 32 C12 36 17 37 20 37 Z" fill="#f0c419"/><path d="M20 3 C32 8 36 20 32 32 C28 36 23 37 20 37 Z" fill="#2e8b57"/><path d="M20 37 V16" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg><span>おやくそく</span></button></span></div><div class="tmr-bar"><i id="obar" style="width:' + (left / cmtSecS(s) * 100).toFixed(1) + '%"></i></div>' + (stageFold ? '<div class="tmr-ku">' + kuS(curRow) + '</div>' : '') + '</div>';
+      h = '<div class="tmr stk"><div class="tmr-row"><span class="vbadge">講評 ' + (ci + 1) + '/' + rows.length + '</span>' + wbadge + '<span>残り <b id="oclock">' + fmt(left) + '</b></span><span class="tmr-btns"><button class="fold" data-act="stage-fold" aria-pressed="' + stageFold + '" aria-label="' + (stageFold ? '句と案内をひろげる' : '句と案内をたたんで、コメントを見る') + '" title="' + (stageFold ? 'ひろげる' : 'たたんで、コメントを見る') + '">' + (stageFold ? '▼' : '▲') + '</button><button class="fold yk" data-act="yaku-open" aria-label="初心者マーク：おやくそくを見る" title="おやくそくを見る"><span style="font-size:1.35rem;line-height:1">🔰</span><span>おやくそく</span></button></span></div><div class="tmr-bar"><i id="obar" style="width:' + (left / cmtSecS(s) * 100).toFixed(1) + '%"></i></div>' + (stageFold ? '<div class="tmr-ku">' + kuS(curRow) + '</div>' : '') + '</div>';
       var yAuto = yakuOpen[s.id] === undefined && cmtElapsed(s) < 45000;
       if (yAuto || yakuOpen[s.id]) return h + yakuCard();
       if (!stageFold) h += hostSay('一句ずつ、壇上にあげて、ゆっくり話しましょう。講評の仕切りは、わたしダー浜にまかせてや。いま ' + (ci + 1) + ' 句め（全 ' + rows.length + ' 句）。この句は 特選 ' + ct.toku.length + '票・並選 ' + ct.nami.length + '票 を集めました（予選 ' + ct.yo.length + '票）。' + (curOwn ? '<br>いま壇上にあるのは、あなたの句です。作者は、講評のあいだは聞き役です。コメントは書かずに、みんなの言葉をゆっくり受け取りましょう。' : ''), '一句' + (cmtSecS(s) / 60) + '分で、時間が来ると次の句へ進みます。だれかが抜けても、タイマーが進めます。作者は、最後のオープンまで伏せられています。');
