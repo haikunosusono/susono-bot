@@ -657,6 +657,7 @@ img.noown { -webkit-touch-callout: none; -webkit-user-select: none; user-select:
 .rxb.on{background:var(--tile2)}
 .cmtag.bot{background:#fff;border:1px dashed #c9b97a;color:#8a7f6e}
 .cmtag.easy{background:#f1ece0;color:#8a7f6e}
+.gloss{margin:.4em 0 0}.gloss dt{font-weight:700;margin-top:.7em}.gloss dd{margin:.15em 0 0;color:var(--ink-soft,#6b5a4a);line-height:1.7}
 .cmi.own{background:#c65a3a;color:#fff;border-color:#c65a3a;margin-left:12%}
 .cmi.own b,.cmi.own .note,.cmi.own small{color:#fff}
 .cmi.own .cmtag{background:rgba(255,255,255,.22);color:#fff}
@@ -896,7 +897,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.30q';
+  var APP_VER = 'v2026.10.30t';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2876,7 +2877,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     ['終わった句会は、どこで見られますか？', '「句会アーカイブ」（マイページ・メニューから）に残ります。そこから、結果をいつでもひらけます。参加した人だけが見られます。'],
     ['句会で出した句は、ストッ句に入りますか？', 'はい。定例句会も、仲間と句会も、ひとりで句会も、出した句は、出どころ（句会の名前と題）つきで、ストッ句に自動で入ります。ストッ句から消しても、もう一度は入りません。'],
     ['合言葉って、なんですか？', '仲間と句会の集まり方のひとつです。部屋をつくるときに合言葉を決めると、仲間は「仲間と句会」の「部屋に入る」で、同じ合言葉を入れるだけで、同じ部屋に入れます。部屋の外の人には見えません。仲間うちだけで通じる言葉にしてください。招待リンクでも入れます。'],
-    ['仲間と句会の優勝は、どう決まりますか？', '1回戦ごとに「この回のトップ」が決まり、点は通算にくりこされます。決めた回数（1〜10回戦）をまわし終えるか、幹事が「句会をとじて、優勝を決める」を押すと、通算トップが句会優勝。トロフィーがマイページに飾られます。'],
+    ['仲間と句会の優勝は、どう決まりますか？', '設定の「優勝の決めかた」で、司会（幹事）が選べます。①合計点で優勝（はじめの設定）：1回戦ごとに「この回のトップ」が決まり、点は通算にくりこされます。決めた回数をまわし終えるか、幹事が「句会をとじて、優勝を決める」を押すと、合計点がいちばんの人が優勝。いちばん点の高い句は「最優秀句」で、その句の作者に句碑の除幕があります（同点のときは句碑なし）。②毎回、優勝と最優秀句を決める：1回戦ごとに、ダー浜が結果発表をします（優勝がひとりなら、句碑の除幕もあります）。どちらも、トロフィーがマイページに飾られます。'],
     ['こそこそ話は、だれに見えますか？', 'その部屋の参加者だけです。句会のあいまの、ひそひそにどうぞ。ほかの人の句や選評を、外へ持ち出すことは、こそこそ話でもしないでください。'],
     ['句会を消すには？', '仲間と句会は、幹事が、ルームの中の「この句会を消す」で、みんなの一覧から消せます（確認が一度出ます）。出した句は、それぞれのストッ句に残ります。'],
     ['幹事を、ほかの人にもまかせられますか？', 'はい。仲間と句会のルームの中にある「幹事をふやす・かえる」で、参加している人を、何人でも幹事にできます。幹事は、進行・設定・次の回・句会を消す、ができます。ひらいた人は、ほかの幹事からははずせません。自分から、幹事をおりることはできます。'],
@@ -4059,8 +4060,63 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<h3>お問い合わせ</h3><p>ご意見・不具合・権利侵害の申告は「お問い合わせ」から。ボットが定型の返事をし、運営者が内容を確認します。</p>' +
       '<h3>この試作版について</h3><ul><li>メールアドレスとパスワードで登録します。句会でほかの人に見えるのは俳号だけです。</li><li>データは Google の Firebase（東京のサーバー）に保管されます。松風主宰のほめ言葉には、Google の AI（Gemini）を使っています。</li><li>試作中のため、機能や内容は予告なく変わります。大切な句は、手元にも控えてください。</li><li>「みんなで歌会」からひらめきをもらって作りました。</li></ul></div>';
   }
+  /* ---- 用語集（句会のことば・俳句のことば）---- */
+  var GLOSS = [
+    ['句会のながれ', [
+      ['句会', '集まって句を出し合い、選び合い、感想を言い合う会。裾野では、定例句会・ふらっと句会・仲間と句会があります。'],
+      ['兼題', '前もって出されている題。それに合わせて、前の日までに句をつくっておきます。'],
+      ['席題', 'その場で出される題。その場で句をつくります（裾野の定例句会は、当季雑詠です）。'],
+      ['当季雑詠', 'その季節の季語を使って、自由に詠むこと。題はありません。'],
+      ['投句（出句）', '句を出すこと。作者の名前は伏せて出します。'],
+      ['清記', '出された句を、筆跡で作者が分からないように、書き写してならべること。裾野では、名前を伏せて自動でならべます。'],
+      ['選句', 'ならんだ句のなかから、よいと思う句を選ぶこと。自分の句は、選べません。'],
+      ['特選・並選・予選', '特選は、いちばん心に残った句（点が高い）。並選は、よいと思った句。予選は、予備に残す句（裾野の設定による）。'],
+      ['点盛り', '披講のとき、句に入った点を、記録していくこと。'],
+      ['披講', '選んだ句を、読み上げること。点の高い順に読んだり、時間によっては、数句だけ読むこともあります。'],
+      ['合評（選評）', '選んだ理由や、感じたことを、ひとことずつ伝え合うこと。'],
+      ['作者オープン（名乗り）', '最後に、どの句がだれの句かを明かすこと。'],
+      ['坊主', 'だれにも選ばれなかった（0点の）句。恥ずかしがらなくて大丈夫です。'],
+      ['吟行（ぎんこう）', '景色のよい所へ出かけて、句をつくること。その日のうちに、旅先で句会を開くのが「吟行句会」です。'],
+      ['天・地・人', '会によって、選者が選んだ上位3句につける名前。']
+    ]],
+    ['表彰のことば', [
+      ['高点句', '点がいちばん高かった句。'],
+      ['最優秀句', '句会全体で、点がいちばん高い句。句を表彰します。裾野では、句碑の除幕があります。'],
+      ['優勝', '人を表彰するもの。裾野の仲間と句会では、「合計点で決める」か「毎回決める」かを、司会（幹事）が設定で選べます。'],
+      ['句碑（くひ）', '句を石に刻んで建てたもの。裾野では、優勝（ひとり）のときや、最優秀句のときに、画像で除幕します。']
+    ]],
+    ['俳句のことば', [
+      ['季語', '季節を表すことば。歳時記に載っています。'],
+      ['歳時記', '季語を集めて、季節ごとに分けた本。'],
+      ['切れ・切れ字', '句の中の「ひと呼吸」の切れ目。「や」「かな」「けり」などが、その役目をします。'],
+      ['体言止め', '句を名詞（体言）で終えること。余韻が残ります。'],
+      ['取り合わせ', '季語と、ほかのことば（景）を組み合わせること。ふたつの距離を楽しみます。'],
+      ['一物仕立て', '季語だけを詠むこと。取り合わせと、対になるつくりかた。'],
+      ['上五・中七・下五', '五・七・五の、それぞれの部分のよび名。'],
+      ['字余り・字足らず', '五七五より、音が多い（余り）、少ない（足らず）こと。わざと使うことも。'],
+      ['語順', 'ことばを並べる順番。入れかえると、句の印象が変わります。'],
+      ['助詞', '「が」「は」「を」「に」など。ひとつ変えると、句の主役が変わります。'],
+      ['つきすぎ', '季語と、ほかのことばの気分が近すぎて、新しい発見が少ないこと。'],
+      ['類想', 'ほかの人の句と、考えや景がにていること。'],
+      ['添削', '句を直してもらうこと。']
+    ]]
+  ];
+  var glossQ = '';
+  function glossList() {
+    var q = norm(glossQ).replace(/\s/g, ''), h = '', n = 0;
+    GLOSS.forEach(function (g) {
+      var items = g[1].filter(function (x) { return !q || norm(x[0] + x[1]).indexOf(q) >= 0; }); if (!items.length) return;
+      n += items.length;
+      h += '<div class="panel"><b>' + esc(g[0]) + '</b><dl class="gloss">' + items.map(function (x) { return '<dt>' + esc(x[0]) + '</dt><dd>' + esc(x[1]) + '</dd>'; }).join('') + '</dl></div>';
+    });
+    if (!n) h += '<p class="note">見つかりませんでした。ほかのことばで、しらべてみてください。</p>';
+    return h;
+  }
+  function vGloss() {
+    return '<h2 class="sec">用語集<small>句会のことば・俳句のことば</small></h2><div class="field"><input type="search" data-f="gloss-q" value="' + esc(glossQ) + '" placeholder="ことばで しらべる（例：披講）" aria-label="用語をしらべる"></div><div id="gloss-list">' + glossList() + '</div><p class="note">ここにあることばは、一般的な句会の使いかたです。会によって、ちがうこともあります。</p>';
+  }
   function vKigoPage() { return '<h2 class="sec">季語をしらべる<small>漢字でも、ひらがなでも</small></h2>' + kigoBox(true); }
-  function pageView() { return page === 'kigo' ? vKigoPage() : page === 'stock' ? vStock() : page === 'contact' ? vContact() : page === 'terms' ? vTerms() : page === 'my' ? vMy() : page === 'hints' ? vHints() : page === 'hyo' ? vHyo() : page === 'kata' ? vKata() : page === 'kushu' ? vKushu() : page === 'renkan' ? vRenkanPage() : page === 'kokoro' ? vKokoro() : page === 'admin' ? vAdmin() : page === 'about' ? vAbout() : page === 'news' ? vNewsPage() : page === 'faq' ? vFaq() : page === 'notify' ? vNotify() : page === 'archive' ? vArchive() : page === 'manner' ? vManner() : vPrivacy(); }
+  function pageView() { return page === 'gloss' ? vGloss() : page === 'kigo' ? vKigoPage() : page === 'stock' ? vStock() : page === 'contact' ? vContact() : page === 'terms' ? vTerms() : page === 'my' ? vMy() : page === 'hints' ? vHints() : page === 'hyo' ? vHyo() : page === 'kata' ? vKata() : page === 'kushu' ? vKushu() : page === 'renkan' ? vRenkanPage() : page === 'kokoro' ? vKokoro() : page === 'admin' ? vAdmin() : page === 'about' ? vAbout() : page === 'news' ? vNewsPage() : page === 'faq' ? vFaq() : page === 'notify' ? vNotify() : page === 'archive' ? vArchive() : page === 'manner' ? vManner() : vPrivacy(); }
   function vManner() {
     return '<h2 class="sec">句のあつかいとマナー<small>ここは練習の場です</small></h2>' +
       '<div class="howto"><b>ここで作った句は、「未発表」のあつかいです</b><span>「俳句の裾野」は、俳句を鍛える練習の場です。ここで作った句は、練習の句なので、未発表のあつかいにします。</span></div>' +
@@ -4327,7 +4383,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   var G_LABEL = { open: '集まり中', ku: '投句中', sel: '選句中', go: '合評中', done: '作者オープン' };
   var G_PHASES = ['open', 'ku', 'sel', 'go', 'done'];
   function gDefault() {
-    return { daiBy: 'members', daiMode: 'all', daiN: 3, kuPer: 'one', adv: 'host', kuMin: 10, daiMin: 5, selMin: 10, goMin: 15, kuMax: 5, maxRounds: 0, endMode: 'none', endHM: '', preset: 'std', kinds: JSON.parse(JSON.stringify(G_PRESETS.std.kinds)) };
+    return { daiBy: 'members', daiMode: 'all', daiN: 3, kuPer: 'one', adv: 'host', kuMin: 10, daiMin: 5, selMin: 10, goMin: 15, kuMax: 5, maxRounds: 0, winMode: 'total', endMode: 'none', endHM: '', preset: 'std', kinds: JSON.parse(JSON.stringify(G_PRESETS.std.kinds)) };
   }
   var gDelAsk = '', gCloseAsk = false, gRooms = [], gCur = '', gNew = false, gJoin = '', gAik = '', gAikNew = '', gSet = gDefault(), gName = '', gDraft = { a: '', b: '', c: '', dai: '' }, gDaiText = '', gDaiCand = [], gCm = {}, gCmTag = {}, gChatText = '', gChatOpen = false, gFlags = {}, gEdit = false, gTimer = null, gPhaseSeen = {}, gNoteSeen = {}, gChatSeen = {};
   function gcur() { for (var i = 0; i < gRooms.length; i++) if (gRooms[i].id === gCur) return gRooms[i]; return gExtra[gCur] || null; }
@@ -4423,6 +4479,16 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       var wins = rows.filter(function (u) { return ser.tot[u] === mx; });
       if (wins.indexOf(myId) >= 0) { var meE = gEnts(r).filter(function (e) { return e.uid === myId; })[0] || {}; awardTrophy('gs-' + ser.rootId, { kind: '仲間と句会 優勝', ch: (r.name || '') + '（全' + ser.n + '回）', date: ds(dayNum()), pts: mx, a: meE.a || '', b: meE.b || '', c: meE.c || '' }); }
       h += winCard(wins.map(function (u) { return gHaigo(r, u); }), mx, null, '（句会優勝・通算）', '句会優勝のトロフィーが、マイページに飾られます');
+      if ((r.st || {}).winMode !== 'each') {
+        /* 合計点方式：優勝（人）と、最優秀句（句）。最優秀句がひとつなら、その句の作者に句碑 */
+        var bestE = [], bestP = -1;
+        gChain(r).forEach(function (x) { var pp = gTally(x); gEnts(x).forEach(function (e) { var q = pp[e.id] ? pp[e.id].pts : 0; if (q > bestP) { bestP = q; bestE = [Object.assign({}, e, { id: e.uid })]; } else if (q === bestP) bestE.push(Object.assign({}, e, { id: e.uid })); }); });
+        var restU = rows.filter(function (u) { return wins.indexOf(u) < 0; }).slice(0, 2);
+        var mt2 = { head: (r.name || '仲間と句会') + '　全' + ser.n + '回', res: '合計' + mx + '点', ranks: restU.map(function (u, i) { return { name: gHaigo(r, u), res: '合計' + ser.tot[u] + '点', no: wins.length + i + 1 }; }), best: bestE.length ? { name: gHaigo(r, bestE[0].uid), pts: bestP, tie: bestE.length > 1, n: bestE.length } : null };
+        var wn = wins.map(function (u) { return gHaigo(r, u); });
+        h += '<div class="cmi hostline"><b>ダー浜（司会）</b>' + esc(dhWin(wn, mt2, r.id)).replace(/\n/g, '<br>') + '</div>';
+        if (bestE.length === 1 && bestP > 0) h += kuhiImg(bestE[0], gHaigo(r, bestE[0].uid), { head: mt2.head + '　最優秀句', res: bestP + '点' }, true);
+      }
     }
     return h + '</div>';
   }
@@ -4525,6 +4591,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     h += '<div class="field"><label>進行</label>' + chips('adv', [['host', '幹事がボタンで進める'], ['timer', 'タイマーで自動（ボットが進める）']], st.adv) + '</div>';
     if (st.adv === 'timer') h += '<div class="grid2">' + (st.daiMode === 'turn' ? num('daiMin', '1題あたり（分）', st.daiMin, 1, 120) : num('kuMin', '投句（分）', st.kuMin, 1, 600)) + num('selMin', '選句（分）', st.selMin, 1, 600) + num('goMin', '合評（分）', st.goMin, 1, 600) + '</div>';
     h += '<div class="field"><label>回数の上限（1〜10回戦、または制限なし）</label><select data-f="g-maxRounds"' + dis + '>' + [[0, '制限なし'], [1, '1回戦（1回で終わり）'], [2, '2回戦'], [3, '3回戦'], [4, '4回戦'], [5, '5回戦'], [6, '6回戦'], [7, '7回戦'], [8, '8回戦'], [9, '9回戦'], [10, '10回戦']].map(function (o) { return '<option value="' + o[0] + '"' + (Number(st.maxRounds) === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div>';
+    h += '<div class="field"><label>優勝の決めかた</label>' + chips('winMode', [['total', '合計点で優勝（最優秀句も、えらぶ）'], ['each', '毎回、優勝と最優秀句を、きめる']], st.winMode || 'total') + '<p class="note">合計点：全部の回の点を足した人が優勝。いちばん点の高い句が「最優秀句」で、句碑の除幕があります。／毎回：1回戦ごとに結果発表があります（優勝がひとりなら、句碑の除幕もあります）。</p></div>';
     h += '<div class="field"><label>何時まで</label>' + chips('endMode', [['none', '決めない'], ['mid', '24時（てっぺん）まで'], ['hm', '時刻を決める']], st.endMode) + (st.endMode === 'hm' ? '<input type="time" data-f="g-endHM" value="' + esc(st.endHM || '') + '"' + dis + '>' : '') + '</div>';
     h += '<div class="field"><label>選の種類</label>' + chips('preset', Object.keys(G_PRESETS).map(function (k) { return [k, G_PRESETS[k].name]; }), st.preset) + '</div>';
     h += '<div class="field"><label>それぞれ、何句まで・何点か</label><div class="kinds">' + st.kinds.map(function (k, i) { return '<label class="kind"><span>' + esc(k.name) + '</span><span class="kin"><input type="number" data-f="g-kmax-' + i + '" value="' + k.max + '" min="0" max="99"' + dis + '>句</span><span class="kin"><input type="number" data-f="g-kpts-' + i + '" value="' + k.pts + '" min="0" max="10"' + dis + '>点</span></label>'; }).join('') + '</div><p class="note">句数の「0」は「いくつでも」。点の「0」は「点なし」。数も点も、あとから（途中でも）変えられます。途中で変えると、全員に「可変タイム」のお知らせが出ます。</p></div>';
@@ -4727,6 +4794,12 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (done && list.length && p[list[0].id].pts > 0) {
       var mx0 = p[list[0].id].pts, tops = list.filter(function (e) { return p[e.id].pts === mx0; });
       h += '<div class="panel roundtop"><b>この回のトップ</b>　' + tops.map(function (e) { return esc(gHaigo(r, e.uid)); }).join('・') + '（' + mx0 + '点）' + (isFinal ? '' : '<span class="note">　点は通算にくりこされます</span>') + '</div>';
+    }
+    if (done && (r.st || {}).winMode === 'each' && list.length && p[list[0].id].pts > 0) {
+      var mx1 = p[list[0].id].pts, tops1 = list.filter(function (e) { return p[e.id].pts === mx1; }), rest1 = list.filter(function (e) { return p[e.id].pts < mx1; }).slice(0, 2);
+      var mt1 = { head: (r.name || '仲間と句会') + (r.round > 1 ? '　' + r.round + '回目' : ''), res: mx1 + '点', ranks: rest1.map(function (e, i) { return { name: gHaigo(r, e.uid), res: p[e.id].pts + '点', no: tops1.length + i + 1 }; }) };
+      if (tops1.length === 1) h += kuhiImg(Object.assign({}, tops1[0], { id: tops1[0].uid }), gHaigo(r, tops1[0].uid), mt1);
+      else h += '<div class="cmi hostline"><b>ダー浜（司会）</b>' + esc(dhWin(tops1.map(function (e) { return gHaigo(r, e.uid); }), mt1, r.id)).replace(/\n/g, '<br>') + '</div>';
     }
     if (done) h += vGSeries(r, isFinal);
     if (done) h += kaihoPanel('g-' + r.id, kaihoG(r, list, p, kinds), '点の高い順の全句と、選んだ人、ひとことです。');
@@ -4999,11 +5072,14 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   /* ダー浜の結果発表（下の順位から発表して、最後に優勝。同点優勝は「〇人」と言う）*/
   function dhWin(names, meta, key) {
     var ns = (Array.isArray(names) ? names : [names]).map(function (x) { return String(x || '').replace(/（ボット）/, '') || 'あなた'; }), multi = ns.length > 1;
-    var r = meta && meta.res ? '（' + meta.res + '）' : '', ks = { 2: '第二位', 3: '第三位', 4: '第四位' };
+    var r = meta && meta.res ? '（' + meta.res + '）' : '', ks = { 2: '第二位', 3: '第三位', 4: '第四位' }, best = meta && meta.best;
     var lines = ['……さあ、お待たせしました！', '結果発表ー！', ''];
     ((meta && meta.ranks) || []).slice().sort(function (a, b) { return b.no - a.no; }).forEach(function (x) { lines.push((ks[x.no] || ('第' + x.no + '位')) + 'は' + String(x.name).replace(/（ボット）/, '') + 'さんー！' + (x.res ? '（' + x.res + '）' : '')); });
-    lines.push(multi ? '第一位は' + ns.length + '人　' + ns.join('さんと') + 'さんー！' + r : '第一位は' + ns[0] + 'さんー！' + r);
-    lines.push(multi ? 'みなさん、では優勝記念トロフィー贈呈です！おめでとうございましたー！　🎉' : 'みなさん、では優勝記念トロフィー贈呈と句碑の除幕です！おめでとうございましたー！　🎉');
+    var lbl = best ? '優勝' : '第一位';
+    lines.push(multi ? lbl + 'は' + ns.length + '人　' + ns.join('さんと') + 'さんー！' + r : lbl + 'は' + ns[0] + 'さんー！' + r);
+    if (best) lines.push(best.tie ? '最優秀句は、同点で' + best.n + '句ー！（' + best.pts + '点）' : '最優秀句は' + String(best.name).replace(/（ボット）/, '') + 'さんの、この句です！（' + best.pts + '点）');
+    var kuhi = best ? !best.tie : !multi;
+    lines.push('みなさん、では優勝記念トロフィー贈呈' + (kuhi ? 'と句碑の除幕' : '') + 'です！おめでとうございましたー！　🎉');
     return lines.join('\n');
   }
   function kuhiImg(kuObj, haigo, meta, noHost) {
@@ -5523,7 +5599,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     function pg(p, label) { return mb('page', ' data-p="' + p + '"', label); }
     var g = function (t, items) { return '<div class="mgrp"><b>' + t + '</b><div class="row">' + items.join('') + '</div></div>'; };
     return '<details class="panel menu"><summary>☰ メニュー・機能まとめ</summary>' +
-      g('つくる', [mb('tk-start', '', '🧩 句づくり'), pg('kigo', '🔍 季語をしらべる'), pg('stock', '📒 ストッ句'), pg('renkan', '🧵 連作の部屋'), pg('kushu', '📖 句集づくり')]) +
+      g('つくる', [mb('tk-start', '', '🧩 句づくり'), pg('kigo', '🔍 季語をしらべる'), pg('gloss', '📖 用語集'), pg('stock', '📒 ストッ句'), pg('renkan', '🧵 連作の部屋'), pg('kushu', '📖 句集づくり')]) +
       g('まなぶ', [mb('tut', '', '🌱 一句つくれるチュートリアル'), mb('tutd', '', '🔍 さらに深くチュートリアル'), pg('about', 'できること'), pg('kokoro', '🍵 はじめに（ことば）'), pg('kata', '📐 俳句の型と技の部屋'), pg('hyo', '🎓 評のトレーニング'), pg('hints', '句会の評のヒント'), pg('manner', '句のあつかい・マナー'), pg('faq', 'よくある質問'), pg('notify', 'スマホの通知のしかた')]) +
       g('じぶん', [pg('my', 'マイページ'), pg('archive', '句会アーカイブ')]) +
       g('声をとどける', [pg('contact', '📮 ご意見・ご要望'), pg('terms', '利用規約'), pg('privacy', 'プライバシー')]) +
@@ -6445,6 +6521,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function onInput(e) {
     var t = e.target, f = t.dataset && t.dataset.f; if (!f) return;
     if (f.indexOf('g-') === 0) { gInput(f, t); return; }
+    if (f === 'gloss-q') { glossQ = t.value; var gl = document.getElementById('gloss-list'); if (gl) gl.innerHTML = (typeof addRuby === 'function' ? addRuby(glossList()) : glossList()); return; }
     if (f === 'k-chat') { kChatText = t.value; return; }
     if (f.indexOf('mon-cm:') === 0) { monCmt[f.slice(7)] = t.value; return; }
     if (/^mon-[0-2]$/.test(f)) { monDraft[+f.slice(4)] = t.value; return; }
