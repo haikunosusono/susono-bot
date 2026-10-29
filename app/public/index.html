@@ -896,7 +896,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.30e';
+  var APP_VER = 'v2026.10.30f';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1382,10 +1382,10 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var kws = []; try { var ka = kgAll(); kws = ws.filter(function (w) { return ka.indexOf(w) >= 0 || ka.indexOf(w.replace(/[がをにへでとはもや]$/, '')) >= 0; }); } catch (_) {}
     var parts = Object.keys(KS_T).filter(function (x) { return x !== '季語' || kws.length; }), h = hash(String(seed || '') + 'ks');
     var fa = []; try { fa = kuFacts(ku); } catch (_) {}
-    if (fa.length && h % 3 !== 0) { var fp = fa[Math.floor(h / 11) % fa.length]; return { part: fp[0], text: fp[1] }; }
+    if (fa.length && h % 3 !== 0) { var fp = fa[Math.floor(h / 11) % fa.length]; return { part: fp[0], text: fp[1], tp: 'fact:' + fp[0] + ':' + (hash(fp[1].replace(/「[^」]*」/g, '')) % 997) }; }
     var part = parts[h % parts.length], pool = part === '季語' ? kws : ws, w = pool[Math.floor(h / 7) % pool.length], arr = KS_T[part];
     var tx = arr[Math.floor(h / 53) % arr.length].replace('{w}', w), tail = KS_TAIL[Math.floor(h / 331) % KS_TAIL.length];
-    return { part: part, text: tx + (tail ? tail : '') };
+    return { part: part, text: tx + (tail ? tail : ''), tp: 'ks:' + part + ':' + (Math.floor(h / 53) % arr.length) + ':t' + (Math.floor(h / 331) % KS_TAIL.length) };
   }
   function botSay(key, ask) { var p = BOT_PARTS[hash(key) % BOT_PARTS.length]; return { part: p, text: (ask ? BOT_ASK : BOT_OK)[p] }; }
   function teiStartOf(d, h) { return d * 86400000 - 9 * 3600000 + h * 3600000; }
@@ -1577,8 +1577,9 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var qw = QW.length ? QW[hash(sd + 'Q') % QW.length] : '';
     var OPEN = ['ご投句、ありがとうございます。まず声に出して読みました。', 'この一句、まっすぐ届きましたよ。', 'よく詠んでくださいました。ていねいに読ませていただきました。', qw ? '「' + qw + '」のところで、ふと読む足が止まりました。' : 'ゆっくり二度、読ませていただきました。', qw ? '「' + qw + '」が、まず目にとまりました。' : '読みはじめて、すぐに景が立ちました。', 'ひらがなの流れまで、味わって読みました。', qw ? '「' + qw + '」を中心に、この一句を味わいました。' : '一語ずつ、たしかめながら読みました。', 'ことばの置きかたが、しずかに伝わってきました。'];
     var CLOSE = ['すてきな一句です。次の句も、楽しみにしています。', 'この調子で、どんどん詠んでください。', 'この句に出会えてよかったです。', '読後に、すこし温かいものが残りました。', 'また、この作者の句に会いたくなります。', 'いい一句を、ありがとうございました。', '声に出して、何度か味わいたい句です。', 'ここから、さらにふくらんでいきそうな句です。'];
+    var tpo = 'pr:O' + (hash(sd + 'O') % OPEN.length) + 'C' + (hash(sd + 'C') % CLOSE.length) + ':' + pick.map(function (q) { return q[0]; }).join('+');
     var txt = OPEN[hash(sd + 'O') % OPEN.length] + pick.map(function (p) { return p[1] + '。'; }).join('') + CLOSE[hash(sd + 'C') % CLOSE.length];
-    return { t: txt, part: pick[0][0] };
+    return { t: txt, part: pick[0][0], tp: tpo };
   }
   function kataComment(raw, seed) {
     var k = kuKata(raw); if (!k) return null;
@@ -1691,11 +1692,11 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     ids.filter(function (k) { return !(s.entries[k] && s.entries[k].bot); }).forEach(function (eid) {
       bots.filter(function (b) { return b !== eid; }).sort(function (x, y) { return hash(s.id + eid + x) - hash(s.id + eid + y); }).slice(0, 1).forEach(function (b) {
         var sy = botKansou(joinKu(s.entries[eid]).a, s.id + eid + b); n++;
-        out['cb' + n] = { eid: eid, uid: b, text: sy.text, tone: 'やさしく', part: [sy.part], at: Date.now() + n };
+        out['cb' + n] = { eid: eid, uid: b, text: sy.text, tone: 'やさしく', part: [sy.part], at: Date.now() + n, tp: sy.tp || '' };
       });
       /* 先生はひとり（松風主宰）。ほめるだけで、句の型や季語は決めつけない */
       var bz = null; try { bz = senseiPraise(joinKu(s.entries[eid]).a, s.id + eid); } catch (_) {} if (!bz) bz = SENSEI_SAYS[hash(s.id + eid + 'b') % SENSEI_SAYS.length]; n++;
-      out['cp' + n] = { eid: eid, uid: 'benico', text: bz.t, tone: 'やさしく', part: [bz.part], at: Date.now() + 400 + n };
+      out['cp' + n] = { eid: eid, uid: 'benico', text: bz.t, tone: 'やさしく', part: [bz.part], at: Date.now() + 400 + n, tp: bz.tp || '' };
     });
     /* ボットの句にも、松風主宰がほめる（ボットどうしは、ほめ合わない。人がいるときだけ） */
     if (ids.length > bots.length) bots.forEach(function (eid) {

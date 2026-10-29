@@ -76,4 +76,39 @@ async function checkTei() {
   });
   note('定例句会の評の点検', (lines.length ? lines.join(' ／ ') : '直近4時間に、定例句会はありません') + (rep.length ? ' ／ 同じ文のくり返し（36時間）：' + rep.slice(0, 4).join('、') : ''));
 }
-(async () => { await checkSensei(); await checkKukai(); await checkTei(); })().catch((e) => { note('点検係', 'エラー ' + e.message); });
+
+/* よかったか？の査定：直近7日の定例句会（土日祝日の昼も含む）で、コメントごとの「反応」を数える。
+   反応＝ほかの人のリアクション（なるほど・すき など）と、人からの返信。種類ごとに、反応のついた割合と、型（tp）ごとの上位・下位を出す */
+async function checkFeedback() {
+  const tk = await token(); if (!tk) return;
+  const base = 'https://firestore.googleapis.com/v1/projects/' + PROJECT + '/databases/(default)/documents/kukai?pageSize=300&mask.fieldPaths=comments&mask.fieldPaths=entries';
+  let docs = [], pt = '';
+  for (let i = 0; i < 15; i++) {
+    const r = await fetch(base + (pt ? '&pageToken=' + encodeURIComponent(pt) : ''), { headers: { Authorization: 'Bearer ' + tk } });
+    if (!r.ok) return; const j = await r.json(); docs = docs.concat(j.documents || []); pt = j.nextPageToken || ''; if (!pt) break;
+  }
+  const since = Date.now() - 7 * 86400000, G = {}, TP = {}, emo = {};
+  docs.forEach((d) => {
+    const id = d.name.split('/').pop(); if (!/^t\d{8}-\d{2}$/.test(id)) return;
+    const f = {}; Object.entries(d.fields || {}).forEach(([k, x]) => { f[k] = val(x); });
+    const es = f.entries || {}, cm = f.comments || {}, keys = Object.keys(cm);
+    keys.forEach((k) => {
+      const c = cm[k]; if (!c || c.re || !c.text || (c.at || 0) < since) return;
+      const isBen = c.uid === 'benico', isBot = !isBen && es[c.uid] && es[c.uid].bot && es[c.eid] && !es[c.eid].bot;
+      if (!isBen && !isBot) return;
+      const kind = (isBen ? '主宰' : 'ボット') + (c.ai === true ? '・しっかり' : '・かんたん');
+      const rx = Object.assign({}, c.rx || {}); Object.keys(c.like || {}).forEach((u) => { if (c.like[u] && !rx[u]) rx[u] = '🥹'; });
+      const rs = Object.keys(rx).filter((u) => rx[u] && u !== c.uid);
+      rs.forEach((u) => { emo[rx[u]] = (emo[rx[u]] || 0) + 1; });
+      const rep = keys.filter((z) => cm[z] && cm[z].re === k && !cm[z].bot && cm[z].uid !== 'benico').length;
+      const hit = rs.length + rep, g = G[kind] = G[kind] || { n: 0, hit: 0, sum: 0 };
+      g.n++; g.sum += hit; if (hit) g.hit++;
+      if (c.tp && c.ai !== true) { const q = TP[c.tp] = TP[c.tp] || { n: 0, sum: 0 }; q.n++; q.sum += hit; }
+    });
+  });
+  const kinds = Object.entries(G).map(([k, g]) => k + ' ' + g.n + '件中、反応あり ' + g.hit + '件（' + Math.round(g.hit * 100 / g.n) + '%）').join(' ／ ');
+  const tps = Object.entries(TP).filter(([, q]) => q.n >= 2).sort((a, b) => b[1].sum / b[1].n - a[1].sum / a[1].n);
+  const top = tps.slice(0, 3).map(([k, q]) => k + '＝' + q.sum + '/' + q.n).join('、'), low = tps.slice(-3).reverse().map(([k, q]) => k + '＝' + q.sum + '/' + q.n).join('、');
+  note('評のよかったか（7日）', (kinds || '反応のついたコメントは、まだありません') + (Object.keys(emo).length ? ' ／ 反応：' + Object.entries(emo).map(([e, n]) => e + n).join(' ') : '') + (top ? ' ／ 型の上位：' + top : '') + (low && tps.length > 3 ? ' ／ 下位：' + low : ''));
+}
+(async () => { await checkSensei(); await checkKukai(); await checkTei(); await checkFeedback(); })().catch((e) => { note('点検係', 'エラー ' + e.message); });
