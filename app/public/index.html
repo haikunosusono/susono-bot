@@ -896,7 +896,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.30m';
+  var APP_VER = 'v2026.10.30n';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2123,7 +2123,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     h += '<div class="panel"><b>' + esc(monLabel(id)) + 'の結果</b><p class="note">' + kus.length + '句・' + Object.keys(d.entries || {}).length + '人・互選' + nv + '人</p></div>';
     if (win.length) {
       win.forEach(function (w) { if (w.uid === myId) awardTrophy('m-' + id + '-' + w.id.split(':')[1], { kind: 'すその句会（月例）', ch: monLabel(id) + '　' + monKendai(id).t, date: id + '-' + monEnds(id).s, pts: max, a: w.a, b: '', c: '' }); });
-      h += winCard(win.map(function (w) { return w.haigo; }), max, win.length === 1 ? Object.assign({ id: win[0].uid }, win[0]) : null, '（すその句会・' + monLabel(id) + '）', win.length > 1 ? '同点優勝です' : '', { head: 'すその句会 ' + monLabel(id), res: kuhiRes(T[win[0].id].toku.length, T[win[0].id].nami.length, max) });
+      h += winCard(win.map(function (w) { return w.haigo; }), max, win.length === 1 ? Object.assign({ id: win[0].uid }, win[0]) : null, '（すその句会・' + monLabel(id) + '）', win.length > 1 ? '同点優勝です' : '', { head: 'すその句会 ' + monLabel(id), res: kuhiRes(T[win[0].id].toku.length, T[win[0].id].nami.length, max), ranks: sorted.filter(function (k) { return k.id !== win[0].id; }).slice(0, 2).map(function (k, i) { return { name: k.haigo || '名無し', res: kuhiRes(T[k.id].toku.length, T[k.id].nami.length, T[k.id].pts), no: i + 2 }; }) });
     }
     /* 句会報 */
     var txt = '【すその句会報　' + monLabel(id) + '】\n兼題：' + monKendai(id).t + '（' + monKendai(id).kind + '）\n' + kus.length + '句・' + Object.keys(d.entries || {}).length + '人・互選' + nv + '人\n\n' + sorted.map(function (k, i) {
@@ -2514,7 +2514,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       w = w.filter(function (x) { return (T[x.id].toku || []).length === mt; });
     }
     if (w.some(function (x) { return x.id === myId; })) { var me = w.filter(function (x) { return x.id === myId; })[0]; awardTrophy('k-' + s.id, { kind: s.tei ? '定例句会（デモ）' : s.std === 'flat' ? 'ふらっと句会' : '定例句会', ch: s.tei ? '当季雑詠　' + mdLabel(dn(s.date)) + s.slot + '時' : (s.ch || ''), date: s.date || ds(dayNum()), pts: max, a: me.a, b: me.b, c: me.c }); }
-    return (botTop ? '<div class="cmi hostline"><b>松風主宰（先生）</b>今回の最高点は、ボットの句でした。優勝は、先生からの推薦として、参加した方の句から選びます。ボットの句をしっかり読みとれたのは、すばらしいこと。こうして鑑賞力・俳筋力をつけていきましょう。</div>' : '') + winCard(w.map(function (x) { return x.haigo || '名無し'; }), max, w[0], s.tei ? '（定例句会・定例デモ）' : s.std === 'flat' ? '（ふらっと句会）' : '（定例句会）', s.tei ? '句碑のトロフィーが、優勝の方に贈られます（マイページに飾られます）' : '', kuhiMeta(s, w[0], T));
+    return (botTop ? '<div class="cmi hostline"><b>松風主宰（先生）</b>今回の最高点は、ボットの句でした。優勝は、先生からの推薦として、参加した方の句から選びます。ボットの句をしっかり読みとれたのは、すばらしいこと。こうして鑑賞力・俳筋力をつけていきましょう。</div>' : '') + winCard(w.map(function (x) { return x.haigo || '名無し'; }), max, w[0], s.tei ? '（定例句会・定例デモ）' : s.std === 'flat' ? '（ふらっと句会）' : '（定例句会）', s.tei ? '句碑のトロフィーが、優勝の方に贈られます（マイページに飾られます）' : '', kuhiMeta(s, w[0], T, rows));
   }
   var yakuOpen = {}, watchAt = {};
   var K_STAMPS = [['🌸', 'すき'], ['👏', 'うまい'], ['😮', 'おどろき'], ['🍵', 'しみじみ']];
@@ -4984,25 +4984,26 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   var kuhiCache = {}, kuhiShown = {};
   /* 句碑を投稿するときの見出し（どの句会か・日時）と成績（特選2 など） */
   function kuhiRes(tk, nm, pts) { return (tk ? '特選' + tk : '') + (nm ? (tk ? '・' : '') + '並選' + nm : '') || (pts + '点'); }
-  function kuhiMeta(s, row, T) {
-    var head = '句会', res = '';
+  function kuhiMeta(s, row, T, rows) {
+    var head = '句会', res = '', ranks = [];
     try {
       if (s.tei && s.date) head = '定例句会 ' + teiSlotName(dn(s.date), +s.slot) + ' ' + mdLabel(dn(s.date)) + s.slot + '時';
       else if (s.std === 'flat') head = 'ふらっと句会' + (s.date ? ' ' + mdLabel(dn(s.date)) : '');
       var r = T && T[row.id]; if (r) res = kuhiRes((r.toku || []).length, (r.nami || []).length, r.pts);
+      /* 優勝以外の人を、点の高い順に（第二位・第三位の発表用） */
+      var others = (rows || []).filter(function (x) { return x.id !== row.id && !(s.entries && s.entries[x.id] && s.entries[x.id].bot) && T[x.id]; }).sort(function (a, b) { return T[b.id].pts - T[a.id].pts || (T[b.id].toku || []).length - (T[a.id].toku || []).length; }).slice(0, 2);
+      ranks = others.map(function (x, i) { return { name: x.haigo || '名無し', res: kuhiRes((T[x.id].toku || []).length, (T[x.id].nami || []).length, T[x.id].pts), no: i + 2 }; });
     } catch (_) {}
-    return { head: head, res: res };
+    return { head: head, res: res, ranks: ranks };
   }
-  /* ダー浜の優勝発表（関西のノリの、オリジナルの司会ぶり）*/
-  var DH_WIN = [
-    '……ドゥルルルル……（ドラムロール）\n結果発表ー！\n栄えある優勝はー……{n}さんでしたー！{r}\nおめでとう！ ほな、優勝の句碑を除幕します。みなさん、拍手をー！　🎉👏',
-    '……ジャン！（シンバル）\n結果発表ー！\n今日の優勝は……{n}さんでしたー！{r}\nええ句やったなあ。句碑、いきますでー！　拍手ー！　👏🎉',
-    '……さあ、お待たせしました！\n結果発表ー！\n優勝は……{n}さん！ {n}さんでしたー！{r}\nみなさん、立ち上がって拍手ー！　句碑の除幕です！　🎉',
-    '……ええ勝負やったなあ。ほな、いくで。\n結果発表ー！\n優勝はー……{n}さんでしたー！{r}\nおめでとうー！ 句碑、ご覧あれー！　👏👏'
-  ];
+  /* ダー浜の結果発表（第三位→第二位→優勝の順に発表）*/
   function dhWin(name, meta, key) {
-    var r = meta && meta.res ? '（' + meta.res + '）' : '', n = String(name || '').replace(/（ボット）/, '');
-    return DH_WIN[hash(String(key || n)) % DH_WIN.length].replace(/\{n\}/g, n || 'あなた').replace('{r}', r);
+    var r = meta && meta.res ? '（' + meta.res + '）' : '', n = String(name || '').replace(/（ボット）/, '') || 'あなた', ks = ['', '', '第二位', '第三位'];
+    var lines = ['……さあ、お待たせしました！', '結果発表ー！'];
+    ((meta && meta.ranks) || []).slice().sort(function (a, b) { return b.no - a.no; }).forEach(function (x) { lines.push(ks[x.no] + 'は' + String(x.name).replace(/（ボット）/, '') + 'さんでしたー！' + (x.res ? '（' + x.res + '）' : '')); });
+    lines.push('優勝は　' + n + 'さんでしたー！' + r);
+    lines.push('みなさん、では句碑の除幕です！　おめでとうございまーす！　🎉👏');
+    return lines.join('\n');
   }
   function kuhiImg(kuObj, haigo, meta) {
     try {
