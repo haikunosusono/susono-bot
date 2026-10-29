@@ -895,7 +895,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.28x';
+  var APP_VER = 'v2026.10.30a';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1769,7 +1769,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var ku = joinKu(be).a, done = false;
     function put(text) {
       if (done) return; done = true;
-      var k2 = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), co = {};
+      var k2 = key ? 'r_' + key : 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), co = {};
       co[k2] = { eid: bid, uid: bid, text: String(text).slice(0, 140), tone: 'やさしく', part: [], at: Date.now(), re: key || '', jiku: true, anon: true, bot: true };
       setTimeout(function () { write(s0.id, { comments: co }); }, 1500 + Math.random() * 2500);
     }
@@ -1788,13 +1788,39 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     'よいところに気づいていますね。正解はひとつではありませんが、わたしの読みでは、いまの季語と景の距離が、ちょうどよく息をしています。みなさんの感じかたも、聞いてみましょう。'
   ];
   /* 作者の問いかけ（？のほか「聞かせて」「教えて」「指摘」など）には、主宰が答える */
+  /* 返事の見はり：書いた人のアプリが古い・閉じているときは、同じ句会を開いている「だれかのアプリ」が、約25秒後に代わりに返事する
+     （返事のキーは 'r_' ＋ 元のコメントのキー。複数のアプリが同時に書いても、1件にまとまる） */
+  var autoDone = {};
+  function replyExists(s, k) { var cm = (s && s.comments) || {}; return Object.keys(cm).some(function (z) { var x = cm[z]; return x && x.re === k && (x.uid === 'benico' || x.bot); }); }
+  setInterval(function () {
+    try {
+      var s = scur(); if (!s || !s.comments || !db || !myId || !SENSEI_API) return;
+      var cm = s.comments, es = s.entries || {}, now = Date.now();
+      Object.keys(cm).forEach(function (k) {
+        var c = cm[k]; if (!c || !c.text || !c.at || autoDone[k] || c.uid === 'benico' || c.bot) return;
+        var age = now - c.at; if (age < 25000 || age > 600000) return;
+        if (c.anon && c.uid !== c.eid) return;
+        var e = es[c.eid]; if (!e || replyExists(s, k)) return;
+        var par = c.re && cm[c.re], kind = '';
+        if (e.bot) { if (c.uid !== c.eid) kind = 'bot'; }
+        else if (par && par.uid === 'benico') kind = 'sensei';
+        else if (c.uid === c.eid && ASK_RE.test(c.text)) kind = 'sensei';
+        if (!kind) return;
+        autoDone[k] = 1;
+        setTimeout(function () {
+          var s2 = scur(); if (!s2 || s2.id !== s.id || replyExists(s2, k)) return;
+          if (kind === 'bot') botAnswer(s2, c.eid, c.text, k); else senseiAnswer(s2, c.eid, c.text, k);
+        }, hash(String(myId) + k) % 6000);
+      });
+    } catch (_) {}
+  }, 4000);
   var ASK_RE = /[？?]|聞かせて|きかせて|教えて|おしえて|どう(でしょう|ですか|思|か)|アドバイス|指摘|ご意見|直し|添削|助言|改善/;
   function senseiAnswer(s0, eid, q, key) {
     var es = s0.entries || {}, e0 = es[eid]; if (!e0 || e0.bot) return;
     var ku = joinKu(e0).a, done = false;
     function put(text) {
       if (done) return; done = true;
-      var k2 = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), co = {};
+      var k2 = key ? 'r_' + key : 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), co = {};
       co[k2] = { eid: eid, uid: 'benico', text: String(text).slice(0, 320), tone: 'やさしく', part: [], at: Date.now(), re: key || '' };
       setTimeout(function () { write(s0.id, { comments: co }); }, 1500 + Math.random() * 2500);
     }
@@ -6240,7 +6266,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       cmDraft[eid2] = ''; cmTone[eid2] = ''; cmPart[eid2] = []; cmReply[eid2] = '';
       try { var cie = document.getElementById('cm-' + eid2); if (cie) cie.value = ''; } catch (_) {}
       write(sm.id, { comments: cobj }); try { var tp = {}; tp[myId] = null; write(sm.id, { typing: tp }); } catch (_) {}
-      try { var be0 = sm.entries && sm.entries[eid2]; if (be0 && be0.bot) botAnswer(sm, eid2, text, key); else { var rc = cobj[key].re && sm.comments && sm.comments[cobj[key].re]; if (be0 && ((eid2 === myId && ASK_RE.test(text)) || (rc && rc.uid === 'benico'))) senseiAnswer(sm, eid2, text, key); } } catch (_) {}
+      try { var be0 = sm.entries && sm.entries[eid2]; autoDone[key] = 1; if (be0 && be0.bot) botAnswer(sm, eid2, text, key); else { var rc = cobj[key].re && sm.comments && sm.comments[cobj[key].re]; if (be0 && ((eid2 === myId && ASK_RE.test(text)) || (rc && rc.uid === 'benico'))) senseiAnswer(sm, eid2, text, key); } } catch (_) {}
     }
     else if (act === 'finish') { var sf = scur(); if (sf) write(sf.id, { status: 'done' }); }
     else if (act === 'yaku-close') { var sy = scur(); if (sy) { yakuOpen[sy.id] = false; render(); } }
@@ -6265,7 +6291,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       var atn = askTone[ae] || 'ふだんどおり', atext = asel.map(function (x) { return x.replace(/を$/, ''); }).join('と') + 'について、聞かせてください。' + (atn === 'やさしく' ? '（やさしめで）' : atn === '厳しめに' ? '（厳しめでも大丈夫です）' : '');
       var ak = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ao = {}; ao[ak] = { eid: ae, uid: myId, text: atext, tone: '', part: [], at: Date.now(), re: '', anon: true };
       askSel[ae] = []; askOpen[ae] = false;
-      write(sa.id, { comments: ao }).then(function () { toast('作者として、出しました（名前は伏せたまま）'); });
+      write(sa.id, { comments: ao }).then(function () { toast('作者として、出しました（名前は伏せたまま）'); }); try { autoDone[ak] = 1; senseiAnswer(sa, ae, atext, ak); } catch (_) {}
     }
     else if (act === 'prof-save') profSave2();
     else if (act === 'av-clear') { avDraft = ''; render(); }

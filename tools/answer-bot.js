@@ -69,7 +69,7 @@ async function ask(kind, payload) {
       seen++;
       if (done >= MAX_DO) continue;
       let text = '', co;
-      const nk = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      const nk = 'r_' + k;
       if (kind === 'bot') {
         const isQ = /[？?]/.test(q);
         text = await ask('bot', { reply: { ku, q: (isQ ? '' : '【質問ではなく評です。お礼と、うれしかった点をひとこと返してください】') + q, name: String(e.haigo || '').replace('（ボット）', '') } });
