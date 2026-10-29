@@ -10,7 +10,12 @@
 <meta name="theme-color" content="#1f7a63">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>俳句の裾野</title>
+<title>俳句のアプリ「チームすその」｜俳句の裾野 初心者歓迎</title>
+<meta name="description" content="楽しくなければ俳句じゃない！俳筋力をきたえる、俳句初心者向けの無料アプリ。毎月の句会に、気軽に参加できます。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="俳句のアプリ「チームすその」">
+<meta property="og:description" content="楽しくなければ俳句じゃないぜ！俳筋力トレーニング、してみませんか？">
+<meta property="og:url" content="https://haikunosusono.web.app">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap">
 <style>
 /* 一列の縦長。日替わりの一字題を上に置き、「ひとり（研鑽）」と「みんな（投句・選句）」を切り替える */
@@ -59,6 +64,10 @@ button, input { font: inherit; color: inherit; }
 .top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
 .brand { margin: 0; font-family: var(--sans); font-weight: 700; font-size: 2rem; letter-spacing: .08em; line-height: 1.3; color: var(--accent); }
 .tagline { font-size: .95rem; font-weight: 700; letter-spacing: .08em; color: var(--accent2); }
+.tagline2 { font-size: .9rem; color: var(--ink-soft); letter-spacing: .06em; margin-top: 2px; }
+.appurl { display: flex; align-items: center; gap: 10px; font-family: var(--sans); font-size: .85rem; margin: 0 0 10px; }
+.appurl a { color: var(--accent); text-decoration: underline; }
+.brand .team { display: inline-block; font-size: .5em; letter-spacing: .04em; background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: .1em .8em; vertical-align: middle; margin-left: .4em; }
 .date { font-family: var(--sans); font-size: 1.05rem; color: var(--ink-soft); }
 .streak { font-size: .85rem; font-weight: 700; padding: .15em .8em; border-radius: 99px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
 .tabs { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
@@ -897,7 +906,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.30u';
+  var APP_VER = 'v2026.10.30v';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2082,7 +2091,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var months = Object.keys(monthly).concat([monId()]).filter(function (x, i, a) { return a.indexOf(x) === i; }).sort().reverse();
     if (months.length > 1) h += '<div class="row">' + months.map(function (m) { return '<button class="chip fit' + (m === id ? ' on' : '') + '" data-act="mon-month" data-v="' + m + '">' + esc(monLabel(m)) + '</button>'; }).join('') + '</div>';
     /* 兼題 */
-    if (ph === 'closed') { return h + '<div class="panel"><b>準備中</b><p class="lead">' + esc(monLabel(MON_START)) + 'から、はじめます。</p><p class="note">' + esc(monLabel(MON_START).slice(0, -1)) + '1日に、ボットが兼題を発表します。それまで、しばらくお待ちください。</p></div>'; }
+    if (ph === 'closed') { return h + '<div class="panel"><b>準備中</b><p class="lead">' + esc(monLabel(MON_START)) + 'から、はじめます。</p><p class="note">' + esc(monLabel(MON_START)) + '1日に、ボットが兼題を発表します。それまで、しばらくお待ちください。</p></div>'; }
     if (en.note) h += '<p class="note">' + esc(monLabel(id)) + 'は「' + esc(en.note) + '」の月です。日程：' + MON_ENTRY_END + '日まで投句、' + MON_SEL_END + '日まで互選、' + (MON_SEL_END + 1) + '日に結果。</p>';
     h += '<div class="panel"><b>' + esc(monLabel(id)) + 'の兼題</b><p class="lead" style="font-size:1.4rem;margin:.3em 0">' + esc(kd.t) + '</p><p class="note">' + esc(kd.kind) + '　' + esc(kd.note) + '。1人1〜3句。' + MON_ENTRY_END + '日まで投句、' + MON_SEL_END + '日まで互選。</p>' +
       '<ol class="steps"><li class="' + (ph === 'entry' ? 'now' : 'past') + '">投句（〜' + MON_ENTRY_END + '日）</li><li class="' + (ph === 'select' ? 'now' : ph === 'done' ? 'past' : '') + '">互選（' + (MON_ENTRY_END + 1) + '〜' + MON_SEL_END + '日）</li><li class="' + (ph === 'done' ? 'now' : '') + '">結果・句会報（' + (MON_SEL_END + 1) + '日〜）</li></ol></div>';
@@ -2795,7 +2804,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     return vTei();
   }
 
-  var RUBY = [['裾野','すその'],['一物仕立て','いちぶつじたて'],['俳筋力','はいきんりょく'],['取り合わせ','とりあわせ'],['認知症','にんちしょう'],['季重なり','きがさなり'],['字足らず','じたらず'],['字余り','じあまり'],['歳時記','さいじき'],['五七五','ごしちご'],['講評','こうひょう'],['披講','ひこう'],['選句','せんく'],['即吟','そくぎん'],['兼題','けんだい'],['句会','くかい'],['特選','とくせん'],['並選','なみせん'],['季語','きご'],['俳句','はいく'],['川柳','せんりゅう'],['短歌','たんか'],['投句','とうく'],['余韻','よいん'],['名乗り','なのり'],['俳号','はいごう'],['拗音','ようおん'],['長音','ちょうおん'],['促音','そくおん'],['撥音','はつおん'],['音数','おんすう'],['添削','てんさく'],['査定','さてい'],['推敲','すいこう'],['観察','かんさつ'],['選者','せんじゃ'],['会心','かいしん'],['予防','よぼう'],['結社','けっしゃ'],['協会','きょうかい'],['俳人','はいじん'],['縦書き','たてがき'],['作風','さくふう'],['季節','きせつ'],['連続','れんぞく'],['記録','きろく'],['今日','きょう'],['席','せき']];
+  var RUBY = [['鑑賞力','かんしょうりょく'],['裾野','すその'],['一物仕立て','いちぶつじたて'],['俳筋力','はいきんりょく'],['取り合わせ','とりあわせ'],['認知症','にんちしょう'],['季重なり','きがさなり'],['字足らず','じたらず'],['字余り','じあまり'],['歳時記','さいじき'],['五七五','ごしちご'],['講評','こうひょう'],['披講','ひこう'],['選句','せんく'],['即吟','そくぎん'],['兼題','けんだい'],['句会','くかい'],['特選','とくせん'],['並選','なみせん'],['季語','きご'],['俳句','はいく'],['川柳','せんりゅう'],['短歌','たんか'],['投句','とうく'],['余韻','よいん'],['名乗り','なのり'],['俳号','はいごう'],['拗音','ようおん'],['長音','ちょうおん'],['促音','そくおん'],['撥音','はつおん'],['音数','おんすう'],['添削','てんさく'],['査定','さてい'],['推敲','すいこう'],['観察','かんさつ'],['選者','せんじゃ'],['会心','かいしん'],['予防','よぼう'],['結社','けっしゃ'],['協会','きょうかい'],['俳人','はいじん'],['縦書き','たてがき'],['作風','さくふう'],['季節','きせつ'],['連続','れんぞく'],['記録','きろく'],['今日','きょう'],['席','せき']];
   var RUBY_RE = new RegExp(RUBY.map(function (r) { return r[0]; }).join('|'), 'g'), RUBY_MAP = {};
   RUBY.forEach(function (r) { RUBY_MAP[r[0]] = r[1]; });
   var RUBY_SKIP = /class="[^"]*\b(ku|cmi|haigo|k|seg)\b[^"]*"/;
@@ -5674,7 +5683,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       body = '<div class="actions"><button class="link" data-act="page" data-p="">← もどる</button></div>' + pageView();
     } else {
       var st = streak();
-      body = '<div class="top"><div><h1 class="brand">俳句の裾野</h1><div class="tagline">俳句の筋力トレーニング</div><div class="date">' + esc(fullLabel(n)) + '<span class="ver">' + APP_VER + '</span> <button class="verbtn' + (newVer ? ' new' : verChecked ? ' ok' : '') + '" data-act="app-reload" title="アプリを最新にする">' + (newVer ? '🔄 新しい版があります・更新してください' : verChecked ? '✅ いま最新版です' : verErr ? '⚠️ 確かめられませんでした・押すと更新（' + esc(verErr) + '）' : '🔄 更新を確かめています…') + '</button></div></div>' + '<div class="topr">' + (st > 0 ? '<span class="streak">連続 ' + st + '日</span>' : '') + '<button class="link" data-act="yoko" aria-pressed="' + yoko + '">' + (yoko ? '縦書きで見る' : '横書きで見る') + '</button><button class="link" data-act="tut">俳句はじめての人へ（チュートリアル）</button></div></div>' +
+      body = '<div class="appurl"><a href="https://haikunosusono.web.app" target="_blank" rel="noopener">haikunosusono.web.app</a><button class="link" data-act="copy-url">コピー</button></div><div class="top"><div><h1 class="brand">俳句の裾野アプリ<span class="team">（チーム裾野）</span></h1><div class="tagline">楽しくなければ俳句じゃないぜ！（いつき組）</div><div class="tagline2">俳筋力トレーニング、してみませんか？</div><div class="date">' + esc(fullLabel(n)) + '<span class="ver">' + APP_VER + '</span> <button class="verbtn' + (newVer ? ' new' : verChecked ? ' ok' : '') + '" data-act="app-reload" title="アプリを最新にする">' + (newVer ? '🔄 新しい版があります・更新してください' : verChecked ? '✅ いま最新版です' : verErr ? '⚠️ 確かめられませんでした・押すと更新（' + esc(verErr) + '）' : '🔄 更新を確かめています…') + '</button></div></div>' + '<div class="topr">' + (st > 0 ? '<span class="streak">連続 ' + st + '日</span>' : '') + '<button class="link" data-act="yoko" aria-pressed="' + yoko + '">' + (yoko ? '縦書きで見る' : '横書きで見る') + '</button><button class="link" data-act="tut">俳句はじめての人へ（チュートリアル）</button></div></div>' +
         (window.fbLogout && myId ? '<div class="who-bar"><span>ログイン中：<b>' + esc(haigo.trim() || (window.fbUserEmail || '')) + '</b>' + (haigo.trim() && window.fbUserEmail ? '<small>（' + esc(window.fbUserEmail) + '）</small>' : '') + '</span><button class="btn small" data-act="fblogout">ログアウト</button></div>' : '') +
         vGuest() + vLive() + vStats() + vMemoQ(false) + vBeginner() + vNews() + vMenu() +
         vMeiku() + vRooms() + (tab === 'solo' ? vDeck() : '') + (tab === 'diary' ? vDiary() : tab === 'solo' ? vSolo() : tab === 'bot' ? vBotRoom() : tab === 'gohyo' ? vGohyo() : tab === 'flat' ? vFlat() : tab === 'monthly' ? vMonthly() : vTogether()) + vFooter();
@@ -6056,7 +6065,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     function () {
       return th('仲間と句会のまわしかた ⑤', '合評（ひとこと）') +
         '<p>選をひらいたら、点の高い順に、ことばを寄せ合います。</p>' +
-        '<ul><li>かんたんボタン：<b>すき・おもしろい・わかりやすい</b>など。</li><li>気になるところも、ボタンで：<b>季語がたってない・語順がきになる</b>など。</li><li>ボタンは、おしてもおさなくても。ひとことのコメントだけでも、りっぱな合評です。</li></ul>';
+        '<ul><li>かんたんボタン：<b>すき・おもしろい・わかりやすい</b>など。</li><li>気になるところも、ボタンで：<b>季語がたってない・語順がきになる</b>など。</li><li>ボタンは、おしてもおさなくても。ひとことのコメントだけでも、りっぱな合評です。</li><li>ひとことを書いて、<b>俳句の鑑賞力</b>を鍛えましょう。</li></ul>';
     },
     function () {
       return th('仲間と句会のまわしかた ⑥', '作者オープンと、点のくりこし') +
@@ -6136,6 +6145,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var t = e.target.closest('[data-act]'); if (!t) return;
     var act = t.dataset.act;
     if (act.indexOf('g-') === 0 || act === 'hist-open') { gAct(act, t); return; }
+    if (act === 'copy-url') { try { navigator.clipboard.writeText('https://haikunosusono.web.app').then(function () { toast('URLをコピーしました'); }, function () { toast('コピーできませんでした'); }); } catch (_) { toast('コピーできませんでした'); } return; }
     if (act === 'mon-month') { monMonth = t.dataset.v; monDraft = ['', '', '']; render(); }
     else if (act === 'mon-submit') { monSubmit(); }
     else if (act === 'mon-withdraw') { var mid0 = monMonth || monId(); if (monPhase(mid0) !== 'entry' || !db || !myId) return; if (!window.confirm('今月の投句を、取り消しますか？')) return; var FVm = window.firebase && window.firebase.firestore && window.firebase.firestore.FieldValue, mp = { entries: {} }; mp.entries[myId] = FVm && FVm.delete ? FVm.delete() : null; monWrite(mid0, mp).then(function () { toast('取り消しました'); }); }
