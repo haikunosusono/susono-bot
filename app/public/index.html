@@ -896,7 +896,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.30f';
+  var APP_VER = 'v2026.10.30g';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1698,6 +1698,9 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       var bz = null; try { bz = senseiPraise(joinKu(s.entries[eid]).a, s.id + eid); } catch (_) {} if (!bz) bz = SENSEI_SAYS[hash(s.id + eid + 'b') % SENSEI_SAYS.length]; n++;
       out['cp' + n] = { eid: eid, uid: 'benico', text: bz.t, tone: 'やさしく', part: [bz.part], at: Date.now() + 400 + n, tp: bz.tp || '' };
     });
+    /* ダー浜が、先生に初心者むけの質問をひとつ（句会の半分くらいで）。先生が答える */
+    var hum = ids.filter(function (k) { return !(s.entries[k] && s.entries[k].bot); });
+    if (hum.length && hash(s.id + 'dh') % 2 === 0) { var dhe = hum[hash(s.id + 'dhe') % hum.length]; n++; out['cd' + n] = { eid: dhe, uid: 'hamakichi', text: DH_ASK[hash(s.id + 'dhq') % DH_ASK.length], tone: 'ふつう', part: [], at: Date.now() + 700 + n, ask: 1 }; }
     /* ボットの句にも、松風主宰がほめる（ボットどうしは、ほめ合わない。人がいるときだけ） */
     if (ids.length > bots.length) bots.forEach(function (eid) {
       var bz2 = null; try { bz2 = senseiPraise(joinKu(s.entries[eid]).a, s.id + eid); } catch (_) {} if (!bz2) bz2 = SENSEI_SAYS[hash(s.id + eid + 'b') % SENSEI_SAYS.length]; n++;
@@ -1854,6 +1857,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
         if (e.bot) { if (c.uid !== c.eid) kind = 'bot'; }
         else if (par && par.uid === 'benico') kind = 'sensei';
         else if (c.uid === c.eid && ASK_RE.test(c.text)) kind = 'sensei';
+        else if (c.uid === 'hamakichi' && c.ask) kind = 'sensei';
         if (!kind) return;
         autoDone[k] = 1;
         setTimeout(function () {
@@ -1873,10 +1877,11 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       co[k2] = { eid: eid, uid: 'benico', text: String(text).slice(0, 320), tone: 'やさしく', part: [], at: Date.now(), re: key || '', ai: !!isAI };
       setTimeout(function () { write(s0.id, { comments: co }); }, 1500 + Math.random() * 2500);
     }
-    var fb = SENSEI_ANS[hash(s0.id + eid + key) % SENSEI_ANS.length];
+    var src = (s0.comments || {})[key], dh = !!(src && src.uid === 'hamakichi');
+    var fb = dh ? DH_FB[hash(s0.id + eid + key) % DH_FB.length] : SENSEI_ANS[hash(s0.id + eid + key) % SENSEI_ANS.length];
     if (!SENSEI_API) { put(fb); return; }
     var ctrl = null; try { ctrl = new AbortController(); setTimeout(function () { ctrl.abort(); }, 40000); } catch (_) {}
-    fetch(SENSEI_API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ ask: { ku: ku, q: ('【やさしく。よい点を先に、気になる点は一つだけ、直し案つきで】' + String(q)).slice(0, 140) } }), signal: ctrl ? ctrl.signal : undefined, redirect: 'follow' })
+    fetch(SENSEI_API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ ask: { ku: ku, q: ((dh ? '【ダー浜の質問。初心者にもわかるよう、やさしく具体的に】' : '【やさしく。よい点を先に、気になる点は一つだけ、直し案つきで】') + String(q)).slice(0, 140) } }), signal: ctrl ? ctrl.signal : undefined, redirect: 'follow' })
       .then(function (r) { return r.json(); }).then(function (o) { sLog('先生への質問: ' + (o && o.ok ? 'OK' : '失敗 ' + (o && o.err || ''))); put(o && o.ok && o.text && aiKigoOk(o.text) ? o.text : fb, !!(o && o.ok && o.text && aiKigoOk(o.text))); })
       .catch(function (e) { sLog('先生への質問: 通信エラー ' + (e && e.message || '')); put(fb); });
   }
@@ -2494,7 +2499,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
 
   function cmTools(eid) {
     var tn = cmTone[eid] || '', ps = cmPart[eid] || [];
-    return '<p class="note">読みにくい字や、こう読ませたい語は、「読み・ルビ」を選んで、「ルビなしでも読めますよ」「ここはルビが要りますね」のようにひとこと。</p><div class="cmtool"><span class="lb">口調</span>' + TONES.map(function (t) { return '<button class="chip fit' + (tn === t ? ' on' : '') + '" data-act="ctone" data-eid="' + esc(eid) + '" data-v="' + t + '" aria-pressed="' + (tn === t) + '">' + t + '</button>'; }).join('') +
+    return '<p class="note">ボットの評は「コメント例」です。作者によっては、語順・助詞・つきすぎ・類想まで、もっとはっきり指摘します。ここで満足せず、自分の目でも見てみましょう。</p>' + '<p class="note">読みにくい字や、こう読ませたい語は、「読み・ルビ」を選んで、「ルビなしでも読めますよ」「ここはルビが要りますね」のようにひとこと。</p><div class="cmtool"><span class="lb">口調</span>' + TONES.map(function (t) { return '<button class="chip fit' + (tn === t ? ' on' : '') + '" data-act="ctone" data-eid="' + esc(eid) + '" data-v="' + t + '" aria-pressed="' + (tn === t) + '">' + t + '</button>'; }).join('') +
       '<span class="lb">どういうところを</span>' + PARTS.map(function (t) { return '<button class="chip fit' + (ps.indexOf(t) >= 0 ? ' on' : '') + '" data-act="cpart" data-eid="' + esc(eid) + '" data-v="' + t + '" aria-pressed="' + (ps.indexOf(t) >= 0) + '">' + t + '</button>'; }).join('') + '</div>';
   }
   function kukaiWin(s, rows, T, max) {
@@ -2618,8 +2623,16 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     '季語と中身、くっつきすぎ？　離れすぎ？　「つかずはなれず」になっとるか、聞かせてや。',
     '語順、これがいちばんええと思う？　入れかえたらどうなるか、ちょっと想像してみ。',
     'この句の「カメラ」、どこにある？　近い？　遠い？　作者の目の位置を探してみてや。',
-    'ひとつだけ質問するなら、作者に何を聞きたい？　オープンのあとで答えてもらお。'
+    'ひとつだけ質問するなら、作者に何を聞きたい？　オープンのあとで答えてもらお。',
+    'この句、もうひと押しできたんちゃう？　どこをもっとやれたか、考えてみ。',
+    '「つきすぎ」て感じる？　季語と中身が、おんなじ方向を向いてへんか、見てみ。',
+    'どっかで見たことある型ちゃう？　類想（にた句）が浮かんだら、遠慮なく言うてええで。',
+    '助詞、これでええ？　「が」「は」「を」、入れかえて読んでみ。',
+    'ここまで読んで、おもろかった？　物足りんかったとこも、ていねいに言うてええで。'
   ];
+  /* ダー浜が、初心者むけの質問を、先生になげる（先生は AI で答える。だめなら、決まった言い方） */
+  var DH_ASK = ['先生、語順、これでええの？', '先生、季語、これでええんか？', '先生、助詞、これでええの？「が」と「は」で変わらへん？', '先生、これ、つきすぎちゃいますか？', '先生、にた句、ありそうちゃいますか？', '先生、もうひと押し、どこをやったらええですか？', '先生、切れ字、入れたほうがええの？'];
+  var DH_FB = ['ええ問いやね、ダー浜さん。語順は、入れかえて声に出して、いちばん景が立つ形をさがすのが近道です。', 'ええ問いです。季語は、句の中の景と気分がかさなりすぎないか、見てみましょう。', 'ええ問いです。助詞をひとつ変えると、句の主役が変わります。声に出して、くらべてみてください。'];
   function goQ(s, i) { var hsh = 0, id = String(s.id || ''); for (var k = 0; k < id.length; k++) hsh = (hsh + id.charCodeAt(k)) % 997; return GO_Q[(hsh + i) % GO_Q.length]; }
   function watchN(s) { var w = s.watch || {}, n = 0; Object.keys(w).forEach(function (u) { if (s.entries && s.entries[u]) return; if (Date.now() - (w[u] || 0) < 600000) n++; }); return n; }
   var gYakuShow = false;
@@ -2655,11 +2668,12 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       var cnt = {}; Object.keys(rx).forEach(function (u) { if (rx[u]) cnt[rx[u]] = (cnt[rx[u]] || 0) + 1; });
       var canRx = live && entrant && !own && myId, mine = rx[myId] || '';
       var chips = RX.filter(function (r) { return cnt[r[0]]; }).map(function (r) { return canRx ? '<button class="chip fit rxc' + (mine === r[0] ? ' on' : '') + '" data-act="cm-rx" data-key="' + esc(c.k) + '" data-v="' + r[0] + '">' + r[0] + ' ' + r[1] + ' ' + cnt[r[0]] + '</button>' : '<span class="chip fit rxc">' + r[0] + ' ' + r[1] + ' ' + cnt[r[0]] + '</span>'; }).join('');
-      var who = opened ? esc(nameOf(s, c.uid)) + (!PERSONAS_[c.uid] && isBot ? '（感想担当・ボット）' : '') : (own ? 'あなた' : (PERSONAS_[c.uid] ? personaName(s, c.uid) : (isBot ? '感想担当・ボット' : '選者')));
+      var isBotEnt = !!(s.entries && s.entries[c.uid] && s.entries[c.uid].bot);
+      var who = opened ? esc(nameOf(s, c.uid)) + (!PERSONAS_[c.uid] && isBot ? '（感想担当）' : '') : (own ? 'あなた' : (PERSONAS_[c.uid] ? personaName(s, c.uid) : (isBotEnt ? esc(nameOf(s, c.uid)) + '（感想担当）' : (isBot ? '感想担当・ボット' : '選者'))));
       if (c.anon) who = opened ? '✎ 作者 ' + esc(nameOf(s, c.uid)) : '✎ 作者（名前は結果発表まで伏せます）' + (own ? '＝あなた' : '');
       var pc = isRe && c.re ? (s.comments || {})[c.re] : null, quote = '';
       if (pc) { var pwho = opened ? nameOf(s, pc.uid) : (pc.uid === myId ? 'あなた' : (PERSONAS_[pc.uid] ? personaName(s, pc.uid) : '選者')); quote = '<div class="cmquote">↳ ' + esc(pwho) + ': ' + esc(String(pc.text || '').slice(0, 22)) + (String(pc.text || '').length > 22 ? '…' : '') + '</div>'; }
-      return '<div class="cmi' + (isRe ? ' reply' : '') + (isBot ? ' chara' : '') + (own ? ' own' : '') + (c.anon ? ' anon' : '') + '">' + (opened && !isBot && !c.anon ? avOf(c.uid, nameOf(s, c.uid)) : '') + '<b>' + who + '</b>' + (isBot ? '<span class="cmtag bot">ボットのコメント例</span>' : '') + (c.ai === true ? '<span class="cmtag ok">🔍 しっかり読みました</span>' : (isBot ? '<span class="cmtag easy">かんたん</span>' : '')) + (c.jiku ? '<span class="cmtag jiku">🪶 作者から</span>' : '') + quote +
+      return '<div class="cmi' + (isRe ? ' reply' : '') + (isBot ? ' chara' : '') + (own ? ' own' : '') + (c.anon ? ' anon' : '') + '">' + (opened && !isBot && !c.anon ? avOf(c.uid, nameOf(s, c.uid)) : '') + '<b>' + who + '</b>' + (c.uid === 'benico' ? '<span class="cmtag bot">AI先生</span>' + (c.ai === true ? '<span class="cmtag ok">🔍 しっかり読ませていただきました</span>' : '<span class="cmtag easy">📝 AI回線が混んでいるため、かんたんに</span>') : (isBot ? '<span class="cmtag bot">コメント例</span>' + (c.ai === true ? '<span class="cmtag ok">🔍 しっかり読みました</span>' : (isBotEnt ? '<span class="cmtag easy">かんたんに</span>' : '')) : '')) + (c.jiku ? '<span class="cmtag jiku">🪶 作者から</span>' : '') + quote +
         (c.tone ? '<span class="cmtag' + (c.tone === 'きびしく' ? ' kb' : '') + '">' + esc(c.tone) + '</span>' : '') +
         (c.part || []).map(function (q) { return '<span class="cmtag">' + esc(q) + '</span>'; }).join('') + esc(c.text) + (c.ed ? ' <small class="note">（編集済み）</small>' : '') +
         '<div class="cmact">' + chips +

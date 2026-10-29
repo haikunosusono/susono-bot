@@ -65,6 +65,7 @@ async function ask(kind, payload) {
       if (e.bot) { if (c.uid !== c.eid) kind = 'bot'; }
       else if (parent && parent.uid === 'benico') kind = 'sensei';
       else if (c.uid === c.eid && ASK_RE.test(c.text)) kind = 'sensei';
+      else if (c.uid === 'hamakichi' && c.ask) kind = 'sensei';
       if (!kind) continue;
       seen++;
       if (done >= MAX_DO) continue;
@@ -78,8 +79,8 @@ async function ask(kind, payload) {
         co = { eid: c.eid, uid: c.eid, text: text.slice(0, 140), tone: 'やさしく', part: [], at: Date.now(), re: k, jiku: true, anon: true, bot: true, ai: aiOk };
       } else {
         let aiOk = true;
-        text = await ask('sensei', { ask: { ku, q: ('【やさしく。よい点を先に、気になる点は一つだけ、直し案つきで】' + q).slice(0, 140) } });
-        if (!text) { aiOk = false; text = SENSEI_FB; }
+        text = await ask('sensei', { ask: { ku, q: ((c.uid === 'hamakichi' ? '【ダー浜の質問。初心者にもわかるよう、やさしく具体的に】' : '【やさしく。よい点を先に、気になる点は一つだけ、直し案つきで】') + q).slice(0, 140) } });
+        if (!text) { aiOk = false; text = c.uid === 'hamakichi' ? 'ええ問いやね、ダー浜さん。語順や助詞は、入れかえて声に出して、いちばん景が立つ形をさがすのが近道です。' : SENSEI_FB; }
         co = { eid: c.eid, uid: 'benico', text: text.slice(0, 320), tone: 'やさしく', part: [], at: Date.now(), re: k, ai: aiOk };
       }
       console.log((DRY ? '[DRY] ' : '') + sid + ' ' + kind + ' ← 「' + q + '」→ ' + text.slice(0, 80));
