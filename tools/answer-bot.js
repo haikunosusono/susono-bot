@@ -51,12 +51,12 @@ async function ask(kind, payload) {
     const sid = d.name.split('/').pop(), f = {}; Object.entries(d.fields || {}).forEach(([k, x]) => { f[k] = val(x); });
     const cm = f.comments || {}, es = f.entries || {}, keys = Object.keys(cm);
     if (!keys.length) continue;
-    if (process.env.DEBUG === '1' && sid.indexOf('t20261029') === 0) keys.forEach((k) => console.log('::notice title=DBG ' + sid + '::' + JSON.stringify(Object.assign({ k }, cm[k], { text: String(cm[k].text).slice(0, 30) })).slice(0, 400)));
     const replied = {}; keys.forEach((k) => { const re = cm[k] && cm[k].re; if (re) replied[re] = 1; });
     for (const k of keys.sort((a, b) => (cm[a].at || 0) - (cm[b].at || 0))) {
       const c = cm[k]; if (!c || !c.text || !c.at) continue;
       const age = now - c.at; if (age < WAIT_MS || age > MAX_AGE) continue;
-      if (c.uid === 'benico' || c.bot || c.anon || replied[k]) continue;
+      if (c.uid === 'benico' || c.bot || replied[k]) continue;
+      if (c.anon && c.uid !== c.eid) continue; /* 作者のひとこと（名前を伏せた作者の問い）は、作者本人のものだけ */
       const e = es[c.eid]; if (!e) continue;
       const ku = plain(String(e.a || '') + String(e.b || '') + String(e.c || '')); if (!ku) continue;
       const q = String(c.text).slice(0, 140);
