@@ -896,7 +896,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.30l';
+  var APP_VER = 'v2026.10.30m';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -4993,13 +4993,24 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     } catch (_) {}
     return { head: head, res: res };
   }
+  /* ダー浜の優勝発表（関西のノリの、オリジナルの司会ぶり）*/
+  var DH_WIN = [
+    '……ドゥルルルル……（ドラムロール）\n結果発表ー！\n栄えある優勝はー……{n}さんでしたー！{r}\nおめでとう！ ほな、優勝の句碑を除幕します。みなさん、拍手をー！　🎉👏',
+    '……ジャン！（シンバル）\n結果発表ー！\n今日の優勝は……{n}さんでしたー！{r}\nええ句やったなあ。句碑、いきますでー！　拍手ー！　👏🎉',
+    '……さあ、お待たせしました！\n結果発表ー！\n優勝は……{n}さん！ {n}さんでしたー！{r}\nみなさん、立ち上がって拍手ー！　句碑の除幕です！　🎉',
+    '……ええ勝負やったなあ。ほな、いくで。\n結果発表ー！\n優勝はー……{n}さんでしたー！{r}\nおめでとうー！ 句碑、ご覧あれー！　👏👏'
+  ];
+  function dhWin(name, meta, key) {
+    var r = meta && meta.res ? '（' + meta.res + '）' : '', n = String(name || '').replace(/（ボット）/, '');
+    return DH_WIN[hash(String(key || n)) % DH_WIN.length].replace(/\{n\}/g, n || 'あなた').replace('{r}', r);
+  }
   function kuhiImg(kuObj, haigo, meta) {
     try {
       var text = plain(String(kuObj.a || '') + String(kuObj.b || '') + String(kuObj.c || '')), key = text + '|' + (haigo || '');
       if (!kuhiCache[key]) kuhiCache[key] = drawKuhi({ text: text, haigo: haigo || '' }).toDataURL('image/jpeg', 0.88);
       meta = meta || {};
       var own = !!(kuObj.id && kuObj.id === myId), ck = ckSet('wk-' + hash(key), { text: text, haigo: haigo || '', own: own, head: meta.head || '', res: meta.res || '' }), first = !kuhiShown[key]; kuhiShown[key] = 1;
-      return '<div class="cmi hostline"><b>ダー浜（司会）</b>優勝の句碑を、除幕します。みなさん、拍手を！　🎉👏</div>' +
+      return '<div class="cmi hostline"><b>ダー浜（司会）</b>' + esc(dhWin(haigo, meta, key)).replace(/\n/g, '<br>') + '</div>' +
         '<button class="kuhi-win" data-act="card" data-ck="' + esc(ck) + '" data-style="kuhi" title="大きく見る・保存する"><span class="kw-frame"><img src="' + kuhiCache[key] + '" alt="句碑"' + (own ? '' : ' class="noown" draggable="false"') + '>' + (first ? '<i class="kw-cloth" aria-hidden="true"></i>' : '') + '</span><span>' + (own ? '🪨 句碑（押すと大きく・保存できます）' : '🪨 句碑（押すと大きく見られます。保存・投稿は作者だけ）') + '</span></button>';
     } catch (_) { return ''; }
   }
