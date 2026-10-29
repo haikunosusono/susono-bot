@@ -897,7 +897,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.30t';
+  var APP_VER = 'v2026.10.30u';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -4032,7 +4032,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       L(1, '🌱', 'はじめの一句をつくる', '登録前でもOK・約3分', '「見たこと」の12音に、5音の季語をそえるだけ。気軽に何句でも。思いついた句材は「俳句のタネあつめ」にメモ。', '<button class="btn primary" data-act="tk-start">🧩 句づくりで一句</button><button class="btn" data-act="tut">一句つくれるチュートリアル</button>') +
       L(2, '💪', 'ひとりで鍛える', '毎日・自分だけの記録', '毎日の兼題で俳筋力トレーニング。ボットと小さな「ひとりで句会」で、選ぶ・語らうを練習。', '<button class="btn" data-act="tab" data-t="solo">俳筋トレ部屋へ</button><button class="btn" data-act="tab" data-t="bot">ひとりで句会へ</button>') +
       L(3, '🍡', 'みんなで詠む', '見学もOK', '4人そろえば始まる「ふらっと句会」と、毎日21時・23時・25時（土日祝は10・13・15時も）の「定例句会」。講評は一句ずつ、ゆっくり。', '<button class="btn" data-act="tab" data-t="flat">ふらっと句会へ</button><button class="btn" data-act="tab" data-t="together">定例句会へ</button>') +
-      L(4, '🍵', '仲間と句会', '合言葉で集まる', '合言葉や招待リンクで、メンバーだけの句会。題・選の種類・回数も、自分たちで決められます。', '<button class="btn" data-act="tab" data-t="gohyo">仲間と句会へ</button>') +
+      L(4, '🍵', '合言葉で句会・吟行句会', '合言葉で集まる', '合言葉や招待リンクで、メンバーだけの句会。題・選の種類・回数も、自分たちで決められます。', '<button class="btn" data-act="tab" data-t="gohyo">仲間と句会へ</button>') +
       L(5, '🔍', 'さらに深める', 'じっくり・ゆっくり', '切れ字・字余り・カットの読みかた、深い推敲のヒント。ストッ句に残した句を、あとから推敲。', '<button class="btn" data-act="tutd">さらに深くチュートリアル</button><button class="btn" data-act="page" data-p="stock">ストッ句へ</button><button class="btn" data-act="page" data-p="hints">評のヒント</button>') +
       '</ol>';
     return ladder + '<h2 class="sec">このアプリでできること<small>くわしく</small></h2><div class="panel legal">' +
@@ -4383,7 +4383,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   var G_LABEL = { open: '集まり中', ku: '投句中', sel: '選句中', go: '合評中', done: '作者オープン' };
   var G_PHASES = ['open', 'ku', 'sel', 'go', 'done'];
   function gDefault() {
-    return { daiBy: 'members', daiMode: 'all', daiN: 3, kuPer: 'one', adv: 'host', kuMin: 10, daiMin: 5, selMin: 10, goMin: 15, kuMax: 5, maxRounds: 0, winMode: 'total', endMode: 'none', endHM: '', preset: 'std', kinds: JSON.parse(JSON.stringify(G_PRESETS.std.kinds)) };
+    return { daiBy: 'members', daiMode: 'all', daiN: 3, kuPer: 'one', adv: 'host', kuMin: 10, daiMin: 5, selMin: 10, goMin: 15, kuMax: 5, maxRounds: 0, kind: 'aikotoba', hiko: 'all', winMode: 'total', endMode: 'none', endHM: '', preset: 'std', kinds: JSON.parse(JSON.stringify(G_PRESETS.std.kinds)) };
   }
   var gDelAsk = '', gCloseAsk = false, gRooms = [], gCur = '', gNew = false, gJoin = '', gAik = '', gAikNew = '', gSet = gDefault(), gName = '', gDraft = { a: '', b: '', c: '', dai: '' }, gDaiText = '', gDaiCand = [], gCm = {}, gCmTag = {}, gChatText = '', gChatOpen = false, gFlags = {}, gEdit = false, gTimer = null, gPhaseSeen = {}, gNoteSeen = {}, gChatSeen = {};
   function gcur() { for (var i = 0; i < gRooms.length; i++) if (gRooms[i].id === gCur) return gRooms[i]; return gExtra[gCur] || null; }
@@ -4550,7 +4550,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     return true;
   }
   function gCreate() {
-    var nm = String(gName || '').trim() || '仲間と句会部屋';
+    var nm = String(gName || '').trim() || (gSet.kind === 'ginko' ? '吟行句会部屋' : '合言葉で句会部屋');
     if (!ready()) return;
     if (!haigo.trim()) { toast('マイページで俳号を決めてから、ひらいてください'); return; }
     var ak = gAikKey(gAikNew);
@@ -4584,6 +4584,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     function num(name, label, v, min, max, stepv) { return '<div class="field"><label>' + label + '</label><input type="number" data-f="g-' + name + '" value="' + v + '" min="' + min + '" max="' + max + '" step="' + (stepv || 1) + '"' + (editable ? '' : ' disabled') + '></div>'; }
     var dis = editable ? '' : ' disabled';
     var h = '<div class="panel gset">';
+    if (st.kind === 'ginko') h += '<div class="field"><label>披講（読み上げ）</label>' + chips('hiko', [['all', '全部の句を読む'], ['few', '時間しだいで、数句だけ']], st.hiko || 'all') + '<p class="note">吟行句会：席題（兼題）が出る→投句をはじめる→しめる→選と点付け→披講→合評→オープン。</p></div>';
+    else h += '<p class="note">合言葉で句会：席題（兼題）が出る→句会開始→投句→選と点付け→披講（高い点の順。時間があれば坊主句＝ゼロ点の句も）→合評→オープン。</p>';
     h += '<div class="field"><label>題の出し方</label>' + chips('daiBy', [['members', '参加者がひとり1題'], ['bot', 'ボットが出す']], st.daiBy) + '</div>';
     if (st.daiBy === 'bot') h += num('daiN', '題の数', st.daiN, 1, 10);
     h += '<div class="field"><label>題のまわし方</label>' + chips('daiMode', [['all', '全部の題を見せて、どれでも'], ['turn', '1題ずつ順に']], st.daiMode) + '</div>';
@@ -4619,14 +4621,14 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       if (!gCanOpen(r) || (r.hidden && !isAdmin)) return gGate(r);
       return vGRoom(r);
     }
-    var h = '<h2 class="sec">仲間と句会<small>合言葉で集まる・招待制</small></h2>';
+    var h = '<h2 class="sec">合言葉で句会・吟行句会<small>合言葉で集まる・招待制</small></h2>';
     h += '<div class="howto"><b>メンバー限定の、袋回し式の句会です</b><span>合言葉か招待リンクで仲間が集まり、題を出し合って投句。全句をひらいて選と合評をし、作者をオープン。点はくりこして、まわし終えたら、通算トップが句会優勝です。題の出し方、ひとり1句か何句でもか、進行、回数、選の種類と点は、ルームごとに決められます。</span><span class="chips2"><i>合言葉で集まる</i><i>見学なし</i><i>幹事が進行</i><i>点はくりこし</i><i>こそこそ話つき</i></span></div>';
     h += '<div class="bigsel"><button class="bigbtn' + (gJoin === 'enter' ? ' on' : '') + '" data-act="g-mode" data-v="enter"><b>部屋に入る</b><small>合言葉をお持ちの方</small></button><button class="bigbtn' + (gJoin === 'make' ? ' on' : '') + '" data-act="g-mode" data-v="make"><b>部屋をつくる</b><small>あたらしく設える</small></button></div>';
     if (gJoin === 'enter') {
       h += '<div class="panel"><p class="note">🔑 仲間と同じ合言葉を入れると、同じ部屋に入れます。部屋の外の人には見えません。</p><div class="field"><label for="g-aik">合言葉</label><input type="text" id="g-aik" data-f="g-aik" maxlength="20" value="' + esc(gAik) + '" placeholder="例：きょうの雨宿り"></div><div class="actions"><button class="btn primary" data-act="g-aik-go">部屋に入る</button></div><p class="note">仲間うちだけで通じる言葉にしてください。リンクで誘われた方は、そのリンクからどうぞ。</p></div>';
     }
     if (gJoin === 'make') {
-      h += '<div class="panel"><div class="field"><label for="g-name">句会の名前（空欄なら「仲間と句会部屋」）</label><input type="text" id="g-name" data-f="g-name" maxlength="30" value="' + esc(gName) + '" placeholder="例：火曜の夜の句会"></div><div class="field"><label for="g-naik">合言葉（なくてもよい。決めると、仲間は合言葉だけで入れます）</label><input type="text" id="g-naik" data-f="g-naik" maxlength="20" value="' + esc(gAikNew) + '" placeholder="例：きょうの雨宿り"></div></div>' +
+      h += '<div class="panel"><div class="field"><label>句会の種類</label><div class="row">' + [['aikotoba','🍵 合言葉で句会'],['ginko','🚶 吟行句会']].map(function (o) { return '<button class="chip fit' + (gSet.kind === o[0] ? ' on' : '') + '" data-act="g-set" data-k="kind" data-v="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div><p class="note">合言葉で句会：集まって題を出し合う、袋回しの句会。吟行句会：出かけて作った句を、時間でしめて持ち寄る句会（1回戦・ひとり5句までから）。</p></div><div class="field"><label for="g-name">句会の名前（空欄なら「合言葉で句会部屋」または「吟行句会部屋」）</label><input type="text" id="g-name" data-f="g-name" maxlength="30" value="' + esc(gName) + '" placeholder="例：火曜の夜の句会"></div><div class="field"><label for="g-naik">合言葉（なくてもよい。決めると、仲間は合言葉だけで入れます）</label><input type="text" id="g-naik" data-f="g-naik" maxlength="20" value="' + esc(gAikNew) + '" placeholder="例：きょうの雨宿り"></div></div>' +
         gSettings(gSet, true) + '<div class="actions"><button class="btn primary" data-act="g-create">この設定でひらく</button></div>';
     }
     h += '<div class="actions"><button class="btn" data-act="tutn">まわしかた（チュートリアル）</button></div>';
@@ -4634,7 +4636,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var list = gRooms.slice().sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); }).filter(function (x) { return !x.next && gCanSee(x); });
     if (!list.length) h += '<div class="empty"><p>参加している句会は、ありません。仲間に合言葉かリンクをもらうか、最初のひとつをひらいてみましょう。</p></div>';
     else h += '<ul class="list">' + list.map(function (x) {
-      return '<li><button class="sess" data-act="g-open" data-gid="' + esc(x.id) + '"><span class="row2"><span class="kd">' + esc(x.name) + '<small> ' + (x.round || 1) + '回目</small></span><span class="pill st-' + (x.status === 'done' ? 'done' : x.status === 'open' ? 'gathering' : 'selecting') + '">' + G_LABEL[x.status] + '</span></span>' +
+      return '<li><button class="sess" data-act="g-open" data-gid="' + esc(x.id) + '"><span class="row2"><span class="kd">' + ((x.st || {}).kind === 'ginko' ? '🚶 ' : '') + esc(x.name) + '<small> ' + (x.round || 1) + '回目</small></span><span class="pill st-' + (x.status === 'done' ? 'done' : x.status === 'open' ? 'gathering' : 'selecting') + '">' + G_LABEL[x.status] + '</span></span>' +
         '<span class="row2 sub"><span>' + gMembers(x).length + '人</span><span>' + gEnts(x).length + '句</span><span>' + ago(x.createdAt) + '</span>' + '<span class="me">' + (gIsHost(x) ? '幹事' : '参加中') + '</span>' + '</span></button></li>';
     }).join('') + '</ul>';
     return h;
@@ -4858,7 +4860,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'g-set') {
       var tgt = (r && r.status !== 'done' && gIsHost(r)) ? r.st : (!r ? gSet : null); if (!tgt) return;
       var k = t.dataset.k, v = t.dataset.v; if (k === 'maxRounds') v = Number(v);
-      tgt[k] = v; if (k === 'preset') tgt.kinds = JSON.parse(JSON.stringify(G_PRESETS[v].kinds)); render();
+      tgt[k] = v; if (k === 'kind') { if (v === 'ginko') { tgt.kuPer = 'n'; tgt.kuMax = 5; tgt.maxRounds = 1; tgt.adv = 'host'; tgt.winMode = 'total'; tgt.hiko = 'all'; } else { tgt.kuPer = 'one'; tgt.maxRounds = 0; } } if (k === 'preset') tgt.kinds = JSON.parse(JSON.stringify(G_PRESETS[v].kinds)); render();
     }
     else if (act === 'g-save-set') {
       if (!r || !gIsHost(r) || r.status === 'done') return;
