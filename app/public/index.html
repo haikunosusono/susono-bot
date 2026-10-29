@@ -896,7 +896,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.30o';
+  var APP_VER = 'v2026.10.30p';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -5003,7 +5003,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var lines = ['……さあ、お待たせしました！', '結果発表ー！', ''];
     ((meta && meta.ranks) || []).slice().sort(function (a, b) { return b.no - a.no; }).forEach(function (x) { lines.push((ks[x.no] || ('第' + x.no + '位')) + 'は' + String(x.name).replace(/（ボット）/, '') + 'さんー！' + (x.res ? '（' + x.res + '）' : '')); });
     lines.push(multi ? '第一位は' + ns.length + '人　' + ns.join('さんと') + 'さんー！' + r : '第一位は' + ns[0] + 'さんー！' + r);
-    lines.push(multi ? 'みなさん、では優勝記念トロフィー贈呈、それぞれの句碑の除幕です！おめでとうございましたー！　🎉' : 'みなさん、では優勝記念トロフィー贈呈と句碑の除幕です！おめでとうございましたー！　🎉');
+    lines.push(multi ? 'みなさん、では優勝記念トロフィー贈呈です！おめでとうございましたー！　🎉' : 'みなさん、では優勝記念トロフィー贈呈と句碑の除幕です！おめでとうございましたー！　🎉');
     return lines.join('\n');
   }
   function kuhiImg(kuObj, haigo, meta, noHost) {
@@ -5017,7 +5017,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     } catch (_) { return ''; }
   }
   function winCard(names, pts, kuObj, label, note, meta) {
-    return '<div class="trophy">' + TROPHY_SVG + '<div><b>優勝 ' + esc(label || '') + '</b><span class="tw">' + esc(names.join('・')) + '</span><small>' + pts + '点' + (kuObj ? '　' + esc(plain((kuObj.a || '') + ' ' + (kuObj.b || '') + ' ' + (kuObj.c || ''))) : '') + '</small>' + (note ? '<small>' + esc(note) + '</small>' : '') + '</div></div>' + (kuObj && names.length === 1 ? kuhiImg(kuObj, names[0], meta) : (meta && meta.wins && meta.wins.length > 1 ? '<div class="cmi hostline"><b>ダー浜（司会）</b>' + esc(dhWin(names, meta, names.join())).replace(/\n/g, '<br>') + '</div>' + meta.wins.map(function (x) { return kuhiImg(x.kuObj, x.name, meta, true); }).join('') : ''));
+    return '<div class="trophy">' + TROPHY_SVG + '<div><b>優勝 ' + esc(label || '') + '</b><span class="tw">' + esc(names.join('・')) + '</span><small>' + pts + '点' + (kuObj ? '　' + esc(plain((kuObj.a || '') + ' ' + (kuObj.b || '') + ' ' + (kuObj.c || ''))) : '') + '</small>' + (note ? '<small>' + esc(note) + '</small>' : '') + '</div></div>' + (kuObj && names.length === 1 ? kuhiImg(kuObj, names[0], meta) : (meta && meta.wins && meta.wins.length > 1 ? '<div class="cmi hostline"><b>ダー浜（司会）</b>' + esc(dhWin(names, meta, names.join())).replace(/\n/g, '<br>') + '</div>' : ''));
   }
   var BADGES = [];
   function fam(cat, key, label, defs) {
