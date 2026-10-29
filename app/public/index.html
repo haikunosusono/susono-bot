@@ -896,7 +896,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.30c';
+  var APP_VER = 'v2026.10.30d';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1760,7 +1760,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       if (s.status === 'selecting' && inEntry) {
         var left = selSec(s) - (Date.now() - (s.selectStart || Date.now())) / 1000;
         if ((allDone(s) || left <= 0) && !flags['r' + s.id]) {
-          flags['r' + s.id] = 1; writeIf(s.id, function (c) { return c.status === 'selecting'; }, function (c) { return revealPatch(c); }).then(function (c) { try { senseiAI(c); botAI(c); senseiJudge(c); } catch (_) {} });
+          flags['r' + s.id] = 1; writeIf(s.id, function (c) { return c.status === 'selecting'; }, function (c) { return revealPatch(c); }).then(function (c) { try { senseiAI(c); setTimeout(function () { botAI(c); }, 8000); senseiJudge(c); } catch (_) {} });
         }
       }
     });
@@ -1894,17 +1894,19 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
         .then(function (r) { sLog('応答 HTTP ' + r.status); return r.json(); })
         .then(function (o) {
           if (timer) clearTimeout(timer);
-          if (!o || !o.ok || !o.text) { sLog('評が作れず: ' + (o && o.err || '中身なし')); return; }
+          if (!o || !o.ok || !o.text) { sLog('評が作れず: ' + (o && o.err || '中身なし')); aiBadUntil = Date.now() + 10 * 60000; return; }
           if (!aiKigoOk(o.text)) { sLog('評に「季語がない」系の言い方があったので、使いません'); return; }
           sLog('評OK（' + (o.model || '') + '）');
           var p = {}; p['comments.' + key + '.text'] = String(o.text).slice(0, 400); p['comments.' + key + '.part'] = [String(o.part || c.part[0])]; p['comments.' + key + '.ai'] = true;
           writeIf(s0.id, function (cur) { return cur.status === 'reveal' && cur.comments && cur.comments[key]; }, function () { return p; });
-        }).catch(function (e) { sLog('通信エラー: ' + (e && e.message || e)); });
+        }).catch(function (e) { sLog('通信エラー: ' + (e && e.message || e)); aiBadUntil = Date.now() + 10 * 60000; });
     });
   }
   /* ボット（雫・蛍など）の感想も、AI に句を読ませて、その句ごとのひとことにする（だめなら、句のことばを引いた「かんたん」コメントのまま） */
+  var aiBadUntil = 0;
   function botAI(s0) {
     if (!SENSEI_API || !s0 || !db) return;
+    if (Date.now() < aiBadUntil) { sLog('AIが混んでいるので、ボットの感想は「かんたん」のままにします'); return; }
     var cm = teiBotComments(s0), es = s0.entries || {};
     Object.keys(cm).forEach(function (key) {
       var c = cm[key]; if (c.uid === 'benico' || !es[c.eid] || es[c.eid].bot || !es[c.uid] || !es[c.uid].bot) return;
@@ -1919,7 +1921,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
           sLog('ボットの感想OK（' + nm + '）');
           var p = {}; p['comments.' + key + '.text'] = tx.slice(0, 140); p['comments.' + key + '.ai'] = true;
           writeIf(s0.id, function (cur) { return cur.status === 'reveal' && cur.comments && cur.comments[key]; }, function () { return p; });
-        }).catch(function (e) { sLog('ボットの感想: 通信エラー ' + (e && e.message || e)); });
+        }).catch(function (e) { sLog('ボットの感想: 通信エラー ' + (e && e.message || e)); aiBadUntil = Date.now() + 10 * 60000; });
     });
   }
   /* 2人の回：AI（Gemini）に2句を読ませて、ボットの特選を決める。届かなければ、並選どうしのまま */
