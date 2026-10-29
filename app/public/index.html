@@ -896,7 +896,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.30g';
+  var APP_VER = 'v2026.10.30h';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2499,7 +2499,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
 
   function cmTools(eid) {
     var tn = cmTone[eid] || '', ps = cmPart[eid] || [];
-    return '<p class="note">ボットの評は「コメント例」です。作者によっては、語順・助詞・つきすぎ・類想まで、もっとはっきり指摘します。ここで満足せず、自分の目でも見てみましょう。</p>' + '<p class="note">読みにくい字や、こう読ませたい語は、「読み・ルビ」を選んで、「ルビなしでも読めますよ」「ここはルビが要りますね」のようにひとこと。</p><div class="cmtool"><span class="lb">口調</span>' + TONES.map(function (t) { return '<button class="chip fit' + (tn === t ? ' on' : '') + '" data-act="ctone" data-eid="' + esc(eid) + '" data-v="' + t + '" aria-pressed="' + (tn === t) + '">' + t + '</button>'; }).join('') +
+    return '<p class="note">読みにくい字や、こう読ませたい語は、「読み・ルビ」を選んで、「ルビなしでも読めますよ」「ここはルビが要りますね」のようにひとこと。</p><div class="cmtool"><span class="lb">口調</span>' + TONES.map(function (t) { return '<button class="chip fit' + (tn === t ? ' on' : '') + '" data-act="ctone" data-eid="' + esc(eid) + '" data-v="' + t + '" aria-pressed="' + (tn === t) + '">' + t + '</button>'; }).join('') +
       '<span class="lb">どういうところを</span>' + PARTS.map(function (t) { return '<button class="chip fit' + (ps.indexOf(t) >= 0 ? ' on' : '') + '" data-act="cpart" data-eid="' + esc(eid) + '" data-v="' + t + '" aria-pressed="' + (ps.indexOf(t) >= 0) + '">' + t + '</button>'; }).join('') + '</div>';
   }
   function kukaiWin(s, rows, T, max) {
@@ -2640,7 +2640,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     return '<div class="panel yaku"><b>講評のまえに ── みっつのおやくそく</b><ol class="tg2">' +
       '<li>句にも、詠んだ人にも、<b>敬意</b>をこめて。気になるところを伝えるときは、<b>ていねいな言葉</b>で。</li>' +
       '<li>一つの句に、<b>ひとつはコメント</b>を。「いいな」のひとことが、詠んだ人の、何よりの励みになります。</li>' +
-      '<li><b>誹謗中傷</b>と受け取られかねない言葉や、句・選評の<b>無断公開</b>は、きんしです。</li></ol>' +
+      '<li><b>誹謗中傷</b>と受け取られかねない言葉や、句・選評の<b>無断公開</b>は、きんしです。</li></ol><p class="note">ボットの評は「コメント例」です。作者によっては、語順・助詞・つきすぎ・類想まで、もっとはっきり指摘します。ここで満足せず、俳句の鑑賞力をきたえましょう。</p>' +
       '<div class="actions"><button class="btn" data-act="' + (g === 'g' ? 'g-yaku-close' : 'yaku-close') + '">わかりました（とじる）</button></div></div>';
   }
   /* 講評のまえに「みっつのおやくそく」：句を出した人に、いちどだけ（むすぶまで講評は見られない） */
@@ -2650,6 +2650,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       '<p>一、句にも、詠んだ人にも、<b>敬意</b>をこめて。気になったところを伝えるときは、<b>ていねいな言葉</b>で。</p>' +
       '<p>二、一つの句に、<b>ひとつは感想</b>を。ひとことが、詠んだ人の何よりのはげみになります。</p>' +
       '<p>三、ほかの人の句や選評の<b>無断公開</b>、<b>誹謗中傷</b>と受け取られかねない発言、<b>盗作</b>は、禁止です。くり返すと、参加をお断りすることがあります。</p>' +
+      '<p class="note">ボットの評は「コメント例」です。作者によっては、語順・助詞・つきすぎ・類想まで、もっとはっきり指摘します。ここで満足せず、俳句の鑑賞力をきたえましょう。</p>' +
       '<div class="actions center"><button class="btn primary big" data-act="yaku-ok">約束をむすぶ</button></div></div>';
   }
   function vReveal(s) {
