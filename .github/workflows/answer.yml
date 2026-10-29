@@ -1,0 +1,25 @@
+name: 返事係（AI先生・ボットの返事）
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+    inputs:
+      dry:
+        description: '1 なら、書かずに表示だけ'
+        default: '0'
+concurrency:
+  group: answer-bot
+  cancel-in-progress: false
+jobs:
+  answer:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: 返事を書く
+        env:
+          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          DRY_RUN: ${{ github.event.inputs.dry || '0' }}
+        run: node tools/answer-bot.js
