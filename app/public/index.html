@@ -896,7 +896,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.30b';
+  var APP_VER = 'v2026.10.30c';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1360,10 +1360,29 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     '発想': ['「{w}」に目をとめた発想が、すてきです。', '「{w}」という見かたが、新鮮でした。', '「{w}」に気づいたところが、この句の宝ですね。', '「{w}」を詠みたくなった気持ちが、伝わってきます。', '「{w}」に目がいく感じ、わかる気がしました。', '「{w}」を句にしたところに、作者の暮らしが見えるようです。']
   };
   var KS_TAIL = ['', '', '', 'また読みたくなる一句です。', 'もう一度、声に出してみました。', '読んだあと、すこし気持ちがほどけました。', 'しずかに、いい余韻です。', '素直な読み心地が、うれしいです。', '読めてよかったです。'];
+  /* 句の「形」から、文字を見れば確かなことだけを拾う（意味は読まない。言いきらず、やわらかく言う） */
+  function kuFacts(ku) {
+    var s = plain(ku).replace(/[\s　、。，．！？!?]/g, ''), out = [], m, cs = Array.from(s), n = cs.length; if (n < 5) return out;
+    var no = (s.match(/の/g) || []).length;
+    if (no >= 3) out.push(['調べ', '「の」が' + no + '度つながって、ゆるやかな流れのある句です。声に出すと、ひと息で運ばれていきますね。']);
+    if ((m = /([ぁ-ゖァ-ヶ]{2,4})\1/.exec(s))) out.push(['調べ', '「' + m[1] + m[1] + '」のくり返しが、耳にのこります。音そのものが、景を動かしているようです。']);
+    var kan = cs.filter(function (c) { return /[一-龥々]/.test(c); }).length, hira = cs.filter(function (c) { return /[ぁ-ゖ]/.test(c); }).length;
+    if (kan / n >= 0.6) out.push(['言葉選び', '漢字が多めで、ぎゅっと引き締まった印象の句です。ことばに無駄がない感じがします。']);
+    if (hira / n >= 0.75) out.push(['調べ', 'ひらがなが多くて、やわらかく、すっと読める句です。ゆっくり声に出したくなります。']);
+    if ((m = /[ァ-ヶー]{3,}/.exec(s))) out.push(['言葉選び', 'カタカナの「' + m[0] + '」が、いまの暮らしの景を連れてきています。ひらがなや漢字の中で、よく目立ちます。']);
+    if ((m = /(赤|青|白|黒|金|銀|紅|緑|碧|茜|藍|紫|橙|黄|灰|桃|朱|蒼|あか|あお|しろ|くろ)/.exec(s))) out.push(['景色', '色のことば「' + m[1] + '」が、景に色をさしています。目に見えるようです。']);
+    if ((m = /(朝|夕|夜|暮|昼|晩|暁|宵|夜明|あした|ゆうべ|真夜中)/.exec(s))) out.push(['景色', '「' + m[1] + '」という時間が入っていて、その時刻の光や空気が思い浮かびます。']);
+    if ((m = /(声|音|鳴|響|ひびき|ざわ|こえ|おと)/.exec(s))) out.push(['景色', '耳で聞く「' + m[1] + '」の感じが入っていて、景に奥ゆきが出ています。']);
+    if (/[てに]$/.test(s)) out.push(['切れ・余韻', 'さいごを言いきらずに終えているので、そのあとの時間が、読む人の中でひろがります。']);
+    if (/[、　 ]/.test(String(ku))) out.push(['調べ', 'ことばの間に息つぎの場所があって、読むときのリズムが見えやすい句です。']);
+    return out;
+  }
   function botKansou(ku, seed) {
     var ws = kuQuotes(ku), sh = ws.filter(function (w) { return Array.from(w).length <= 6; }); if (sh.length) ws = sh;
     var kws = []; try { var ka = kgAll(); kws = ws.filter(function (w) { return ka.indexOf(w) >= 0 || ka.indexOf(w.replace(/[がをにへでとはもや]$/, '')) >= 0; }); } catch (_) {}
     var parts = Object.keys(KS_T).filter(function (x) { return x !== '季語' || kws.length; }), h = hash(String(seed || '') + 'ks');
+    var fa = []; try { fa = kuFacts(ku); } catch (_) {}
+    if (fa.length && h % 3 !== 0) { var fp = fa[Math.floor(h / 11) % fa.length]; return { part: fp[0], text: fp[1] }; }
     var part = parts[h % parts.length], pool = part === '季語' ? kws : ws, w = pool[Math.floor(h / 7) % pool.length], arr = KS_T[part];
     var tx = arr[Math.floor(h / 53) % arr.length].replace('{w}', w), tail = KS_TAIL[Math.floor(h / 331) % KS_TAIL.length];
     return { part: part, text: tx + (tail ? tail : '') };
@@ -1550,6 +1569,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (/(ない|ちゃ|てる|じゃん|だよ|かも|よね|ねえ|たい|だった|んだ)/.test(k.t)) pts.push(['言葉選び', '口語のことばが生きていますね。かたくならず、作者の声がそのまま聞こえてくる。いまの俳句らしい表現です']);
     if (k.kana === 17) pts.push(['調べ', '五七五の十七音ぴったりで、調べが整っています。一息で気持ちよく読めるのは、それだけで句の力です']);
     if (!EMO_RE.test(k.t)) pts.push(['言葉選び', '気持ちのことばを使わず、景だけで語っているのがいいですね。読む人が、自分の気持ちを重ねられる余白があります']);
+    try { kuFacts(raw).forEach(function (f) { if (pts.length < 3) pts.push([f[0], f[1].replace(/。$/, '')]); }); } catch (_) {}
     if (!pts.length) pts.push(['発想', '見たものをそのまま、飾らずに差し出しているところがいいですね。日常の一瞬をつかまえる、その目が俳句です']);
     /* 2つまで。ならび順は、読みとりの確かな順（切れ・季語が先） */
     var pick = pts.slice(0, 2);
