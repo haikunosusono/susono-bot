@@ -905,7 +905,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.30w';
+  var APP_VER = 'v2026.10.31a';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1063,7 +1063,8 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var seen = {};
     /* 定例・ふらっとの こそこそ話：自分以外から届いたら、ピロン */
     sessions.forEach(function (x) {
-      if (!(x.tei || x.std === 'flat') || !x.entries || !x.entries[myId]) return;
+      if (!(x.tei || x.std === 'flat')) return;
+      if (!(x.entries && x.entries[myId]) && current !== x.id) return;
       var cn = Object.keys(x.chat || {}).length;
       if (kChatSeen[x.id] !== undefined && cn > kChatSeen[x.id]) { var lastK = Object.keys(x.chat).map(function (k) { return x.chat[k]; }).sort(function (a, b) { return (b.at || 0) - (a.at || 0); })[0]; if (lastK && lastK.uid !== myId) { pilon(); if (current !== x.id || !kChatOpen) toast('こそこそ話：' + (lastK.haigo || '') + '「' + String(lastK.text || '').slice(0, 20) + '」'); } }
       kChatSeen[x.id] = cn;
