@@ -85,6 +85,11 @@ function announceText(slot, t) {
     info = '投句は、いつでも受付中（定刻でしめきり）。見学もできます。ひとりなら、ボットが加わります。', warn = 'ほかの人の句や選評の、無断の公開は禁止です。';
   return [[head, theme, info, warn], [head, theme, '投句は受付中。見学もできます。', warn], [head, 'お題は「当季雑詠」。投句は受付中。見学もできます。', warn]].map(v => v.join('\n'));
 }
+// 実況：21時「すその句会」が、実際にはじまったとき（句を出した人が1人以上）だけ。人数は、公開の小さな記録（pub）にある実数
+function liveText(slot, humans) {
+  const head = '【いま開催中】' + hh(slot.h) + 'の「' + slotName(slot.h) + '」（定例句会・デモ）に、' + humans + '人が集まっています。';
+  return [[head, 'お題は「当季雑詠」。見学もできます。', 'ほかの人の句や選評の、無断の公開は禁止です。'], [head, 'お題は「当季雑詠」。見学もできます。']].map(v => v.join('\n'));
+}
 function startText(slot) {
   const head = '【はじまりました】' + hh(slot.h) + 'の「' + slotName(slot.h) + '」（定例句会・デモ）', a = 'お題は「当季雑詠」。いま、披講・点付けがはじまっています。見学もできます。', w = 'ほかの人の句や選評の、無断の公開は禁止です。';
   return [[head, a, w], [head, 'お題は「当季雑詠」。見学もできます。', w]].map(v => v.join('\n'));
@@ -142,17 +147,24 @@ async function buildAny() {
   if (kind === 'none') return { d: jstDate(), kind, text: '', skip: 'この時刻に合う定例句会がないので、投稿しません' };
   if (kind === 'daily') return Object.assign({ skip: '' }, build());
   const on = (process.env.TEI_POSTS || 'announce,thanks').split(',').map(x => x.trim());
-  if (!on.includes(kind)) return { d: jstDate(), kind, text: '', skip: kind + ' は TEI_POSTS に入っていないので、投稿しません' };
+  // 21時の実況（人が集まった回だけ・1回につき最大1つ）は、変数 TEI_LIVE=0 でとめられる（ふだんは出す）
+  const liveOn = kind === 'start' && slot && slot.h === 21 && process.env.TEI_LIVE !== '0';
+  if (!on.includes(kind) && !liveOn) return { d: jstDate(), kind, text: '', skip: kind + ' は TEI_POSTS に入っていないので、投稿しません' };
   if (!slot) return { d: jstDate(), kind, text: '', skip: '対象の定例句会が見つかりません' };
   const link = process.env.INCLUDE_LINK === '1' ? '\n' + URL_ + '/#' + slot.sid : '';
   let body;
   if (kind === 'announce') body = announceText(slot, t);
+  else if (kind === 'start' && liveOn) {
+    const pub = await fetchPub(slot.sid);
+    if (!pub || !pub.humans) return { d: slot.date, kind, text: '', skip: 'まだ句を出した人の記録がないので、実況は出しません' };
+    body = liveText(slot, pub.humans);
+  }
   else if (kind === 'start') body = startText(slot);
   else {
     const pub = await fetchPub(slot.sid);
     body = (!pub || !pub.humans) ? noshowText(slot) : thanksText(slot, pub.humans, pub.bots);
   }
-  return { d: slot.date, kind, text: fitTags(body, link, TEI_TAGS), skip: '' };
+  return { d: slot.date, kind, text: fitTags(body, link, liveOn ? '#俳句の裾野 #俳句 #句会' : TEI_TAGS), skip: '' };
 }
 function build() {
   const d = jstDate(), m = menu[d];
@@ -191,4 +203,4 @@ async function main() {
   }
 }
 if (require.main === module) main().catch(err => { console.error(err); process.exit(1); });
-module.exports = { build, buildAny, autoKind, slotsAround, weighted, authHeader, announceText, thanksText };
+module.exports = { liveText, build, buildAny, autoKind, slotsAround, weighted, authHeader, announceText, thanksText };

@@ -15,6 +15,7 @@ on:
     - cron: '0 6 * * *'       # 15:00  同上
     - cron: '0 12 * * *'      # 21:00  同上
     - cron: '0 14 * * *'      # 23:00  同上
+    - cron: '10 12 * * *'     # 21:10  21時「すその句会」の実況（句を出した人が1人以上のときだけ。0:00の分が間に合わなかったときの、2回目）
     - cron: '30 2 * * *'      # 11:30  10時の回のお礼（土日祝だけ投稿される）
     - cron: '30 5 * * *'      # 14:30  13時の回のお礼（同上）
     - cron: '30 7 * * *'      # 16:30  15時の回のお礼（同上）
@@ -50,6 +51,7 @@ jobs:
           X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
           INCLUDE_LINK: ${{ vars.INCLUDE_LINK || '1' }}
           TEI_POSTS: ${{ vars.TEI_POSTS }}
+          TEI_LIVE: ${{ vars.TEI_LIVE }}
           KIND: ${{ github.event.inputs.kind || 'auto' }}
           TEXT: ${{ github.event.inputs.text }}
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || '0' }}
