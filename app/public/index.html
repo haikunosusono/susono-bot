@@ -565,6 +565,18 @@ h3.sec { font-size: 1rem; }
 .hero-cta .link { align-self: center; font-size: .92rem; }
 .hero-sub { margin: 8px 0 0; font-size: .78rem; }
 @media (max-width: 480px) { .appurl { font-size: .74rem; margin-bottom: 4px; } .top { gap: 2px; } .brand { font-size: 1.45rem; } .brand .team { font-size: .42em; } .tagline { font-size: .82rem; line-height: 1.4; } .tagline2 { font-size: .8rem; } .date { font-size: .9rem; } .topr { gap: 4px; } .hero { padding: 12px 14px 14px; margin-top: 6px; } .hero-lead { font-size: 1rem; } .hero-facts li { font-size: .76rem; padding: 1px 8px; } .hero-steps { font-size: .84rem; margin-bottom: 10px; } }
+
+.rsec { margin: 22px 0 6px; } .rh { font-size: 1.02rem; margin: 0 0 8px; font-weight: 700; display: flex; align-items: baseline; gap: .6em; flex-wrap: wrap; } .rh small { font-size: .78rem; font-weight: 400; color: var(--ink-soft); } .rh.sm { font-size: .88rem; color: var(--ink-soft); }
+.rgrid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.rgrid .rcard { min-height: 0; border: 1px solid var(--line); background: var(--paper); border-radius: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 12px 16px; text-align: left; font: inherit; color: inherit; }
+.rgrid .rcard b { font-size: 1.02rem; line-height: 1.5; } .rgrid .rcard span { font-size: .86rem; color: var(--ink-soft); line-height: 1.6; } .rgrid .rcard small { font-size: .74rem; color: var(--ink-soft); line-height: 1.6; opacity: .9; }
+.rgrid .rcard:nth-child(3n+1) { background: var(--tile1); } .rgrid .rcard:nth-child(3n+2) { background: var(--tile2); } .rgrid .rcard:nth-child(3n+3) { background: var(--tile3); }
+.rgrid .rcard[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); } .rgrid .rcard[aria-selected="true"] span, .rgrid .rcard[aria-selected="true"] small { color: var(--accent-ink); opacity: .9; }
+.roombody { margin: 14px 0 6px; display: flex; flex-direction: column; gap: 12px; scroll-margin-top: 8px; }
+.misc { margin-top: 26px; display: flex; flex-direction: column; gap: 10px; font-size: .9rem; }
+.misc-row { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; } .misc-row .link { font-size: .86rem; } .misc-row.sm2 { font-size: .8rem; color: var(--ink-soft); } .misc-row.sm2 .date { font-size: .8rem; } .misc-row .appurl { margin: 0; font-size: .74rem; }
+.misc-d > summary { cursor: pointer; font-size: .9rem; }
+@media (min-width: 640px) { .rgrid { grid-template-columns: repeat(3, 1fr); } }
 .guestw { background: var(--accent2-soft); border-color: var(--accent2); border-radius: 18px; }
 .memoq { background: var(--tile2); border-radius: 18px; }
 .memoq b small { font-size: .8rem; font-weight: 400; color: var(--ink-soft); margin-left: .4em; }
@@ -918,7 +930,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.31e';
+  var APP_VER = 'v2026.10.31f';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -952,6 +964,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   var db = null, myId = null, dbState = 'loading', page = '', demo = null, trial = null, prof = { x: '', ig: '', pref: '', sy: '', sm: '' }, online = 0, roomT0 = Date.now(), hashSid = '', showInv = false, prevCnt = {}, inq = { kind: 'req', name: '', text: '', busy: false }, inqs = [];
   var stat = { members: 0, joined: 0, ku: 0, today: 0 };
   var delAsk = '', myRep = {}, repInit = false, rpDraft = {}, news = [], trophies = [], awarded = {}, badgeSeen = null, nf = { kind: 'NHK俳句の兼題', title: '', body: '', url: '' };
+  var roomOpen = false, lastTabSeen = 'solo';
   var tab = 'solo', ser = plan(dayNum()).series, filt = 'all', editing = null;
   var mine = [], mineById = {}, sessions = [], current = null, showNew = false, newSize = 5, named = {}, cmDraft = {}, cmTone = {}, cmPart = {}, newKind = 'today', hiko = false, lastFld = '', flags = {}, queue = Promise.resolve();
   var drafts = {}, touched = {};
@@ -2817,7 +2830,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     return vTei();
   }
 
-  var RUBY = [['持ち寄','もちよ'],['見学','けんがく'],['鑑賞力','かんしょうりょく'],['裾野','すその'],['一物仕立て','いちぶつじたて'],['俳筋力','はいきんりょく'],['取り合わせ','とりあわせ'],['認知症','にんちしょう'],['季重なり','きがさなり'],['字足らず','じたらず'],['字余り','じあまり'],['歳時記','さいじき'],['五七五','ごしちご'],['講評','こうひょう'],['披講','ひこう'],['選句','せんく'],['即吟','そくぎん'],['兼題','けんだい'],['句会','くかい'],['特選','とくせん'],['並選','なみせん'],['季語','きご'],['俳句','はいく'],['川柳','せんりゅう'],['短歌','たんか'],['投句','とうく'],['余韻','よいん'],['名乗り','なのり'],['俳号','はいごう'],['拗音','ようおん'],['長音','ちょうおん'],['促音','そくおん'],['撥音','はつおん'],['音数','おんすう'],['添削','てんさく'],['査定','さてい'],['推敲','すいこう'],['観察','かんさつ'],['選者','せんじゃ'],['会心','かいしん'],['予防','よぼう'],['結社','けっしゃ'],['協会','きょうかい'],['俳人','はいじん'],['縦書き','たてがき'],['作風','さくふう'],['季節','きせつ'],['連続','れんぞく'],['記録','きろく'],['今日','きょう'],['席','せき']];
+  var RUBY = [['自習室','じしゅうしつ'],['月例','げつれい'],['定例','ていれい'],['持ち寄','もちよ'],['見学','けんがく'],['鑑賞力','かんしょうりょく'],['裾野','すその'],['一物仕立て','いちぶつじたて'],['俳筋力','はいきんりょく'],['取り合わせ','とりあわせ'],['認知症','にんちしょう'],['季重なり','きがさなり'],['字足らず','じたらず'],['字余り','じあまり'],['歳時記','さいじき'],['五七五','ごしちご'],['講評','こうひょう'],['披講','ひこう'],['選句','せんく'],['即吟','そくぎん'],['兼題','けんだい'],['句会','くかい'],['特選','とくせん'],['並選','なみせん'],['季語','きご'],['俳句','はいく'],['川柳','せんりゅう'],['短歌','たんか'],['投句','とうく'],['余韻','よいん'],['名乗り','なのり'],['俳号','はいごう'],['拗音','ようおん'],['長音','ちょうおん'],['促音','そくおん'],['撥音','はつおん'],['音数','おんすう'],['添削','てんさく'],['査定','さてい'],['推敲','すいこう'],['観察','かんさつ'],['選者','せんじゃ'],['会心','かいしん'],['予防','よぼう'],['結社','けっしゃ'],['協会','きょうかい'],['俳人','はいじん'],['縦書き','たてがき'],['作風','さくふう'],['季節','きせつ'],['連続','れんぞく'],['記録','きろく'],['今日','きょう'],['席','せき']];
   var RUBY_RE = new RegExp(RUBY.map(function (r) { return r[0]; }).join('|'), 'g'), RUBY_MAP = {};
   RUBY.forEach(function (r) { RUBY_MAP[r[0]] = r[1]; });
   var RUBY_SKIP = /class="[^"]*\b(ku|cmi|haigo|k|seg)\b[^"]*"/;
@@ -5595,7 +5608,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<div class="hero-cta"><button class="btn primary big" data-act="' + (myId ? 'hero-join' : 'fbgate') + '">今夜の句会に参加する</button>' +
       (myId ? '' : '<button class="link" data-act="hero-watch">登録なしで見学する</button>') + '</div>' +
       '<ol class="hero-steps"><li>一句つくる（今日の' + '兼題' + 'からでもOK）</li><li>21:00に、このアプリをひらく</li><li>席に案内されるので、みんなで詠み合う</li></ol>' +
-      '<p class="note hero-sub">楽しくなければ俳句じゃない。はじめてでも、ふりがなとチュートリアルつきです。</p></section>';
+      '<p class="note hero-sub">はじめてでも、ふりがなとチュートリアルつきです。</p></section>';
   }
   function vGuest() {
     if (myId || dbState !== 'ok') return '';
@@ -5680,10 +5693,37 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var at = Date.now(), o = { kind: nf.kind, title: t, body: String(nf.body || '').trim(), url: okUrl(nf.url), at: at, by: myId };
     db.collection('news').doc('n' + at).set(o).then(function () { nf.title = ''; nf.body = ''; nf.url = ''; toast('投稿しました'); render(); }).catch(failMsg);
   }
-  var ROOMS = [['diary', '🌱 俳句の初心者部屋', 'はじめての一句・チュートリアルつき'], ['solo', '💪 俳筋力トレーニング部屋', 'きょうのテーマ・題詠（漢字・カタカナ）で、一日一句'], ['bot', '🐸 ひとりで句会', '進行になれる・鑑賞力もつける'], ['monthly', '📅 すその句会（月例）', '11月から・毎月1日に兼題・15日〆切・25日まで互選'], ['flat', '🍡 ふらっと句会', '4人そろえば、すぐ開始'], ['together', '🏮 定例句会（デモ）', '毎日 だれでも21時・おかわり23時・よなよな25時／土日祝はさらに おはよう10時・こんにちは13時・おやつの15時'], ['gohyo', '🍵 仲間と句会', '合言葉で集まる・見学なし']];
-  function vRooms() {
-    return '<div class="rooms" role="tablist">' + ROOMS.map(function (r) { return '<button role="tab" data-act="tab" data-t="' + r[0] + '" aria-selected="' + (tab === r[0]) + '"><b>' + r[1] + '</b><small>' + r[2] + '</small></button>'; }).join('') + '</div>';
+  var ROOMS = [['diary', '🌱 俳句の初心者部屋', 'はじめての一句・チュートリアルつき'], ['solo', '💪 俳筋力トレーニング部屋', 'きょうのテーマ・題詠（漢字・カタカナ）で、一日一句'], ['bot', '🐸 ひとりで句会', '進行になれる・鑑賞力もつける'], ['monthly', '📅 月例句会', '11月から・毎月1日に兼題・15日〆切・25日まで互選'], ['flat', '🍡 ふらっと句会', '4人そろえば、すぐ開始'], ['together', '🏮 定例句会', '毎日 21時・23時・25時／土日祝はさらに 10時・13時・15時'], ['gohyo', '🍵 合言葉で句会・吟行句会', '合言葉で集まる・見学なし']];
+  /* ---- トップのカード：練習の部屋（3）と、本番の句会（3）。押すと、下にその部屋がひらく ---- */
+  function roomCard(id, name, one, aim) {
+    return '<button class="rcard" role="tab" data-act="tab" data-t="' + id + '" aria-selected="' + (roomOpen && tab === id) + '"><b>' + name + '</b><span>' + one + '</span>' + (aim ? '<small>' + aim + '</small>' : '') + '</button>';
   }
+  function vRoomCards() {
+    return '<section class="rsec" aria-label="練習の部屋"><h2 class="rh">練習の部屋<small>ひとりで、ためせます</small></h2><div class="rooms rgrid" role="tablist">' +
+      roomCard('bot', '🐸 句会の練習', '一人でbotと、句会の流れを通してみる') +
+      roomCard('solo', '💪 俳筋力トレーニング室', '1日1兼題。漢字・カタカナ・テーマ詠で鍛える') +
+      roomCard('diary', '✍️ 作句の自習室', 'テーマなしで、たくさん作って、ストッ句を貯める') +
+      '</div></section>' +
+      '<section class="rsec" aria-label="本番の句会"><h2 class="rh">本番の句会<small>みんなで詠みます</small></h2><div class="rooms rgrid" role="tablist">' +
+      roomCard('together', '🏮 定例句会', '毎日開催。21時の回が、すその句会です', '21時 すその句会／23時 おかわり句会／25時 よなよな句会。土日祝は 10時 おはよう句会／13時 こんにちは句会／15時 おやつ句会も') +
+      roomCard('flat', '🍡 ふらっと句会', '集まったら、すぐ始まる。上下なしの、flat（並列）な句会') +
+      roomCard('monthly', '📅 月例句会', '月に一度の句会', '11月から・毎月1日に兼題') +
+      '</div></section>';
+  }
+  function vOther() {
+    var st = streak(), n = dayNum();
+    var chip = function (a, d, label) { return '<button class="link" data-act="' + a + '"' + d + '>' + label + '</button>'; };
+    return '<section class="misc" aria-label="そのほか"><h2 class="rh sm">そのほか</h2>' +
+      '<div class="misc-row">' + chip('tab', ' data-t="gohyo"', '🍵 合言葉で句会・吟行句会') + chip('page', ' data-p="kigo"', '🔍 季語をしらべる') + chip('page', ' data-p="stock"', '📒 ストッ句') + chip('page', ' data-p="gloss"', '📖 用語集') + chip('page', ' data-p="contact"', '📮 ご意見・ご要望') + chip('tut', '', '🌱 俳句はじめての人へ') + '</div>' +
+      '<details class="panel misc-d"' + (news.length ? ' open' : '') + '><summary>今日のコツ・名句・おしらせ</summary>' + vNews() + vMeiku() + '</details>' +
+      vGuest() + vStats() + vMemoQ(false) + vBeginner() + vMenu() +
+      '<div class="misc-row sm2"><span class="date">' + esc(fullLabel(n)) + '<span class="ver">' + APP_VER + '</span> <button class="verbtn' + (newVer ? ' new' : verChecked ? ' ok' : '') + '" data-act="app-reload" title="アプリを最新にする">' + (newVer ? '🔄 新しい版があります・更新してください' : verChecked ? '✅ いま最新版です' : verErr ? '⚠️ 確かめられませんでした・押すと更新（' + esc(verErr) + '）' : '🔄 更新を確かめています…') + '</button></span>' +
+      (st > 0 ? '<span class="streak">連続 ' + st + '日</span>' : '') + '<button class="link" data-act="yoko" aria-pressed="' + yoko + '">' + (yoko ? '縦書きで見る' : '横書きで見る') + '</button>' +
+      '<span class="appurl"><a href="https://haikunosusono.web.app" target="_blank" rel="noopener">haikunosusono.web.app</a><button class="link" data-act="copy-url">コピー</button></span></div>' +
+      (window.fbLogout && myId ? '<div class="who-bar"><span>ログイン中：<b>' + esc(haigo.trim() || (window.fbUserEmail || '')) + '</b>' + (haigo.trim() && window.fbUserEmail ? '<small>（' + esc(window.fbUserEmail) + '）</small>' : '') + '</span><button class="btn small" data-act="fblogout">ログアウト</button></div>' : '') +
+      '</section>';
+  }
+  function vRooms() { return vRoomCards(); }
 
   /* 入力中は、裏の更新で画面を描きなおさない（日本語入力が切れるため）。自分の操作の直後だけは、すぐ描く */
   var actUntil = 0, pendRender = false, pendT = null;
@@ -5697,6 +5737,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     pendRender = false;
     try { lastTeiSig = teiSig(); } catch (e) {}
     try { document.body.classList.toggle('yoko', yoko); } catch (e) {}
+    if (tab !== lastTabSeen || current || gCur) roomOpen = true; lastTabSeen = tab;
     var n = dayNum(), body;
     if (dbState === 'loading') body = '<p class="lead">ひらいています…</p>';
     else if (trial) { body = vTrial(); }
@@ -5706,10 +5747,10 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       body = '<div class="actions"><button class="link" data-act="page" data-p="">← もどる</button></div>' + pageView();
     } else {
       var st = streak();
-      body = '<div class="appurl"><a href="https://haikunosusono.web.app" target="_blank" rel="noopener">haikunosusono.web.app</a><button class="link" data-act="copy-url">コピー</button></div><div class="top"><div><h1 class="brand">俳句の裾野アプリ<span class="team">（チーム裾野）</span></h1><div class="tagline">楽しくなければ俳句じゃないぜ！（いつき組）</div><div class="tagline2">俳筋力トレーニング、してみませんか？</div><div class="date">' + esc(fullLabel(n)) + '<span class="ver">' + APP_VER + '</span> <button class="verbtn' + (newVer ? ' new' : verChecked ? ' ok' : '') + '" data-act="app-reload" title="アプリを最新にする">' + (newVer ? '🔄 新しい版があります・更新してください' : verChecked ? '✅ いま最新版です' : verErr ? '⚠️ 確かめられませんでした・押すと更新（' + esc(verErr) + '）' : '🔄 更新を確かめています…') + '</button></div></div>' + '<div class="topr">' + (st > 0 ? '<span class="streak">連続 ' + st + '日</span>' : '') + '<button class="link" data-act="yoko" aria-pressed="' + yoko + '">' + (yoko ? '縦書きで見る' : '横書きで見る') + '</button><button class="link" data-act="tut">俳句はじめての人へ（チュートリアル）</button></div></div>' +
-        (window.fbLogout && myId ? '<div class="who-bar"><span>ログイン中：<b>' + esc(haigo.trim() || (window.fbUserEmail || '')) + '</b>' + (haigo.trim() && window.fbUserEmail ? '<small>（' + esc(window.fbUserEmail) + '）</small>' : '') + '</span><button class="btn small" data-act="fblogout">ログアウト</button></div>' : '') +
-        vHero() + vLive() + vGuest() + vStats() + vMemoQ(false) + vBeginner() +
-        vRooms() + (tab === 'solo' ? vDeck() : '') + (tab === 'diary' ? vDiary() : tab === 'solo' ? vSolo() : tab === 'bot' ? vBotRoom() : tab === 'gohyo' ? vGohyo() : tab === 'flat' ? vFlat() : tab === 'monthly' ? vMonthly() : vTogether()) + '<h2 class="sec">きょうの俳句まわり<small>コツ・名句・メニュー</small></h2>' + vNews() + vMeiku() + vMenu() + vFooter();
+      body = '<div class="top"><div><h1 class="brand">俳句の裾野<span class="team">（チーム裾野）</span></h1><div class="tagline">楽しくなければ俳句じゃないぜ！（いつき組）</div></div></div>' +
+        vHero() + vLive() + vRoomCards() +
+        (roomOpen ? '<div id="room-body" class="roombody">' + (tab === 'solo' ? vDeck() : '') + (tab === 'diary' ? vDiary() : tab === 'solo' ? vSolo() : tab === 'bot' ? vBotRoom() : tab === 'gohyo' ? vGohyo() : tab === 'flat' ? vFlat() : tab === 'monthly' ? vMonthly() : vTogether()) + '</div>' : '') +
+        vOther() + vFooter();
       if (dbState === 'none') body += '<p class="note">保存先につながっていません。ページを読みこみなおしてください。</p>';
     }
     /* こそこそ話：描きなおしても、いちばん下（最新）に。読み返し中（上にスクロール中）なら、その位置を保つ */
@@ -6190,8 +6231,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       if (!sessions.some(function (x) { return x.id === hsid; }) && db) db.collection('kukai').doc(hsid).get().then(function (d) { if (d && d.exists) { var o = d.data() || {}; o.id = d.id; kExtra[hsid] = o; } render(); }).catch(function () { render(); });
       render(); try { window.scrollTo(0, 0); } catch (_) {} return;
     }
-    if (act === 'hero-join' || act === 'hero-watch') { fromArch = false; page = ''; current = ''; tab = 'together'; render(); try { var rm = document.querySelector('.rooms'); if (rm) rm.scrollIntoView({ block: 'start' }); } catch (_) {} return; }
-    if (act === 'tab') { fromArch = false; page = ''; if (t.dataset.t === 'solo') hitoNext(); tab = t.dataset.t; if (editing && mineById[editing] && ((mineById[editing].series === 'd') !== (tab === 'diary'))) editing = null; render(); }
+    if (act === 'hero-join' || act === 'hero-watch') { fromArch = false; page = ''; current = ''; tab = 'together'; lastTabSeen = tab; roomOpen = true; render(); try { var rm = document.getElementById('room-body'); if (rm) rm.scrollIntoView({ block: 'start' }); } catch (_) {} return; }
+    if (act === 'tab') { fromArch = false; page = ''; var wasOpen = roomOpen && tab === t.dataset.t && !current && !gCur && !gNew; if (t.dataset.t === 'solo') hitoNext(); tab = t.dataset.t; lastTabSeen = tab; roomOpen = !wasOpen; if (editing && mineById[editing] && ((mineById[editing].series === 'd') !== (tab === 'diary'))) editing = null; render(); if (roomOpen) { try { var rb = document.getElementById('room-body'); if (rb) rb.scrollIntoView({ block: 'start' }); } catch (_) {} } }
     else if (act === 'tut') { openTut(0); }
     else if (act === 'tutd') { openTut(0, 'deep'); }
     else if (act === 'nb-off') { try { localStorage.setItem('ikku-nb-off', String(Date.now())); } catch (_) {} render(); }
