@@ -566,11 +566,20 @@ h3.sec { font-size: 1rem; }
 .hero-sub { margin: 8px 0 0; font-size: .78rem; }
 @media (max-width: 480px) { .appurl { font-size: .74rem; margin-bottom: 4px; } .top { gap: 2px; } .brand { font-size: 1.45rem; } .brand .team { font-size: .42em; } .tagline { font-size: .82rem; line-height: 1.4; } .tagline2 { font-size: .8rem; } .date { font-size: .9rem; } .topr { gap: 4px; } .hero { padding: 12px 14px 14px; margin-top: 6px; } .hero-lead { font-size: 1rem; } .hero-facts li { font-size: .76rem; padding: 1px 8px; } .hero-steps { font-size: .84rem; margin-bottom: 10px; } }
 
-.rsec { margin: 22px 0 6px; } .rh { font-size: 1.02rem; margin: 0 0 8px; font-weight: 700; display: flex; align-items: baseline; gap: .6em; flex-wrap: wrap; } .rh small { font-size: .78rem; font-weight: 400; color: var(--ink-soft); } .rh.sm { font-size: .88rem; color: var(--ink-soft); }
+.hero { box-shadow: 0 1px 6px rgba(60,50,30,.07); border-radius: 22px; position: relative; overflow: hidden; padding-bottom: 30px; }
+.hero .mtn { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 26px; color: var(--accent); opacity: .28; pointer-events: none; }
+.hero-now { margin: 0 0 6px; font-size: .86rem; color: var(--accent); font-weight: 600; } .hero-now b { font-size: 1rem; } .hero-now small { color: var(--ink-soft); font-weight: 400; } .hero-now .dot { display: inline-block; width: .55em; height: .55em; border-radius: 50%; background: var(--accent2); margin-right: .4em; animation: nowp 1.6s ease-in-out infinite; }
+@keyframes nowp { 50% { opacity: .35; } } @media (prefers-reduced-motion: reduce) { .hero-now .dot { animation: none; } }
+.hero-ws { display: block; text-align: center; color: var(--ink-soft); font-size: .74rem; line-height: 1.5; }
+.kteaser { display: flex; align-items: baseline; gap: .6em; flex-wrap: wrap; width: 100%; margin: 4px 0 0; padding: 10px 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); color: inherit; font: inherit; cursor: pointer; text-align: left; } .kteaser span { font-size: .78rem; color: var(--ink-soft); } .kteaser b { font-size: 1.02rem; } .kteaser small { margin-left: auto; font-size: .74rem; color: var(--accent); }
+.rcard .sl { font-style: normal; display: inline-block; margin-right: .7em; padding: 0 .4em; border-radius: 8px; } .rcard .sl.on { background: var(--accent2-soft); color: var(--accent2); font-weight: 700; box-shadow: 0 0 0 1px var(--accent2) inset; } .rgrid .rcard[aria-selected="true"] .sl.on { background: rgba(255,255,255,.25); color: inherit; box-shadow: none; }
+.nowb { font-style: normal; font-size: .68rem; background: var(--accent2); color: #fff; border-radius: 999px; padding: .1em .7em; margin-left: .4em; vertical-align: middle; }
+:root { --rc1: #e8f3ec; --rc2: #fbeee1; --rc3: #ebeef9; } @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --rc1: #1d332a; --rc2: #33291d; --rc3: #232b44; } }
+.rsec { margin: 26px 0 8px; } .rh { font-size: 1.02rem; margin: 0 0 8px; font-weight: 700; display: flex; align-items: baseline; gap: .6em; flex-wrap: wrap; } .rh small { font-size: .78rem; font-weight: 400; color: var(--ink-soft); } .rh.sm { font-size: .88rem; color: var(--ink-soft); }
 .rgrid { display: grid; grid-template-columns: 1fr; gap: 8px; }
 .rgrid .rcard { min-height: 0; border: 1px solid var(--line); background: var(--paper); border-radius: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 12px 16px; text-align: left; font: inherit; color: inherit; }
 .rgrid .rcard b { font-size: 1.02rem; line-height: 1.5; } .rgrid .rcard span { font-size: .86rem; color: var(--ink-soft); line-height: 1.6; } .rgrid .rcard small { font-size: .74rem; color: var(--ink-soft); line-height: 1.6; opacity: .9; }
-.rgrid .rcard:nth-child(3n+1) { background: var(--tile1); } .rgrid .rcard:nth-child(3n+2) { background: var(--tile2); } .rgrid .rcard:nth-child(3n+3) { background: var(--tile3); }
+.rgrid .rcard { box-shadow: 0 1px 4px rgba(60,50,30,.06); border-radius: 18px; padding: 14px 18px; } .rgrid .rcard:nth-child(3n+1) { background: var(--rc1); } .rgrid .rcard:nth-child(3n+2) { background: var(--rc2); } .rgrid .rcard:nth-child(3n+3) { background: var(--rc3); }
 .rgrid .rcard[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); } .rgrid .rcard[aria-selected="true"] span, .rgrid .rcard[aria-selected="true"] small { color: var(--accent-ink); opacity: .9; }
 .roombody { margin: 14px 0 6px; display: flex; flex-direction: column; gap: 12px; scroll-margin-top: 8px; }
 .misc { margin-top: 26px; display: flex; flex-direction: column; gap: 10px; font-size: .9rem; }
@@ -930,7 +939,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.01c';
+  var APP_VER = 'v2026.11.01d';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -5600,15 +5609,40 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     return h;
   }
   /* ---- トップのヒーロー：何をするところか／今夜どうすれば参加できるか ---- */
+  /* 今夜の回：いま開催中か／つぎのすその句会（21時）まであと何時間か */
+  var lastHeroKey = '';
+  function heroNowInfo() {
+    var t = Date.now(), live = null, nx = null;
+    teiSlots().forEach(function (x) { if (!live && x.start <= t && t < x.start + TEI_LIVE_MIN * 60000) live = x; });
+    teiSlotsFar(2).forEach(function (x) { if (!nx && x.h === 21 && x.start > t) nx = x; });
+    return { live: live, next: nx };
+  }
+  function heroKey() { var i = heroNowInfo(); return i.live ? 'L' + i.live.sid : (i.next ? 'N' + i.next.sid : '-'); }
+  function slotNow(h) { var i = heroNowInfo(); return !!(i.live && i.live.h === h); }
+  function vHeroNow() {
+    var i = heroNowInfo(), key = heroKey(); lastHeroKey = key;
+    var x = i.live || null, h;
+    if (x) h = '<span class="dot"></span>いま開催中です <small>（' + esc(teiSlotName(x.dn, x.h)) + '・' + x.h + '時）</small>';
+    else if (i.next) { var tonight = i.next.dn === dayNum(); h = (tonight ? '今夜の' : 'あすの') + 'すその句会は、あと <b data-cd="' + i.next.start + '">' + cdText(i.next.start - Date.now()) + '</b> で始まります'; }
+    else return '';
+    var q = i.live || i.next, ss = q ? teiFind(q.sid) : null, np = ss && ss.entries ? Object.keys(ss.entries).filter(function (u) { return !(ss.entries[u] || {}).bot; }).length : 0;
+    return '<p class="hero-now' + (x ? ' live' : '') + '">' + h + (np > 0 ? ' <small>・句を出した人 ' + np + '人</small>' : '') + '</p>';
+  }
+  function vToday() {
+    var n = dayNum(), sr = plan(n).series;
+    return '<button class="kteaser" data-act="tab" data-t="solo"><span>📝 今日の兼題</span><b>' + esc(promptFor(sr, n)) + '</b><small>' + esc(SER[sr].name) + ' ›</small></button>';
+  }
+  var MTN = '<svg class="mtn" viewBox="0 0 400 34" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 33 L70 20 L112 27 L190 5 L236 20 L282 12 L340 26 L400 22" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>';
   function vHero() {
     return '<section class="hero" aria-label="俳句の裾野とは">' +
+      vHeroNow() +
       '<p class="hero-name">すその句会・毎晩21:00</p>' +
       '<p class="hero-lead">俳句を一句' + '持ち寄' + 'って、毎晩決まった時刻にみんなで始める、オンライン句会です</p>' +
       '<ul class="hero-facts" aria-label="ひと目でわかる情報"><li>🕘 <b>毎晩21:00</b>開始</li><li>✍️ <b>一句</b>持参</li><li>⏱ 所要 <b>約60分</b></li><li>👀 登録なしで' + '見学' + 'OK</li><li>📧 登録は<b>メールだけ・無料</b></li></ul>' +
       '<div class="hero-cta"><button class="btn primary big" data-act="' + (myId ? 'hero-join' : 'fbgate') + '">今夜の句会に参加する</button>' +
-      (myId ? '' : '<button class="link" data-act="hero-watch">登録なしで見学する</button>') + '</div>' +
+      (myId ? '' : '<button class="link" data-act="hero-watch">登録なしで見学する</button><small class="hero-ws">見学では、句会のようすを、はじめから見られます</small>') + '</div>' +
       '<ol class="hero-steps"><li>一句つくる（今日の' + '兼題' + 'からでもOK）</li><li>21:00に、このアプリをひらく</li><li>席に案内されるので、みんなで詠み合う</li></ol>' +
-      '<p class="note hero-sub">はじめてでも、ふりがなとチュートリアルつきです。</p></section>';
+      '<p class="note hero-sub">はじめてでも、ふりがなとチュートリアルつきです。</p>' + MTN + '</section>' + vToday();
   }
   function vGuest() {
     if (myId || dbState !== 'ok') return '';
@@ -5696,7 +5730,11 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   var ROOMS = [['diary', '🌱 俳句の初心者部屋', 'はじめての一句・チュートリアルつき'], ['solo', '💪 俳筋力トレーニング部屋', 'きょうのテーマ・題詠（漢字・カタカナ）で、一日一句'], ['bot', '🐸 句会の練習', '進行になれる・鑑賞力もつける'], ['monthly', '📅 月例句会', '11月から・毎月1日に兼題・15日〆切・25日まで互選'], ['flat', '🍡 ふらっと句会', '4人そろえば、すぐ開始'], ['together', '🏮 定例句会', '毎日 21時・23時・25時／土日祝はさらに 10時・13時・15時'], ['gohyo', '🍵 合言葉で句会・吟行句会', '合言葉で集まる・見学なし']];
   /* ---- トップのカード：練習の部屋（3）と、本番の句会（3）。押すと、下にその部屋がひらく ---- */
   function roomCard(id, name, one, aim) {
-    return '<button class="rcard" role="tab" data-act="tab" data-t="' + id + '" aria-selected="' + (roomOpen && tab === id) + '"><b>' + name + '</b><span>' + one + '</span>' + (aim ? '<small>' + aim + '</small>' : '') + '</button>';
+    var lv = id === 'together' && heroNowInfo().live; return '<button class="rcard' + (lv ? ' live' : '') + '" role="tab" data-act="tab" data-t="' + id + '" aria-selected="' + (roomOpen && tab === id) + '"><b>' + name + (lv ? ' <em class="nowb">いま開催中</em>' : '') + '</b><span>' + one + '</span>' + (aim ? '<small>' + aim + '</small>' : '') + '</button>';
+  }
+  function slotAim() {
+    var d = dayNum(), sl = function (h) { return '<i class="sl' + (slotNow(h) ? ' on' : '') + '">' + h + '時 ' + teiSlotName(d, h) + '</i>'; };
+    return sl(21) + sl(23) + sl(25) + '<br>土日祝は ' + sl(10) + sl(13) + sl(15) + ' も';
   }
   function vRoomCards() {
     return '<section class="rsec" aria-label="練習の部屋"><h2 class="rh">練習の部屋<small>ひとりで、ためせます</small></h2><div class="rooms rgrid" role="tablist">' +
@@ -5705,7 +5743,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       roomCard('diary', '✍️ 作句の自習室', 'テーマなしで、たくさん作って、ストッ句を貯める') +
       '</div></section>' +
       '<section class="rsec" aria-label="本番の句会"><h2 class="rh">本番の句会<small>みんなで詠みます</small></h2><div class="rooms rgrid" role="tablist">' +
-      roomCard('together', '🏮 定例句会', '毎日開催。21時の回が、すその句会です', '21時 すその句会／23時 おかわり句会／25時 よなよな句会。土日祝は 10時 おはよう句会／13時 こんにちは句会／15時 おやつ句会も') +
+      roomCard('together', '🏮 定例句会', '毎日開催。21時の回が、すその句会です', slotAim()) +
       roomCard('flat', '🍡 ふらっと句会', '集まったら、すぐ始まる。上下なしの、flat（並列）な句会') +
       roomCard('monthly', '📅 月例句会', '月に一度の句会', '11月から・毎月1日に兼題') +
       '</div></section>';
@@ -6767,7 +6805,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     try {
       var cds = document.querySelectorAll('[data-cd]');
       for (var ci2 = 0; ci2 < cds.length; ci2++) cds[ci2].textContent = cdText(Number(cds[ci2].getAttribute('data-cd')) - Date.now());
-      if (teiSig() !== lastTeiSig && !trial && !demo && !page) render();
+      if ((teiSig() !== lastTeiSig || (heroKey() !== lastHeroKey && !page)) && !trial && !demo && !page) render();
     } catch (_) {}
     var s = current && scur(); if (!s) return;
     if (s.status === 'reveal' && !s.opened) {
