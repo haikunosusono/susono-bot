@@ -946,7 +946,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.01n';
+  var APP_VER = 'v2026.11.01o';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2194,6 +2194,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var id = monMonth || monId(), d = monDoc(id), ph = monPhase(id), kd = monKendai(id), kus = monKus(d), mine = d.entries && d.entries[myId], h = '', en = monEnds(id), MON_ENTRY_END = en.e, MON_SEL_END = en.s;
     h += '<h2 class="sec">月例句会<small>' + esc(monLabel(id)) + '</small></h2>';
     h += '<div class="howto"><b>ゆっくり流れる、月に一度の句会</b><span>毎月1日に、ボットが兼題を発表。15日まで投句（1〜3句）。16日から25日まで互選（特選1・並選3・予選はいくつでも）。26日に結果と「月例句会報」。登録した人はだれでも参加できます。見るだけもできます。</span></div>';
+    h += '<details class="panel" id="kansho-rule"' + (monKanshoOpen ? ' open' : '') + '><summary><b>🔍 鑑賞賞のルール</b></summary><ul class="note" style="margin:.4em 0 0 1.2em;padding:0"><li>月例句会で、その月にいちばん多く「評」を書いた人に贈る賞です。</li><li>同じ数の人が何人かいれば、全員に贈ります。</li><li>数えるのは、月例句会の評だけです。定例句会など、ほかの回の評は数えません。</li><li>受賞は、結果ページに出て、マイページにも残ります。</li><li>トロフィーの数には入りません。別の賞です。</li></ul></details>';
     /* 月の切りかえ */
     var months = Object.keys(monthly).concat([monId()]).filter(function (x, i, a) { return a.indexOf(x) === i; }).sort().reverse();
     if (months.length > 1) h += '<div class="row">' + months.map(function (m) { return '<button class="chip fit' + (m === id ? ' on' : '') + '" data-act="mon-month" data-v="' + m + '">' + esc(monLabel(m)) + '</button>'; }).join('') + '</div>';
@@ -2255,7 +2256,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var kw = cmax > 0 ? Object.keys(cc).filter(function (u) { return cc[u] === cmax; }) : [];
     var kHtml = '';
     if (kw.length) {
-      kHtml = '<div class="panel"><b>🔍 鑑賞賞</b><p class="note">この月、いちばん多く評を書いた人です（評 ' + cmax + '句ぶん）。</p><p class="lead">' + kw.map(function (u) { return esc(nmOf[u]) + (u === myId ? '（あなた）' : ''); }).join('、') + '</p></div>';
+      kHtml = '<div class="panel"><b>🔍 鑑賞賞</b><p class="note">この月、いちばん多く評を書いた人です（評 ' + cmax + '句ぶん）。<button class="link" data-act="kansho-rule">ルールを見る</button></p><p class="lead">' + kw.map(function (u) { return esc(nmOf[u]) + (u === myId ? '（あなた）' : ''); }).join('、') + '</p></div>';
       if (kw.indexOf(myId) >= 0) awardTrophy('k-' + id, { kind: '鑑賞賞', ch: monLabel(id) + '　評 ' + cmax + '句', date: id + '-' + monEnds(id).s, pts: cmax }, '鑑賞賞おめでとうございます！ マイページに残しました');
     }
     /* 開票：下の順位から1つずつめくる（結果が確定したあとのページだけ）。数字は、実際の集計のまま */
@@ -2274,7 +2275,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     monReport[id] = txt;
     return h;
   }
-  var monReport = {}, monRev = {};
+  var monReport = {}, monRev = {}, monKanshoOpen = false;
   function monSubmit() {
     if (!db || !myId) { toast('登録すると投句できます'); return; }
     var id = monMonth || monId(); if (monPhase(id) !== 'entry') { toast('投句は' + monEnds(id).e + '日までです'); return; }
@@ -6478,6 +6479,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       drafts['s:' + tgt] = { a: pj.a, b: '', c: '' }; touched['s:' + tgt] = 1;
       toast('句を入れました。内容をたしかめて、「この句を出す」を押してください'); render();
     }
+    else if (act === 'kansho-rule') { monKanshoOpen = true; render(); var kr = document.getElementById('kansho-rule'); if (kr) kr.scrollIntoView({ block: 'center' }); }
     else if (act === 'mon-rev') { monRev[t.dataset.id] = Math.max(0, +t.dataset.v || 0); render(); }
     else if (act === 'inv-off') { inviteSid = ''; render(); }
     else if (act === 'sback') { current = null; if (fromArch) { fromArch = false; page = 'archive'; } render(); try { window.scrollTo(0, 0); } catch (_) {} }
