@@ -48,8 +48,8 @@ service cloud.firestore {
     match /inquiries/{uid} {
       allow read, write: if mine(uid) || admin();
     }
-    // すその句会（月例）：だれでも読める（見るだけの人も）。書けるのはログインした人
-    // すその句会（月例）：だれでも読める。書けるのは「自分の投句・自分の選・自分の選評」だけ
+    // 月例句会：だれでも読める（見るだけの人も）。書けるのはログインした人
+    // 月例句会：だれでも読める。書けるのは「自分の投句・自分の選・自分の選評」だけ
     function monOnlyMe(k) {
       return request.resource.data.get(k, {}).diff(resource.data.get(k, {})).affectedKeys().hasOnly([request.auth.uid]);
     }

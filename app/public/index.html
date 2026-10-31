@@ -930,7 +930,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.10.31f';
+  var APP_VER = 'v2026.11.01b';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1349,7 +1349,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var l = SER[series].list, it = l[Math.floor(Math.random() * l.length)];
     return { series: series, ch: typeof it === 'string' ? it : it.t, hint: typeof it === 'string' ? '' : it.h };
   }
-  /* ---- 定例句会（デモ）：平日は21時「だれでも句会」＋23時「おかわり句会」・25時「よなよな句会」。
+  /* ---- 定例句会（デモ）：平日は21時「すその句会」＋23時「おかわり句会」・25時「よなよな句会」。
      土・日・祝日は、あさ10時・13時（昼から）・15時（おやつどき）の3回。合言葉「夜9時だよ、全員集合」。お題は「当季雑詠」 ---- */
   /* 日本の祝日（内閣府の一覧より。年がかわったら、ここに足す） */
   var JP_HOL = {};
@@ -1357,7 +1357,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
    '2027-01-01', '2027-01-11', '2027-02-11', '2027-02-23', '2027-03-21', '2027-03-22', '2027-04-29', '2027-05-03', '2027-05-04', '2027-05-05', '2027-07-19', '2027-08-11', '2027-09-20', '2027-09-23', '2027-10-11', '2027-11-03', '2027-11-23'].forEach(function (d) { JP_HOL[d] = 1; });
   function teiDayOff(d) { var w = new Date(d * 86400000).getUTCDay(); return w === 0 || w === 6 || !!JP_HOL[ds(d)]; }
   function teiSlotName(d, h) {
-    if (h === 21) return 'だれでも句会';
+    if (h === 21) return 'すその句会';
     if (h === 23) return 'おかわり句会';
     if (h === 25) return 'よなよな句会';
     if (h === 10) return 'おはよう句会';
@@ -2066,7 +2066,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       return '<li class="' + (i === cur ? 'now' : i < cur ? 'past' : '') + '"><b>' + r[0] + '</b><span>' + r[1] + '</span></li>';
     }).join('') + '</ol></div>';
   }
-  /* ==== すその句会（月例）：1日に兼題発表 → 15日〆切 → 25日まで互選 → 26日に結果・句会報 ==== */
+  /* ==== 月例句会：1日に兼題発表 → 15日〆切 → 25日まで互選 → 26日に結果・句会報 ==== */
   var MON_ENTRY_END = 15, MON_SEL_END = 25, MON_MAX = 3;
   /* 月ごとの特別な日程（おためし月など）。ふつうは 15日〆切・25日まで互選 */
   var MON_SCHED = {}, MON_START = '2026-11'; /* はじまる月。それより前は「準備中」 */
@@ -2111,8 +2111,8 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function monRank(n) { return n >= 6 ? '天位' : n >= 3 ? '名人' : n >= 1 ? '特待生' : ''; }
   function vMonthly() {
     var id = monMonth || monId(), d = monDoc(id), ph = monPhase(id), kd = monKendai(id), kus = monKus(d), mine = d.entries && d.entries[myId], h = '', en = monEnds(id), MON_ENTRY_END = en.e, MON_SEL_END = en.s;
-    h += '<h2 class="sec">すその句会（月例）<small>' + esc(monLabel(id)) + '</small></h2>';
-    h += '<div class="howto"><b>ゆっくり流れる、月に一度の句会</b><span>毎月1日に、ボットが兼題を発表。15日まで投句（1〜3句）。16日から25日まで互選（特選1・並選3・予選はいくつでも）。26日に結果と「すその句会報」。登録した人はだれでも参加できます。見るだけもできます。</span></div>';
+    h += '<h2 class="sec">月例句会<small>' + esc(monLabel(id)) + '</small></h2>';
+    h += '<div class="howto"><b>ゆっくり流れる、月に一度の句会</b><span>毎月1日に、ボットが兼題を発表。15日まで投句（1〜3句）。16日から25日まで互選（特選1・並選3・予選はいくつでも）。26日に結果と「月例句会報」。登録した人はだれでも参加できます。見るだけもできます。</span></div>';
     /* 月の切りかえ */
     var months = Object.keys(monthly).concat([monId()]).filter(function (x, i, a) { return a.indexOf(x) === i; }).sort().reverse();
     if (months.length > 1) h += '<div class="row">' + months.map(function (m) { return '<button class="chip fit' + (m === id ? ' on' : '') + '" data-act="mon-month" data-v="' + m + '">' + esc(monLabel(m)) + '</button>'; }).join('') + '</div>';
@@ -2158,15 +2158,15 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var nv = Object.keys(d.votes || {}).filter(function (u) { return d.votes[u] && d.votes[u].fin; }).length;
     h += '<div class="panel"><b>' + esc(monLabel(id)) + 'の結果</b><p class="note">' + kus.length + '句・' + Object.keys(d.entries || {}).length + '人・互選' + nv + '人</p></div>';
     if (win.length) {
-      win.forEach(function (w) { if (w.uid === myId) awardTrophy('m-' + id + '-' + w.id.split(':')[1], { kind: 'すその句会（月例）', ch: monLabel(id) + '　' + monKendai(id).t, date: id + '-' + monEnds(id).s, pts: max, a: w.a, b: '', c: '' }); });
-      h += winCard(win.map(function (w) { return w.haigo; }), max, win.length === 1 ? Object.assign({ id: win[0].uid }, win[0]) : null, '（すその句会・' + monLabel(id) + '）', win.length > 1 ? '同点優勝です' : '', { head: 'すその句会 ' + monLabel(id), res: kuhiRes(T[win[0].id].toku.length, T[win[0].id].nami.length, max), ranks: sorted.filter(function (k) { return k.id !== win[0].id; }).slice(0, 2).map(function (k, i) { return { name: k.haigo || '名無し', res: kuhiRes(T[k.id].toku.length, T[k.id].nami.length, T[k.id].pts), no: win.length + i + 1 }; }), wins: win.map(function (w2) { return { kuObj: Object.assign({ id: w2.uid }, w2), name: w2.haigo }; }) });
+      win.forEach(function (w) { if (w.uid === myId) awardTrophy('m-' + id + '-' + w.id.split(':')[1], { kind: '月例句会', ch: monLabel(id) + '　' + monKendai(id).t, date: id + '-' + monEnds(id).s, pts: max, a: w.a, b: '', c: '' }); });
+      h += winCard(win.map(function (w) { return w.haigo; }), max, win.length === 1 ? Object.assign({ id: win[0].uid }, win[0]) : null, '（月例句会・' + monLabel(id) + '）', win.length > 1 ? '同点優勝です' : '', { head: '月例句会 ' + monLabel(id), res: kuhiRes(T[win[0].id].toku.length, T[win[0].id].nami.length, max), ranks: sorted.filter(function (k) { return k.id !== win[0].id; }).slice(0, 2).map(function (k, i) { return { name: k.haigo || '名無し', res: kuhiRes(T[k.id].toku.length, T[k.id].nami.length, T[k.id].pts), no: win.length + i + 1 }; }), wins: win.map(function (w2) { return { kuObj: Object.assign({ id: w2.uid }, w2), name: w2.haigo }; }) });
     }
     /* 句会報 */
-    var txt = '【すその句会報　' + monLabel(id) + '】\n兼題：' + monKendai(id).t + '（' + monKendai(id).kind + '）\n' + kus.length + '句・' + Object.keys(d.entries || {}).length + '人・互選' + nv + '人\n\n' + sorted.map(function (k, i) {
+    var txt = '【月例句会報　' + monLabel(id) + '】\n兼題：' + monKendai(id).t + '（' + monKendai(id).kind + '）\n' + kus.length + '句・' + Object.keys(d.entries || {}).length + '人・互選' + nv + '人\n\n' + sorted.map(function (k, i) {
       var t = T[k.id], cm = (d.cmts || {})[k.id] || {}, lines = Object.keys(cm).map(function (u) { return '　・' + (cm[u].haigo || '') + '：' + cm[u].text; });
       return (i + 1) + '位　' + t.pts + '点（特' + t.toku.length + '・並' + t.nami.length + '・予' + t.yo.length + '）\n' + k.a + '　' + k.haigo + (lines.length ? '\n' + lines.join('\n') : '');
     }).join('\n\n') + '\n\n俳句の裾野 haikunosusono.web.app\n' + KAIHO_NOTE;
-    /* すその句会は、未発表の研鑽の場なので、句会報（外へ出す形）はつくらない */
+    /* 月例句会は、未発表の研鑽の場なので、句会報（外へ出す形）はつくらない */
     h += '<div class="panel"><b>得点順の全句</b>' +
       '<ol class="tg2">' + sorted.map(function (k, i) { var t = T[k.id], cm = (d.cmts || {})[k.id] || {}; return '<li><b>' + (i + 1) + '位　' + t.pts + '点</b>（特' + t.toku.length + '・並' + t.nami.length + '・予' + t.yo.length + '）<br><span class="k9">' + esc(k.a) + '</span>　' + esc(k.haigo) + (Object.keys(cm).length ? '<ul class="fl-list">' + Object.keys(cm).map(function (u) { return '<li>' + esc(cm[u].haigo || '') + '：' + esc(cm[u].text) + '</li>'; }).join('') + '</ul>' : '') + '</li>'; }).join('') + '</ol></div>';
     monReport[id] = txt;
@@ -2181,7 +2181,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     kus = kus.filter(Boolean); if (!kus.length) { toast('句を入れてください'); return; }
     var p = { entries: {} }; p.entries[myId] = { haigo: haigo.trim() || '名無し', kus: kus, at: Date.now() };
     monWrite(id, p).then(function () { toast('投句しました（' + kus.length + '句）。' + monEnds(id).e + '日までなら直せます'); monDraft = ['', '', '']; });
-    kus.forEach(function (k, i) { try { db.collection('data/users/' + myId).doc('mon-' + id + '-' + i).set({ date: ds(dayNum()), series: 'x', ch: 'すその句会　' + monLabel(id) + '　' + monKendai(id).t, a: k, b: '', c: '', conf: 'f', at: Date.now() }); } catch (_) {} });
+    kus.forEach(function (k, i) { try { db.collection('data/users/' + myId).doc('mon-' + id + '-' + i).set({ date: ds(dayNum()), series: 'x', ch: '月例句会　' + monLabel(id) + '　' + monKendai(id).t, a: k, b: '', c: '', conf: 'f', at: Date.now() }); } catch (_) {} });
   }
   function monVote(kind, kid) {
     if (!db || !myId) { toast('登録すると互選できます'); return; }
@@ -2250,7 +2250,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   }
   function vTei() {
     var st = teiState(), t = Date.now(), h = '<h2 class="sec">定例句会（デモ）<small>毎日よる・休日はひるまも</small></h2>';
-    h += '<div class="howto"><b>夜9時だよ、全員集合</b><span>毎日、夜の9時（21時）に「だれでも句会」、11時（23時）に「おかわり句会」、夜中1時（25時）に「よなよな句会」。土・日・祝日は、さらに、あさ10時の「おはよう句会」・13時の「こんにちは句会」・15時の「おやつの句会」。休日の夜も、21時・23時・25時の3回をひらきます。お題は「当季雑詠」（いまの季節を、自由に）。句を出して、選んで、一句ずつ語り合い、最後に点と作者がオープン。はじめから終わりまで、だれでも見学できます。<b>ひとりのときは、ボットが参加します。</b></span><span class="chips2"><i>平日21時・23時・25時</i><i>土日祝は10時・13時・15時も</i><i>お題 当季雑詠</i><i>見学OK</i><i>投句はいつでも</i><i>約25分</i></span></div>';
+    h += '<div class="howto"><b>夜9時だよ、全員集合</b><span>毎日、夜の9時（21時）に「すその句会」、11時（23時）に「おかわり句会」、夜中1時（25時）に「よなよな句会」。土・日・祝日は、さらに、あさ10時の「おはよう句会」・13時の「こんにちは句会」・15時の「おやつの句会」。休日の夜も、21時・23時・25時の3回をひらきます。お題は「当季雑詠」（いまの季節を、自由に）。句を出して、選んで、一句ずつ語り合い、最後に点と作者がオープン。はじめから終わりまで、だれでも見学できます。<b>ひとりのときは、ボットが参加します。</b></span><span class="chips2"><i>平日21時・23時・25時</i><i>土日祝は10時・13時・15時も</i><i>お題 当季雑詠</i><i>見学OK</i><i>投句はいつでも</i><i>約25分</i></span></div>';
     h += maner('t');
     h += vLounge();
     if (online > 1) h += '<p class="note">いま ' + online + ' 人が、このページをひらいています。</p>';
@@ -2307,13 +2307,13 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       toast('カレンダー用のファイルを保存しました。ひらくと、予定に入ります');
     } catch (_) { toast('うまく保存できませんでした'); }
   }
-  /* 毎日くりかえし：毎晩21時「だれでも句会」（土日祝もふくむ）。15分前と開始時刻に通知。昼の回は、1週間ぶんのファイルで */
+  /* 毎日くりかえし：毎晩21時「すその句会」（土日祝もふくむ）。15分前と開始時刻に通知。昼の回は、1週間ぶんのファイルで */
   function calRecur() {
     var d = dayNum(), n = 0; while (n++ < 14 && teiStartOf(d, 21) <= Date.now()) d++;
     var st = teiStartOf(d, 21), desc = '一句を持ち寄るオンライン句会。はじまるまでに一句を出しておくと、時刻に自動で席へご案内します。21:00になったら https://haikunosusono.web.app/ をひらいてください。不要になったら、この予定を削除できます。';
     var L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//haikunosusono//JP', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT', 'UID:heijitsu21@haikunosusono.web.app', 'DTSTAMP:' + icsTime(Date.now()), 'DTSTART:' + icsTime(st), 'DTEND:' + icsTime(st + 60 * 60000),
       'RRULE:FREQ=DAILY'];
-    L.push('SUMMARY:俳句の裾野「だれでも句会」（毎晩21:00）', 'DESCRIPTION:' + desc, 'URL:https://haikunosusono.web.app/',
+    L.push('SUMMARY:俳句の裾野「すその句会」（毎晩21:00）', 'DESCRIPTION:' + desc, 'URL:https://haikunosusono.web.app/',
       'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:15分後に句会がはじまります', 'TRIGGER:-PT15M', 'END:VALARM',
       'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:句会がはじまります', 'TRIGGER:PT0S', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR');
     return L.join('\r\n');
@@ -2857,7 +2857,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     'このアプリは「俳句の裾野」。「俳句の筋力トレーニング」がテーマの、俳句の練習アプリ。',
     '【俳句の初心者部屋】お題なしで、一日一句を日記のように残す部屋。テーマ以外の句でも大丈夫。記録は自分だけが見られる。',
     '【俳筋力トレーニング部屋】毎日1つ兼題（漢字・カタカナ・テーマ）が出る。一句詠んで「かんぺき・まあまあ・ふつう・あとで推敲」を付けて記録。記録は自分だけが見られる。連続日数も出る。【ひとりで句会】自分と、ボット（2〜4名）で句会をひらく。自分の一句を出して、選んで、ボットの選評を読む。招待も見学もない。何度でもでき、句はストッ句に残り、参加した句会として数えられる。',
-    '【定例句会（デモ）】毎日、夜9時（21時）の「だれでも句会」と、夜11時（23時）の「おかわり句会」と、夜中1時（25時）の「よなよな句会」（日本時間）。土・日・祝日は、さらに、あさ10時の「おはよう句会」・13時の「こんにちは句会」・15時の「おやつの句会」。休日の夜も、21時・23時・25時の3回をひらきます。合言葉は「夜9時だよ、全員集合」。お題は「当季雑詠」（いまの季節を自由に）。投句はいつでもでき、定刻でしめきり（開催中のあいだだけ、次の回への投句はお休み）。句を出した人のページが開いていれば、定刻に自動ではじまる。だれも出さなかった回は、ひらかれない。ひとりのときはボット2名、ふたりのときはボット1名が加わって3句にする。はじめから終わりまで、だれでも見学できる（句を出していない人は、選んだり選評を送ったりはできない）。ほかの人の句や選評を、本人の了解なしにSNS等で公開することは禁止。進行は、披講・点付け（特選1・並選1・予選3まで、約10分）→ 合評（一句ずつ、約5分。コメントを入力）→ 得点と作者オープン（約10分で閉会）。最高点の人にトロフィー（優勝がひとりのときは、句碑の除幕もあります）。3句で定刻から約25分。出した句は出どころつきでストッ句に残り、参加した句会として数えられる。終わった句会は句会アーカイブに残る（参加した人だけが見られる）。作者は俳号で、オープンまで匿名。毎回、はじめにチュートリアルが開く。【仲間と句会】合言葉か、ひらいた人のリンクで集まるメンバーだけで詠む。見学はできない。幹事は何人にでもできる。題はひとり1題（ランダム・当季雑詠・雑詠も可）か、ボットが出す。ふつうは1回の戦にひとり1句で、パスもできる。だれが出していないかは画面でわかり、全員そろうと幹事に合図が出る。選の種類（特選1並選3予選／秀句1佳作3予選／天・地・人・並・予選）と句数・点数は幹事が決め、途中でも変えられる（変えると「可変タイム」のお知らせ）。回数の上限は3〜10回戦か制限なし。点は通算され、まわし終えるか幹事がとじると、通算トップが句会優勝トロフィー。参加者だけの「こそこそ話」もある。',
+    '【定例句会（デモ）】毎日、夜9時（21時）の「すその句会」と、夜11時（23時）の「おかわり句会」と、夜中1時（25時）の「よなよな句会」（日本時間）。土・日・祝日は、さらに、あさ10時の「おはよう句会」・13時の「こんにちは句会」・15時の「おやつの句会」。休日の夜も、21時・23時・25時の3回をひらきます。合言葉は「夜9時だよ、全員集合」。お題は「当季雑詠」（いまの季節を自由に）。投句はいつでもでき、定刻でしめきり（開催中のあいだだけ、次の回への投句はお休み）。句を出した人のページが開いていれば、定刻に自動ではじまる。だれも出さなかった回は、ひらかれない。ひとりのときはボット2名、ふたりのときはボット1名が加わって3句にする。はじめから終わりまで、だれでも見学できる（句を出していない人は、選んだり選評を送ったりはできない）。ほかの人の句や選評を、本人の了解なしにSNS等で公開することは禁止。進行は、披講・点付け（特選1・並選1・予選3まで、約10分）→ 合評（一句ずつ、約5分。コメントを入力）→ 得点と作者オープン（約10分で閉会）。最高点の人にトロフィー（優勝がひとりのときは、句碑の除幕もあります）。3句で定刻から約25分。出した句は出どころつきでストッ句に残り、参加した句会として数えられる。終わった句会は句会アーカイブに残る（参加した人だけが見られる）。作者は俳号で、オープンまで匿名。毎回、はじめにチュートリアルが開く。【仲間と句会】合言葉か、ひらいた人のリンクで集まるメンバーだけで詠む。見学はできない。幹事は何人にでもできる。題はひとり1題（ランダム・当季雑詠・雑詠も可）か、ボットが出す。ふつうは1回の戦にひとり1句で、パスもできる。だれが出していないかは画面でわかり、全員そろうと幹事に合図が出る。選の種類（特選1並選3予選／秀句1佳作3予選／天・地・人・並・予選）と句数・点数は幹事が決め、途中でも変えられる（変えると「可変タイム」のお知らせ）。回数の上限は3〜10回戦か制限なし。点は通算され、まわし終えるか幹事がとじると、通算トップが句会優勝トロフィー。参加者だけの「こそこそ話」もある。',
     '選は、特選1・並選1・予選はいくつでも。ぜんぶ使わなくてもよく、予選だけでも「選を終了」できる。終了後も、時間内なら「選びなおす」で変えられる。句会の進行は、句を出した人のページが開いている間に進む。全員が「選を終了」を押すと時間を待たずに進む。進行のたびに画面のお知らせ・音・振動・通知（ブラウザが許す場合）でしらせる。ページを閉じていると届かない。',
     '句の入力：五七五をひと続きで一つの欄に書く（句またがり・破調・対句も自由）。ルビは語のうしろに《よみ》（例：宇宙《そら》）。ルビは字数に数えない。ひらがなだけでも書いた文字のまま出る。句は縦一行で表示される。',
     '選評：口調（やさしく・ふつう・きびしく）と「どういうところを」（季語・取り合わせ・調べ・読み・ルビなど）のボタンとひとこと。',
@@ -2872,7 +2872,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (/何句|上限|いくつ|ストッ句|ストック/.test(m)) return 'ストッ句の保存数に、上限は決めていません。作った句は、そのまま残せます。くわしくは運営者に届いています。';
     if (/通知|知らせ/.test(m)) return '進行のたびに、画面のお知らせ・音・振動・（ブラウザが許せば）通知でしらせます。ページを閉じていると届きません。';
     if (/ルビ|ふりがな|読み/.test(m)) return '語のうしろに《よみ》を書くとルビになります（例：宇宙《そら》）。ルビは字数に数えません。';
-    if (/人数|そろ|始まら|はじまら/.test(m)) return '定例句会は、毎日21時「だれでも句会」と23時「おかわり句会」・25時「よなよな句会」、土日祝はさらに10時・13時・15時です。句を出した人のページが開いていれば、自動ではじまります。ひとりのときは、ボットが加わります。';
+    if (/人数|そろ|始まら|はじまら/.test(m)) return '定例句会は、毎日21時「すその句会」と23時「おかわり句会」・25時「よなよな句会」、土日祝はさらに10時・13時・15時です。句を出した人のページが開いていれば、自動ではじまります。ひとりのときは、ボットが加わります。';
     if (/俳号|名前/.test(m)) return '俳号は、句を出す欄でいつでも変えられます。オープンまで、作者は伏せられます。';
     if (/ログイン|保存|消え|消せ|削除/.test(m)) return '保存と句会への参加には、ログインが必要です。データの削除のご希望は、内容をお書きのうえ、このフォームから送ってください。運営者が確認します。';
     if (/見学|見られ|だれが見|アーカイブ|履歴/.test(m)) return '定例句会は、はじめから終わりまで、だれでも見学できます（句を出していない人は、選んだり、選評を送ったりはできません）。仲間と句会は、見学できません。終わった句会は、句会アーカイブに残ります（参加した人だけが見られます）。';
@@ -2896,7 +2896,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     ['連続日数は、どう数えますか？', '句を記録した日が、とぎれずに続いた日数です。その日の句をまだ記録していなければ、昨日までの日数が出ます。'],
     ['ひとりで句会で作った句は、残りますか？', '残ります。ひとりで句会で出した句は、出どころつきで「ストッ句」に入り、参加した句会としても数えられます。自分とボット（2〜4名）の句会で、招待も見学もありません。'],
     ['一日に、何句まで入れられますか？', '「初心者部屋」は、1日に何句でも。「俳筋トレ」は、兼題ごとに1日1句です。トップの「✏️ 俳句のタネあつめ」メモも何こでも書けて、「ストッ句へ」でストッ句に入れられます（あとで推敲つき）。句づくりや句会で詠んだ句も、ストッ句に残ります。'],
-    ['定例句会は、何時にはじまりますか？', '毎日、夜9時（21時）の「だれでも句会」と、夜11時（23時）の「おかわり句会」と、夜中1時（25時）の「よなよな句会」。土・日・祝日は、さらに、あさ10時の「おはよう句会」・13時の「こんにちは句会」・15時の「おやつの句会」です（日本時間・休日の夜はおやすみ）。投句はいつでもでき、定刻でしめきりです。句を出した人のページが開いていれば、定刻に自動ではじまります。だれも出さなかった回は、ひらかれません。'],
+    ['定例句会は、何時にはじまりますか？', '毎日、夜9時（21時）の「すその句会」と、夜11時（23時）の「おかわり句会」と、夜中1時（25時）の「よなよな句会」。土・日・祝日は、さらに、あさ10時の「おはよう句会」・13時の「こんにちは句会」・15時の「おやつの句会」です（日本時間・休日の夜はおやすみ）。投句はいつでもでき、定刻でしめきりです。句を出した人のページが開いていれば、定刻に自動ではじまります。だれも出さなかった回は、ひらかれません。'],
     ['ひとりしかいないときは、どうなりますか？', '定刻のとき、句を出した人が1人ならボット2名、2人ならボット1名が加わって、3句でひらきます。3人からは、人だけでひらきます。ボットの句は、あらかじめ用意した句です。ボットの選評も、決まった言いまわしでお伝えします。'],
     ['句会にかかる時間は、どれくらいですか？', '定例句会は、3句なら、定刻から約25分です。選句が約10分、合評は一句ごとに約5分、オープンのあとは約10分で閉会します。全員が選び終えたり、「この句をおわって、次へ」を押したりすると、早まります。'],
     ['参加した句会の回数は、どう数えますか？', '定例句会は、はじまった回に句を出していれば、1回です。仲間と句会は、参加した部屋ごとに1回。ひとりで句会は、最後まで遊ぶごとに1回です。マイページに「回 句会に参加」として出ます。'],
@@ -3365,7 +3365,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (act === 'hm-use') { cmDraft[eid] = hmDraft(eid); render(); var el = document.getElementById('cm-' + eid); if (el) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (_) {} } return true; }
     return false;
   }
-  /* 句会報（すその句会・仲間と句会）：縦書き・A4・印刷/PDF、コピー用の文 */
+  /* 句会報（月例句会・仲間と句会）：縦書き・A4・印刷/PDF、コピー用の文 */
   var KAIHO_NOTE = '※SNSに載せると「既発表」になることがあります。投句先の規約をご確認ください。';
   var kaihoData = {};
   function kaihoText(k) {
@@ -3428,7 +3428,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       var sel = [].concat(t.toku.map(function (u) { return '◎' + nm(u); }), t.nami.map(function (u) { return '○' + nm(u); })).join('・');
       return { pts: t.pts, det: '特' + t.toku.length + '・並' + t.nami.length, ku: k.a, haigo: k.haigo, sel: sel, cm: Object.keys(cm).map(function (u) { return { h: cm[u].haigo || '', t: cm[u].text || '' }; }) };
     }));
-    return { title: 'すその句会報　' + monLabel(id), sub: ['兼題　' + monKendai(id).t + '（' + monKendai(id).kind + '）', sorted.length + '句・' + Object.keys(d.entries || {}).length + '人・互選' + nv + '人', '◎特選　○並選'], items: items };
+    return { title: '月例句会報　' + monLabel(id), sub: ['兼題　' + monKendai(id).t + '（' + monKendai(id).kind + '）', sorted.length + '句・' + Object.keys(d.entries || {}).length + '人・互選' + nv + '人', '◎特選　○並選'], items: items };
   }
   function kaihoG(r, list, p, kinds) {
     var mark = function (k, i) { return i === 0 ? '◎' : i === 1 ? '○' : '・'; };
@@ -4076,7 +4076,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<h3>2. 俳筋力トレーニング部屋</h3><p>今日の兼題（お題）から、俳句をつくる練習です。漢字（季語ではない字）を詠み込む、カタカナを詠み込む、テーマで詠む（発想をとばす）の3つが、ひとまわりします。手ごたえ（かんぺき・まあまあ・ふつう・あとで推敲）をつけて「ストッ句」に残し、続けた日数が「連続」で数えられます。はじめての方は「俳筋トレ体験（1分）」からどうぞ。</p>' +
       '<h3>3. ひとりで句会（練習）</h3><p>自分と、ボット（2〜4名）で、小さな句会をひらきます。自分の一句を出して、ボットの句と並べ、出す→選ぶ→語らう→作者オープンまでを、3分ほどで。案内は、やさしい「赤ペン先生」です。練習なので、ボットも点を入れ、ボットの句が最高点ならボットの優勝です。招待も見学もありません。何度でもでき、出した句は「ストッ句」に残り、参加した句会として数えられます。</p>' +
       '<h3>4. ふらっと句会（いつでも・4人そろえば）</h3><p>いつでも立てられる5席の句会です。お題は「当季雑詠」。ボット1名が先に席についていて、人が4人そろった瞬間にはじまります。選句（約10分）→ 合評（一句8分）→ 作者オープン → 振り返り。ボットは句を出し、評を書きますが、点は人の句にだけ入れます。優勝は、参加した人の句の中から決まります。</p>' +
-      '<h3>5. 定例句会（デモ）</h3><p>毎日、夜9時（21時）の「だれでも句会」・夜11時（23時）の「おかわり句会」・夜中1時（25時）の「よなよな句会」。土・日・祝日は、さらに、あさ10時の「おはよう句会」・13時の「こんにちは句会」・15時の「おやつの句会」もひらきます。お題は「当季雑詠」（いまの季節を自由に）。投句はいつでもでき、定刻でしめきり（途中参加はできません）。定刻になると、自動ではじまります。人が1人のときはボット2名、2人のときはボット1名が加わって3句でひらき、3人からは人だけです。ボットは句を出し、評を書きますが、点は人の句にだけ入れます。はじめから終わりまで、だれでも見学できます（ほかの人の句や選評を、本人の了解なしに公開することは禁止です）。流れは、投句 → 選句（特選1・並選1・予選はいくつでも、約10分）→ 合評（一句ずつ、コメントを入力。書きかけなら自動で2分のばします）→ 作者オープン → 振り返り。優勝は、参加した人の句の中から決まり、トロフィーが贈られ、優勝がひとりのときは句碑の除幕があります（同点優勝は、トロフィーのみ）（ボットの句が最高点のときは、松風主宰からの推薦として、人の句から選びます）。松風主宰のほめ言葉は、AIが句を読んで書きます。定刻から約25分。出した句は「ストッ句」に、参加は「句会アーカイブ」に残ります。</p>' +
+      '<h3>5. 定例句会（デモ）</h3><p>毎日、夜9時（21時）の「すその句会」・夜11時（23時）の「おかわり句会」・夜中1時（25時）の「よなよな句会」。土・日・祝日は、さらに、あさ10時の「おはよう句会」・13時の「こんにちは句会」・15時の「おやつの句会」もひらきます。お題は「当季雑詠」（いまの季節を自由に）。投句はいつでもでき、定刻でしめきり（途中参加はできません）。定刻になると、自動ではじまります。人が1人のときはボット2名、2人のときはボット1名が加わって3句でひらき、3人からは人だけです。ボットは句を出し、評を書きますが、点は人の句にだけ入れます。はじめから終わりまで、だれでも見学できます（ほかの人の句や選評を、本人の了解なしに公開することは禁止です）。流れは、投句 → 選句（特選1・並選1・予選はいくつでも、約10分）→ 合評（一句ずつ、コメントを入力。書きかけなら自動で2分のばします）→ 作者オープン → 振り返り。優勝は、参加した人の句の中から決まり、トロフィーが贈られ、優勝がひとりのときは句碑の除幕があります（同点優勝は、トロフィーのみ）（ボットの句が最高点のときは、松風主宰からの推薦として、人の句から選びます）。松風主宰のほめ言葉は、AIが句を読んで書きます。定刻から約25分。出した句は「ストッ句」に、参加は「句会アーカイブ」に残ります。</p>' +
       '<h3>6. 仲間と句会（合言葉で集まる・自由な設定）</h3><p>合言葉か招待リンクで集まる、メンバー限定の句会です（はじまったあとに来た人は、見学で入って、あとから参加もできます）。題はひとり1題（ランダムに引く・候補から選ぶ・当季雑詠や雑詠も可）、またはボットが出します。1回の戦につき、ひとり1句・○句まで（1〜100。吟行の「5句出し」など）・何句でも、から選べます。だれが出して、だれがまだか、パスかが画面でわかり、全員そろうと幹事に「では、すすめてください」の合図が出ます。選の種類（特選1・並選3・予選／秀句1・佳作3・予選／天・地・人・並・予選）と、それぞれの句数・点数は幹事が決められ、途中でも変えられます（変えると全員に「可変タイム」のお知らせ）。進行は幹事のボタンか、タイマーで自動。回数の上限（1〜10回戦）や「何時まで」も決められます。点は回をまたいで通算され、まわし終える（または幹事が句会をとじる）と、通算トップが句会優勝。トロフィーがマイページに飾られます。部屋には、参加者だけの「こそこそ話」もあります。</p>' +
       '<h3>句会アーカイブ</h3><p>参加した句会（終わったものも）が残り、結果をいつでもひらけます。参加した人だけが見られます。</p>' +
       '<h3>マイページ・ストッ句</h3><p>俳号、プロフィール文、アイコンを入れておけます。トロフィーは「画像にする」で、金の額の画像にできます。ストッ句（自分の句の記録）は自分だけが見られ、「あとで推敲」の句は、あとから推敲できます。Excel（CSV）に書き出す・文でコピー・LINEやメールで送る、もできます。句の画像は「デジタル短冊」と「句碑」の2つ。投稿・保存は、作者本人だけができます。設定の「自分のデータを消す」から、ご自分で消せます。</p>' +
@@ -4086,7 +4086,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<h3>ストッ句のメモ・書き足し</h3><p>ストッ句の句に「📝メモ」（入選・掲載・詞書など）を書けます。外で詠んだ句や大会に出した句は「＋ 句を書き足す」から入れられます。入るのは自分の句だけです。</p>' +
       '<h3>連作の部屋</h3><p>ストッ句の句を並べて、ひとつの連作に。題と、目ざす句数（大会の20句・30句・50句など）を決め、↑↓で並べかえ。連作の中だけで句を直せて、元のストッ句はそのまま残ります。「味わう」で縦書きの通し読み。 <button class="link" data-act="page" data-p="renkan">ひらく</button></p>' +
       '<h3>句集づくり</h3><p>年・年度ごとの句集、入選・掲載の記録、SNSの自選十句（画像：地の色・書体・落款を選べる）、これまでの軌跡、note用の文、句帳に貼る紙片。かたちは、本の句集（A5・縦書き）、折本（A4一枚の豆本）、縦書きの一覧、画像、文。連作からも作れます（連作で直した形のまま）。 <button class="link" data-act="page" data-p="kushu">ひらく</button></p>' +
-      '<h3>仲間と句会の句会報</h3><p>結果から、縦書きの句会報（点数ごとの見出し・選んだ人・選評）を印刷・PDFに。LINEなどに貼れる文にもできます。すその句会（月例）は、未発表の研鑽の場なので、句会報はつくりません。</p>' +
+      '<h3>仲間と句会の句会報</h3><p>結果から、縦書きの句会報（点数ごとの見出し・選んだ人・選評）を印刷・PDFに。LINEなどに貼れる文にもできます。月例句会は、未発表の研鑽の場なので、句会報はつくりません。</p>' +
       '<h3>合評の助け</h3><p>合評では「押すだけで評をつくる」（言葉を引く→感じたこと→提案ひとつ）が使えます。松風主宰（AI先生）の評は、AI（Google Gemini）が句を読んで書きます。</p>' +
       '<h3>はじめに（先生がたのことば）</h3><p>夏井いつき・藤田湘子・芭蕉・虚子の「ええ言葉」の棚。俳筋トレ部屋の上にも、開くたびにちがう「きょうのひとこと」が出ます。 <button class="link" data-act="page" data-p="kokoro">ひらく</button></p>' +
       '<h3>俳句の型と技の部屋</h3><p>基本は藤田湘子『20週俳句入門』の四つの型と応用型（裾野でつくった例句・季語と切れ字を色分け）と、20週の目次。実践は『実作俳句入門』の作句のポイント14とテクニック16。 <button class="link" data-act="page" data-p="kata">ひらく</button></p>' +
@@ -5077,8 +5077,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       var inCat = BADGES.filter(function (b) { return b.cat === c; });
       h += '<p class="note" style="margin:10px 0 4px"><b>' + esc(c) + '</b>　' + inCat.filter(function (b) { return got.indexOf(b.id) >= 0; }).length + '/' + inCat.length + '</p><div class="bdgs">' + inCat.map(function (b) { return '<span class="bdg' + (got.indexOf(b.id) >= 0 ? ' on' : '') + '" title="' + esc(b.hint) + '">' + esc(b.name) + '</span>'; }).join('') + '</div>';
     });
-    var monWins = trophies.filter(function (x) { return x.kind === 'すその句会（月例）'; }).length, rk = monRank(monWins);
-    if (monWins) h += '<div class="panel"><b>すその句会（月例）の称号：' + esc(rk) + '</b><p class="note">優勝' + monWins + '回。特待生（1回）→ 名人（3回）→ 天位（6回）。</p></div>';
+    var monWins = trophies.filter(function (x) { return (x.kind === '月例句会' || x.kind === 'すその句会（月例）'); }).length, rk = monRank(monWins);
+    if (monWins) h += '<div class="panel"><b>月例句会の称号：' + esc(rk) + '</b><p class="note">優勝' + monWins + '回。特待生（1回）→ 名人（3回）→ 天位（6回）。</p></div>';
     h += '<h3 class="sec">トロフィー<small>' + trophies.length + '個</small></h3>' + (trophies.length ? '<div class="shelf">' + trophies.slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); }).map(function (x) { return '<div class="tcup">' + TROPHY_SVG + '<span>' + esc(x.kind || '') + '<br>' + esc(x.ch || '') + '</span>' + (x.a ? '<button class="link" data-act="card" data-ck="' + esc(ckSet('tr-' + x.id, { text: plain(String(x.a || '') + String(x.b || '') + String(x.c || '')), haigo: haigo, sub: (x.kind || '') + '　' + (x.ch || ''), badge: (x.pts || 0) + '点', trophy: true })) + '" data-style="trophy">🏆 画像にする</button>' : '') + '</div>'; }).join('') + '</div>' : '<p class="note">句会で最高点をとると、ここに飾られます。</p>');
     return h;
   }
@@ -5602,7 +5602,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   /* ---- トップのヒーロー：何をするところか／今夜どうすれば参加できるか ---- */
   function vHero() {
     return '<section class="hero" aria-label="俳句の裾野とは">' +
-      '<p class="hero-name">だれでも句会・毎晩21:00</p>' +
+      '<p class="hero-name">すその句会・毎晩21:00</p>' +
       '<p class="hero-lead">俳句を一句' + '持ち寄' + 'って、毎晩決まった時刻にみんなで始める、オンライン句会です</p>' +
       '<ul class="hero-facts" aria-label="ひと目でわかる情報"><li>🕘 <b>毎晩21:00</b>開始</li><li>✍️ <b>一句</b>持参</li><li>⏱ 所要 <b>約60分</b></li><li>👀 登録なしで' + '見学' + 'OK</li><li>📧 登録は<b>メールだけ・無料</b></li></ul>' +
       '<div class="hero-cta"><button class="btn primary big" data-act="' + (myId ? 'hero-join' : 'fbgate') + '">今夜の句会に参加する</button>' +
@@ -5619,7 +5619,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<button class="btn" data-act="demo-start">🐸 体験句会<small>ボット相手・保存なし</small></button>' +
       '<button class="btn" data-act="tk-start">🧩 句づくり<small>フレーズと季語で・3分</small></button>' +
       '</div>' +
-      '<p class="note">登録すると、毎晩21:00の「だれでも句会」に参加でき、つくった句が「ストッ句」に残ります。</p></section>';
+      '<p class="note">登録すると、毎晩21:00の「すその句会」に参加でき、つくった句が「ストッ句」に残ります。</p></section>';
   }
   function vLive() {
     var cut = Date.now() - 6 * 3600000, items = [];
