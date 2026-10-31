@@ -944,7 +944,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.01j';
+  var APP_VER = 'v2026.11.01k';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -975,7 +975,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function hintFor(series, n) { var it = promptItem(series, n); return typeof it === 'string' ? '' : it.h; }
 
   /* ---- 状態 ---- */
-  var db = null, myId = null, dbState = 'loading', page = '', demo = null, trial = null, prof = { x: '', ig: '', pref: '', sy: '', sm: '' }, online = 0, roomT0 = Date.now(), hashSid = '', showInv = false, prevCnt = {}, inq = { kind: 'req', name: '', text: '', busy: false }, inqs = [];
+  var db = null, myId = null, dbState = 'loading', page = '', demo = null, trial = null, prof = { x: '', ig: '', pref: '', sy: '', sm: '' }, online = 0, roomT0 = Date.now(), hashSid = '', inviteSid = '', hashFetch = false, showInv = false, prevCnt = {}, inq = { kind: 'req', name: '', text: '', busy: false }, inqs = [];
   var stat = { members: 0, joined: 0, ku: 0, today: 0 };
   var delAsk = '', myRep = {}, repInit = false, rpDraft = {}, news = [], trophies = [], awarded = {}, badgeSeen = null, nf = { kind: 'NHK俳句の兼題', title: '', body: '', url: '' };
   var roomOpen = false, lastTabSeen = 'solo';
@@ -2309,7 +2309,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     return h;
   }
   function vFlat() {
-    if (current) { var s = scur(); if (s && s.std === 'flat') return kCanOpen(s) ? vSessionView(s) : kGate(s); }
+    if (current) { var s = scur(); if (s && s.std === 'flat') return kCanOpen(s) ? invBanner(s) + vSessionView(s) : kGate(s); }
     return vFlatLobby();
   }
   function vTei() {
@@ -2884,13 +2884,21 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     return h + vReveal(s);
   }
 
+  /* 招待のリンクから来た人への、ひとこと案内（その回の様子と、戻り先） */
+  function invBanner(s) {
+    if (!s || inviteSid !== s.id) return '';
+    var nm = s.std === 'flat' ? 'ふらっと句会' : s.tei ? teiSlotName(dn(s.date), s.slot) : String(s.name || '句会');
+    var st = s.status === 'done' ? 'この句会は、終わっています。' : s.status === 'gathering' ? (s.std === 'flat' && s.size ? 'いま、仲間を待っています。あと' + Math.max(0, s.size - count(s)) + '人で始まります。' : 'いま、受付中です。') : 'もう始まっています。見学できます。';
+    return '<div class="after invb"><b>💌 招待のリンクから、' + esc(nm) + 'の部屋に来ました</b><span>' + esc(st) + '見学だけでも大丈夫です。</span><div class="row"><button class="btn" data-act="sback">トップの句会一覧へ</button><button class="link" data-act="inv-off">この案内を閉じる</button></div></div>';
+  }
   function kGate(s) {
     var back = '<div class="actions"><button class="link" data-act="sback">← ' + (fromArch ? '句会アーカイブ' : '句会の一覧') + '</button></div>';
-    if (s.status === 'done') return back + '<p class="lead">この句会は、終わりました。参加した人は、句会アーカイブから、結果を見られます。</p>';
-    return back + '<p class="lead">この句会は、見られない状態です。</p>';
+    var nx = '<div class="actions"><button class="btn primary" data-act="sback">いま開いている句会を見る</button><button class="btn" data-act="page" data-p="archive">句会アーカイブ</button></div>';
+    if (s.status === 'done') return back + invBanner(s) + '<p class="lead">この句会は、終わりました。参加した人は、句会アーカイブから、結果を見られます。</p>' + nx;
+    return back + invBanner(s) + '<p class="lead">この句会は、いまは見られない状態です。別の回なら、見学できます。</p>' + nx;
   }
   function vTogether() {
-    if (current) { var s = scur(); if (!s) return '<p class="lead">句会をひらいています…</p>'; return kCanOpen(s) ? vSessionView(s) : kGate(s); }
+    if (current) { var s = scur(); if (!s) return '<p class="lead">句会をひらいています…</p>'; return kCanOpen(s) ? invBanner(s) + vSessionView(s) : kGate(s); }
     return vTei();
   }
 
@@ -6414,6 +6422,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
         toast('記録に残しました'); if (isNew) bumpStat(); touched[tg2.id] = 0; if (editing) editing = null; render();
       }).catch(failMsg).then(function () { busy.save = 0; });
     }
+    else if (act === 'inv-off') { inviteSid = ''; render(); }
     else if (act === 'sback') { current = null; if (fromArch) { fromArch = false; page = 'archive'; } render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'open') { fromArch = false; current = t.dataset.sid; showInv = false; render(); }
     else if (act === 'calrec') calDownload('recur', 'haiku-kukai-mainichi21.ics');
@@ -6825,8 +6834,17 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var from = ds(dayNum() - 1);
     unsubs.push(db.collection('kukai').where('date', '>=', from).orderBy('date', 'desc').limit(60).onSnapshot(function (s) {
       sessions = s.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; }); stockSync(); histSync();
-      if (hashSid && sessions.some(function (x) { return x.id === hashSid; })) { current = hashSid; tab = 'together'; hashSid = ''; }
-      else if (hashSid && /^t\d{8}-\d\d$/.test(hashSid) && teiSlots().some(function (x) { return x.sid === hashSid; })) { var hs0 = hashSid; hashSid = ''; teiEnter(hs0, true); }
+      if (hashSid && sessions.some(function (x) { return x.id === hashSid; })) { current = hashSid; inviteSid = hashSid; tab = 'together'; hashSid = ''; }
+      else if (hashSid && /^t\d{8}-\d\d$/.test(hashSid) && teiSlots().some(function (x) { return x.sid === hashSid; })) { var hs0 = hashSid; hashSid = ''; inviteSid = hs0; teiEnter(hs0, true); }
+      /* 招待リンクの回が、いまの一覧にないとき（終わって日がたった回など）は、その回だけ取りにいく。なければ、行き止まりにせず、知らせる */
+      if (hashSid && hashSid.indexOf('g-') !== 0 && !/^t\d{8}-\d\d$/.test(hashSid) && !hashFetch) {
+        hashFetch = true; var hs1 = hashSid; hashSid = '';
+        db.collection('kukai').doc(hs1).get().then(function (d) {
+          if (d && d.exists) { var o = d.data() || {}; o.id = d.id; kExtra[hs1] = o; current = hs1; inviteSid = hs1; tab = 'together'; roomOpen = true; }
+          else toast('招待の句会が見つかりませんでした（終わったか、取り消されました）。いまの句会は、下の一覧からどうぞ');
+          render();
+        }).catch(function () { render(); });
+      }
       closeStale(); checkCounts(); checkTransitions(); autoAdvance(); render();
     }, function () {}));
     subGohyo();
