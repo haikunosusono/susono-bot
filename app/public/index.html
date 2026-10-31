@@ -944,7 +944,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.01k';
+  var APP_VER = 'v2026.11.01l';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1257,17 +1257,38 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     }
   }
 
+  /* ストッ句から、そのまま句会へ：出せる回（まだ始まっていない定例句会・席のあるふらっと句会）を選ぶ。選ぶと、その回の投句の欄に句が入る（出すのは、いつもの「この句を出す」） */
+  var stPick = '';
+  function stPickRounds() {
+    var t = Date.now(), out = [];
+    teiSlotsFar(1).filter(function (x) { return x.start > t; }).slice(0, 4).forEach(function (x) {
+      var ss = teiFind(x.sid), mi = ss && ss.entries && ss.entries[myId];
+      out.push({ kind: 'tei', sid: x.sid, label: teiSlotName(x.dn, x.h) + '（' + mdLabel(x.dn) + ' ' + x.h + '時）', sub: 'お題：当季雑詠', done: !!mi });
+    });
+    var f = flatMine() || flatFind();
+    if (f && f.status === 'gathering') out.push({ kind: 'flat', sid: f.id, label: 'ふらっと句会（いま席にいるのは' + count(f) + '人）', sub: 'お題：当季雑詠', done: !!(f.entries && f.entries[myId]) });
+    else out.push({ kind: 'flat', sid: '', label: 'ふらっと句会（あたらしく席につく）', sub: 'お題：当季雑詠', done: false });
+    return out;
+  }
+  function stPickPanel() {
+    if (!stPick) return '';
+    var e = mineById[stPick]; if (!e) return '';
+    var rs = stPickRounds();
+    return '<div class="panel stpick"><b>🏮 この句を、句会に出す</b><div class="tan">' + ku(e) + '</div><p class="note">出す回を選んでください。選ぶと、その回の投句の欄に、この句が入ります。内容をたしかめて、「この句を出す」を押すと出ます。</p>' +
+      rs.map(function (r) { return '<button class="btn' + (r.done ? '' : ' primary') + '" data-act="st-pick-go" data-id="' + esc(e.id) + '" data-sid="' + esc(r.sid) + '" data-k="' + r.kind + '"' + (r.done ? ' disabled' : '') + '>' + esc(r.label) + '<small>' + (r.done ? 'すでに句を出しています' : esc(r.sub)) + '</small></button>'; }).join('') +
+      '<button class="link" data-act="st-pick" data-id="' + esc(e.id) + '">やめる</button></div>';
+  }
   function vRecords(kind) {
     var base = mine.filter(function (e) { return kind === 'd' ? e.series === 'd' : e.series !== 'd'; });
     var list = base.filter(function (e) { return filt === 'all' || e.conf === 'n'; });
     var h = '<h2 class="sec">ストッ句<small>' + base.length + '句・自分だけが見られます</small></h2>';
-    h += '<div class="actions"><button class="link" data-act="page" data-p="stock">ぜんぶのストッ句を、表で見る →</button></div>';
+    h += '<div class="actions"><button class="link" data-act="page" data-p="stock">ぜんぶのストッ句を、表で見る →</button></div>' + stPickPanel();
     h += '<div class="row"><button class="chip fit' + (filt === 'all' ? ' on' : '') + '" data-act="filt" data-v="all">すべて</button><button class="chip fit' + (filt === 'n' ? ' on' : '') + '" data-act="filt" data-v="n">あとで推敲</button></div>';
     if (!list.length) {
       return h + '<div class="empty"><p>' + (filt === 'n' ? '「あとで推敲」の句はありません。' : (kind === 'd' ? 'まだ句がありません。今日の一句を、気軽に残してみましょう。' : 'まだストッ句がありません。今日の兼題で、最初の一句を詠んでみましょう。')) + '</p></div>';
     }
     return h + '<div class="board">' + list.map(function (e) {
-      return '<article class="slip"><div class="no"><span>' + esc(mdLabel(dn(e.date))) + ' <span class="k">' + (e.series === 'd' ? '初心者部屋' : e.series === 'x' ? esc(e.ch) : SER[e.series].name + '「' + esc(e.ch) + '」') + '</span></span><span class="tag ' + (e.conf === 'n' ? 'n' : e.conf === 'k' ? 'k' : '') + '">' + (CONF[e.conf] || 'ふつう') + '</span></div><div class="tan">' + ku(e) + '</div>' + stMemoRow(e) + '<div class="actions">' + cardBtn('m:' + e.id, { text: joinKu(e).a, haigo: haigo, sub: (e.series === 'd' ? '初心者部屋' : SER[e.series].name + '「' + e.ch + '」') + '　' + mdLabel(dn(e.date)), badge: e.conf === 'k' ? 'かんぺきの一句' : '' }) + '<button class="link" data-act="edit" data-id="' + esc(e.id) + '">推敲する</button><button class="link" data-act="st-memo" data-id="' + esc(e.id) + '">📝メモ</button>' + (delAsk === e.id ? '<span class="note">この句を消します。もとにもどせません。</span><button class="btn danger" data-act="del-yes" data-id="' + esc(e.id) + '">消す</button><button class="btn" data-act="del-no">やめる</button>' : '<button class="link" data-act="del-ask" data-id="' + esc(e.id) + '">消す</button>') + '</div></article>';
+      return '<article class="slip"><div class="no"><span>' + esc(mdLabel(dn(e.date))) + ' <span class="k">' + (e.series === 'd' ? '初心者部屋' : e.series === 'x' ? esc(e.ch) : SER[e.series].name + '「' + esc(e.ch) + '」') + '</span></span><span class="tag ' + (e.conf === 'n' ? 'n' : e.conf === 'k' ? 'k' : '') + '">' + (CONF[e.conf] || 'ふつう') + '</span></div><div class="tan">' + ku(e) + '</div>' + stMemoRow(e) + '<div class="actions">' + cardBtn('m:' + e.id, { text: joinKu(e).a, haigo: haigo, sub: (e.series === 'd' ? '初心者部屋' : SER[e.series].name + '「' + e.ch + '」') + '　' + mdLabel(dn(e.date)), badge: e.conf === 'k' ? 'かんぺきの一句' : '' }) + '<button class="link" data-act="edit" data-id="' + esc(e.id) + '">推敲する</button><button class="link" data-act="st-pick" data-id="' + esc(e.id) + '">🏮 句会に出す</button><button class="link" data-act="st-memo" data-id="' + esc(e.id) + '">📝メモ</button>' + (delAsk === e.id ? '<span class="note">この句を消します。もとにもどせません。</span><button class="btn danger" data-act="del-yes" data-id="' + esc(e.id) + '">消す</button><button class="btn" data-act="del-no">やめる</button>' : '<button class="link" data-act="del-ask" data-id="' + esc(e.id) + '">消す</button>') + '</div></article>';
     }).join('') + '</div>';
   }
 
@@ -1324,15 +1345,16 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     h += '<div class="row"><button class="chip fit" data-act="st-csv">📤 Excelに書き出す</button><button class="chip fit" data-act="st-copy">📋 文でコピー</button><button class="chip fit" data-act="st-share">📨 LINE・メールで送る</button></div>';
     h += '<div class="row"><button class="chip fit' + (stView === 'table' ? ' on' : '') + '" data-act="st-view" data-v="table">表で見る（よこ書き）</button><button class="chip fit' + (stView === 'tan' ? ' on' : '') + '" data-act="st-view" data-v="tan">短冊で見る（たて書き）</button></div>';
     h += '<div class="row"><button class="chip fit' + (stFil === 'all' ? ' on' : '') + '" data-act="st-fil" data-v="all">すべて</button><button class="chip fit' + (stFil === 'n' ? ' on' : '') + '" data-act="st-fil" data-v="n">あとで推敲</button><button class="chip fit' + (stFil === 'k' ? ' on' : '') + '" data-act="st-fil" data-v="k">かんぺき</button></div>';
+    h += stPickPanel();
     if (!list.length) return h + '<div class="empty"><p>' + (stFil === 'all' ? 'まだストッ句がありません。どの部屋からでも、一句つくると、ここにたまっていきます。' : 'この手ごたえの句は、まだありません。') + '</p></div>';
     if (stView === 'tan') {
       h += '<div class="board">' + list.map(function (e) {
-        return '<article class="slip"><div class="no"><span>' + esc(mdLabel(dn(e.date))) + ' <span class="k">' + esc(stSrc(e)) + '</span></span><span class="tag ' + (e.conf === 'n' ? 'n' : e.conf === 'k' ? 'k' : '') + '">' + (CONF[e.conf] || 'ふつう') + '</span></div><div class="tan">' + ku(e) + '</div>' + stMemoRow(e) + '<div class="actions">' + cardBtn('m:' + e.id, { text: joinKu(e).a, haigo: haigo, sub: stSrc(e) + '　' + mdLabel(dn(e.date)), badge: e.conf === 'k' ? 'かんぺきの一句' : '' }) + '<button class="link" data-act="edit" data-id="' + esc(e.id) + '">推敲する</button><button class="link" data-act="st-memo" data-id="' + esc(e.id) + '">📝メモ</button>' + (delAsk === e.id ? '<span class="note">この句を消します。もとにもどせません。</span><button class="btn danger" data-act="del-yes" data-id="' + esc(e.id) + '">消す</button><button class="btn" data-act="del-no">やめる</button>' : '<button class="link" data-act="del-ask" data-id="' + esc(e.id) + '">消す</button>') + '</div></article>';
+        return '<article class="slip"><div class="no"><span>' + esc(mdLabel(dn(e.date))) + ' <span class="k">' + esc(stSrc(e)) + '</span></span><span class="tag ' + (e.conf === 'n' ? 'n' : e.conf === 'k' ? 'k' : '') + '">' + (CONF[e.conf] || 'ふつう') + '</span></div><div class="tan">' + ku(e) + '</div>' + stMemoRow(e) + '<div class="actions">' + cardBtn('m:' + e.id, { text: joinKu(e).a, haigo: haigo, sub: stSrc(e) + '　' + mdLabel(dn(e.date)), badge: e.conf === 'k' ? 'かんぺきの一句' : '' }) + '<button class="link" data-act="edit" data-id="' + esc(e.id) + '">推敲する</button><button class="link" data-act="st-pick" data-id="' + esc(e.id) + '">🏮 句会に出す</button><button class="link" data-act="st-memo" data-id="' + esc(e.id) + '">📝メモ</button>' + (delAsk === e.id ? '<span class="note">この句を消します。もとにもどせません。</span><button class="btn danger" data-act="del-yes" data-id="' + esc(e.id) + '">消す</button><button class="btn" data-act="del-no">やめる</button>' : '<button class="link" data-act="del-ask" data-id="' + esc(e.id) + '">消す</button>') + '</div></article>';
       }).join('') + '</div>';
       return h;
     }
     h += '<div class="sttwrap"><table class="stt"><thead><tr><th>日づけ</th><th>句</th><th>どこで</th><th>手ごたえ</th><th></th></tr></thead><tbody>' + list.map(function (e) {
-      return '<tr><td class="d">' + esc(mdLabel(dn(e.date))) + '</td><td class="k9">' + esc(plain(joinKu(e).a)) + stMemoRow(e) + '</td><td class="src">' + esc(stSrc(e)) + '</td><td><span class="tag ' + (e.conf === 'n' ? 'n' : e.conf === 'k' ? 'k' : '') + '">' + (CONF[e.conf] || 'ふつう') + '</span></td><td class="ops"><button class="link" data-act="edit" data-id="' + esc(e.id) + '">推敲</button><button class="link" data-act="st-memo" data-id="' + esc(e.id) + '">メモ</button>' + (delAsk === e.id ? '<button class="btn danger" data-act="del-yes" data-id="' + esc(e.id) + '">消す</button><button class="btn" data-act="del-no">やめる</button>' : '<button class="link" data-act="del-ask" data-id="' + esc(e.id) + '">消す</button>') + '</td></tr>';
+      return '<tr><td class="d">' + esc(mdLabel(dn(e.date))) + '</td><td class="k9">' + esc(plain(joinKu(e).a)) + stMemoRow(e) + '</td><td class="src">' + esc(stSrc(e)) + '</td><td><span class="tag ' + (e.conf === 'n' ? 'n' : e.conf === 'k' ? 'k' : '') + '">' + (CONF[e.conf] || 'ふつう') + '</span></td><td class="ops"><button class="link" data-act="edit" data-id="' + esc(e.id) + '">推敲</button><button class="link" data-act="st-pick" data-id="' + esc(e.id) + '">句会へ</button><button class="link" data-act="st-memo" data-id="' + esc(e.id) + '">メモ</button>' + (delAsk === e.id ? '<button class="btn danger" data-act="del-yes" data-id="' + esc(e.id) + '">消す</button><button class="btn" data-act="del-no">やめる</button>' : '<button class="link" data-act="del-ask" data-id="' + esc(e.id) + '">消す</button>') + '</td></tr>';
     }).join('') + '</tbody></table></div>';
     h += '<p class="note">「推敲」を押すと、その句の部屋にもどって直せます。画像にして投稿したいときは、「短冊で見る」からどうぞ。</p>';
     return h;
@@ -6421,6 +6443,16 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       db.collection('data/users/' + myId).doc(tg2.id).set(rec).then(function () {
         toast('記録に残しました'); if (isNew) bumpStat(); touched[tg2.id] = 0; if (editing) editing = null; render();
       }).catch(failMsg).then(function () { busy.save = 0; });
+    }
+    else if (act === 'st-pick') { stPick = stPick === t.dataset.id ? '' : t.dataset.id; render(); }
+    else if (act === 'st-pick-go') {
+      var pe = mineById[t.dataset.id]; if (!pe || t.disabled) return;
+      var pk = t.dataset.k, psid = t.dataset.sid; stPick = ''; fromArch = false;
+      if (pk === 'tei') teiEnter(psid, true); else flatEnter();
+      var tgt = current, pj = joinKu(pe);
+      var ex = scur(); if (ex && ex.entries && ex.entries[myId]) { toast('この回には、もう句を出しています'); render(); return; }
+      drafts['s:' + tgt] = { a: pj.a, b: '', c: '' }; touched['s:' + tgt] = 1;
+      toast('句を入れました。内容をたしかめて、「この句を出す」を押してください'); render();
     }
     else if (act === 'inv-off') { inviteSid = ''; render(); }
     else if (act === 'sback') { current = null; if (fromArch) { fromArch = false; page = 'archive'; } render(); try { window.scrollTo(0, 0); } catch (_) {} }
