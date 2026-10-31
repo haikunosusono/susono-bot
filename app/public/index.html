@@ -575,6 +575,8 @@ h3.sec { font-size: 1rem; }
 .minenum { margin: 6px 2px 0; font-size: .82rem; color: var(--ink-soft); } .minenum b { color: var(--accent); font-size: 1rem; }
 .rinv { margin: 6px 4px 0; text-align: right; } .rinv .link { font-size: .8rem; }
 .onsu { margin: 2px 2px 0; color: var(--ink-soft); font-size: .82rem; } .kgchk { margin: 0 2px; color: var(--accent); font-size: .82rem; } .onsu:empty, .kgchk:empty { display: none; }
+.revrow { border: 1px solid var(--line); border-radius: 14px; padding: 10px 14px; background: var(--rc3); display: flex; flex-direction: column; gap: 4px; } .revrow.champ { background: var(--accent-soft); border-color: var(--accent); padding: 18px 16px; } .revrow.champ .revku { font-size: 1.5rem; }
+.revno { font-weight: 700; } .revno small { font-weight: 400; color: var(--ink-soft); margin-left: .5em; } .revbar { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; } .revbar i { display: block; height: 100%; background: var(--accent); border-radius: 999px; } .revku { font-size: 1.1rem; line-height: 1.7; } .revwho { font-size: .82rem; color: var(--ink-soft); }
 .hero-ws { display: block; text-align: center; color: var(--ink-soft); font-size: .74rem; line-height: 1.5; }
 .kteaser { display: flex; align-items: baseline; gap: .6em; flex-wrap: wrap; width: 100%; margin: 4px 0 0; padding: 10px 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); color: inherit; font: inherit; cursor: pointer; text-align: left; } .kteaser span { font-size: .78rem; color: var(--ink-soft); } .kteaser b { font-size: 1.02rem; } .kteaser small { margin-left: auto; font-size: .74rem; color: var(--accent); }
 .rcard .sl { font-style: normal; display: inline-block; margin-right: .7em; padding: 0 .4em; border-radius: 8px; } .rcard .sl.on { background: var(--accent2-soft); color: var(--accent2); font-weight: 700; box-shadow: 0 0 0 1px var(--accent2) inset; } .rgrid .rcard[aria-selected="true"] .sl.on { background: rgba(255,255,255,.25); color: inherit; box-shadow: none; }
@@ -944,7 +946,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.01l';
+  var APP_VER = 'v2026.11.01n';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -977,7 +979,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   /* ---- 状態 ---- */
   var db = null, myId = null, dbState = 'loading', page = '', demo = null, trial = null, prof = { x: '', ig: '', pref: '', sy: '', sm: '' }, online = 0, roomT0 = Date.now(), hashSid = '', inviteSid = '', hashFetch = false, showInv = false, prevCnt = {}, inq = { kind: 'req', name: '', text: '', busy: false }, inqs = [];
   var stat = { members: 0, joined: 0, ku: 0, today: 0 };
-  var delAsk = '', myRep = {}, repInit = false, rpDraft = {}, news = [], trophies = [], awarded = {}, badgeSeen = null, nf = { kind: 'NHK俳句の兼題', title: '', body: '', url: '' };
+  var delAsk = '', myRep = {}, repInit = false, rpDraft = {}, news = [], trophies = [], kansho = [], awarded = {}, badgeSeen = null, nf = { kind: 'NHK俳句の兼題', title: '', body: '', url: '' };
   var roomOpen = false, lastTabSeen = 'solo';
   var tab = 'solo', ser = plan(dayNum()).series, filt = 'all', editing = null;
   var mine = [], mineById = {}, sessions = [], current = null, showNew = false, newSize = 5, named = {}, cmDraft = {}, cmTone = {}, cmPart = {}, newKind = 'today', hiko = false, lastFld = '', flags = {}, queue = Promise.resolve();
@@ -2232,13 +2234,13 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function vMonthlyResult(id, d) {
     var kus = monKus(d), T = monTally(d), max = 0; kus.forEach(function (k) { max = Math.max(max, T[k.id].pts); });
     var sorted = kus.slice().sort(function (x, y) { return T[y.id].pts - T[x.id].pts || T[y.id].toku.length - T[x.id].toku.length || x.at - y.at; });
-    var win = sorted.filter(function (k) { return max > 0 && T[k.id].pts === max; }), h = '';
+    var win = sorted.filter(function (k) { return max > 0 && T[k.id].pts === max; }), h = '', wcHtml = '';
     if (!kus.length) return '<p class="note">この月は、投句がありませんでした。</p>';
     var nv = Object.keys(d.votes || {}).filter(function (u) { return d.votes[u] && d.votes[u].fin; }).length;
     h += '<div class="panel"><b>' + esc(monLabel(id)) + 'の結果</b><p class="note">' + kus.length + '句・' + Object.keys(d.entries || {}).length + '人・互選' + nv + '人</p></div>';
     if (win.length) {
       win.forEach(function (w) { if (w.uid === myId) awardTrophy('m-' + id + '-' + w.id.split(':')[1], { kind: '月例句会', ch: monLabel(id) + '　' + monKendai(id).t, date: id + '-' + monEnds(id).s, pts: max, a: w.a, b: '', c: '' }); });
-      h += winCard(win.map(function (w) { return w.haigo; }), max, win.length === 1 ? Object.assign({ id: win[0].uid }, win[0]) : null, '（月例句会・' + monLabel(id) + '）', win.length > 1 ? '同点優勝です' : '', { head: '月例句会 ' + monLabel(id), res: kuhiRes(T[win[0].id].toku.length, T[win[0].id].nami.length, max), ranks: sorted.filter(function (k) { return k.id !== win[0].id; }).slice(0, 2).map(function (k, i) { return { name: k.haigo || '名無し', res: kuhiRes(T[k.id].toku.length, T[k.id].nami.length, T[k.id].pts), no: win.length + i + 1 }; }), wins: win.map(function (w2) { return { kuObj: Object.assign({ id: w2.uid }, w2), name: w2.haigo }; }) });
+      wcHtml = winCard(win.map(function (w) { return w.haigo; }), max, win.length === 1 ? Object.assign({ id: win[0].uid }, win[0]) : null, '（月例句会・' + monLabel(id) + '）', win.length > 1 ? '同点優勝です' : '', { head: '月例句会 ' + monLabel(id), res: kuhiRes(T[win[0].id].toku.length, T[win[0].id].nami.length, max), ranks: sorted.filter(function (k) { return k.id !== win[0].id; }).slice(0, 2).map(function (k, i) { return { name: k.haigo || '名無し', res: kuhiRes(T[k.id].toku.length, T[k.id].nami.length, T[k.id].pts), no: win.length + i + 1 }; }), wins: win.map(function (w2) { return { kuObj: Object.assign({ id: w2.uid }, w2), name: w2.haigo }; }) });
     }
     /* 句会報 */
     var txt = '【月例句会報　' + monLabel(id) + '】\n兼題：' + monKendai(id).t + '（' + monKendai(id).kind + '）\n' + kus.length + '句・' + Object.keys(d.entries || {}).length + '人・互選' + nv + '人\n\n' + sorted.map(function (k, i) {
@@ -2246,12 +2248,33 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       return (i + 1) + '位　' + t.pts + '点（特' + t.toku.length + '・並' + t.nami.length + '・予' + t.yo.length + '）\n' + k.a + '　' + k.haigo + (lines.length ? '\n' + lines.join('\n') : '');
     }).join('\n\n') + '\n\n俳句の裾野 haikunosusono.web.app\n' + KAIHO_NOTE;
     /* 月例句会は、未発表の研鑽の場なので、句会報（外へ出す形）はつくらない */
+    /* 鑑賞賞：その月に、いちばん多く評を書いた人（同数なら全員）。月例句会に残っている評の数だけで数える */
+    var cc = {}, nmOf = {};
+    Object.keys(d.cmts || {}).forEach(function (kid) { var cm = d.cmts[kid] || {}; Object.keys(cm).forEach(function (u) { if (cm[u] && String(cm[u].text || '').trim()) { cc[u] = (cc[u] || 0) + 1; nmOf[u] = cm[u].haigo || nmOf[u] || '名無し'; } }); });
+    var cmax = 0; Object.keys(cc).forEach(function (u) { cmax = Math.max(cmax, cc[u]); });
+    var kw = cmax > 0 ? Object.keys(cc).filter(function (u) { return cc[u] === cmax; }) : [];
+    var kHtml = '';
+    if (kw.length) {
+      kHtml = '<div class="panel"><b>🔍 鑑賞賞</b><p class="note">この月、いちばん多く評を書いた人です（評 ' + cmax + '句ぶん）。</p><p class="lead">' + kw.map(function (u) { return esc(nmOf[u]) + (u === myId ? '（あなた）' : ''); }).join('、') + '</p></div>';
+      if (kw.indexOf(myId) >= 0) awardTrophy('k-' + id, { kind: '鑑賞賞', ch: monLabel(id) + '　評 ' + cmax + '句', date: id + '-' + monEnds(id).s, pts: cmax }, '鑑賞賞おめでとうございます！ マイページに残しました');
+    }
+    /* 開票：下の順位から1つずつめくる（結果が確定したあとのページだけ）。数字は、実際の集計のまま */
+    var nRev = monRev[id] || 0, tot = sorted.length, allRev = nRev >= tot;
+    var rankOf = function (k) { return 1 + sorted.filter(function (x) { return T[x.id].pts > T[k.id].pts; }).length; };
+    h += '<div class="panel revpanel"><b>🎬 開票</b><p class="note">下の順位から、ひとつずつ、めくります。最後に、いちばんの句が出ます。</p>';
+    for (var ri = tot - 1; ri >= tot - nRev; ri--) {
+      var rk = sorted[ri], rt = T[rk.id], big = ri === 0 && allRev;
+      h += '<div class="revrow' + (big ? ' champ' : '') + '"><div class="revno">' + rankOf(rk) + '位　' + rt.pts + '点<small>（特' + rt.toku.length + '・並' + rt.nami.length + '・予' + rt.yo.length + '）</small></div><div class="revbar"><i style="width:' + (max > 0 ? Math.round(rt.pts / max * 100) : 0) + '%"></i></div><div class="revku">' + esc(rk.a) + '</div><div class="revwho">' + esc(rk.haigo) + '</div></div>';
+    }
+    h += '<div class="actions">' + (allRev ? '<button class="link" data-act="mon-rev" data-id="' + esc(id) + '" data-v="0">もういちど、めくる</button>' : '<button class="btn primary" data-act="mon-rev" data-id="' + esc(id) + '" data-v="' + (nRev + 1) + '">' + (nRev ? 'つぎをめくる ›' : '開票をはじめる ›') + '（のこり' + (tot - nRev) + '句）</button><button class="link" data-act="mon-rev" data-id="' + esc(id) + '" data-v="' + tot + '">ぜんぶ、ひらく</button>') + '</div></div>';
+    if (allRev) h += wcHtml + kHtml;
+    if (!allRev) { monReport[id] = txt; return h; }
     h += '<div class="panel"><b>得点順の全句</b>' +
       '<ol class="tg2">' + sorted.map(function (k, i) { var t = T[k.id], cm = (d.cmts || {})[k.id] || {}; return '<li><b>' + (i + 1) + '位　' + t.pts + '点</b>（特' + t.toku.length + '・並' + t.nami.length + '・予' + t.yo.length + '）<br><span class="k9">' + esc(k.a) + '</span>　' + esc(k.haigo) + (Object.keys(cm).length ? '<ul class="fl-list">' + Object.keys(cm).map(function (u) { return '<li>' + esc(cm[u].haigo || '') + '：' + esc(cm[u].text) + '</li>'; }).join('') + '</ul>' : '') + '</li>'; }).join('') + '</ol></div>';
     monReport[id] = txt;
     return h;
   }
-  var monReport = {};
+  var monReport = {}, monRev = {};
   function monSubmit() {
     if (!db || !myId) { toast('登録すると投句できます'); return; }
     var id = monMonth || monId(); if (monPhase(id) !== 'entry') { toast('投句は' + monEnds(id).e + '日までです'); return; }
@@ -5173,17 +5196,18 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       h += '<p class="note" style="margin:10px 0 4px"><b>' + esc(c) + '</b>　' + inCat.filter(function (b) { return got.indexOf(b.id) >= 0; }).length + '/' + inCat.length + '</p><div class="bdgs">' + inCat.map(function (b) { return '<span class="bdg' + (got.indexOf(b.id) >= 0 ? ' on' : '') + '" title="' + esc(b.hint) + '">' + esc(b.name) + '</span>'; }).join('') + '</div>';
     });
     var monWins = trophies.filter(function (x) { return (x.kind === '月例句会' || x.kind === 'すその句会（月例）'); }).length, rk = monRank(monWins);
+    if (kansho.length) h += '<div class="panel"><b>🔍 鑑賞賞：' + kansho.length + '回</b><p class="note">その月に、いちばん多く評を書いた人に贈られます。</p></div>';
     if (monWins) h += '<div class="panel"><b>月例句会の称号：' + esc(rk) + '</b><p class="note">優勝' + monWins + '回。特待生（1回）→ 名人（3回）→ 天位（6回）。</p></div>';
     h += '<h3 class="sec">トロフィー<small>' + trophies.length + '個</small></h3>' + (trophies.length ? '<div class="shelf">' + trophies.slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); }).map(function (x) { return '<div class="tcup">' + TROPHY_SVG + '<span>' + esc(x.kind || '') + '<br>' + esc(x.ch || '') + '</span>' + (x.a ? '<button class="link" data-act="card" data-ck="' + esc(ckSet('tr-' + x.id, { text: plain(String(x.a || '') + String(x.b || '') + String(x.c || '')), haigo: haigo, sub: (x.kind || '') + '　' + (x.ch || ''), badge: (x.pts || 0) + '点', trophy: true })) + '" data-style="trophy">🏆 画像にする</button>' : '') + '</div>'; }).join('') + '</div>' : '<p class="note">句会で最高点をとると、ここに飾られます。</p>');
     return h;
   }
   /* ---- トロフィー・バッジ・裾野だより ---- */
   var TROPHY_SVG = '<svg viewBox="0 0 64 64" role="img" aria-label="トロフィー" xmlns="http://www.w3.org/2000/svg"><path d="M18 8h28v14c0 10-6 17-14 17S18 32 18 22z" fill="#e8b838"/><path d="M18 12H8c0 9 4 14 11 15M46 12h10c0 9-4 14-11 15" fill="none" stroke="#c8901a" stroke-width="3" stroke-linecap="round"/><rect x="29" y="38" width="6" height="10" fill="#c8901a"/><path d="M21 54h22l-3-6H24z" fill="#e8b838"/><rect x="17" y="54" width="30" height="5" rx="2" fill="#a8741a"/><path d="M32 13l2.4 5 5.4.8-3.9 3.8.9 5.4-4.8-2.6-4.8 2.6.9-5.4-3.9-3.8 5.4-.8z" fill="#fff6d6"/></svg>';
-  function awardTrophy(id, info) {
+  function awardTrophy(id, info, msg) {
     if (!db || !myId || awarded[id] || trophies.some(function (t) { return t.id === 'trophy-' + id; })) return;
     awarded[id] = 1;
     var rec = { trophy: 1, at: Date.now() }; for (var k in info) rec[k] = info[k];
-    db.collection('data/users/' + myId).doc('trophy-' + id).set(rec).then(function () { toast('優勝おめでとうございます！ トロフィーをマイページに飾りました'); }).catch(function () { awarded[id] = 0; });
+    db.collection('data/users/' + myId).doc('trophy-' + id).set(rec).then(function () { toast(msg || '優勝おめでとうございます！ トロフィーをマイページに飾りました'); }).catch(function () { awarded[id] = 0; });
   }
   /* 優勝の句碑：画像を一度だけ描いて、おぼえておく（render のたびに描きなおさない） */
   var kuhiCache = {}, kuhiShown = {};
@@ -6454,6 +6478,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       drafts['s:' + tgt] = { a: pj.a, b: '', c: '' }; touched['s:' + tgt] = 1;
       toast('句を入れました。内容をたしかめて、「この句を出す」を押してください'); render();
     }
+    else if (act === 'mon-rev') { monRev[t.dataset.id] = Math.max(0, +t.dataset.v || 0); render(); }
     else if (act === 'inv-off') { inviteSid = ''; render(); }
     else if (act === 'sback') { current = null; if (fromArch) { fromArch = false; page = 'archive'; } render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'open') { fromArch = false; current = t.dataset.sid; showInv = false; render(); }
@@ -6928,7 +6953,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       var all = s.docs.map(function (d) { var o = d.data(); o.id = d.id; return o; });
       mine = all.filter(function (o) { return o.series; });
       memos = all.filter(function (o) { return o.memo; }).sort(function (a, b) { return (b.at || 0) - (a.at || 0); });
-      trophies = all.filter(function (o) { return o.trophy; });
+      trophies = all.filter(function (o) { return o.trophy && o.kind !== '鑑賞賞'; }); kansho = all.filter(function (o) { return o.trophy && o.kind === '鑑賞賞'; });
       mineById = {}; mine.forEach(function (e) { mineById[e.id] = e; });
       renkans = all.filter(function (o) { return o.renkan; });
       hists = all.filter(function (o) { return o.hist; }); histById = {}; hists.forEach(function (o) { histById[o.rid] = 1; });
