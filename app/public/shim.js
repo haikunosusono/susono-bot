@@ -62,7 +62,7 @@
     if (!gate) { gate = document.createElement('div'); gate.id = 'fb-gate'; document.body.appendChild(gate); }
     var email = (gate.querySelector('#fb-email') || {}).value || '';
     var h = '<div class="card"><h1>俳句の<ruby>裾野<rt>すその</rt></ruby></h1><p class="fb-tag">俳句の筋力トレーニング ・ みんなの句会広場</p>';
-    if (mode !== 'reset') h += '<p class="note" style="margin:0 0 10px">🍂 俳句を持ちよって、みんなで詠み合う広場です。毎晩21:00の「すその句会」、ボットとあそぶ「ひとりで句会」、フレーズと季語でつくる「句づくり」。はじめてでも、チュートリアルつきで安心です。</p>';
+    if (mode !== 'reset') h += '<p class="note" style="margin:0 0 10px">🍂 俳句を持ちよって、みんなで詠み合う広場です。毎晩21:00の「すその句会」、ボットとあそぶ「句会の練習」、フレーズと季語でつくる「句づくり」。はじめてでも、チュートリアルつきで安心です。</p>';
     if (mode === 'reset') {
       h += '<p class="note" style="margin:0 0 6px">登録したメールアドレスに、パスワードを決めなおすための案内を送ります。</p>' +
         '<label for="fb-email">メールアドレス</label><input type="email" id="fb-email" autocomplete="email" value="' + esc(email) + '">' +
