@@ -571,6 +571,7 @@ h3.sec { font-size: 1rem; }
 .hero-now { margin: 0 0 6px; font-size: .86rem; color: var(--accent); font-weight: 600; } .hero-now b { font-size: 1rem; } .hero-now small { color: var(--ink-soft); font-weight: 400; } .hero-now .dot { display: inline-block; width: .55em; height: .55em; border-radius: 50%; background: var(--accent2); margin-right: .4em; animation: nowp 1.6s ease-in-out infinite; }
 @keyframes nowp { 50% { opacity: .35; } } @media (prefers-reduced-motion: reduce) { .hero-now .dot { animation: none; } }
 .hero-sub2 { margin: 0 0 6px; font-size: .74rem; color: var(--ink-soft); display: flex; gap: .2em 1.2em; flex-wrap: wrap; } .hero-sub2 small { font-size: .74rem; }
+.exitcard, .after { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--rc2); box-shadow: 0 1px 4px rgba(60,50,30,.06); } .exitcard span, .after span, .after small { font-size: .84rem; color: var(--ink-soft); } .exitcard .btn, .after .row { align-self: flex-start; } .after .row { display: flex; gap: 8px; flex-wrap: wrap; }
 .hero-ws { display: block; text-align: center; color: var(--ink-soft); font-size: .74rem; line-height: 1.5; }
 .kteaser { display: flex; align-items: baseline; gap: .6em; flex-wrap: wrap; width: 100%; margin: 4px 0 0; padding: 10px 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); color: inherit; font: inherit; cursor: pointer; text-align: left; } .kteaser span { font-size: .78rem; color: var(--ink-soft); } .kteaser b { font-size: 1.02rem; } .kteaser small { margin-left: auto; font-size: .74rem; color: var(--accent); }
 .rcard .sl { font-style: normal; display: inline-block; margin-right: .7em; padding: 0 .4em; border-radius: 8px; } .rcard .sl.on { background: var(--accent2-soft); color: var(--accent2); font-weight: 700; box-shadow: 0 0 0 1px var(--accent2) inset; } .rgrid .rcard[aria-selected="true"] .sl.on { background: rgba(255,255,255,.25); color: inherit; box-shadow: none; }
@@ -940,7 +941,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.01e';
+  var APP_VER = 'v2026.11.01f';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -4413,6 +4414,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
           '<div class="cm">' + (d.cm[i] || []).map(function (c) { return '<div class="cmi"><b>' + esc(demoName(c.b)) + '</b><span class="cmtag' + (c.tone === 'きびしく' ? ' kb' : '') + '">' + esc(c.tone) + '</span><span class="cmtag">' + esc(c.part) + '</span>' + esc(c.text) + '</div>'; }).join('') + '</div></article>';
       }).join('') + '</div>';
       h += penSay('これで、句会の練習はおしまいです。いまは、作者の名前を明かしました。本番の「定例句会」では、人どうしで、選評を書き合います。', d.saved ? (d.prep ? '用意した句だったので、ストッ句には入れていません。参加した句会には、数えました。' : 'あなたの句は、「ストッ句」に残りました。参加した句会として、数えられます。') : (!myId ? '登録すると、出した句が「ストッ句」に残り、参加した句会として数えられます。毎晩9時の「定例句会」にも出られます。' : ''));
+      h += demoExit();
       h += myId ? '<div class="actions"><button class="btn primary" data-act="demo-again">もう一度（ボット' + n + '名）</button><button class="btn" data-act="demo-stock">ストッ句を見る</button><button class="btn" data-act="demo-end">句会の一覧へ</button></div>'
         : '<div class="actions"><button class="btn primary" data-act="fbgate">登録してはじめる（メールだけ・無料）</button><button class="btn" data-act="demo-again">もう一度（ボット' + n + '名）</button><button class="btn" data-act="demo-end">もどる</button></div>';
     }
@@ -5636,6 +5638,22 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var hr = online >= 1 ? '<small class="hero-here">いま ' + online + '人が、ここにいます</small>' : '';
     return '<p class="hero-now' + (on ? ' live' : '') + '">' + h + '</p>' + (pl || hr ? '<p class="hero-sub2">' + pl + hr + '</p>' : '');
   }
+  /* 練習から本番への出口：つぎの行き先を、ひとこと */
+  function demoExit() {
+    var i = heroNowInfo(), t = i.live ? i.live : i.next; if (!t) return '';
+    var line = i.live ? 'いま、' + teiSlotName(t.dn, t.h) + '（' + t.h + '時）の時間です' : (t.dn === dayNum() ? '本番は、今夜21時の、すその句会です' : '本番は、あすの21時の、すその句会です');
+    return '<div class="exitcard"><b>🏮 ' + esc(line) + '</b><span>練習で温まったら、そのまま本番へ。見学だけでも大丈夫です。</span><button class="btn primary" data-act="demo-real">本番の句会へ ›</button></div>';
+  }
+  /* 終わった直後のひと押し：さっき出した回の結果と、あすの兼題 */
+  function vAfter() {
+    if (!myId) return '';
+    var now = Date.now(), q = sessions.filter(function (x) { return x.tei && x.status === 'done' && x.entries && x.entries[myId] && now - teiStartMs(x) < 4 * 3600000; }).sort(function (a, b) { return teiStartMs(b) - teiStartMs(a); })[0];
+    if (!q) return '';
+    var n = dayNum() + 1, sr = plan(n).series;
+    return '<section class="after"><b>🌙 ' + esc(teiSlotName(dn(q.date), q.slot)) + '、おつかれさまでした</b><span>結果と、みんなの選評は、いつでも見返せます。</span>' +
+      '<div class="row"><button class="btn primary" data-act="hist-open-k" data-sid="' + esc(q.id) + '">結果を見る ›</button><button class="btn" data-act="page" data-p="archive">句会アーカイブ</button></div>' +
+      '<small>あすの兼題：<b>' + esc(promptFor(sr, n)) + '</b>（' + esc(SER[sr].name) + '）</small></section>';
+  }
   function vToday() {
     var n = dayNum(), sr = plan(n).series;
     return '<button class="kteaser" data-act="tab" data-t="solo"><span>📝 今日の兼題</span><b>' + esc(promptFor(sr, n)) + '</b><small>' + esc(SER[sr].name) + ' ›</small></button>';
@@ -5794,7 +5812,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     } else {
       var st = streak();
       body = '<div class="top"><div><h1 class="brand">俳句の裾野<span class="team">（チーム裾野）</span></h1><div class="tagline">楽しくなければ俳句じゃないぜ！（いつき組）</div></div></div>' +
-        vHero() + vLive() + vRoomCards() +
+        vHero() + vAfter() + vLive() + vRoomCards() +
         (roomOpen ? '<div id="room-body" class="roombody">' + (tab === 'solo' ? vDeck() : '') + (tab === 'diary' ? vDiary() : tab === 'solo' ? vSolo() : tab === 'bot' ? vBotRoom() : tab === 'gohyo' ? vGohyo() : tab === 'flat' ? vFlat() : tab === 'monthly' ? vMonthly() : vTogether()) + '</div>' : '') +
         vOther() + vFooter();
       if (dbState === 'none') body += '<p class="note">保存先につながっていません。ページを読みこみなおしてください。</p>';
@@ -6427,6 +6445,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'demo-fin') { if (demo.my.toku < 0 || demo.my.nami < 0) return; markFirst('f_demo'); demoFin(); render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'demo-stock') { demo = null; tab = 'solo'; render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'demo-end') { demo = null; render(); }
+    else if (act === 'demo-real') { demo = null; trial = null; page = ''; current = ''; tab = 'together'; lastTabSeen = tab; roomOpen = true; render(); try { var rb2 = document.getElementById('room-body'); if (rb2) rb2.scrollIntoView({ block: 'start' }); } catch (_) {} }
     else if (act === 'tk-start') { trial = null; demo = null; page = ''; tkStart(); render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'tk-end') { tsuku = null; render(); }
     else if (act === 'tk-again') { tkStart(); tsuku.step = 1; render(); try { window.scrollTo(0, 0); } catch (_) {} }
