@@ -944,7 +944,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.01i';
+  var APP_VER = 'v2026.11.01j';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -5711,7 +5711,11 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function vMine() {
     if (!myId || dbState !== 'ok' || !mine) return '';
     var ym = ds(dayNum()).slice(0, 7), mo = mine.filter(function (e) { return String(e.date).indexOf(ym) === 0; }).length;
-    return '<p class="minenum">あなたのストッ句 <b>' + mine.length + '</b>句　今月作った句 <b>' + mo + '</b>句</p>';
+    /* 称号：月例句会の優勝回数（特待生1回・名人3回・天位6回）。マイページの判定と同じ数え方 */
+    var wins = trophies.filter(function (x) { return (x.kind === '月例句会' || x.kind === 'すその句会（月例）'); }).length, rk = monRank(wins);
+    var nx = wins >= 6 ? null : wins >= 3 ? ['天位', 6] : wins >= 1 ? ['名人', 3] : ['特待生', 1];
+    var tl = nx ? (rk ? '月例句会の称号：' + rk + '　' : '') + '次の称号『' + nx[0] + '』まで、月例句会の優勝あと <b>' + (nx[1] - wins) + '</b>回' : '月例句会の称号：' + rk;
+    return '<p class="minenum">あなたのストッ句 <b>' + mine.length + '</b>句　今月作った句 <b>' + mo + '</b>句<br><small>' + tl + '</small></p>';
   }
   function vToday() {
     var n = dayNum(), sr = plan(n).series;
