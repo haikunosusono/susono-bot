@@ -572,6 +572,7 @@ h3.sec { font-size: 1rem; }
 @keyframes nowp { 50% { opacity: .35; } } @media (prefers-reduced-motion: reduce) { .hero-now .dot { animation: none; } }
 .hero-sub2 { margin: 0 0 6px; font-size: .74rem; color: var(--ink-soft); display: flex; gap: .2em 1.2em; flex-wrap: wrap; } .hero-sub2 small { font-size: .74rem; }
 .exitcard, .after { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--rc2); box-shadow: 0 1px 4px rgba(60,50,30,.06); } .exitcard span, .after span, .after small { font-size: .84rem; color: var(--ink-soft); } .exitcard .btn, .after .row { align-self: flex-start; } .after .row { display: flex; gap: 8px; flex-wrap: wrap; }
+.minenum { margin: 6px 2px 0; font-size: .82rem; color: var(--ink-soft); } .minenum b { color: var(--accent); font-size: 1rem; }
 .hero-ws { display: block; text-align: center; color: var(--ink-soft); font-size: .74rem; line-height: 1.5; }
 .kteaser { display: flex; align-items: baseline; gap: .6em; flex-wrap: wrap; width: 100%; margin: 4px 0 0; padding: 10px 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); color: inherit; font: inherit; cursor: pointer; text-align: left; } .kteaser span { font-size: .78rem; color: var(--ink-soft); } .kteaser b { font-size: 1.02rem; } .kteaser small { margin-left: auto; font-size: .74rem; color: var(--accent); }
 .rcard .sl { font-style: normal; display: inline-block; margin-right: .7em; padding: 0 .4em; border-radius: 8px; } .rcard .sl.on { background: var(--accent2-soft); color: var(--accent2); font-weight: 700; box-shadow: 0 0 0 1px var(--accent2) inset; } .rgrid .rcard[aria-selected="true"] .sl.on { background: rgba(255,255,255,.25); color: inherit; box-shadow: none; }
@@ -941,7 +942,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.01f';
+  var APP_VER = 'v2026.11.01g';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -5654,6 +5655,12 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<div class="row"><button class="btn primary" data-act="hist-open-k" data-sid="' + esc(q.id) + '">結果を見る ›</button><button class="btn" data-act="page" data-p="archive">句会アーカイブ</button></div>' +
       '<small>あすの兼題：<b>' + esc(promptFor(sr, n)) + '</b>（' + esc(SER[sr].name) + '）</small></section>';
   }
+  /* 自分の句の数（ストッ句にある句。ログイン中だけ） */
+  function vMine() {
+    if (!myId || dbState !== 'ok' || !mine) return '';
+    var ym = ds(dayNum()).slice(0, 7), mo = mine.filter(function (e) { return String(e.date).indexOf(ym) === 0; }).length;
+    return '<p class="minenum">あなたのストッ句 <b>' + mine.length + '</b>句　今月作った句 <b>' + mo + '</b>句</p>';
+  }
   function vToday() {
     var n = dayNum(), sr = plan(n).series;
     return '<button class="kteaser" data-act="tab" data-t="solo"><span>📝 今日の兼題</span><b>' + esc(promptFor(sr, n)) + '</b><small>' + esc(SER[sr].name) + ' ›</small></button>';
@@ -5812,7 +5819,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     } else {
       var st = streak();
       body = '<div class="top"><div><h1 class="brand">俳句の裾野<span class="team">（チーム裾野）</span></h1><div class="tagline">楽しくなければ俳句じゃないぜ！（いつき組）</div></div></div>' +
-        vHero() + vAfter() + vLive() + vRoomCards() +
+        vHero() + vMine() + vAfter() + vLive() + vRoomCards() +
         (roomOpen ? '<div id="room-body" class="roombody">' + (tab === 'solo' ? vDeck() : '') + (tab === 'diary' ? vDiary() : tab === 'solo' ? vSolo() : tab === 'bot' ? vBotRoom() : tab === 'gohyo' ? vGohyo() : tab === 'flat' ? vFlat() : tab === 'monthly' ? vMonthly() : vTogether()) + '</div>' : '') +
         vOther() + vFooter();
       if (dbState === 'none') body += '<p class="note">保存先につながっていません。ページを読みこみなおしてください。</p>';
