@@ -574,6 +574,7 @@ h3.sec { font-size: 1rem; }
 .exitcard, .after { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--rc2); box-shadow: 0 1px 4px rgba(60,50,30,.06); } .exitcard span, .after span, .after small { font-size: .84rem; color: var(--ink-soft); } .exitcard .btn, .after .row { align-self: flex-start; } .after .row { display: flex; gap: 8px; flex-wrap: wrap; }
 .minenum { margin: 6px 2px 0; font-size: .82rem; color: var(--ink-soft); } .minenum b { color: var(--accent); font-size: 1rem; }
 .rinv { margin: 6px 4px 0; text-align: right; } .rinv .link { font-size: .8rem; }
+.onsu { margin: 2px 2px 0; color: var(--ink-soft); font-size: .82rem; } .kgchk { margin: 0 2px; color: var(--accent); font-size: .82rem; } .onsu:empty, .kgchk:empty { display: none; }
 .hero-ws { display: block; text-align: center; color: var(--ink-soft); font-size: .74rem; line-height: 1.5; }
 .kteaser { display: flex; align-items: baseline; gap: .6em; flex-wrap: wrap; width: 100%; margin: 4px 0 0; padding: 10px 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); color: inherit; font: inherit; cursor: pointer; text-align: left; } .kteaser span { font-size: .78rem; color: var(--ink-soft); } .kteaser b { font-size: 1.02rem; } .kteaser small { margin-left: auto; font-size: .74rem; color: var(--accent); }
 .rcard .sl { font-style: normal; display: inline-block; margin-right: .7em; padding: 0 .4em; border-radius: 8px; } .rcard .sl.on { background: var(--accent2-soft); color: var(--accent2); font-weight: 700; box-shadow: 0 0 0 1px var(--accent2) inset; } .rgrid .rcard[aria-selected="true"] .sl.on { background: rgba(255,255,255,.25); color: inherit; box-shadow: none; }
@@ -943,7 +944,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.01h';
+  var APP_VER = 'v2026.11.01i';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1190,6 +1191,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (showKigo) h += kigoChips() + '<p class="note">ヒントです。季節の分け方は歳時記で確かめてください。</p>';
     h += oneBox('f-a', 'a', 'cnt-a', d.a);
     h += rubyBar() + '<div class="tan pv" id="pv">' + ku(d) + '</div>';
+    if (t.series === 'd') { h += '<p class="note onsu" id="onsu" aria-live="polite"></p><p class="note kgchk" id="kgchk"></p>'; k5Load(function () { try { updateOnsu(draftFor(target())); } catch (_) {} }); }
     h += '<p class="chk no" id="chk"></p><p class="note">字数は目安です。1〜2音の字余り・字足らずは気にしなくて大丈夫。</p>';
     h += '<p class="note">この句の手ごたえは？ かんぺき＝うまくできた・気に入っている、まあまあ＝まずまずの出来、ふつう＝ふつうの出来、あとで推敲＝あとで直したい。自分だけに見えます。</p><div class="row conf4" role="group" aria-label="自己評価">' + ['k', 'm', 'f', 'n'].map(function (c) {
       return '<button class="chip' + (d.conf === c ? ' on' : '') + '" data-act="conf" data-c="' + c + '" aria-pressed="' + (d.conf === c) + '">' + CONF[c] + '</button>';
@@ -1199,10 +1201,52 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     h += maner('p');
     return h + '</div>';
   }
+  /* ---- 作句の自習室：音数カウンター／季語チェック（助ける道具。字余り・字足らずは、まちがいではありません） ---- */
+  var ONSU_SMALL = 'ぁぃぅぇぉゃゅょゎァィゥェォャュョヮ', K5YM = null, K5KG = null;
+  function k5Lists() {
+    if (!K5 || !K5.w) return false; if (K5YM) return true;
+    K5YM = K5.w.filter(function (x) { return x[2] && /[一-龥]/.test(x[0]) && String(x[0]).length >= 2; }).sort(function (a, b) { return String(b[0]).length - String(a[0]).length; });
+    K5KG = K5.w.filter(function (x) { var w = String(x[0]); return w.length >= 3 || (w.length === 2 && /[一-龥]/.test(w)); }).sort(function (a, b) { return String(b[0]).length - String(a[0]).length; });
+    return true;
+  }
+  function onsuSeg(seg) {
+    var s = String(seg || '').replace(RB_RE, function (_, b, y) { return y; });
+    if (k5Lists()) K5YM.forEach(function (x) { if (s.indexOf(x[0]) >= 0) s = s.split(x[0]).join(x[2]); });
+    var n = 0, un = 0;
+    Array.from(s).forEach(function (c) {
+      if (/[ぁ-ゖァ-ヺー]/.test(c)) { if (ONSU_SMALL.indexOf(c) < 0) n++; }
+      else if (/[一-龥々〇]/.test(c)) un++;
+    });
+    return { n: n, un: un };
+  }
+  function onsuText(v) {
+    var segs = String(v || '').split(/[\s　]+/).filter(Boolean);
+    if (!segs.length) return '';
+    var rs = segs.map(onsuSeg), tot = 0, un = 0; rs.forEach(function (r) { tot += r.n; un += r.un; });
+    var out = rs.length > 1 ? rs.map(function (r) { return r.n; }).join('・') + '　合計 ' + tot + '音' : tot + '音';
+    if (un) out += '　（読みが分からない漢字 ' + un + '字は、数えていません。漢字《かんじ》のように読みを添えると、数えます）';
+    return out;
+  }
+  function kigoCheckText(v) {
+    var t = plain(String(v || '')).replace(/[\s　]+/g, ''); if (!t || !k5Lists()) return '';
+    var found = [], rest = t;
+    for (var i = 0; i < K5KG.length && found.length < 3; i++) {
+      var x = K5KG[i], w = String(x[0]); if (rest.indexOf(w) < 0) continue;
+      rest = rest.replace(w, '　'); var se = String((K5.k[x[1]] || '').split('|')[0] || ''); found.push(w + (se ? '（' + se + '）' : ''));
+    }
+    return found.length ? '季語：' + found.join('、') : '';
+  }
+  function updateOnsu(d) {
+    var a = document.getElementById('onsu'), b = document.getElementById('kgchk'); if (!a && !b) return;
+    var txt = [d.a, d.b, d.c].join('　');
+    if (a) a.textContent = onsuText(txt);
+    if (b) b.textContent = kigoCheckText(txt);
+  }
   function updateForm() {
     var t = target(), d = drafts[t.id]; if (!d) return;
     ['a', 'b', 'c'].forEach(function (k) { var el = document.getElementById('cnt-' + k); if (el) el.textContent = len(d[k]) + '字'; });
     var pv = document.getElementById('pv'); if (pv) pv.innerHTML = ku(d);
+    if (t.series === 'd') updateOnsu(d);
     var chk = document.getElementById('chk');
     if (chk) {
       if (t.series === 'm' || t.series === 'd') { chk.className = 'chk no'; chk.textContent = ''; return; }
