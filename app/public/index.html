@@ -947,7 +947,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.01x';
+  var APP_VER = 'v2026.11.01y';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1182,6 +1182,11 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     return '<div class="today"><span class="ser">今日のメニュー ｜ ' + SER[s].name + '</span><span class="ch' + (s === 'm' ? ' theme' : '') + '">' + esc(promptFor(s, n)) + '</span>' + (hint ? '<span class="hint">ヒント：' + esc(hint) + '</span>' : '') + '<span class="st">' + st + '</span></div>';
   }
 
+  /* 今夜（21時以降）の、まだ始まっていない定例句会。お題が自由（当季雑詠）かどうかは、その回の記録（なければ、つくりかた）で確かめる */
+  function tonightSlot() { var t = Date.now(), r = null; teiSlotsFar(1).forEach(function (x) { if (!r && x.dn === dayNum() && x.h >= 21 && x.start > t) r = x; }); return r; }
+  function teiFreeTopic(sl) { var d = sl && (teiFind(sl.sid) || teiDoc(sl)); return !!(d && d.ch === '当季雑詠' && d.series === 'z'); }
+  function vTonightNote() { var sl = tonightSlot(); if (!myId || !sl || teiState().kind !== 'accept' || !teiFreeTopic(sl)) return ''; /* 開催中のあいだは、つぎの回への投句はお休み */ return '<p class="note tonight">今日つくった句は、今夜の句会にも出せます（今夜のお題は自由です）</p>'; }
+  function cdMin(ms) { var m = Math.max(0, Math.ceil(ms / 60000)), h = Math.floor(m / 60); m = m % 60; return h ? 'あと ' + h + '時間' + m + '分' : 'あと ' + m + '分'; }
   function vComposer() {
     var t = target(), d = draftFor(t);
     var exists = !!mineById[t.id];
@@ -1201,6 +1206,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     }).join('') + '</div>';
     h += '<button class="btn primary" data-act="save">' + (exists ? '直して残す' : 'ストッ句に入れる') + '</button>';
     if (!myId || !db) h += '<p class="note">ログインしていないため、いまは保存できません。</p>';
+    h += vTonightNote();
     h += maner('p');
     return h + '</div>';
   }
@@ -5834,8 +5840,13 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       var mi = kInvolved(x);
       items.push('<li><button class="sess" data-act="live-k" data-sid="' + esc(x.id) + '"><span class="row2"><span class="kd">' + (mi ? 'あなたの句会が、進行中です' : 'いま、定例句会が進行中です') + '</span>' + pill(x.status, x) + '</span><span class="row2 sub"><span>' + kaidai(x) + '　' + count(x) + '句</span><span class="me">' + (mi ? 'ひらく' : '見学もどうぞ') + '</span></span></button></li>');
     });
-    var live = items.some(function (x) { return !/次の定例句会/.test(x); });
-    return items.length ? '<h2 class="sec">' + (live ? 'いま、句会が開かれています<small>定例句会は、見学もできます</small>' : '次の句会に、一句どうぞ<small>各回、開始の時刻までに投句を。時刻に、句会が始まります</small>') + '</h2><p class="note">ここから、句を出して参加できます</p><ul class="list">' + items.join('') + '</ul>' : '';
+    var live = items.some(function (x) { return !/次の定例句会/.test(x); }), extra = '', stt = teiState();
+    if (!live && stt.kind === 'accept' && stt.slot) {
+      extra += '<p class="note dl">投句しめきりまで、<b data-cdm="' + stt.slot.start + '">' + cdMin(stt.slot.start - Date.now()) + '</b></p>';
+      var did = !!(stt.s && stt.s.entries && stt.s.entries[myId]);
+      if (myId && dbState === 'ok' && mine && mine.length >= 1 && !did) extra += '<p class="note stk"><button class="link" data-act="page" data-p="stock">ストッ句に' + mine.length + '句あります。そのまま出せます ›</button></p>';
+    }
+    return items.length ? '<h2 class="sec">' + (live ? 'いま、句会が開かれています<small>定例句会は、見学もできます</small>' : '次の句会に、一句どうぞ<small>各回、開始の時刻までに投句を。時刻に、句会が始まります</small>') + '</h2><p class="note">ここから、句を出して参加できます</p>' + extra + '<ul class="list">' + items.join('') + '</ul>' : '';
   }
   function mb(act, extra, label) { return '<button class="chip fit" data-act="' + act + '"' + extra + '>' + label + '</button>'; }
   function vMenu() {
@@ -6995,6 +7006,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     try {
       var cds = document.querySelectorAll('[data-cd]');
       for (var ci2 = 0; ci2 < cds.length; ci2++) cds[ci2].textContent = cdText(Number(cds[ci2].getAttribute('data-cd')) - Date.now());
+      var cdm = document.querySelectorAll('[data-cdm]');
+      for (var cm2 = 0; cm2 < cdm.length; cm2++) cdm[cm2].textContent = cdMin(Number(cdm[cm2].getAttribute('data-cdm')) - Date.now());
       if ((teiSig() !== lastTeiSig || (heroKey() !== lastHeroKey && !page)) && !trial && !demo && !page) render();
     } catch (_) {}
     var s = current && scur(); if (!s) return;
