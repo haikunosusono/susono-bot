@@ -948,7 +948,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.02a';
+  var APP_VER = 'v2026.11.02b';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2385,8 +2385,8 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
         return '<li class="' + (t >= start && state !== '進行中' && state !== '受付中' ? 'past' : state === '受付中' || state === '進行中' ? 'now' : '') + '"><b>' + hh + '時</b>「' + teiSlotName(n0, hh) + '」<span class="pill st-' + (state === '進行中' ? 'selecting' : state === '受付中' ? 'gathering' : 'done') + '">' + state + '</span></li>';
       }); }
       var rows2 = rowsOf(n0), allOver = teiHoursFor(n0).every(function (hh) { return t >= teiStartOf(n0, hh) + TEI_LIVE_MIN * 60000 || (teiFind(teiSid(n0, hh)) || {}).status === 'done'; });
-      h += '<details class="panel"' + (allOver ? '' : '') + '><summary>📅 きょうの時間割を見る（' + teiHoursFor(n0).length + '回）</summary><ul class="tg2 ttable">' + rows2.join('') + '</ul></details>';
-      if (allOver) h += '<details class="panel" open><summary>📅 つぎの日の時間割（' + teiHoursFor(n0 + 1).length + '回）</summary><ul class="tg2 ttable">' + rowsOf(n0 + 1).join('') + '</ul></details>';
+      h += '<details class="panel"' + (allOver ? '' : '') + '><summary>📅 きょうの時間割（' + mdLabel(n0) + '・' + WD[new Date(n0 * 86400000).getUTCDay()] + '）を見る（' + teiHoursFor(n0).length + '回）</summary><ul class="tg2 ttable">' + rows2.join('') + '</ul></details>';
+      if (allOver) h += '<details class="panel" open><summary>📅 つぎの日の時間割（' + mdLabel(n0 + 1) + '・' + WD[new Date((n0 + 1) * 86400000).getUTCDay()] + '・' + teiHoursFor(n0 + 1).length + '回）</summary><ul class="tg2 ttable">' + rowsOf(n0 + 1).join('') + '</ul></details>';
     })();
     h += vNotice();
     var shown = st.slot ? st.slot.sid : '', up = teiSlots().filter(function (x) { return x.start > t && x.sid !== shown; }).slice(0, 3);
@@ -5899,14 +5899,26 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   }
   function heroKey() { var i = heroNowInfo(); return i.live ? 'L' + i.live.sid : (i.next ? 'N' + i.next.sid : '-'); }
   function slotNow(h) { var i = heroNowInfo(); return !!(i.live && i.live.h === h); }
-  function heroNp(x) { var ss = x ? teiFind(x.sid) : null; return ss ? teiHumans(ss) : 0; }
+  /* 回の人数。ログインしていない人は句会の中身を読めないので、だれでも読める小さな記録（pub：始まった回の人数）で見る。-1＝確かめ中、-2＝わからない */
+  var pubHum = {};
+  function heroNp(x) {
+    if (!x) return 0; var ss = teiFind(x.sid); if (ss) return teiHumans(ss);
+    if (pubHum[x.sid] === undefined) { pubHum[x.sid] = -1; try { db.doc('pub/' + x.sid).get().then(function (d) { pubHum[x.sid] = d && d.exists ? ((d.data() || {}).humans || 0) : 0; render(); }).catch(function () { pubHum[x.sid] = -2; render(); }); } catch (_) { pubHum[x.sid] = -2; } }
+    return pubHum[x.sid];
+  }
+  /* 時間帯に入った回の、実際の状態：open＝開かれている／ended＝開かれて、もう終わった／off＝句を出した人がいなくて、おやすみ／unknown＝確かめ中 */
+  function slotState(x) {
+    if (!x) return 'off'; var ss = teiFind(x.sid);
+    if (ss) { var h0 = teiHumans(ss); if (!h0) return 'off'; return ss.status === 'done' ? 'ended' : 'open'; }
+    var n = heroNp(x); return n > 0 ? 'open' : n === 0 ? 'off' : 'unknown';
+  }
   /* いま案内する「つぎの回」：始まる前ならその回。始まっていても句を出した人がいない（おやすみ）なら、そのつぎの回 */
   function heroNext() {
     var i = heroNowInfo(); if (!i.live) return i.next;
-    if (heroNp(i.live) > 0) return null;
+    if (slotState(i.live) === 'open') return null;
     var t = Date.now(), n2 = null; teiSlotsFar(2).forEach(function (y) { if (!n2 && y.start > t) n2 = y; }); return n2;
   }
-  function heroJoinLabel() { var i = heroNowInfo(), n = heroNext(), x = (i.live && heroNp(i.live) > 0) ? i.live : (n && n.h !== 21 ? n : null); return x ? teiSlotName(x.dn, x.h) + 'に参加する' : '今夜の句会に参加する'; }
+  function heroJoinLabel() { var i = heroNowInfo(), n = heroNext(), x = (i.live && slotState(i.live) === 'open') ? i.live : (n && n.h !== 21 ? n : null); return x ? teiSlotName(x.dn, x.h) + 'に参加する' : '今夜の句会に参加する'; }
   /* 手順の2・3番の時刻：つぎに始まる回が21時以外（23時・25時・昼の回）のときは、その回の開始時刻に合わせる */
   function heroAimTime() { var n = heroNext(), x = (n && n.h !== 21) ? n : null, h = x ? x.h : 21; return h >= 24 ? h + ':00（夜中' + (h - 24) + '時）' : h + ':00'; }
   /* 月例句会の案内（1行）：いまの月の段階に合わせる */
@@ -5923,10 +5935,13 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var x = i.live || null, h, np = heroNp(x || i.next), on = false;
     if (x) {
       var nm = esc(teiSlotName(x.dn, x.h)) + '・' + x.h + '時';
-      if (np > 0) { on = true; h = '<span class="dot"></span>いま開催中です <small>（' + nm + '）・句を出した人 ' + np + '人</small>'; }
+      var st0 = slotState(x), n2 = null, t2 = Date.now(); teiSlotsFar(2).forEach(function (y) { if (!n2 && y.start > t2) n2 = y; });
+      var nxt = n2 ? ' <small>（つぎは ' + esc(teiSlotName(n2.dn, n2.h)) + '・' + n2.h + '時。あと <b data-cd="' + n2.start + '">' + cdText(n2.start - t2) + '</b>）</small>' : '';
+      if (st0 === 'open') { on = true; h = '<span class="dot"></span>いま開催中です <small>（' + nm + '）・句を出した人 ' + np + '人</small>'; }
+      else if (st0 === 'ended') h = nm + 'は、終わりました' + nxt;
+      else if (st0 === 'unknown') h = 'いまは、' + nm + 'の時間です' + nxt;
       else { /* 投句は開始の時刻でしめきり。始まっても句を出した人がいなければ、その回は、おやすみ */
-        var n2 = null, t2 = Date.now(); teiSlotsFar(2).forEach(function (y) { if (!n2 && y.start > t2) n2 = y; });
-        h = nm + 'は、句を出した人がいなかったため、おやすみです' + (n2 ? ' <small>（つぎは ' + esc(teiSlotName(n2.dn, n2.h)) + '・' + n2.h + '時。あと <b data-cd="' + n2.start + '">' + cdText(n2.start - t2) + '</b>）</small>' : '');
+        h = nm + 'は、句を出した人がいなかったため、おやすみです' + nxt;
       }
     } else if (i.next && i.next.h !== 21) { h = '<span class="dot"></span>いま、<b>' + esc(teiSlotName(i.next.dn, i.next.h)) + '・' + i.next.h + '時</b> に入れます <small>（あと <b data-cd="' + i.next.start + '">' + cdText(i.next.start - Date.now()) + '</b> で始まります。投句は、それまで）</small>'; on = true; }
     else if (i.next) { var tonight = i.next.dn === dayNum(); h = (tonight ? '今夜の' : 'あすの') + 'すその句会は、あと <b data-cd="' + i.next.start + '">' + cdText(i.next.start - Date.now()) + '</b> で始まります'; }
@@ -6073,7 +6088,9 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   var ROOMS = [['diary', '🌱 俳句の初心者部屋', 'はじめての一句・チュートリアルつき'], ['solo', '💪 俳筋力トレーニング部屋', 'きょうのテーマ・題詠（漢字・カタカナ）で、一日一句'], ['bot', '🐸 句会の練習', '進行になれる・鑑賞力もつける'], ['monthly', '📅 月例句会', '11月から・毎月1日に兼題・15日〆切・25日まで互選'], ['flat', '🍡 ふらっと句会', '4人そろえば、すぐ開始'], ['together', '🏮 定例句会', '毎日 21時・23時・25時／土日祝はさらに 10時・13時・15時'], ['gohyo', '🍵 合言葉で句会・吟行句会', '合言葉で集まる・見学なし']];
   /* ---- トップのカード：練習の部屋（3）と、本番の句会（3）。押すと、下にその部屋がひらく ---- */
   function roomCard(id, name, one, aim) {
-    var li = id === 'together' ? heroNowInfo().live : null, lv = !!li, lvOpen = lv && heroNp(li) > 0; return '<button class="rcard' + (lv ? ' live' : '') + '" role="tab" data-act="tab" data-t="' + id + '" aria-selected="' + (roomOpen && tab === id) + '"><b>' + name + (lv ? ' <em class="nowb">' + (lvOpen ? 'いま開催中' : 'この回はおやすみ') + '</em>' : '') + '</b><span>' + one + '</span>' + (aim ? '<small>' + aim + '</small>' : '') + '</button>';
+    var hi = id === 'together' ? heroNowInfo() : null, li = hi && hi.live, lvOpen = !!li && slotState(li) === 'open', acc = !!hi && !li && !!hi.next && hi.next.start - Date.now() <= 90 * 60000;
+    /* 印：始まる前（90分以内）＝いま受付中／開かれている＝いま開催中／おやすみ・終わった回＝印なし */
+    var badge = lvOpen ? 'いま開催中' : acc ? 'いま受付中' : ''; return '<button class="rcard' + (lvOpen ? ' live' : '') + '" role="tab" data-act="tab" data-t="' + id + '" aria-selected="' + (roomOpen && tab === id) + '"><b>' + name + (badge ? ' <em class="nowb">' + badge + '</em>' : '') + '</b><span>' + one + '</span>' + (aim ? '<small>' + aim + '</small>' : '') + '</button>';
   }
   function slotAim() {
     var d = dayNum(), sl = function (h) { return '<i class="sl' + (slotNow(h) ? ' on' : '') + '">' + h + '時 ' + teiSlotName(d, h) + '</i>'; };
