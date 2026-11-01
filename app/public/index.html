@@ -946,7 +946,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.01q';
+  var APP_VER = 'v2026.11.01r';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -5757,8 +5757,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var pl = prev ? '<small class="hero-prev">前回の' + esc(teiSlotName(dn(prev.date), prev.slot)) + '：' + teiHumans(prev) + '人・' + teiHumans(prev) + '句</small>' : '';
     var hr = online >= 1 ? '<small class="hero-here">いま ' + online + '人が、ここにいます</small>' : '';
     /* 21時以外の回を案内するときは、21時の回も、ならべて知らせる（来たのに、さびしい、をふせぐ） */
-    var shown = x || i.next, n21 = null, ex = '';
-    if (shown && shown.h !== 21) { var tn = Date.now(); teiSlotsFar(2).forEach(function (y) { if (!n21 && y.h === 21 && y.start > tn) n21 = y; }); if (n21) ex = '<p class="hero-sub2"><small>🏮 毎晩の本番は、' + (n21.dn === dayNum() ? '今夜' : 'あす') + '21時の「すその句会」です（あと <b data-cd="' + n21.start + '">' + cdText(n21.start - tn) + '</b>）。今は、ゆったり、ひとりでもどうぞ。</small></p>'; }
+    var shown = x ? null : i.next, n21 = null, ex = ''; /* 始まっている回（受付中・開催中）があるあいだは、その回が主役。出すのは、始まる前だけ */
+    if (shown && shown.h !== 21) { var tn = Date.now(); teiSlotsFar(2).forEach(function (y) { if (!n21 && y.h === 21 && y.start > tn) n21 = y; }); if (n21) ex = '<p class="hero-sub2"><small>🌙 夜の回は、' + (n21.dn === dayNum() ? '今夜' : 'あす') + '21時の「すその句会」です（あと <b data-cd="' + n21.start + '">' + cdText(n21.start - tn) + '</b>）</small></p>'; }
     return '<p class="hero-now' + (on ? ' live' : '') + '">' + h + '</p>' + (pl || hr ? '<p class="hero-sub2">' + pl + hr + '</p>' : '') + ex;
   }
   /* 練習から本番への出口：つぎの行き先を、ひとこと */
