@@ -946,7 +946,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.01r';
+  var APP_VER = 'v2026.11.01s';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2836,12 +2836,14 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       return (opened ? names.map(function (u) { return esc(nameOf(s2, u)) + 'さん'; }).join('と') : (names.length === 1 ? 'だれかが' : names.length + '人が')) + '書き込み中 …';
     }
     function cmThread(list, canC) {
-      var h2 = '';
+      var h2 = '', by = {}; list.forEach(function (c) { by[c.k] = c; });
+      /* 返信への返信も、いちばん上の評の下に、ならべる（親をたどって、おおもとを見つける） */
+      function top(c) { var x = c, n = 0; while (x && x.re && n++ < 8) { if (!by[x.re]) return ''; x = by[x.re]; } return x ? x.k : ''; }
       list.filter(function (c) { return !c.re; }).forEach(function (c) {
         h2 += cmLine(c, canC, false);
-        list.filter(function (x) { return x.re === c.k; }).slice().reverse().forEach(function (x) { h2 += cmLine(x, canC, true); });
+        list.filter(function (x) { return x.re && top(x) === c.k; }).slice().reverse().forEach(function (x) { h2 += cmLine(x, canC, true); });
       });
-      list.filter(function (c) { return c.re && !list.some(function (p) { return p.k === c.re; }); }).forEach(function (c) { h2 += cmLine(c, canC, true); });
+      list.filter(function (c) { return c.re && !top(c); }).forEach(function (c) { h2 += cmLine(c, canC, true); });
       return h2;
     }
     function art(e, isCur, num) {
@@ -6722,7 +6724,10 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       if (cmEdit[eid2] && sm.comments && sm.comments[cmEdit[eid2]] && sm.comments[cmEdit[eid2]].uid === myId) {
         var ek = cmEdit[eid2], ep = { comments: {} }; ep.comments[ek] = { text: text.slice(0, 140), ed: true }; if (pts.length) ep.comments[ek].part = pts;
         cmDraft[eid2] = ''; cmPart[eid2] = []; cmEdit[eid2] = '';
-        write(sm.id, ep).then(function () { toast('直しました'); }); return;
+        write(sm.id, ep).then(function () { toast('直しました'); });
+        /* ボットの作者宛の評・返信を直したときは、直した文に、もう一度返事を書く（同じ返事の場所に、書きかえる） */
+        try { var be1 = sm.entries && sm.entries[eid2], oc = sm.comments[ek]; if (be1 && be1.bot && eid2 !== myId && oc && oc.uid === myId) botAnswer(sm, eid2, text, ek); } catch (_) {}
+        return;
       }
       var key = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
       var cobj = {}; cobj[key] = { eid: eid2, uid: myId, text: text.slice(0, 140), tone: cmTone[eid2] || '', part: pts, at: Date.now(), re: cmReply[eid2] || '' };
