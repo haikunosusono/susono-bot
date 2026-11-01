@@ -948,7 +948,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.02c';
+  var APP_VER = 'v2026.11.02d';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -4650,8 +4650,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     } else {
       var nn = len(d.a + d.b + d.c), ok = Math.abs(nn - 17) <= 3, c = trialChk();
       h += '<div class="tan">' + ku(d) + '</div>';
-      h += penSay('おつかれさまでした。◎ ' + nn + '字の一句です。' + (ok ? '十七字前後に収まっています。すてきです。' : '十七字から、少し離れています。わざとはずす「破調」なら、それも表現のひとつ。声に出して読んで、リズムを確かめてみましょう。') + (trial.series === 'm' ? '' : (c.cls === 'ok' ? '兼題の字も入っていました。' : '兼題の字は、入りませんでした。')), '本番では、この一句に「かんぺき・まあまあ・ふつう・あとで推敲」をつけて記録に残せます。');
-      h += '<div class="actions"><button class="btn primary" data-act="trial-end">本番へ</button><button class="btn" data-act="trial-again">べつのお題で</button><button class="btn" data-act="demo-start">句会の練習も見る</button></div>';
+      h += penSay('おつかれさまでした。◎ ' + nn + '字の一句です。' + (ok ? '十七字前後に収まっています。すてきです。' : '十七字から、少し離れています。わざとはずす「破調」なら、それも表現のひとつ。声に出して読んで、リズムを確かめてみましょう。') + (trial.series === 'm' ? '' : (c.cls === 'ok' ? '兼題の字も入っていました。' : '兼題の字は、入りませんでした。')), '登録すると、この一句に「かんぺき・まあまあ・ふつう・あとで推敲」をつけて記録に残せます。');
+      h += '<div class="actions"><button class="btn primary" data-act="trial-end">定例句会へ</button><button class="btn" data-act="trial-again">べつのお題で</button><button class="btn" data-act="demo-start">句会の練習も見る</button></div>';
     }
     return h;
   }
@@ -4670,7 +4670,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       h += '<div class="panel">' + oneBox('d-a', 'da', 'dcnt-a', d.d.a) + '<div class="tan pv" id="dpv">' + ku(d.d) + '</div>' + (d.prep ? '<p class="note">こちらで用意した句です。これを、あなたの句としてお預かりします（手直ししても大丈夫です）。</p>' : '<p class="note">季語はひとつ。いまの季節のことばで詠むと、まとまりやすくなります。</p>') + '<button class="btn primary" data-act="demo-go">この句で句会をはじめる</button><div class="actions"><button class="btn" data-act="demo-draw">' + (d.prep ? '🎴 べつの句を引く' : '🎴 句をこちらで用意してもらう') + '</button></div></div>';
       h += '<p class="note">' + (d.prep ? '用意した句のときは、ストッ句には入れません（参加した句会には数えます）。' : '出した句は、「ストッ句」に残り、参加した句会として数えられます。') + '</p>' + maner('p');
     } else if (d.step === 1) {
-      h += penSay((n + 1) + '句が、作者を伏せて並びました。自分の句には入れられません。気に入った句に、特選1票・並選1票を入れましょう。直感で大丈夫です。', '本番では、選に届かなかったけれど心に残った句に、予選（点なし）の印もつけられます。');
+      h += penSay((n + 1) + '句が、作者を伏せて並びました。自分の句には入れられません。気に入った句に、特選1票・並選1票を入れましょう。直感で大丈夫です。', '定例句会では、選に届かなかったけれど心に残った句に、予選（点なし）の印もつけられます。');
       h += '<div class="board">' + d.ord.map(function (i, r) {
         var own = i === 0, btns = '';
         if (!own) btns = '<div class="pick"><button class="chip toku' + (d.my.toku === i ? ' on' : '') + '" data-act="demo-vote" data-kind="toku" data-i="' + i + '"' + (d.fin ? ' disabled' : '') + '>' + (d.my.toku === i ? '✓ ' : '') + '特選</button><button class="chip nami' + (d.my.nami === i ? ' on' : '') + '" data-act="demo-vote" data-kind="nami" data-i="' + i + '"' + (d.fin ? ' disabled' : '') + '>' + (d.my.nami === i ? '✓ ' : '') + '並選</button></div>';
@@ -4687,7 +4687,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
         return '<article class="res"><div class="tan">' + kuS(k) + '</div><div class="meta"><div class="pts">' + R.pts[i] + '<small>点</small></div>' + (R.pts[i] === R.max ? '<span class="crown">最高点</span>' : '') + '<div class="who"><span class="haigo">' + esc(demoName(i)) + '</span></div></div>' +
           '<div class="cm">' + (d.cm[i] || []).map(function (c) { return '<div class="cmi"><b>' + esc(demoName(c.b)) + '</b><span class="cmtag' + (c.tone === 'きびしく' ? ' kb' : '') + '">' + esc(c.tone) + '</span><span class="cmtag">' + esc(c.part) + '</span>' + esc(c.text) + '</div>'; }).join('') + '</div></article>';
       }).join('') + '</div>';
-      h += penSay('これで、句会の練習はおしまいです。いまは、作者の名前を明かしました。本番の「定例句会」では、人どうしで、選評を書き合います。', d.saved ? (d.prep ? '用意した句だったので、ストッ句には入れていません。参加した句会には、数えました。' : 'あなたの句は、「ストッ句」に残りました。参加した句会として、数えられます。') : (!myId ? '登録すると、出した句が「ストッ句」に残り、参加した句会として数えられます。毎晩9時の「定例句会」にも出られます。' : ''));
+      h += penSay('これで、句会の練習はおしまいです。いまは、作者の名前を明かしました。「定例句会」では、人どうしで、選評を書き合います。', d.saved ? (d.prep ? '用意した句だったので、ストッ句には入れていません。参加した句会には、数えました。' : 'あなたの句は、「ストッ句」に残りました。参加した句会として、数えられます。') : (!myId ? '登録すると、出した句が「ストッ句」に残り、参加した句会として数えられます。毎晩9時の「定例句会」にも出られます。' : ''));
       h += demoExit();
       h += myId ? '<div class="actions"><button class="btn primary" data-act="demo-again">もう一度（ボット' + n + '名）</button><button class="btn" data-act="demo-stock">ストッ句を見る</button><button class="btn" data-act="demo-end">句会の一覧へ</button></div>'
         : '<div class="actions"><button class="btn primary" data-act="fbgate">登録してはじめる（メールだけ・無料）</button><button class="btn" data-act="demo-again">もう一度（ボット' + n + '名）</button><button class="btn" data-act="demo-end">もどる</button></div>';
@@ -5958,8 +5958,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   /* 練習から本番への出口：つぎの行き先を、ひとこと */
   function demoExit() {
     var i = heroNowInfo(), t = i.live ? i.live : i.next; if (!t) return '';
-    var line = i.live ? 'いま、' + teiSlotName(t.dn, t.h) + '（' + t.h + '時）の時間です' : (t.dn === dayNum() ? '本番は、今夜21時の、すその句会です' : '本番は、あすの21時の、すその句会です');
-    return '<div class="exitcard"><b>🏮 ' + esc(line) + '</b><span>練習で温まったら、そのまま本番へ。見学だけでも大丈夫です。</span><button class="btn primary" data-act="demo-real">本番の句会へ ›</button></div>';
+    var line = i.live ? 'いま、' + teiSlotName(t.dn, t.h) + '（' + t.h + '時）の時間です' : (t.dn === dayNum() ? '今夜21時は、すその句会です' : 'あすの21時は、すその句会です');
+    return '<div class="exitcard"><b>🏮 ' + esc(line) + '</b><span>練習で温まったら、そのまま定例句会へ。見学だけでも大丈夫です。</span><button class="btn primary" data-act="demo-real">定例句会へ ›</button></div>';
   }
   /* 終わった直後のひと押し：さっき出した回の結果と、あすの兼題 */
   function vAfter() {
