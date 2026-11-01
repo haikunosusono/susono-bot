@@ -513,6 +513,7 @@ select { width: 100%; min-height: 44px; padding: .5em .7em; background: var(--bg
 .tkshelf .chip small { margin-left: .35em; opacity: .65; font-size: .72em; }
 .tkplaced .chip small { margin-left: .35em; opacity: .75; font-size: .72em; }
 .verbtn{font:inherit;font-size:.72rem;border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);border-radius:99px;padding:2px 9px;margin-left:.4em;cursor:pointer;vertical-align:middle}.verbtn.ok{color:#2f7a5e;border-color:#bcd9cb;background:#eef7f2}.verbtn.new{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+.topver { display: flex; justify-content: flex-end; align-items: center; margin: -10px 0 -6px; }
 .ver { margin-left: .8em; font-size: .68rem; color: var(--ink-soft); opacity: .75; letter-spacing: .04em; }
 /* 数字が等幅の書体で（丸ゴシックは数字の幅がばらつき、カウントダウンがかくかく動く） */
 .cd, .tmr-row b, .nk-cd b, .cnt, .cnt2, .pts, .bar b, .stats b { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Roboto, Arial, sans-serif; font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }
@@ -946,7 +947,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.01s';
+  var APP_VER = 'v2026.11.01t';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -5909,6 +5910,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       roomCard('monthly', '📅 月例句会', '月に一度の句会', '11月から・毎月1日に兼題') +
       '</div><p class="rinv"><button class="link" data-act="flat-inv">🔗 ふらっと句会に、だれかを誘う（文をコピー）</button></p></section>';
   }
+  function vVer() { return '<div class="topver"><span class="ver">' + APP_VER + '</span> <button class="verbtn' + (newVer ? ' new' : verChecked ? ' ok' : '') + '" data-act="app-reload" title="アプリを最新にする">' + (newVer ? '🔄 新しい版があります・更新してください' : verChecked ? '✅ いま最新版です' : verErr ? '⚠️ 確かめられませんでした・押すと更新（' + esc(verErr) + '）' : '🔄 更新を確かめています…') + '</button></div>'; }
   function vOther() {
     var st = streak(), n = dayNum();
     var chip = function (a, d, label) { return '<button class="link" data-act="' + a + '"' + d + '>' + label + '</button>'; };
@@ -5916,7 +5918,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<div class="misc-row">' + chip('tab', ' data-t="gohyo"', '🍵 合言葉で句会・吟行句会') + chip('page', ' data-p="kigo"', '🔍 季語をしらべる') + chip('page', ' data-p="stock"', '📒 ストッ句') + chip('page', ' data-p="gloss"', '📖 用語集') + chip('page', ' data-p="contact"', '📮 ご意見・ご要望') + chip('tut', '', '🌱 俳句はじめての人へ') + '</div>' +
       '<details class="panel misc-d"' + (news.length ? ' open' : '') + '><summary>今日のコツ・名句・おしらせ</summary>' + vNews() + vMeiku() + '</details>' +
       vGuest() + vStats() + vMemoQ(false) + vBeginner() + vMenu() +
-      '<div class="misc-row sm2"><span class="date">' + esc(fullLabel(n)) + '<span class="ver">' + APP_VER + '</span> <button class="verbtn' + (newVer ? ' new' : verChecked ? ' ok' : '') + '" data-act="app-reload" title="アプリを最新にする">' + (newVer ? '🔄 新しい版があります・更新してください' : verChecked ? '✅ いま最新版です' : verErr ? '⚠️ 確かめられませんでした・押すと更新（' + esc(verErr) + '）' : '🔄 更新を確かめています…') + '</button></span>' +
+      '<div class="misc-row sm2"><span class="date">' + esc(fullLabel(n)) + '</span>' +
       (st > 0 ? '<span class="streak">連続 ' + st + '日</span>' : '') + '<button class="link" data-act="yoko" aria-pressed="' + yoko + '">' + (yoko ? '縦書きで見る' : '横書きで見る') + '</button>' +
       '<span class="appurl"><a href="https://haikunosusono.web.app" target="_blank" rel="noopener">haikunosusono.web.app</a><button class="link" data-act="copy-url">コピー</button></span></div>' +
       (window.fbLogout && myId ? '<div class="who-bar"><span>ログイン中：<b>' + esc(haigo.trim() || (window.fbUserEmail || '')) + '</b>' + (haigo.trim() && window.fbUserEmail ? '<small>（' + esc(window.fbUserEmail) + '）</small>' : '') + '</span><button class="btn small" data-act="fblogout">ログアウト</button></div>' : '') +
@@ -5946,7 +5948,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       body = '<div class="actions"><button class="link" data-act="page" data-p="">← もどる</button></div>' + pageView();
     } else {
       var st = streak();
-      body = '<div class="top"><div><h1 class="brand">俳句の裾野<span class="team">（チーム裾野）</span></h1><div class="tagline">楽しくなければ俳句じゃないぜ！（いつき組）</div></div></div>' +
+      body = '<div class="top"><div><h1 class="brand">俳句の裾野<span class="team">（チーム裾野）</span></h1><div class="tagline">楽しくなければ俳句じゃないぜ！（いつき組）</div></div></div>' + vVer() +
         vHero() + vMine() + vAfter() + vLive() + vRoomCards() +
         (roomOpen ? '<div id="room-body" class="roombody">' + (tab === 'solo' ? vDeck() : '') + (tab === 'diary' ? vDiary() : tab === 'solo' ? vSolo() : tab === 'bot' ? vBotRoom() : tab === 'gohyo' ? vGohyo() : tab === 'flat' ? vFlat() : tab === 'monthly' ? vMonthly() : vTogether()) + '</div>' : '') +
         vOther() + vFooter();
