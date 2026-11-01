@@ -947,7 +947,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.01v';
+  var APP_VER = 'v2026.11.01w';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -5803,7 +5803,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<ul class="hero-facts" aria-label="ひと目でわかる情報"><li>🕘 <b>毎晩21:00</b>開始</li><li>✍️ <b>一句</b>持参</li><li>⏱ 所要 <b>約60分</b></li><li>👀 登録なしで' + '見学' + 'OK</li><li>📧 登録は<b>メールだけ・無料</b></li></ul>' +
       '<div class="hero-cta"><button class="btn primary big" data-act="' + (myId ? 'hero-join' : 'fbgate') + '">' + heroJoinLabel() + '</button>' +
       (myId ? '' : '<button class="link" data-act="hero-watch">登録なしで見学する</button><small class="hero-ws">見学では、句会のようすを、はじめから見られます</small>') + '</div>' +
-      '<ol class="hero-steps"><li>一句つくる（お題は自由。今日の' + '兼題' + 'からでもOK）</li><li>21:00に、このアプリをひらく</li><li>席に案内されるので、みんなで詠み合う</li></ol>' +
+      '<ol class="hero-steps"><li>一句つくる（お題は自由。今日の' + '兼題' + 'からでもOK）</li><li>21:00までに、このアプリで投句する</li><li>21:00に句会が始まる。席に案内されるので、みんなで詠み合う</li></ol>' +
       '<p class="note hero-sub">はじめてでも、ふりがなとチュートリアルつきです。</p>' + MTN + '</section>' + vToday() + vMonthlyLine();
   }
   function vGuest() {
@@ -5835,7 +5835,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       items.push('<li><button class="sess" data-act="live-k" data-sid="' + esc(x.id) + '"><span class="row2"><span class="kd">' + (mi ? 'あなたの句会が、進行中です' : 'いま、定例句会が進行中です') + '</span>' + pill(x.status, x) + '</span><span class="row2 sub"><span>' + kaidai(x) + '　' + count(x) + '句</span><span class="me">' + (mi ? 'ひらく' : '見学もどうぞ') + '</span></span></button></li>');
     });
     var live = items.some(function (x) { return !/次の定例句会/.test(x); });
-    return items.length ? '<h2 class="sec">' + (live ? 'いま、句会が開かれています<small>定例句会は、見学もできます</small>' : '次の句会に、一句どうぞ<small>開始の時刻に、このアプリをひらくと、部屋に入れます</small>') + '</h2><p class="note">ここから、句を出して参加できます</p><ul class="list">' + items.join('') + '</ul>' : '';
+    return items.length ? '<h2 class="sec">' + (live ? 'いま、句会が開かれています<small>定例句会は、見学もできます</small>' : '次の句会に、一句どうぞ<small>各回、開始の時刻までに投句を。時刻に、句会が始まります</small>') + '</h2><p class="note">ここから、句を出して参加できます</p><ul class="list">' + items.join('') + '</ul>' : '';
   }
   function mb(act, extra, label) { return '<button class="chip fit" data-act="' + act + '"' + extra + '>' + label + '</button>'; }
   function vMenu() {

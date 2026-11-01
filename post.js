@@ -82,8 +82,8 @@ function fitTags(variants, link, tagStr) {
 function slotLabel(s) { const d = new Date(s.date + 'T00:00:00Z'); return (d.getUTCMonth() + 1) + '月' + d.getUTCDate() + '日' + s.h + '時'; }
 function announceText(slot, t) {
   const head = '【' + whenText(slot.start - t) + '】' + hh(slot.h) + 'から「' + slotName(slot.h) + '」（定例句会・デモ）', theme = 'お題は「当季雑詠」。いまの季節のことばで、自由に一句。',
-    info = '投句は、いつでも受付中（定刻でしめきり）。見学もできます。ひとりなら、ボットが加わります。', warn = 'ほかの人の句や選評の、無断の公開は禁止です。';
-  return [[head, theme, info, warn], [head, theme, '投句は受付中。見学もできます。', warn], [head, 'お題は「当季雑詠」。投句は受付中。見学もできます。', warn]].map(v => v.join('\n'));
+    info = '投句は' + hh(slot.h) + 'までに（定刻でしめきり）。' + hh(slot.h) + 'に句会が始まります。見学もできます。', warn = 'ほかの人の句や選評の、無断の公開は禁止です。';
+  return [[head, theme, info, warn], [head, theme, '投句は' + hh(slot.h) + 'まで。見学もできます。', warn], [head, 'お題は「当季雑詠」。投句は' + hh(slot.h) + 'まで。見学もできます。', warn]].map(v => v.join('\n'));
 }
 // 実況：21時「すその句会」が、実際にはじまったとき（句を出した人が1人以上）だけ。人数は、公開の小さな記録（pub）にある実数
 function liveText(slot, humans) {
@@ -98,19 +98,19 @@ function teiNextLines(slot) {
   const next = slotsAround(slot.start + 1).filter(x => x.start > slot.start).slice(0, 2);
   const nm = x => (x.date === slot.date ? 'きょう' : 'あす') + (x.h < 12 ? 'あさ' : '') + hh(x.h) + '「' + slotName(x.h) + '」';
   const l1 = next.length ? 'さっそく、つぎの定例句会がオープンしています。つぎは、' + nm(next[0]) + 'にひらきます。お題は「当季雑詠」。' : '';
-  const l2 = 'いまからでも、投句を受け付けています。ふらりと一句、お待ちしています。お時間になりましたら、ご着席を。';
+  const l2 = 'つぎの回の投句は、いまから受付中です。開始の時刻までに、ふらりと一句どうぞ。';
   const l3 = next[1] ? nm(next[1]) + 'の回にも、ぜひご参加を。' : '';
   return { l1, l2, l3 };
 }
 function noshowText(slot) {
   const n = teiNextLines(slot), head = (slot.h < 12 ? 'けさ' : slot.h < 17 ? 'きょう昼' : '今夜') + hh(slot.h) + 'の「' + slotName(slot.h) + '」は、おやすみでした。';
-  return [[head, n.l1, n.l2, n.l3], [head, n.l1, n.l2], [head, n.l1, 'いまからでも、投句を受け付けています。']].map(v => v.filter(Boolean).join('\n'));
+  return [[head, n.l1, n.l2, n.l3], [head, n.l1, n.l2], [head, n.l1, 'つぎの回の投句は、いまから受付中です。']].map(v => v.filter(Boolean).join('\n'));
 }
 function thanksText(slot, humans, bots) {
   const who = bots ? humans + '人（ほかにボット' + bots + '名）' : humans + '人';
   const n = teiNextLines(slot);
   const head = '【ありがとうございました】' + slotLabel(slot) + '「' + slotName(slot.h) + '」は、終了しました。参加は、' + who + 'でした。';
-  return [[head, n.l1, n.l2, n.l3], [head, n.l1, n.l2], [head, n.l1, 'いまからでも、投句を受け付けています。'], [head, n.l1]].map(v => v.filter(Boolean).join('\n'));
+  return [[head, n.l1, n.l2, n.l3], [head, n.l1, n.l2], [head, n.l1, 'つぎの回の投句は、いまから受付中です。'], [head, n.l1]].map(v => v.filter(Boolean).join('\n'));
 }
 async function fetchPub(sid) {
   const url = 'https://firestore.googleapis.com/v1/projects/' + PROJECT + '/databases/(default)/documents/pub/' + sid;
