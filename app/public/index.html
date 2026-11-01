@@ -566,6 +566,7 @@ h3.sec { font-size: 1rem; }
 .hero-cta .btn.primary { font-size: 1.08rem; padding: 12px 18px; }
 .hero-cta .link { align-self: center; font-size: .92rem; }
 .hero-sub { margin: 8px 0 0; font-size: .78rem; }
+.hero-more { margin: 0 0 10px; } .hero-more > summary { cursor: pointer; font-size: .84rem; color: var(--ink-soft); padding: 4px 0; list-style: none; } .hero-more > summary::before { content: '▸ '; } .hero-more[open] > summary::before { content: '▾ '; } .hero-more[open] > summary { margin-bottom: 6px; }
 @media (max-width: 480px) { .appurl { font-size: .74rem; margin-bottom: 4px; } .top { gap: 2px; } .brand { font-size: 1.45rem; } .brand .team { font-size: .42em; } .tagline { font-size: .82rem; line-height: 1.4; } .tagline2 { font-size: .8rem; } .date { font-size: .9rem; } .topr { gap: 4px; } .hero { padding: 12px 14px 14px; margin-top: 6px; } .hero-lead { font-size: 1rem; } .hero-facts li { font-size: .76rem; padding: 1px 8px; } .hero-steps { font-size: .84rem; margin-bottom: 10px; } }
 
 .hero { box-shadow: 0 1px 6px rgba(60,50,30,.07); border-radius: 22px; position: relative; overflow: hidden; padding-bottom: 30px; }
@@ -948,7 +949,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.02d';
+  var APP_VER = 'v2026.11.02e';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2285,7 +2286,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     monReport[id] = txt;
     return h;
   }
-  var monReport = {}, monRev = {}, monKanshoOpen = false;
+  var monReport = {}, monRev = {}, monKanshoOpen = false, foldOpen = {}; /* 登録前の人の、折りたたみの開閉（画面を描きなおしても、もどらないように） */
   function monSubmit() {
     if (!db || !myId) { toast('登録すると投句できます'); return; }
     var id = monMonth || monId(); if (monPhase(id) !== 'entry') { toast('投句は' + monEnds(id).e + '日までです'); return; }
@@ -5991,10 +5992,13 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       vHeroNow() +
       '<p class="hero-name">すその句会</p>' +
       '<p class="hero-lead">俳句を一句' + '持ち寄' + 'って、毎晩決まった時刻にみんなで始める、オンライン句会です</p>' +
-      '<ul class="hero-facts" aria-label="ひと目でわかる情報"><li>🕘 <b>毎晩21:00</b>開始</li><li>✍️ <b>一句</b>持参</li><li>⏱ 所要 <b>約60分</b></li><li>👀 登録なしで' + '見学' + 'OK</li><li>📧 登録は<b>メールだけ・無料</b></li></ul>' +
+      (myId ? '' : '<details class="hero-more" data-k="facts"' + (foldOpen.facts ? ' open' : '') + '><summary>くわしく（時間・持ちもの・流れ）</summary>') +
+      '<ul class="hero-facts" aria-label="ひと目でわかる情報"><li>🕘 <b>毎晩21:00</b>開始</li><li>✍️ <b>一句</b>持参</li><li>⏱ 所要 <b>約60分</b></li><li>👀 登録なしで' + '見学' + 'OK</li><li>📧 登録は<b>メールだけ・無料</b></li></ul>' + (myId ? '' : '</details>') +
       '<div class="hero-cta"><button class="btn primary big" data-act="' + (myId ? 'hero-join' : 'fbgate') + '">' + heroJoinLabel() + '</button>' +
       (myId ? '' : '<button class="link" data-act="hero-watch">登録なしで見学する</button><small class="hero-ws">見学では、句会のようすを、はじめから見られます</small>') + '</div>' +
+      (myId ? '' : '<details class="hero-more" data-k="steps"' + (foldOpen.steps ? ' open' : '') + '><summary>参加の流れ（3つ）</summary>') +
       '<ol class="hero-steps"><li>一句つくる（お題は自由。今日の' + '兼題' + 'からでもOK）</li><li>' + heroAimTime() + 'までに、このアプリで投句する</li><li>' + heroAimTime() + 'に句会が始まる。席に案内されるので、みんなで詠み合う</li></ol>' +
+      (myId ? '' : '</details>') +
       '<p class="note hero-sub">はじめてでも、ふりがなとチュートリアルつきです。</p>' + MTN + '</section>' + vToday() + vMonthlyLine();
   }
   function vGuest() {
@@ -6031,7 +6035,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       var did = !!(stt.s && stt.s.entries && stt.s.entries[myId]);
       if (myId && dbState === 'ok' && mine && mine.length >= 1 && !did) extra += '<p class="note stk"><button class="link" data-act="page" data-p="stock">ストッ句に' + mine.length + '句あります。そのまま出せます ›</button></p>';
     }
-    return items.length ? '<h2 class="sec">' + (live ? 'いま、句会が開かれています<small>定例句会は、見学もできます</small>' : '次の句会に、一句どうぞ<small>各回、開始の時刻までに投句を。時刻に、句会が始まります</small>') + '</h2><p class="note">ここから、句を出して参加できます</p>' + extra + '<ul class="list">' + items.join('') + '</ul>' : '';
+    return items.length ? '<h2 class="sec">' + (live ? 'いま、句会が開かれています<small>定例句会は、見学もできます</small>' : '次の句会に、一句どうぞ<small>各回、開始の時刻までに投句を。時刻に、句会が始まります</small>') + '</h2>' + (myId ? '<p class="note">ここから、句を出して参加できます</p>' + extra + '<ul class="list">' + items.join('') + '</ul>' : '<details class="hero-more" data-k="next"' + (foldOpen.next ? ' open' : '') + '><summary>回の一覧を見る（登録すると、ここから句を出せます）</summary>' + extra + '<ul class="list">' + items.join('') + '</ul></details>') : '';
   }
   function mb(act, extra, label) { return '<button class="chip fit" data-act="' + act + '"' + extra + '>' + label + '</button>'; }
   function vMenu() {
@@ -6114,7 +6118,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var chip = function (a, d, label) { return '<button class="link" data-act="' + a + '"' + d + '>' + label + '</button>'; };
     return '<section class="misc" aria-label="そのほか"><h2 class="rh sm">そのほか</h2>' +
       '<div class="misc-row">' + chip('tab', ' data-t="gohyo"', '🍵 合言葉で句会・吟行句会') + chip('page', ' data-p="kigo"', '🔍 季語をしらべる') + chip('page', ' data-p="stock"', '📒 ストッ句') + chip('page', ' data-p="gloss"', '📖 用語集') + chip('page', ' data-p="contact"', '📮 ご意見・ご要望') + chip('tut', '', '🌱 俳句はじめての人へ') + '</div>' +
-      '<details class="panel misc-d"' + (news.length ? ' open' : '') + '><summary>今日のコツ・名句・おしらせ</summary>' + vNews() + vMeiku() + '</details>' +
+      '<details class="panel misc-d"' + (news.length && myId ? ' open' : '') + '><summary>今日のコツ・名句・おしらせ</summary>' + vNews() + vMeiku() + '</details>' +
       vGuest() + vStats() + vMemoQ(false) + vBeginner() + vMenu() +
       '<div class="misc-row sm2"><span class="date">' + esc(fullLabel(n)) + '</span>' +
       (st > 0 ? '<span class="streak">連続 ' + st + '日</span>' : '') + '<button class="link" data-act="yoko" aria-pressed="' + yoko + '">' + (yoko ? '縦書きで見る' : '横書きで見る') + '</button>' +
@@ -7102,7 +7106,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var t = e.target; if (!t || !t.dataset || t.dataset.f !== 'ksh-photo' || !t.files || !t.files[0]) return;
     var fr = new FileReader(); fr.onload = function () { var im = new Image(); im.onload = function () { kshPhoto = im; ksh.style = 'photo'; if (kshOut && ksh.form === 'img') kshShowImg(); else { toast('写真を入れました'); render(); } }; im.src = fr.result; }; fr.readAsDataURL(t.files[0]);
   });
-  app.addEventListener('toggle', function (e) { var d = e.target; try { var dk = d && d.classList && ['kgbox', 'k5b', 'goon', 'kgshelf', 'kglinks'].filter(function (c) { return d.classList.contains(c); })[0]; if (dk) detOpen[dk] = d.open; } catch (_) {} if (d && d.classList && d.classList.contains('qcm') && d.dataset.qeid) qOpen[d.dataset.qeid] = d.open; if (d && d.classList && d.classList.contains('hmk') && d.dataset.heid) hmOpen[d.dataset.heid] = d.open; }, true);
+  app.addEventListener('toggle', function (e) { var d = e.target; try { if (d && d.classList && d.classList.contains('hero-more') && d.dataset.k) foldOpen[d.dataset.k] = d.open; } catch (_) {} try { var dk = d && d.classList && ['kgbox', 'k5b', 'goon', 'kgshelf', 'kglinks'].filter(function (c) { return d.classList.contains(c); })[0]; if (dk) detOpen[dk] = d.open; } catch (_) {} if (d && d.classList && d.classList.contains('qcm') && d.dataset.qeid) qOpen[d.dataset.qeid] = d.open; if (d && d.classList && d.classList.contains('hmk') && d.dataset.heid) hmOpen[d.dataset.heid] = d.open; }, true);
   app.addEventListener('change', onInput);
   ['click', 'touchstart', 'keydown'].forEach(function (ev) { document.addEventListener(ev, function (e) { if (ev === 'keydown') { if (e.key === 'Enter') markAct(); return; } var t = e.target; if (t && t.closest && !isTyping(t)) markAct(); }, true); });
   app.addEventListener('focusout', function () { if (!pendRender) return; clearTimeout(pendT); pendT = setTimeout(function () { if (pendRender && !isTyping(document.activeElement)) render(); }, 350); });
