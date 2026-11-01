@@ -948,7 +948,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.01zc';
+  var APP_VER = 'v2026.11.01zd';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -5735,14 +5735,23 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function heroNowInfo() {
     var t = Date.now(), live = null, nx = null;
     teiSlots().forEach(function (x) { if (!live && x.start <= t && t < x.start + TEI_LIVE_MIN * 60000) live = x; });
-    var far = teiSlotsFar(2); far.forEach(function (x) { if (!nx && x.start > t && x.start - t <= 90 * 60000) nx = x; }); /* 90分以内に始まる回があれば、それを。なければ、つぎの21時 */
+    var seen = {}, far = teiSlots().concat(teiSlotsFar(2)).filter(function (x) { if (seen[x.sid]) return false; seen[x.sid] = 1; return true; }).sort(function (a, b) { return a.start - b.start; }); /* 日がかわった直後の、きのうの25時の回も、ふくめる */
+    far.forEach(function (x) { if (!nx && x.start > t && x.start - t <= 90 * 60000) nx = x; }); /* 90分以内に始まる回があれば、それを。なければ、つぎの21時 */
     if (!nx) far.forEach(function (x) { if (!nx && x.h === 21 && x.start > t) nx = x; });
     return { live: live, next: nx };
   }
   function heroKey() { var i = heroNowInfo(); return i.live ? 'L' + i.live.sid : (i.next ? 'N' + i.next.sid : '-'); }
   function slotNow(h) { var i = heroNowInfo(); return !!(i.live && i.live.h === h); }
   function heroNp(x) { var ss = x ? teiFind(x.sid) : null; return ss ? teiHumans(ss) : 0; }
-  function heroJoinLabel() { var i = heroNowInfo(), x = (i.live && heroNp(i.live) > 0) ? i.live : (i.live ? null : (i.next && i.next.h !== 21 ? i.next : null)); return x ? 'いまの句会に参加する' : '今夜の句会に参加する'; }
+  /* いま案内する「つぎの回」：始まる前ならその回。始まっていても句を出した人がいない（おやすみ）なら、そのつぎの回 */
+  function heroNext() {
+    var i = heroNowInfo(); if (!i.live) return i.next;
+    if (heroNp(i.live) > 0) return null;
+    var t = Date.now(), n2 = null; teiSlotsFar(2).forEach(function (y) { if (!n2 && y.start > t) n2 = y; }); return n2;
+  }
+  function heroJoinLabel() { var i = heroNowInfo(), n = heroNext(), x = (i.live && heroNp(i.live) > 0) ? i.live : (n && n.h !== 21 ? n : null); return x ? teiSlotName(x.dn, x.h) + 'に参加する' : '今夜の句会に参加する'; }
+  /* 手順の2・3番の時刻：つぎに始まる回が21時以外（23時・25時・昼の回）のときは、その回の開始時刻に合わせる */
+  function heroAimTime() { var n = heroNext(), x = (n && n.h !== 21) ? n : null, h = x ? x.h : 21; return h >= 24 ? h + ':00（夜中' + (h - 24) + '時）' : h + ':00'; }
   /* 月例句会の案内（1行）：いまの月の段階に合わせる */
   function vMonthlyLine() {
     var id = monId(), ph = monPhase(id); if (ph === 'closed' || ph === 'soon') return '';
@@ -5762,7 +5771,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
         var n2 = null, t2 = Date.now(); teiSlotsFar(2).forEach(function (y) { if (!n2 && y.start > t2) n2 = y; });
         h = nm + 'は、句を出した人がいなかったため、おやすみです' + (n2 ? ' <small>（つぎは ' + esc(teiSlotName(n2.dn, n2.h)) + '・' + n2.h + '時。あと <b data-cd="' + n2.start + '">' + cdText(n2.start - t2) + '</b>）</small>' : '');
       }
-    } else if (i.next && i.next.h !== 21) { h = '<span class="dot"></span>いま、<b>' + esc(teiSlotName(i.next.dn, i.next.h)) + '・' + i.next.h + '時</b> に入れます <small>（あと <b data-cd="' + i.next.start + '">' + cdText(i.next.start - Date.now()) + '</b> で始まります）</small>'; on = true; }
+    } else if (i.next && i.next.h !== 21) { h = '<span class="dot"></span>いま、<b>' + esc(teiSlotName(i.next.dn, i.next.h)) + '・' + i.next.h + '時</b> に入れます <small>（あと <b data-cd="' + i.next.start + '">' + cdText(i.next.start - Date.now()) + '</b> で始まります。投句は、それまで）</small>'; on = true; }
     else if (i.next) { var tonight = i.next.dn === dayNum(); h = (tonight ? '今夜の' : 'あすの') + 'すその句会は、あと <b data-cd="' + i.next.start + '">' + cdText(i.next.start - Date.now()) + '</b> で始まります'; }
     else return '';
     /* 直近に、実際にひらかれた回（句を出した人が1人以上・終わったもの）の実績 */
@@ -5813,7 +5822,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<ul class="hero-facts" aria-label="ひと目でわかる情報"><li>🕘 <b>毎晩21:00</b>開始</li><li>✍️ <b>一句</b>持参</li><li>⏱ 所要 <b>約60分</b></li><li>👀 登録なしで' + '見学' + 'OK</li><li>📧 登録は<b>メールだけ・無料</b></li></ul>' +
       '<div class="hero-cta"><button class="btn primary big" data-act="' + (myId ? 'hero-join' : 'fbgate') + '">' + heroJoinLabel() + '</button>' +
       (myId ? '' : '<button class="link" data-act="hero-watch">登録なしで見学する</button><small class="hero-ws">見学では、句会のようすを、はじめから見られます</small>') + '</div>' +
-      '<ol class="hero-steps"><li>一句つくる（お題は自由。今日の' + '兼題' + 'からでもOK）</li><li>21:00までに、このアプリで投句する</li><li>21:00に句会が始まる。席に案内されるので、みんなで詠み合う</li></ol>' +
+      '<ol class="hero-steps"><li>一句つくる（お題は自由。今日の' + '兼題' + 'からでもOK）</li><li>' + heroAimTime() + 'までに、このアプリで投句する</li><li>' + heroAimTime() + 'に句会が始まる。席に案内されるので、みんなで詠み合う</li></ol>' +
       '<p class="note hero-sub">はじめてでも、ふりがなとチュートリアルつきです。</p>' + MTN + '</section>' + vToday() + vMonthlyLine();
   }
   function vGuest() {
