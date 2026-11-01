@@ -948,7 +948,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.01ze';
+  var APP_VER = 'v2026.11.01zf';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3482,7 +3482,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<div class="hyostep"><span class="lb">① 心が動いた言葉を、ひとつ</span><div class="row hyochips">' + ws.map(function (w, i) { return chip('hm-w', i, w, o.w === w); }).join('') + '</div></div>' +
       (o.w ? '<div class="hyostep"><span class="lb">② 感じたことを　<button class="link" data-act="hm-more" data-eid="' + esc(eid) + '" data-i="0">ほかの言いかた</button></span><div class="hyocol">' + HM_FEEL.map(function (x, i) { return chip('hm-f', i, x, o.f === i); }).join('') + '</div></div>' : '') +
       (o.w ? '<div class="hyostep"><span class="lb">③ 提案をひとつ（なくてもよい）</span><div class="hyocol">' + HM_PR.map(function (x, i) { return chip('hm-p', i, x, o.p === i); }).join('') + chip('hm-p', -1, '提案はなし', o.p === -1) + '</div></div>' : '') +
-      (d ? '<p class="hyopvl">あなたの評（プレビュー）</p><div class="hyopv">' + esc(d) + '</div><p class="row"><button class="btn primary small" data-act="hm-use" data-eid="' + esc(eid) + '">入力欄に入れる</button></p><p class="note">入れたあと、自分の言葉に書きかえても大丈夫です。</p>' : '<p class="note">言葉をひとつ押すだけでも、評になります。</p>') +
+      (d ? '<p class="hyopvl">あなたの評（プレビュー）</p><div class="hyopv">' + esc(d) + '</div><p class="row"><button class="btn primary small" data-act="hm-send" data-eid="' + esc(eid) + '">この評を送る</button><button class="btn small" data-act="hm-use" data-eid="' + esc(eid) + '">入力欄に入れて直す</button></p><p class="note">入れたあと、自分の言葉に書きかえても大丈夫です。</p>' : '<p class="note">言葉をひとつ押すだけでも、評になります。</p>') +
       '</details>';
   }
   function hmAct(act, t) {
@@ -3492,6 +3492,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (act === 'hm-f') { o.f = i; render(); return true; }
     if (act === 'hm-more') { var keep = o.f >= 0 ? HM_FEEL[o.f] : null; hmShuffleFeel(); if (keep && HM_FEEL.indexOf(keep) < 0) HM_FEEL[0] = keep; o.f = keep ? HM_FEEL.indexOf(keep) : -9; render(); return true; }
     if (act === 'hm-p') { o.p = i; render(); return true; }
+    if (act === 'hm-send') { var dd = hmDraft(eid); if (!dd) return true; cmDraft[eid] = dd; hmS[eid] = { f: -9, p: -9 }; hmOpen[eid] = false; render(); var sb = document.querySelector('[data-act="comment"][data-eid="' + eid + '"]'); if (sb) sb.click(); else toast('送れませんでした。入力欄から送ってください'); return true; }
     if (act === 'hm-use') { cmDraft[eid] = hmDraft(eid); render(); var el = document.getElementById('cm-' + eid); if (el) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (_) {} } return true; }
     return false;
   }
