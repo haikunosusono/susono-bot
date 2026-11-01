@@ -947,7 +947,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.01y';
+  var APP_VER = 'v2026.11.01z';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -5741,7 +5741,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function heroKey() { var i = heroNowInfo(); return i.live ? 'L' + i.live.sid : (i.next ? 'N' + i.next.sid : '-'); }
   function slotNow(h) { var i = heroNowInfo(); return !!(i.live && i.live.h === h); }
   function heroNp(x) { var ss = x ? teiFind(x.sid) : null; return ss ? teiHumans(ss) : 0; }
-  function heroJoinLabel() { var i = heroNowInfo(), x = i.live || (i.next && i.next.h !== 21 ? i.next : null); return x ? 'いまの句会に参加する' : '今夜の句会に参加する'; }
+  function heroJoinLabel() { var i = heroNowInfo(), x = (i.live && heroNp(i.live) > 0) ? i.live : (i.live ? null : (i.next && i.next.h !== 21 ? i.next : null)); return x ? 'いまの句会に参加する' : '今夜の句会に参加する'; }
   /* 月例句会の案内（1行）：いまの月の段階に合わせる */
   function vMonthlyLine() {
     var id = monId(), ph = monPhase(id); if (ph === 'closed' || ph === 'soon') return '';
@@ -5757,7 +5757,10 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (x) {
       var nm = esc(teiSlotName(x.dn, x.h)) + '・' + x.h + '時';
       if (np > 0) { on = true; h = '<span class="dot"></span>いま開催中です <small>（' + nm + '）・句を出した人 ' + np + '人</small>'; }
-      else h = '<span class="dot"></span>いま受付中です <small>（' + nm + '）</small>　最初の一句をどうぞ';
+      else { /* 投句は開始の時刻でしめきり。始まっても句を出した人がいなければ、その回は、おやすみ */
+        var n2 = null, t2 = Date.now(); teiSlotsFar(2).forEach(function (y) { if (!n2 && y.start > t2) n2 = y; });
+        h = nm + 'は、句を出した人がいなかったため、おやすみです' + (n2 ? ' <small>（つぎは ' + esc(teiSlotName(n2.dn, n2.h)) + '・' + n2.h + '時。あと <b data-cd="' + n2.start + '">' + cdText(n2.start - t2) + '</b>）</small>' : '');
+      }
     } else if (i.next && i.next.h !== 21) { h = '<span class="dot"></span>いま、<b>' + esc(teiSlotName(i.next.dn, i.next.h)) + '・' + i.next.h + '時</b> に入れます <small>（あと <b data-cd="' + i.next.start + '">' + cdText(i.next.start - Date.now()) + '</b> で始まります）</small>'; on = true; }
     else if (i.next) { var tonight = i.next.dn === dayNum(); h = (tonight ? '今夜の' : 'あすの') + 'すその句会は、あと <b data-cd="' + i.next.start + '">' + cdText(i.next.start - Date.now()) + '</b> で始まります'; }
     else return '';
@@ -5903,7 +5906,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   var ROOMS = [['diary', '🌱 俳句の初心者部屋', 'はじめての一句・チュートリアルつき'], ['solo', '💪 俳筋力トレーニング部屋', 'きょうのテーマ・題詠（漢字・カタカナ）で、一日一句'], ['bot', '🐸 句会の練習', '進行になれる・鑑賞力もつける'], ['monthly', '📅 月例句会', '11月から・毎月1日に兼題・15日〆切・25日まで互選'], ['flat', '🍡 ふらっと句会', '4人そろえば、すぐ開始'], ['together', '🏮 定例句会', '毎日 21時・23時・25時／土日祝はさらに 10時・13時・15時'], ['gohyo', '🍵 合言葉で句会・吟行句会', '合言葉で集まる・見学なし']];
   /* ---- トップのカード：練習の部屋（3）と、本番の句会（3）。押すと、下にその部屋がひらく ---- */
   function roomCard(id, name, one, aim) {
-    var li = id === 'together' ? heroNowInfo().live : null, lv = !!li, lvOpen = lv && heroNp(li) > 0; return '<button class="rcard' + (lv ? ' live' : '') + '" role="tab" data-act="tab" data-t="' + id + '" aria-selected="' + (roomOpen && tab === id) + '"><b>' + name + (lv ? ' <em class="nowb">' + (lvOpen ? 'いま開催中' : 'いま受付中') + '</em>' : '') + '</b><span>' + one + '</span>' + (aim ? '<small>' + aim + '</small>' : '') + '</button>';
+    var li = id === 'together' ? heroNowInfo().live : null, lv = !!li, lvOpen = lv && heroNp(li) > 0; return '<button class="rcard' + (lv ? ' live' : '') + '" role="tab" data-act="tab" data-t="' + id + '" aria-selected="' + (roomOpen && tab === id) + '"><b>' + name + (lv ? ' <em class="nowb">' + (lvOpen ? 'いま開催中' : 'この回はおやすみ') + '</em>' : '') + '</b><span>' + one + '</span>' + (aim ? '<small>' + aim + '</small>' : '') + '</button>';
   }
   function slotAim() {
     var d = dayNum(), sl = function (h) { return '<i class="sl' + (slotNow(h) ? ' on' : '') + '">' + h + '時 ' + teiSlotName(d, h) + '</i>'; };
