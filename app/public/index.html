@@ -948,7 +948,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.01zb';
+  var APP_VER = 'v2026.11.01zc';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -5963,7 +5963,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       body = '<div class="actions"><button class="link" data-act="page" data-p="">← もどる</button></div>' + pageView();
     } else {
       var st = streak();
-      body = '<div class="top"><div><h1 class="brand">俳句の裾野<span class="team">（チーム裾野）</span></h1><div class="tagline">楽しくなければ俳句じゃないぜ！（いつき組）</div><p class="tag2"><b>俳句は、自分のために。</b><small>（藤田湘子『20週俳句入門』第1週の考え方より）</small><br>うまい・へたより、自分の気持ちを一句に。どなたでも俳句を楽しむ俳句の広場です。</p></div></div>' + vVer() +
+      body = '<div class="top"><div><h1 class="brand">俳句の裾野<span class="team">（チーム裾野）</span></h1><p class="tag2"><b>俳句は、自分のために。</b><small>（藤田湘子『20週俳句入門』第1週の考え方より）</small><br>うまい・へたより、自分の気持ちを一句に。どなたでも俳句を楽しむ俳句の広場です。</p></div></div>' + vVer() +
         vHero() + vMine() + vAfter() + vLive() + vRoomCards() +
         (roomOpen ? '<div id="room-body" class="roombody">' + (tab === 'solo' ? vDeck() : '') + (tab === 'diary' ? vDiary() : tab === 'solo' ? vSolo() : tab === 'bot' ? vBotRoom() : tab === 'gohyo' ? vGohyo() : tab === 'flat' ? vFlat() : tab === 'monthly' ? vMonthly() : vTogether()) + '</div>' : '') +
         vOther() + vFooter();
