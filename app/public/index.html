@@ -947,7 +947,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.01z';
+  var APP_VER = 'v2026.11.01za';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -5787,7 +5787,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var n = dayNum() + 1, sr = plan(n).series;
     return '<section class="after"><b>🌙 ' + esc(teiSlotName(dn(q.date), q.slot)) + '、おつかれさまでした</b><span>結果と、みんなの選評は、いつでも見返せます。</span>' +
       '<div class="row"><button class="btn primary" data-act="hist-open-k" data-sid="' + esc(q.id) + '">結果を見る ›</button><button class="btn" data-act="page" data-p="archive">句会アーカイブ</button></div>' +
-      '<small>あすの兼題：<b>' + esc(promptFor(sr, n)) + '</b>（' + esc(SER[sr].name) + '）</small></section>';
+      '<small>あすの俳筋力トレーニング：' + esc(SER[sr].name) + 'シリーズ「<b>' + esc(promptFor(sr, n)) + '</b>」（ひとりで作る練習用。句会のお題は自由です）</small></section>';
   }
   /* 自分の句の数（ストッ句にある句。ログイン中だけ） */
   function vMine() {
