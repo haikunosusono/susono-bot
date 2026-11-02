@@ -582,6 +582,7 @@ h3.sec { font-size: 1rem; }
 .revno { font-weight: 700; } .revno small { font-weight: 400; color: var(--ink-soft); margin-left: .5em; } .revbar { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; } .revbar i { display: block; height: 100%; background: var(--accent); border-radius: 999px; } .revku { font-size: 1.1rem; line-height: 1.7; } .revwho { font-size: .82rem; color: var(--ink-soft); }
 .hero-ws { display: block; text-align: center; color: var(--ink-soft); font-size: .74rem; line-height: 1.5; }
 .kt-note { margin: 4px 6px 10px; font-size: .8rem; }
+.monbig { margin: 10px 0 0; padding: 14px 16px 16px; border: 1.5px solid var(--accent, #2f6b57); border-radius: 18px; background: var(--paper); box-shadow: 0 1px 4px rgba(60,50,30,.06); } .monbig .mb-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; } .monbig .mb-lb { font-weight: 700; font-size: 1.08rem; } .monbig .mb-lb small { margin-left: .5em; font-weight: 400; color: var(--ink-soft); font-size: .8rem; } .monbig .mb-st { font-weight: 700; color: var(--accent, #2f6b57); font-size: .95rem; } .monbig .mb-kd { margin: 6px 0 0; font-size: 1.05rem; } .monbig .mb-kd b { font-size: 1.5rem; margin: 0 .1em; } .monbig .mb-kd small { margin-left: .5em; color: var(--ink-soft); font-size: .8rem; } .monbig .mb-sub { margin: 4px 0 10px; font-size: .9rem; color: var(--ink-soft); } .monbig .mb-sub b { color: var(--ink); font-size: 1.1rem; } .monbig .mb-me { color: var(--accent, #2f6b57); font-weight: 700; } .monbig .btn { width: 100%; }
 .uniqb { margin: 4px 0; font-weight: 700; } .uniqb small { font-weight: 400; color: var(--ink-soft); } .uniqp { border-color: var(--accent, #c96); }
 .shibari ul { margin: 4px 0 0; padding-left: 1.3em; } .shibari li { margin: 2px 0; }
 .sthist { margin: 4px 0 0; font-size: .8rem; } .sthist > summary { cursor: pointer; color: var(--ink-soft); } .sthist ol { margin: 4px 0 0; padding-left: 1.4em; } .sthist li { margin: 2px 0; } .sthist .hk { font-family: var(--serif, serif); } .sthist small { margin-left: .5em; color: var(--ink-soft); } .kteaser { display: flex; align-items: baseline; gap: .6em; flex-wrap: wrap; width: 100%; margin: 4px 0 0; padding: 10px 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); color: inherit; font: inherit; cursor: pointer; text-align: left; } .kteaser span { font-size: .78rem; color: var(--ink-soft); } .kteaser b { font-size: 1.02rem; } .kteaser small { margin-left: auto; font-size: .74rem; color: var(--accent); }
@@ -952,7 +953,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.02k';
+  var APP_VER = 'v2026.11.02l';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -6011,13 +6012,18 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   /* 手順の2・3番の時刻：つぎに始まる回が21時以外（23時・25時・昼の回）のときは、その回の開始時刻に合わせる */
   function heroAimTime() { var n = heroNext(), x = (n && n.h !== 21) ? n : null, h = x ? x.h : 21; return h >= 24 ? h + ':00（夜中' + (h - 24) + '時）' : h + ':00'; }
   /* 月例句会の案内（1行）：いまの月の段階に合わせる */
+  /* 月例句会の案内：定例句会の枠のすぐ下に、しっかり大きく。兼題・いまの段階・しめきりまでの日数・ボタン */
   function vMonthlyLine() {
     var id = monId(), ph = monPhase(id); if (ph === 'closed' || ph === 'soon') return '';
-    var day = new Date(Date.now() + 9 * 3600000).getUTCDate(), en = monEnds(id), t;
-    if (ph === 'entry') t = '投句受付中です <small>' + en.e + '日まで（あと' + (en.e - day + 1) + '日）</small>';
-    else if (ph === 'select') t = '互選中です <small>' + en.s + '日まで（あと' + (en.s - day + 1) + '日）</small>';
-    else t = '結果が出ています';
-    return '<button class="kteaser" data-act="tab" data-t="monthly"><span>📮 月例句会</span><b>' + t + '</b><small>見る ›</small></button>';
+    var day = new Date(Date.now() + 9 * 3600000).getUTCDate(), en = monEnds(id), kd = monKendai(id), d = monDoc(id), me = myId && d.entries && d.entries[myId];
+    var st, sub, btn;
+    if (ph === 'entry') { st = '投句、受付中'; sub = en.e + '日まで（あと <b>' + (en.e - day + 1) + '</b>日）・1人1〜3句'; btn = me ? '句を見直す ›' : '投句する ›'; }
+    else if (ph === 'select') { st = '互選、受付中'; sub = en.s + '日まで（あと <b>' + (en.s - day + 1) + '</b>日）・特選1・並選3'; btn = '選ぶ ›'; }
+    else { st = '結果が出ました'; sub = (en.s + 1) + '日に発表・開票をどうぞ'; btn = '結果を見る ›'; }
+    return '<section class="monbig" aria-label="月例句会"><div class="mb-head"><span class="mb-lb">📮 月例句会<small>' + esc(monLabel(id)) + '</small></span><span class="mb-st">' + st + '</span></div>' +
+      '<p class="mb-kd">兼題「<b>' + esc(kd.t) + '</b>」<small>' + esc(kd.kind) + '</small></p>' +
+      '<p class="mb-sub">' + sub + (me ? '　<span class="mb-me">✓ 投句ずみ</span>' : '') + '</p>' +
+      '<button class="btn primary" data-act="tab" data-t="monthly">' + btn + '</button></section>';
   }
   function vHeroNow() {
     var i = heroNowInfo(), key = heroKey(); lastHeroKey = key;
@@ -6087,7 +6093,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       (myId ? '' : '<details class="hero-more" data-k="steps"' + (foldOpen.steps ? ' open' : '') + '><summary>参加の流れ（3つ）</summary>') +
       '<ol class="hero-steps"><li>一句つくる（お題は自由。今日の' + '兼題' + 'からでもOK）</li><li>' + heroAimTime() + 'までに、このアプリで投句する</li><li>' + heroAimTime() + 'に句会が始まる。席に案内されるので、みんなで詠み合う</li></ol>' +
       (myId ? '' : '</details>') +
-      '<p class="note hero-sub">はじめてでも、ふりがなとチュートリアルつきです。</p>' + MTN + '</section>' + vToday() + vMonthlyLine();
+      '<p class="note hero-sub">はじめてでも、ふりがなとチュートリアルつきです。</p>' + MTN + '</section>' + vMonthlyLine() + vToday(); /* 定例句会の枠のすぐ下に、月例句会の案内。そのあとに、俳筋力トレーニング */
   }
   function vGuest() {
     if (myId || dbState !== 'ok') return '';
