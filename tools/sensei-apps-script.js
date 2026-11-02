@@ -80,6 +80,20 @@ function doPost(e) {
   var out = { ok: false };
   try {
     var body = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    /* ご意見・ご要望が届いたら、運営者（このスクリプトの持ち主）にメールで知らせる。{"mail":{"kind":"...","name":"俳号","text":"本文","at":123}} → {"ok":true}
+       外から呼べる入口なので、1時間に20通まで・同じ本文は1日1回だけ（いたずら対策） */
+    if (body.mail && body.mail.text) {
+      var mc = CacheService.getScriptCache(), mh = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(body.mail.text) + '|' + String(body.mail.at || ''))).slice(0, 24);
+      if (mc.get('mail-' + mh)) { out = { ok: true, dup: true }; return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON); }
+      var mn = Number(mc.get('mail-n') || 0); if (mn >= 20) throw new Error('mail limit');
+      var mto = Session.getEffectiveUser().getEmail(), mname = String(body.mail.name || '名無し').slice(0, 20), mkind = String(body.mail.kind || 'ご意見・ご要望').slice(0, 20);
+      var mwhen = body.mail.at ? Utilities.formatDate(new Date(Number(body.mail.at)), 'Asia/Tokyo', 'M月d日 H:mm') : '';
+      MailApp.sendEmail({ to: mto, subject: '【俳句の裾野】' + mkind + 'が届きました（' + mname + '）', name: '俳句の裾野',
+        body: mkind + '\n送った人：' + mname + (mwhen ? '\n日時：' + mwhen : '') + '\n\n' + String(body.mail.text).slice(0, 2000) + '\n\n返信は、アプリの「管理者へ」から：https://haikunosusono.web.app/\n（このメールは、俳句の裾野の見回りが自動で送っています）' });
+      mc.put('mail-' + mh, '1', 86400); mc.put('mail-n', String(mn + 1), 3600);
+      out = { ok: true };
+      return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
+    }
     /* 2句のくらべ読み（2人の回：ボットの特選を決める）。{"judge":["句A","句B"]} → {"ok":true,"pick":0 か 1,"why":"ひとこと"} */
     if (body.judge && body.judge.length === 2) {
       var jp = ['あなたは句会の先生です。次の2句を読みくらべ、特選（よりよい一句）をひとつ選びます。', '基準：景がはっきり見えるか、季語が効いているか、ことばに無理がないか、読後の余韻。', '出力は JSON だけ：{"pick": 0 または 1, "why": "<30字以内の理由>"}', '', '句0：' + String(body.judge[0]).slice(0, 60), '句1：' + String(body.judge[1]).slice(0, 60)].join('\n');

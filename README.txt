@@ -64,3 +64,11 @@ GitHub Actions（自動実行）は、公開リポジトリなら無料です。
 menu.json は、アプリと同じ計算でつくった、約400日ぶんの「今日の兼題」です。
 アプリの兼題が変わったときは、次で作りなおせます：
   node tools/gen-menu.js ../public/index.html 400
+
+■ ご意見・ご要望を、メールで知らせる（2026-11-02 追加）
+  ・tools/inquiry-mail.js が、30分に2回（毎時7分・37分）動いて、アプリの「ご意見・ご要望」に新しいものがあれば、
+    松風主宰の Apps Script に頼んで、運営者（Apps Script の持ち主）の Gmail に送ります。送ったものには mailed の印がつきます。
+  ・はじめて入れるときの手順（1回だけ）：tools/sensei-apps-script.js の中身を、Apps Script に貼りかえて「デプロイ」→「デプロイを管理」→ 新しいバージョンで更新。
+    （KEY の行だけは、いまの鍵の行のままにする）。メールの宛先は、Apps Script の持ち主の Gmail です（設定は要りません）。
+  ・いたずら対策：1時間に20通まで。同じ本文は1日1回だけ。
+  ・試し：GitHub の Actions →「ご意見の見回り」→ Run workflow で dry=1 にすると、送らずに表示だけします。

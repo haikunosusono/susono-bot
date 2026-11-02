@@ -1,0 +1,25 @@
+name: ご意見の見回り（メールで知らせる）
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+    inputs:
+      dry:
+        description: '1 なら、送らずに表示だけ'
+        default: '0'
+concurrency:
+  group: inquiry-mail
+  cancel-in-progress: false
+jobs:
+  mail:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: 新しいご意見を、メールで知らせる
+        env:
+          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          DRY_RUN: ${{ github.event.inputs.dry || '0' }}
+        run: node tools/inquiry-mail.js
