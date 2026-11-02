@@ -518,7 +518,7 @@ select { width: 100%; min-height: 44px; padding: .5em .7em; background: var(--bg
 .ver { margin-left: .8em; font-size: .68rem; color: var(--ink-soft); opacity: .75; letter-spacing: .04em; }
 /* 数字が等幅の書体で（丸ゴシックは数字の幅がばらつき、カウントダウンがかくかく動く） */
 .cd, .tmr-row b, .nk-cd b, .cnt, .cnt2, .pts, .bar b, .stats b { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Roboto, Arial, sans-serif; font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }
-.cd { display: inline-block; min-width: 6.2em; text-align: left; }
+.cd { display: inline-block; min-width: 6.2em; text-align: left; } .sub .cd { min-width: 0; } /* 文の中では、余白をつくらない */
 .sess.static { cursor: default; }
 .cdline { font-size: 1.05rem; }
 .tip.warn { border-left: 3px solid var(--accent); }
@@ -952,7 +952,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.02j';
+  var APP_VER = 'v2026.11.02k';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
