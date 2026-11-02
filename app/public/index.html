@@ -950,7 +950,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.02f';
+  var APP_VER = 'v2026.11.02g';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2205,6 +2205,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function vMonthly() {
     var id = monMonth || monId(), d = monDoc(id), ph = monPhase(id), kd = monKendai(id), kus = monKus(d), mine = d.entries && d.entries[myId], h = '', en = monEnds(id), MON_ENTRY_END = en.e, MON_SEL_END = en.s;
     h += '<h2 class="sec">月例句会<small>' + esc(monLabel(id)) + '</small></h2>';
+    h += '<p class="row"><button class="chip fit" data-act="page" data-p="hall">🏛 殿堂（月ごとの成績）</button></p>';
     h += '<div class="howto"><b>ゆっくり流れる、月に一度の句会</b><span>毎月1日に、ボットが兼題を発表。15日まで投句（1〜3句）。16日から25日まで互選（特選1・並選3・予選はいくつでも）。26日に結果と「月例句会報」。登録した人はだれでも参加できます。見るだけもできます。</span></div>';
     h += '<details class="panel" id="kansho-rule"' + (monKanshoOpen ? ' open' : '') + '><summary><b>🔍 鑑賞賞のルール</b></summary><ul class="note" style="margin:.4em 0 0 1.2em;padding:0"><li>月例句会で、その月にいちばん多く「評」を書いた人に贈る賞です。</li><li>同じ数の人が何人かいれば、全員に贈ります。</li><li>数えるのは、月例句会の評だけです。定例句会など、ほかの回の評は数えません。</li><li>受賞は、結果ページに出て、マイページにも残ります。</li><li>トロフィーの数には入りません。別の賞です。</li></ul></details>';
     /* 月の切りかえ */
@@ -2242,6 +2243,29 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     } else {
       h += '<p class="note">まだ、はじまっていません。1日にどうぞ。</p>';
     }
+    return h;
+  }
+  /* 月例の殿堂：月ごとの成績だけ（句は、未発表の約束なので出さない）。だれでも見られる */
+  function monMonthStat(id) {
+    var d = monDoc(id), kus = monKus(d); if (!kus.length) return null;
+    var T = monTally(d), max = 0; kus.forEach(function (k) { max = Math.max(max, T[k.id].pts); });
+    var win = max > 0 ? kus.filter(function (k) { return T[k.id].pts === max; }) : [];
+    var nv = Object.keys(d.votes || {}).filter(function (u) { return d.votes[u] && d.votes[u].fin; }).length;
+    var cc = {}, nmOf = {}; Object.keys(d.cmts || {}).forEach(function (kid) { var cm = d.cmts[kid] || {}; Object.keys(cm).forEach(function (u) { if (cm[u] && String(cm[u].text || '').trim()) { cc[u] = (cc[u] || 0) + 1; nmOf[u] = cm[u].haigo || nmOf[u] || '名無し'; } }); });
+    var cmax = 0; Object.keys(cc).forEach(function (u) { cmax = Math.max(cmax, cc[u]); });
+    var kw = cmax > 0 ? Object.keys(cc).filter(function (u) { return cc[u] === cmax; }).map(function (u) { return nmOf[u]; }) : [];
+    return { id: id, kus: kus.length, people: Object.keys(d.entries || {}).length, voters: nv, max: max, win: win.map(function (w) { return { haigo: w.haigo, toku: T[w.id].toku.length, nami: T[w.id].nami.length, me: w.uid === myId }; }), kansho: kw, kmax: cmax };
+  }
+  function vHall() {
+    var months = Object.keys(monthly).filter(function (m) { return monPhase(m) === 'done'; }).sort().reverse();
+    var h = '<h2 class="sec">月例句会の殿堂<small>月ごとの成績。句は、ここには出しません</small></h2>';
+    h += '<p class="note">月例句会は、未発表の研鑽の場です。優勝した句そのものは、その月の結果ページ（登録した人だけ）で見られます。ここには、成績だけを残します。</p>';
+    var rows = months.map(monMonthStat).filter(Boolean);
+    if (!rows.length) return h + '<div class="empty"><p>まだ、終わった月例句会がありません。' + esc(monLabel(MON_START)) + 'から、はじまります。</p></div>';
+    h += '<div class="sttwrap"><table class="stt hall"><thead><tr><th>月</th><th>優勝</th><th>点</th><th>句・人</th><th>鑑賞賞</th></tr></thead><tbody>' + rows.map(function (r) {
+      return '<tr><td class="d">' + esc(monLabel(r.id)) + '</td><td>' + (r.win.length ? r.win.map(function (w) { return '🏆 ' + esc(w.haigo) + (w.me ? '（あなた）' : ''); }).join('<br>') + (r.win.length > 1 ? '<br><small>同点</small>' : '') : '<small>該当なし</small>') + '</td><td>' + (r.max || '-') + '<br><small>特' + (r.win[0] ? r.win[0].toku : 0) + '・並' + (r.win[0] ? r.win[0].nami : 0) + '</small></td><td>' + r.kus + '句<br><small>' + r.people + '人・互選' + r.voters + '人</small></td><td>' + (r.kansho.length ? '🔍 ' + r.kansho.map(esc).join('<br>') + '<br><small>評' + r.kmax + '句ぶん</small>' : '<small>-</small>') + '</td></tr>';
+    }).join('') + '</tbody></table></div>';
+    h += '<p class="note">称号は、優勝の回数で決まります：特待生（1回）→ 名人（3回）→ 天位（6回）。</p>';
     return h;
   }
   function vMonthlyResult(id, d) {
@@ -4443,7 +4467,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     return '<h2 class="sec">用語集<small>句会のことば・俳句のことば</small></h2><div class="field"><input type="search" data-f="gloss-q" value="' + esc(glossQ) + '" placeholder="ことばで しらべる（例：披講）" aria-label="用語をしらべる"></div><div id="gloss-list">' + glossList() + '</div><p class="note">ここにあることばは、一般的な句会の使いかたです。会によって、ちがうこともあります。</p>';
   }
   function vKigoPage() { return '<h2 class="sec">季語をしらべる<small>漢字でも、ひらがなでも</small></h2>' + kigoBox(true); }
-  function pageView() { return page === 'gloss' ? vGloss() : page === 'kigo' ? vKigoPage() : page === 'stock' ? vStock() : page === 'contact' ? vContact() : page === 'terms' ? vTerms() : page === 'my' ? vMy() : page === 'hints' ? vHints() : page === 'hyo' ? vHyo() : page === 'kata' ? vKata() : page === 'kushu' ? vKushu() : page === 'renkan' ? vRenkanPage() : page === 'kokoro' ? vKokoro() : page === 'admin' ? vAdmin() : page === 'about' ? vAbout() : page === 'news' ? vNewsPage() : page === 'faq' ? vFaq() : page === 'notify' ? vNotify() : page === 'archive' ? vArchive() : page === 'manner' ? vManner() : vPrivacy(); }
+  function pageView() { return page === 'gloss' ? vGloss() : page === 'kigo' ? vKigoPage() : page === 'stock' ? vStock() : page === 'contact' ? vContact() : page === 'terms' ? vTerms() : page === 'my' ? vMy() : page === 'hints' ? vHints() : page === 'hyo' ? vHyo() : page === 'kata' ? vKata() : page === 'kushu' ? vKushu() : page === 'renkan' ? vRenkanPage() : page === 'kokoro' ? vKokoro() : page === 'admin' ? vAdmin() : page === 'about' ? vAbout() : page === 'news' ? vNewsPage() : page === 'faq' ? vFaq() : page === 'notify' ? vNotify() : page === 'archive' ? vArchive() : page === 'hall' ? vHall() : page === 'manner' ? vManner() : vPrivacy(); }
   function vManner() {
     return '<h2 class="sec">句のあつかいとマナー<small>ここは練習の場です</small></h2>' +
       '<div class="howto"><b>ここで作った句は、「未発表」のあつかいです</b><span>「俳句の裾野」は、俳句を鍛える練習の場です。ここで作った句は、練習の句なので、未発表のあつかいにします。</span></div>' +
