@@ -1,6 +1,9 @@
 /* 俳句の裾野：松風主宰（ほめる先生）の頭脳。Google Apps Script に、このまま貼りつけて「ウェブアプリ」として公開します。
    使うのは Google Gemini（前払いのクレジット）。鍵（API キー）は、下の KEY に貼ります。 */
 var KEY = 'ここに Gemini の鍵を貼る';  /* ← この行だけ、いまの鍵の行に入れかえてください */
+var MAIL_TO = 'hattyam@gmail.com';  /* ご意見・ご要望を知らせるメールの宛先（運営者） */
+/* はじめて使うとき、エディタで「testMail」を1回「実行」して、Google の「許可」を押してください（メールを送る許可が出ます） */
+function testMail() { MailApp.sendEmail({ to: MAIL_TO, subject: '【俳句の裾野】メールのテスト', name: '俳句の裾野', body: 'メールを送る許可が出ました。この仕組みは、ご意見・ご要望が届いたときに、同じ形で知らせます。' }); }
 /* 使えるモデルは、Google に聞いて自動で決める（名前が変わっても動くように） */
 function listModels() {
   var cache = CacheService.getScriptCache(), c = cache.get('models2');
@@ -86,7 +89,7 @@ function doPost(e) {
       var mc = CacheService.getScriptCache(), mh = Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, String(body.mail.text) + '|' + String(body.mail.at || ''))).slice(0, 24);
       if (mc.get('mail-' + mh)) { out = { ok: true, dup: true }; return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON); }
       var mn = Number(mc.get('mail-n') || 0); if (mn >= 20) throw new Error('mail limit');
-      var mto = Session.getEffectiveUser().getEmail(), mname = String(body.mail.name || '名無し').slice(0, 20), mkind = String(body.mail.kind || 'ご意見・ご要望').slice(0, 20);
+      var mto = MAIL_TO, mname = String(body.mail.name || '名無し').slice(0, 20), mkind = String(body.mail.kind || 'ご意見・ご要望').slice(0, 20);
       var mwhen = body.mail.at ? Utilities.formatDate(new Date(Number(body.mail.at)), 'Asia/Tokyo', 'M月d日 H:mm') : '';
       MailApp.sendEmail({ to: mto, subject: '【俳句の裾野】' + mkind + 'が届きました（' + mname + '）', name: '俳句の裾野',
         body: mkind + '\n送った人：' + mname + (mwhen ? '\n日時：' + mwhen : '') + '\n\n' + String(body.mail.text).slice(0, 2000) + '\n\n返信は、アプリの「管理者へ」から：https://haikunosusono.web.app/\n（このメールは、俳句の裾野の見回りが自動で送っています）' });
