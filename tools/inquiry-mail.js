@@ -4,6 +4,7 @@
    DRY_RUN=1 なら、送らず表示だけ。 */
 const crypto = require('crypto');
 const SENSEI = 'https://script.google.com/macros/s/AKfycbzPL2utUP3yA-wqTJD4a0qKavefh-KNg2dOAtWGA35YFgJTf5t57SaucWRUqTz_9PIX/exec';
+const KIND = { req: 'ご意見・ご要望', rights: '権利侵害の申告', gen: 'お問い合わせ', faq: 'ご質問' };
 const PROJECT = 'haikunosusono', DRY = process.env.DRY_RUN === '1', MAX_AGE = 7 * 86400000, MAX_DO = 10;
 async function token() {
   const sa = JSON.parse(process.env.SA_JSON || '{}'); if (!sa.private_key) return '';
@@ -41,7 +42,7 @@ function val(v) {
       if (DRY) { sent++; continue; }
       let ok = false;
       try {
-        const r = await fetch(SENSEI, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ mail: { kind: q.kind || '', name: q.name || '', text: q.text, at: q.at || 0 } }) });
+        const r = await fetch(SENSEI, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ mail: { kind: KIND[q.kind] || q.kind || 'お問い合わせ', name: q.name || '', text: q.text, at: q.at || 0 } }) });
         const o = await r.json(); ok = !!(o && o.ok); if (!ok) console.log('  送れません ' + JSON.stringify(o).slice(0, 120));
       } catch (e) { console.log('  送れません ' + e.message); }
       if (!ok) continue;
