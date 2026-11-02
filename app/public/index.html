@@ -598,7 +598,7 @@ h3.sec { font-size: 1rem; }
 .misc { margin-top: 26px; display: flex; flex-direction: column; gap: 10px; font-size: .9rem; }
 .misc-row { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; } .misc-row .link { font-size: .86rem; } .misc-row.sm2 { font-size: .8rem; color: var(--ink-soft); } .misc-row.sm2 .date { font-size: .8rem; } .misc-row .appurl { margin: 0; font-size: .74rem; }
 .misc-d > summary { cursor: pointer; font-size: .9rem; }
-@media (min-width: 640px) { .rgrid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 640px) { .rgrid { grid-template-columns: repeat(3, 1fr); } .rgrid .rcard:last-child:nth-child(odd) { grid-column: auto; } }
 .guestw { background: var(--accent2-soft); border-color: var(--accent2); border-radius: 18px; }
 .memoq { background: var(--tile2); border-radius: 18px; }
 .memoq b small { font-size: .8rem; font-weight: 400; color: var(--ink-soft); margin-left: .4em; }
@@ -952,7 +952,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.02i';
+  var APP_VER = 'v2026.11.02j';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
