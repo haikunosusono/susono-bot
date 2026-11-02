@@ -581,7 +581,8 @@ h3.sec { font-size: 1rem; }
 .revrow { border: 1px solid var(--line); border-radius: 14px; padding: 10px 14px; background: var(--rc3); display: flex; flex-direction: column; gap: 4px; } .revrow.champ { background: var(--accent-soft); border-color: var(--accent); padding: 18px 16px; } .revrow.champ .revku { font-size: 1.5rem; }
 .revno { font-weight: 700; } .revno small { font-weight: 400; color: var(--ink-soft); margin-left: .5em; } .revbar { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; } .revbar i { display: block; height: 100%; background: var(--accent); border-radius: 999px; } .revku { font-size: 1.1rem; line-height: 1.7; } .revwho { font-size: .82rem; color: var(--ink-soft); }
 .hero-ws { display: block; text-align: center; color: var(--ink-soft); font-size: .74rem; line-height: 1.5; }
-.kt-note { margin: 4px 6px 10px; font-size: .8rem; } .kteaser { display: flex; align-items: baseline; gap: .6em; flex-wrap: wrap; width: 100%; margin: 4px 0 0; padding: 10px 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); color: inherit; font: inherit; cursor: pointer; text-align: left; } .kteaser span { font-size: .78rem; color: var(--ink-soft); } .kteaser b { font-size: 1.02rem; } .kteaser small { margin-left: auto; font-size: .74rem; color: var(--accent); }
+.kt-note { margin: 4px 6px 10px; font-size: .8rem; }
+.sthist { margin: 4px 0 0; font-size: .8rem; } .sthist > summary { cursor: pointer; color: var(--ink-soft); } .sthist ol { margin: 4px 0 0; padding-left: 1.4em; } .sthist li { margin: 2px 0; } .sthist .hk { font-family: var(--serif, serif); } .sthist small { margin-left: .5em; color: var(--ink-soft); } .kteaser { display: flex; align-items: baseline; gap: .6em; flex-wrap: wrap; width: 100%; margin: 4px 0 0; padding: 10px 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); color: inherit; font: inherit; cursor: pointer; text-align: left; } .kteaser span { font-size: .78rem; color: var(--ink-soft); } .kteaser b { font-size: 1.02rem; } .kteaser small { margin-left: auto; font-size: .74rem; color: var(--accent); }
 .rcard .sl { font-style: normal; display: inline-block; margin-right: .7em; padding: 0 .4em; border-radius: 8px; } .rcard .sl.on { background: var(--accent2-soft); color: var(--accent2); font-weight: 700; box-shadow: 0 0 0 1px var(--accent2) inset; } .rgrid .rcard[aria-selected="true"] .sl.on { background: rgba(255,255,255,.25); color: inherit; box-shadow: none; }
 .nowb { font-style: normal; font-size: .68rem; background: var(--accent2); color: #fff; border-radius: 999px; padding: .1em .7em; margin-left: .4em; vertical-align: middle; }
 :root { --rc1: #e8f3ec; --rc2: #fbeee1; --rc3: #ebeef9; } @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --rc1: #1d332a; --rc2: #33291d; --rc3: #232b44; } }
@@ -949,7 +950,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.02e';
+  var APP_VER = 'v2026.11.02f';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -4092,7 +4093,12 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   var stMemoId = '', stMemoV = '', stAdd = null;
   function stMemoRow(e) {
     if (stMemoId === e.id) return '<div class="stmemo"><input type="text" data-f="st-memo" maxlength="60" value="' + esc(stMemoV) + '" placeholder="例：一句一遊 金曜日／〇〇俳句大会 佳作／吟行にて"><button class="chip fit" data-act="st-memo-save" data-id="' + esc(e.id) + '">のこす</button><button class="link" data-act="st-memo-x">やめる</button></div>';
-    return (e.memo ? '<p class="stm">📝 ' + esc(e.memo) + '</p>' : '');
+    return (e.memo ? '<p class="stm">📝 ' + esc(e.memo) + '</p>' : '') + stHist(e);
+  }
+  /* 推敲の記録：直す前の形を、新しい順に。自分だけが見られる */
+  function stHist(e) {
+    var hs = e.hist || []; if (!hs.length) return '';
+    return '<details class="sthist"><summary>🪶 推敲の記録（' + hs.length + '）</summary><ol>' + hs.slice().reverse().map(function (x) { return '<li><span class="hk">' + esc(plain(x.a || '')) + '</span><small>' + esc(mdLabel(Math.floor(((x.at || 0) + 9 * 3600000) / 86400000))) + (x.conf && CONF[x.conf] ? '・' + esc(CONF[x.conf]) : '') + '</small></li>'; }).join('') + '</ol><p class="note">いちばん上が、いちばん最近の、直す前の形です。</p></details>';
   }
   function vStAdd() {
     if (!stAdd) return '<div class="row"><button class="chip fit" data-act="st-add">＋ 句を書き足す（外で詠んだ句・大会に出した句など）</button></div>';
@@ -6686,6 +6692,13 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       if (busy.save) return; busy.save = 1;
       var isNew = !mineById[tg2.id];
       var rec = { date: tg2.date, series: tg2.series, ch: tg2.ch, a: kt(d.a, 'a'), b: kt(d.b, 'b'), c: kt(d.c, 'c'), conf: d.conf || 'f', at: Date.now() };
+      /* 推敲の記録：直す前の形を、同じ句の中に残す（最大20。句の文字が変わったときだけ）。memo など、ほかの持ちものも引きつぐ */
+      var old = mineById[tg2.id];
+      if (old) {
+        Object.keys(old).forEach(function (k) { if (rec[k] === undefined && k !== 'id') rec[k] = old[k]; });
+        var oa = joinKu(old).a, na = joinKu(rec).a;
+        if (oa && oa !== na) { rec.hist = (old.hist || []).concat([{ a: oa, at: old.at || Date.now(), conf: old.conf || 'f' }]).slice(-20); }
+      }
       db.collection('data/users/' + myId).doc(tg2.id).set(rec).then(function () {
         toast('記録に残しました'); if (isNew) bumpStat(); touched[tg2.id] = 0; if (editing) editing = null; render();
       }).catch(failMsg).then(function () { busy.save = 0; });
