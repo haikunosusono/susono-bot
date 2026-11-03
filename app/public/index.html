@@ -953,7 +953,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.04a';
+  var APP_VER = 'v2026.11.04b';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -5990,7 +5990,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     return { live: live, next: nx };
   }
   function heroKey() { var i = heroNowInfo(); return i.live ? 'L' + i.live.sid : (i.next ? 'N' + i.next.sid : '-'); }
-  function slotNow(h) { var i = heroNowInfo(); return !!(i.live && i.live.h === h); }
+  /* 札を目立たせる回：いま開かれている回。なければ、つぎに始まる回（おやすみ・終わった回には、印をつけない） */
+  function slotNow(h) { var i = heroNowInfo(); if (i.live && slotState(i.live) === 'open') return i.live.h === h; var n = heroNext(); return !!(n && n.h === h); }
   /* 回の人数。ログインしていない人は句会の中身を読めないので、だれでも読める小さな記録（pub：始まった回の人数）で見る。-1＝確かめ中、-2＝わからない */
   var pubHum = {};
   function heroNp(x) {
