@@ -953,7 +953,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.04b';
+  var APP_VER = 'v2026.11.04c';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2204,7 +2204,10 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     return p;
   }
   function monWrite(id, patch) { if (!db) return Promise.resolve(); return db.doc('monthly/' + id).set(patch, { merge: true }).catch(failMsg); }
-  function monRank(n) { return n >= 6 ? '天位' : n >= 3 ? '名人' : n >= 1 ? '特待生' : ''; }
+  /* 称号：月例句会の優勝回数で。特待生（1回）→ 名人（5回）→ 天位（10回）。その先の「裾野の星」は、回数を決めていない「頂上の夢」（10回の人が出てから決める） */
+  var MON_RANKS = [['特待生', 1], ['名人', 5], ['天位', 10]];
+  function monRank(n) { var r = ''; MON_RANKS.forEach(function (x) { if (n >= x[1]) r = x[0]; }); return r; }
+  function monNextRank(n) { for (var i = 0; i < MON_RANKS.length; i++) if (n < MON_RANKS[i][1]) return MON_RANKS[i]; return null; }
   function vMonthly() {
     var id = monMonth || monId(), d = monDoc(id), ph = monPhase(id), kd = monKendai(id), kus = monKus(d), mine = d.entries && d.entries[myId], h = '', en = monEnds(id), MON_ENTRY_END = en.e, MON_SEL_END = en.s;
     h += '<h2 class="sec">月例句会<small>' + esc(monLabel(id)) + '</small></h2>';
@@ -2272,7 +2275,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     h += '<div class="sttwrap"><table class="stt hall"><thead><tr><th>月</th><th>優勝</th><th>点</th><th>句・人</th><th>鑑賞賞</th></tr></thead><tbody>' + rows.map(function (r) {
       return '<tr><td class="d">' + esc(monLabel(r.id)) + '</td><td>' + (r.win.length ? r.win.map(function (w) { return '🏆 ' + esc(w.haigo) + (w.me ? '（あなた）' : ''); }).join('<br>') + (r.win.length > 1 ? '<br><small>同点</small>' : '') : '<small>該当なし</small>') + '</td><td>' + (r.max || '-') + '<br><small>特' + (r.win[0] ? r.win[0].toku : 0) + '・並' + (r.win[0] ? r.win[0].nami : 0) + '</small></td><td>' + r.kus + '句<br><small>' + r.people + '人・互選' + r.voters + '人</small></td><td>' + (r.kansho.length ? '🔍 ' + r.kansho.map(esc).join('<br>') + '<br><small>評' + r.kmax + '句ぶん</small>' : '<small>-</small>') + '</td></tr>';
     }).join('') + '</tbody></table></div>';
-    h += '<p class="note">称号は、優勝の回数で決まります：特待生（1回）→ 名人（3回）→ 天位（6回）。</p>';
+    h += '<p class="note">称号は、優勝の回数で決まります：特待生（1回）→ 名人（5回）→ 天位（10回）。その先には「裾野の星」。</p>';
     return h;
   }
   function vMonthlyResult(id, d) {
@@ -5455,7 +5458,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     });
     var monWins = trophies.filter(function (x) { return (x.kind === '月例句会' || x.kind === 'すその句会（月例）'); }).length, rk = monRank(monWins);
     if (kansho.length) h += '<div class="panel"><b>🔍 鑑賞賞：' + kansho.length + '回</b><p class="note">その月に、いちばん多く評を書いた人に贈られます。</p></div>';
-    if (monWins) h += '<div class="panel"><b>月例句会の称号：' + esc(rk) + '</b><p class="note">優勝' + monWins + '回。特待生（1回）→ 名人（3回）→ 天位（6回）。</p></div>';
+    if (monWins) h += '<div class="panel"><b>月例句会の称号：' + esc(rk) + '</b><p class="note">優勝' + monWins + '回。特待生（1回）→ 名人（5回）→ 天位（10回）。その先には「裾野の星」。</p></div>';
     h += '<h3 class="sec">トロフィー<small>' + trophies.length + '個</small></h3>' + (trophies.length ? '<div class="shelf">' + trophies.slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); }).map(function (x) { return '<div class="tcup">' + TROPHY_SVG + '<span>' + esc(x.kind || '') + '<br>' + esc(x.ch || '') + '</span>' + (x.a ? '<button class="link" data-act="card" data-ck="' + esc(ckSet('tr-' + x.id, { text: plain(String(x.a || '') + String(x.b || '') + String(x.c || '')), haigo: haigo, sub: (x.kind || '') + '　' + (x.ch || ''), badge: (x.pts || 0) + '点', trophy: true })) + '" data-style="trophy">🏆 画像にする</button>' : '') + '</div>'; }).join('') + '</div>' : '<p class="note">句会で最高点をとると、ここに飾られます。</p>');
     return h;
   }
@@ -6073,10 +6076,10 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function vMine() {
     if (!myId || dbState !== 'ok' || !mine) return '';
     var ym = ds(dayNum()).slice(0, 7), mo = mine.filter(function (e) { return String(e.date).indexOf(ym) === 0; }).length;
-    /* 称号：月例句会の優勝回数（特待生1回・名人3回・天位6回）。マイページの判定と同じ数え方 */
+    /* 称号：月例句会の優勝回数（MON_RANKS）。マイページの判定と同じ数え方。新旧どちらの名前の優勝も数える */
     var wins = trophies.filter(function (x) { return (x.kind === '月例句会' || x.kind === 'すその句会（月例）'); }).length, rk = monRank(wins);
-    var nx = wins >= 6 ? null : wins >= 3 ? ['天位', 6] : wins >= 1 ? ['名人', 3] : ['特待生', 1];
-    var tl = nx ? (rk ? '月例句会の称号：' + rk + '　' : '') + '次の称号『' + nx[0] + '』まで、月例句会の優勝あと <b>' + (nx[1] - wins) + '</b>回' : '月例句会の称号：' + rk;
+    var nx = monNextRank(wins);
+    var tl = nx ? (rk ? '月例句会の称号：' + rk + '　' : '') + '次の称号『' + nx[0] + '』まで、月例句会の優勝あと <b>' + (nx[1] - wins) + '</b>回' : '月例句会の称号：' + rk + '　その先は「裾野の星」（回数は、まだ決めていません）';
     return '<p class="minenum">あなたのストッ句 <b>' + mine.length + '</b>句　今月作った句 <b>' + mo + '</b>句<br><small>' + tl + '</small></p>';
   }
   function vToday() {
