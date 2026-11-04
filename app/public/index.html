@@ -963,7 +963,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.04r';
+  var APP_VER = 'v2026.11.04s';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1327,9 +1327,11 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   try { ngList = JSON.parse(localStorage.getItem('ikku-natsugumo') || '[]') || []; ngSel = +(localStorage.getItem('ikku-natsugumo-sel') || 0) || 0; } catch (_) { ngList = []; }
   function ngSave() { try { localStorage.setItem('ikku-natsugumo', JSON.stringify(ngList)); localStorage.setItem('ikku-natsugumo-sel', String(ngSel)); } catch (_) {} }
   function ngCur() { return ngList[ngSel] || ngList[0] || null; }
+  /* 夏雲システムのルビの書き方：｜漢字（かな）。裾野のルビ（漢字《かな》）を、その形にして渡す */
+  function ngText(v) { return String(v || '').replace(RB_RE, '｜$1（$2）').replace(/[ ]/g, '　'); }
   function ngPanel() {
     var h = '<details class="panel ngp"' + (ngOpen ? ' open' : '') + '><summary>☁️ 夏雲システムに出す（投句画面のURLを覚えておく）</summary>' +
-      '<p class="note">夏雲システムの句会に出すときの手助けです。句の横の「☁️ 夏雲へ」を押すと、句を（ふりがなを外して）コピーして、ここで覚えた投句画面をひらきます。夏雲の画面で貼りつけて、「送信」を押すのは、ご自身で。URLは、この端末の中だけに残ります（裾野には送られません）。</p>';
+      '<p class="note">夏雲システムの句会に出すときの手助けです。句の横の「☁️ 夏雲へ」を押すと、句をコピーして（ふりがなは、夏雲の書き方「｜漢字（かな）」に直します）、ここで覚えた投句画面をひらきます。夏雲の画面で貼りつけて、「送信」を押すのは、ご自身で。URLは、この端末の中だけに残ります（裾野には送られません）。</p>';
     if (ngList.length) h += '<ul class="list nglist">' + ngList.map(function (x, i) { return '<li class="row2"><button class="chip fit' + (i === ngSel ? ' on' : '') + '" data-act="ng-sel" data-i="' + i + '">' + (i === ngSel ? '✓ ' : '') + esc(x.n || '句会' + (i + 1)) + '</button><span class="ngu">' + esc(x.u) + '</span><button class="link" data-act="ng-del" data-i="' + i + '">消す</button></li>'; }).join('') + '</ul><p class="note">✓ がついている句会に出します。</p>';
     h += '<div class="field"><label for="ng-name">句会の名前</label><input type="text" id="ng-name" data-f="ng-name" maxlength="30" value="' + esc(ngDraft.n) + '" placeholder="例：〇〇ネット句会"></div>' +
       '<div class="field"><label for="ng-url">投句画面のURL（https:// から）</label><input type="url" id="ng-url" data-f="ng-url" maxlength="300" value="' + esc(ngDraft.u) + '" placeholder="夏雲システムの、その句会の投句画面のURL"></div>' +
@@ -1338,7 +1340,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   }
   function ngSend(id) {
     var e = mineById[id] || mine.filter(function (x) { return x.id === id; })[0]; if (!e) return;
-    var tx = plain(joinKu(e).a).replace(/[ ]/g, '　'), c = ngCur();
+    var tx = ngText(joinKu(e).a), c = ngCur();
     if (!c || !/^https:\/\//.test(String(c.u || ''))) { ngOpen = true; toast('先に、夏雲の投句画面のURLを覚えさせてください'); render(); return; }
     var w = null; try { w = window.open(c.u, '_blank'); } catch (_) {}
     var done = function () { toast('句をコピーしました。夏雲の画面に貼りつけて、送信してください'); };
