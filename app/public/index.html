@@ -193,6 +193,8 @@ textarea { width: 100%; min-height: 8rem; padding: .6em .7em; background: var(--
 .waza li { margin-bottom: 6px; line-height: 1.6; }
 .waza li b { display: block; }
 .waza li span { font-size: .88rem; color: var(--ink-soft); }
+.wxmk { margin: 2px 0 6px; } .tkhint { margin: 8px 0; } .tkhint b { display: block; } .tkhint span { display: block; font-size: .9rem; color: var(--ink-soft); } .tkhint small { display: block; margin-top: 2px; color: var(--ink-soft); }
+.wx { margin: 4px 0 2px; font-size: .86rem; } .wx > summary { cursor: pointer; color: var(--accent); font-weight: 700; } .wx-meiku { margin: 6px 0 4px; } .wx-meiku small { color: var(--ink-soft); } .wx-ku { font-family: var(--serif); letter-spacing: .04em; } .wx-scene { margin: 8px 0 2px; font-weight: 700; } .wx-scene small { font-weight: 400; margin-left: .5em; color: var(--ink-soft); } .wx-steps { margin: 0 0 6px; padding-left: 1.2em; } .wx-steps li { margin: 4px 0; } .wx-steps li.mid { background: var(--accent-soft); border-radius: 8px; padding: 4px 6px; margin-left: -6px; } .wx-lb { display: inline-block; font-size: .78rem; color: var(--ink-soft); margin-right: .5em; } .wx-steps li.mid .wx-lb { color: var(--accent); font-weight: 700; } .wx-why { display: block; color: var(--ink-soft); font-size: .8rem; }
 .w20 li b { display: inline; margin-right: .6em; }
 .wz2 { margin: 8px 0 0; font-weight: 700; color: var(--accent); }
 .note.src { font-size: .78rem; }
@@ -953,7 +955,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.04f';
+  var APP_VER = 'v2026.11.04g';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -4216,6 +4218,44 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       ['「我」を出す', '「われ」「わが」と、作者自身を句に入れる。'], ['身体の部分も', '手・指・目・背中など、からだの一部を詠む。'], ['字余り', 'あえて音をあふれさせて、強調する。'], ['色彩', '色の言葉で、景をくっきりさせる。'],
       ['数詞', '「一」「二三」など、数で景を確かにする。'], ['地名を詠む', '地名のひびきと、その土地の空気を借りる。'], ['人名を詠む', '人の名で、句に物語をよぶ。'], ['慶弔と贈答の句', 'お祝い・お悔やみ・贈りものに添える句。']]]
   ];
+  /* 「実践：技」の「たとえば」（きなこの文案 2026-11-04）。名句は作者が没後70年をすぎたものだけ。段階の作例は裾野の作例（本の文章ではない）。両端が悪い例で、まん中が目安 */
+  var WAZA_EX = {
+    '気どりのポーズをなくす': { meiku: ['柿くへば鐘が鳴るなり法隆寺', '正岡子規', '柿を食べたら鐘が鳴った。それだけを写した、写生のお手本。格好つけた言葉が一つもありません。'], scene: '場面：夕焼け', steps: [
+      ['もっとポーズ', '夕焼けに染まる心の哀しみよ', '「心」「哀しみ」と格好つけた言葉だけ。景がありません。'], ['ポーズ', '夕焼けや涙にじむはなぜだろう', '自分に酔った問いかけ。見たものより自分が前に出ています。'],
+      ['素直', '夕焼けや洗濯ものを取り込む手', '見たまま、感じたまま。これが基準です。', 1], ['素直すぎ（散文）', '夕焼けがきれいだったので写真を撮った', '日記の文を17音に詰めただけ。「句の形」がありません。']] },
+    '陳腐なものは陳腐': { meiku: ['水枕ガバリと寒い海がある', '西東三鬼', '「寒い」を、水枕と海で言い切った句。誰の句にもならない、その人だけの景です。'], scene: '場面：桜', steps: [
+      ['もっと陳腐', '桜咲く春の喜び満ちている', '誰が書いても同じ句になります。'], ['陳腐', '桜の下笑顔あふれる花見客', '景はあるけれど、発想は定番です。'],
+      ['ふつう', '花吹雪肩にひとひら止まりけり', 'ありふれた景でも、「肩にひとひら」の切り取りで句になります。'], ['自分だけの細部', 'さくら散る自転車のかごにたまりけり', 'その人だけが見た景です。', 1],
+      ['奇をてらいすぎ', '散る桜概念として美しい', '独創のつもりが言葉遊びに。景が消えます。']] },
+    '省略は佳句の出発点': { meiku: ['古池や蛙飛びこむ水の音', '松尾芭蕉', '説明はゼロ。池と、音だけ。言わないから、読む人の耳に残ります。'], scene: '場面：夕立', steps: [
+      ['全部言う', '夕立に降られて濡れて困りけり', '経緯と気持ちまで全部入りです。'], ['まだ言う', '夕立や傘なく濡れて走りけり', '少し減ったけれど、説明が残ります。'],
+      ['ちょうどいい', '夕立や濡れたシャツ背に張りつきぬ', '理由は言わず、感触だけ。読む人が補えます。', 1], ['削りすぎ', '夕立や濡れる', '材料が足りず、景が立ちません。'], ['もっと削りすぎ', '夕立や音', '断片だけ。補いようがありません。']] },
+    '今を描写する': { meiku: ['菜の花や月は東に日は西に', '与謝蕪村', '夕方の「いま」の一瞬を、そのまま切り取った句。思い出でも説明でもありません。'], scene: '場面：川遊び', steps: [
+      ['思い出', '去年もこの川で泳いだ夏休み', '過去の説明です。'], ['一般論', '夏の川子どもにとって楽しい場所', '「いま」ではなく、知識の話です。'],
+      ['「いま」と言ってしまう', '川遊び今まさに子が飛び込んだ', '「いま」と言葉で言うのは説明。見せていません。'], ['いま', '川遊び子の足裏の白さかな', '目の前の一瞬だけ。これが描写です。', 1]],
+      extra: { scene: '参考：説明と描写のちがい（場面：寒い朝）', steps: [
+        ['説明', '冬の朝とても寒くてつらかった', '「寒い」「つらい」を言葉で言っているだけ。景が見えません。'], ['説明寄り', '寒いので布団の中で丸くなる', '行動はあるけれど、「寒いので」と理由の説明が先に立っています。'],
+        ['描写寄り', '冬の朝布団の端の冷たさよ', '「寒い」とは言わず、冷たさの在りか（布団の端）を示しています。'], ['描写', '冬の朝白い息して急ぐ人', '「寒い」の一言もないのに、寒さが見えます。', 1]],
+        note: '合言葉：説明＝「寒い」と言うこと、描写＝寒さが見えるものを置くこと。' } },
+    '季語は離して使う': { meiku: ['荒海や佐渡によこたふ天の河', '松尾芭蕉', '季語の「天の河」と、「荒海・佐渡」を離して置いて、響き合わせています。季語の説明になっていません。'], scene: '季語：秋風', steps: [
+      ['もっとつきすぎ', '秋風や涼しくなって葉の落ちる', '秋風＝涼しい＝葉が落ちる。季語の説明だけで終わっていて、新しい景がありません。'], ['つきすぎ', '秋風に揺れるすすきの穂の白さ', '風とすすきは定番の組み合わせ。悪くないけれど、予想の範囲内です。'],
+      ['ちょうどいい', '秋風や洗濯ばさみの落つる音', '風そのものは書かず、落ちる洗濯ばさみの音で聞かせる。離れているのに、響き合います。', 1], ['はなれすぎ', '秋風や資格試験の参考書', 'つながりが感じられない。秋風を別の季語に替えても文が壊れません＝季語が付け足しになっています。'],
+      ['もっとはなれすぎ', '秋風や量子力学入門書', '読む人がどうつなげようとしても無理な距離。響き合いゼロです。']] },
+    '「だから」ではない': { meiku: ['夏草や兵どもが夢の跡', '松尾芭蕉', '「だから」「ので」の理由づけなし。夏草と「夢の跡」を並べただけで、重さが出ます。'], scene: '場面：雨', steps: [
+      ['「だから」全開', '雨だから傘をさして出かけたり', '理由→行動の説明文です。'], ['「ので」でつなぐ', '雨なので電車はいつもより混んでいる', '因果の報告。句ではなく連絡事項です。'],
+      ['並べる', '雨の駅傘の花咲く改札口', '理由なし。景と景を並べただけです。', 1], ['並べすぎ（バラバラ）', '雨の駅ネオンサインと金魚鉢', '並べればいいわけではない。響き合いが要ります。']] }
+  };
+  function wazaSteps(sc, steps) {
+    return '<p class="wx-scene">段階（' + esc(sc) + '）<small>両端がわるい例。まん中が目安</small></p><ol class="wx-steps">' + steps.map(function (st) { return '<li' + (st[3] ? ' class="mid"' : '') + '><span class="wx-lb">' + esc(st[0]) + '</span><span class="wx-ku">' + esc(st[1]) + '</span><span class="wx-why">' + esc(st[2]) + '</span></li>'; }).join('') + '</ol>';
+  }
+  function wazaEx(name) {
+    var x = WAZA_EX[name]; if (!x) return '';
+    var h = '<details class="wx"><summary>たとえば</summary>';
+    if (x.meiku) h += '<p class="wx-meiku"><b>名句</b>　<span class="wx-ku">' + esc(x.meiku[0]) + '</span>（' + esc(x.meiku[1]) + '）<br><small>' + esc(x.meiku[2]) + '</small></p>';
+    h += wazaSteps(x.scene, x.steps);
+    if (x.extra) h += wazaSteps(x.extra.scene, x.extra.steps) + (x.extra.note ? '<p class="note">' + esc(x.extra.note) + '</p>' : '');
+    return h + '<p class="note">段階の作例は、裾野の作例です（本の文章ではありません）。</p></details>';
+  }
   var kataTab = 'kihon';
   var SRC_20 = '出典：藤田湘子『20週俳句入門』（角川ソフィア文庫・新版は角川学芸ブックス）目次より', SRC_JS = '出典：藤田湘子『新版 実作俳句入門』（角川ソフィア文庫『実作俳句入門』）目次より';
   function vWazaTop() {
@@ -4225,7 +4265,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   }
   function vWaza() {
     var h = '<div class="howto"><b>湘子の実践：作句のポイントとテクニック</b><span>型が手になじんだら、技へ。項目は本の目次のとおりです。説明は、裾野のひとことです（本の文章ではありません。くわしくは本でどうぞ）。</span></div>';
-    SHOSHI_WAZA.forEach(function (g) { h += '<div class="kcard"><b>' + esc(g[0]) + '</b><ol class="waza">' + g[1].map(function (x) { return '<li><b>' + esc(x[0]) + '</b><span>' + esc(x[1]) + '</span></li>'; }).join('') + '</ol></div>'; });
+    SHOSHI_WAZA.forEach(function (g) { h += '<div class="kcard"><b>' + esc(g[0]) + '</b><ol class="waza">' + g[1].map(function (x) { return '<li><b>' + esc(x[0]) + '</b><span>' + esc(x[1]) + '</span>' + wazaEx(x[0]) + '<p class="row wxmk"><button class="chip fit" data-act="tk-start" data-hint="' + esc(x[0]) + '">🧩 このポイントで一句つくる</button></p></li>'; }).join('') + '</ol></div>'; });
+    h += '<div class="panel"><b>共通の型</b><p class="note">どの項目も、両端があります。「言いすぎ・近すぎ」の端と、「足りなすぎ・離れすぎ」の端。その真ん中に、響く場所があります。端の例を見て、真ん中を探す。それが練習です。</p></div>';
     return h + '<p class="note src">' + esc(SRC_JS) + '</p>';
   }
   function vShoshi20() {
@@ -4615,7 +4656,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   };
   var TK_MOODS = ['たのしい', 'かなしい', 'しずか', 'すがすがしい'];
   function tkSeason() { var m = new Date(Date.now() + 9 * 3600000).getUTCMonth() + 1; return m >= 3 && m <= 5 ? 'haru' : m >= 6 && m <= 8 ? 'natsu' : m >= 9 && m <= 11 ? 'aki' : 'fuyu'; }
-  function tkStart() { tsuku = { step: 0, phrase: '', mood: '', kigo: '', order: 'mae', saved: false }; }
+  function tkStart(hint) { tsuku = { step: 0, phrase: '', mood: '', kigo: '', order: 'mae', saved: false, hint: hint || null }; }
   /* かなだけの文なら、音数をかぞえる（小さい「ゃゅょ」などは数えない。「っ」「ー」は数える）。漢字まじりは -1 */
   function tkMora(v) {
     var cs = Array.from(plain(v).replace(/[\s　、。，．…！？!?,.]/g, ''));
@@ -4664,6 +4705,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var steps = ['はじめに', 'フレーズ', '十二音に', '季語', '一句、完成'];
     h += '<ol class="steps">' + steps.slice(1).map(function (sname, i) { return '<li class="' + (t.step === i + 1 ? 'now' : t.step > i + 1 ? 'past' : '') + '">' + sname + '</li>'; }).join('') + '</ol>';
     var kigoC = (TK_KIGO5[tkSeason()] || {})[t.mood] || [];
+    if (t.hint) h += '<div class="panel tkhint"><b>🪄 きょうのポイント：' + esc(t.hint[0]) + '</b><span>' + esc(t.hint[1]) + '</span><small>このポイントを、頭のすみに置いて、一句。守れなくても大丈夫です。</small></div>';
     if (t.step === 0) {
       h += penSay('こんにちは、赤ペン先生です。今日は、いっしょに一句つくりましょう。まちがいはありませんから、気楽にどうぞ。', '「今日あったこと」を十二音のフレーズにして、五音の季語をのせるだけ。季語は、あとまわしで大丈夫です。わたしは赤ペンで、◎をつける係です。');
       h += '<div class="panel"><b>きょうの流れ</b><ol class="tg2"><li>フレーズづくり ── 今日、なにがあった？（例：昼はラーメンたべました）</li><li>十二音にととのえる ── 昼にラーメン（七）たべました（五）</li><li>気分にあう五音の季語をえらぶ ── たのしい季語？　かなしい季語？</li><li>一句、完成 ── 天高し　昼にラーメンたべました</li></ol></div>';
@@ -6926,7 +6968,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'demo-stock') { demo = null; tab = 'solo'; render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'demo-end') { demo = null; render(); }
     else if (act === 'demo-real') { demo = null; trial = null; page = ''; current = ''; tab = 'together'; lastTabSeen = tab; roomOpen = true; render(); try { var rb2 = document.getElementById('room-body'); if (rb2) rb2.scrollIntoView({ block: 'start' }); } catch (_) {} }
-    else if (act === 'tk-start') { trial = null; demo = null; page = ''; tkStart(); render(); try { window.scrollTo(0, 0); } catch (_) {} }
+    else if (act === 'tk-start') { trial = null; demo = null; page = ''; var th = null; if (t.dataset.hint) { SHOSHI_WAZA.forEach(function (g) { g[1].forEach(function (x) { if (x[0] === t.dataset.hint) th = x; }); }); } tkStart(th); render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'tk-end') { tsuku = null; render(); }
     else if (act === 'tk-again') { tkStart(); tsuku.step = 1; render(); try { window.scrollTo(0, 0); } catch (_) {} }
     else if (act === 'tk-go') { tsuku.step = 1; render(); }
