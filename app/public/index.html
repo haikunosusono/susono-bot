@@ -632,6 +632,7 @@ h3.sec { font-size: 1rem; }
 .cmlike { font-size: .82rem; padding: 2px 10px; }
 .cmi.hostline { background: var(--tile2); border-radius: 12px; padding: 6px 10px; }
 .cmi.chara { background: var(--tile4); border-radius: 12px; padding: 6px 10px; }
+.ngp .ngsteps { margin: 6px 0 10px; padding-left: 1.4em; font-size: .9rem; line-height: 1.7; } .ngp .ngsteps li { margin: 4px 0; }
 .ngp .ngu { font-size: .78rem; color: var(--ink-soft); overflow-wrap: anywhere; flex: 1; min-width: 0; }
 .ngp .row2 { gap: 8px; align-items: center; flex-wrap: wrap; }
 .sttwrap { overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; }
@@ -963,7 +964,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.04s';
+  var APP_VER = 'v2026.11.04t';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1329,6 +1330,13 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ngCur() { return ngList[ngSel] || ngList[0] || null; }
   /* 夏雲システムのルビの書き方：｜漢字（かな）。裾野のルビ（漢字《かな》）を、その形にして渡す */
   function ngText(v) { return String(v || '').replace(RB_RE, '｜$1（$2）').replace(/[ ]/g, '　'); }
+  /* 裾野でためた句を、ほかの句会へ（夏雲システムへの流れ）。特定の句会はすすめない */
+  function ngNext() {
+    return '<details class="panel ngp"><summary>🪜 その先へ：ためた句を、ほかの句会に出してみる</summary>' +
+      '<p class="note">裾野でためた句は、ほかのネット句会にも出せます。たとえば<b>夏雲システム</b>（無料のネット句会のしくみ。多くの結社や仲間の句会が使っています）。裾野は、毎日の練習場。腕だめしは、外の句会で。</p>' +
+      '<ol class="ngsteps"><li>出たい句会の案内（メールや X など）から、<b>投句画面のURL</b>をもらう。</li><li>下の「夏雲システムに出す」に、そのURLを覚えさせる。</li><li>句の横の「☁️ 夏雲へ」を押す → 句がコピーされ、投句画面がひらく。貼りつけて、送信。ふりがなは、夏雲の書き方（｜漢字（かな））に直ります。</li></ol>' +
+      '<p class="note">どの句会に出ればいい？　<a href="https://nolimbre.wixsite.com/natsugumo" target="_blank" rel="noopener">夏雲システムの紹介ページ</a>に、しくみの説明があります。はじめは、「見学OK」「初心者歓迎」と書いてある句会から。句会ごとに、きまり（句数・締切・名乗り方）がちがうので、案内をよく読んでから。</p></details>';
+  }
   function ngPanel() {
     var h = '<details class="panel ngp"' + (ngOpen ? ' open' : '') + '><summary>☁️ 夏雲システムに出す（投句画面のURLを覚えておく）</summary>' +
       '<p class="note">夏雲システムの句会に出すときの手助けです。句の横の「☁️ 夏雲へ」を押すと、句をコピーして（ふりがなは、夏雲の書き方「｜漢字（かな）」に直します）、ここで覚えた投句画面をひらきます。夏雲の画面で貼りつけて、「送信」を押すのは、ご自身で。URLは、この端末の中だけに残ります（裾野には送られません）。</p>';
@@ -1394,7 +1402,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     h += '<h2 class="sec">こつこつストッ句部屋<small>' + mine.length + '句・自分だけが見られます</small></h2>' + vDaily();
     if (myId) h += kshMile(mine.length);
     if (myId) h += vStAdd() + '<div class="row"><button class="chip fit" data-act="page" data-p="renkan">🧵 連作の部屋へ</button></div>';
-    if (myId) h += ngPanel();
+    if (myId) h += ngNext() + ngPanel();
     h += '<div class="row"><button class="chip fit" data-act="st-csv">📤 Excelに書き出す</button><button class="chip fit" data-act="st-copy">📋 文でコピー</button><button class="chip fit" data-act="st-share">📨 LINE・メールで送る</button></div>';
     h += '<div class="row"><button class="chip fit' + (stView === 'table' ? ' on' : '') + '" data-act="st-view" data-v="table">表で見る（よこ書き）</button><button class="chip fit' + (stView === 'tan' ? ' on' : '') + '" data-act="st-view" data-v="tan">短冊で見る（たて書き）</button></div>';
     h += '<div class="row"><button class="chip fit' + (stFil === 'all' ? ' on' : '') + '" data-act="st-fil" data-v="all">すべて</button><button class="chip fit' + (stFil === 'n' ? ' on' : '') + '" data-act="st-fil" data-v="n">あとで推敲</button><button class="chip fit' + (stFil === 'k' ? ' on' : '') + '" data-act="st-fil" data-v="k">かんぺき</button></div>';
@@ -3157,6 +3165,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     ['ここで作った句は、大会に出せますか？（既発表・未発表）', 'ここは練習の場なので、ここで作った句は、未発表のあつかいです。ただし、自分でXなどに公開した句は、公表したことになる場合があります。既発表の規定は、それぞれの俳句大会の規約によります。募集要項で確かめてから出してください。'],
     ['ほかの人の句を、SNSにのせてもいいですか？', 'いけません。ほかの人の句や選評は、本人の了解なしに、SNSにのせたり、大会などに投句したりしないでください。画面を撮影してのせることも、同じです。'],
     ['データを消したいときは？', '設定の「自分のデータを消す」から、ご自分で消せます。句会に出した句は、ほかの人との記録なので残ります。それも消したいときは、お問い合わせから、内容を書いて送ってください。運営者が確認します。'],
+    ['夏雲システムなど、ほかの句会に出せますか？', '出せます。ストッ句の「夏雲システムに出す」に投句画面のURLを覚えさせると、句の横の「夏雲へ」で、句をコピーして投句画面がひらきます（ふりがなは夏雲の書き方「｜漢字（かな）」に直ります）。貼りつけて送信するのは、ご自身で。URLは、この端末の中だけに残ります。'],
     ['不具合や、ほしい機能があるときは？', 'お問い合わせから、お気軽にお知らせください。運営者に届きます。返事は、このページに表示されます。']
   ];
   /* 機種ごとの手順を、絵（大きなアイコン）の流れで見せる。文字は大きめに。 */
