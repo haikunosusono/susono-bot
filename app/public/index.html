@@ -789,7 +789,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
 <script src="vendor/firebase-auth-compat.js"></script>
 <script src="vendor/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
-<script src="shim.js?v=28l"></script>
+<script src="shim.js?v=28m"></script>
 <script>
 (function () {
   'use strict';
@@ -957,7 +957,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.04n';
+  var APP_VER = 'v2026.11.04o';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -6176,7 +6176,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<button class="btn" data-act="demo-start">🐸 体験句会<small>ボット相手・保存なし</small></button>' +
       '<button class="btn" data-act="tk-start">🧩 句づくり<small>フレーズと季語で・3分</small></button>' +
       '</div>' +
-      '<p class="note">登録すると、毎晩21:00の「すその句会」に参加でき、つくった句が「ストッ句」に残ります。</p></section>';
+      '<p class="note">登録すると、毎日の定例句会（21時・23時・25時、土日祝は昼も）に参加でき、つくった句が「ストッ句」に残ります。</p></section>';
   }
   function vLive() {
     var cut = Date.now() - 6 * 3600000, items = [];
