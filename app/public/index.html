@@ -964,7 +964,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.04t';
+  var APP_VER = 'v2026.11.04u';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -6274,7 +6274,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   }
   function vToday() {
     var n = dayNum(), sr = plan(n).series;
-    return '<button class="kteaser" data-act="tab" data-t="solo"><span>💪 今日の俳筋力トレーニング</span><b>' + esc(SER[sr].name) + 'シリーズ「' + esc(promptFor(sr, n)) + '」</b><small>ひとりで一句 ›</small></button><p class="note kt-note">ひとりで作る練習用です。今夜の句会のお題は、自由（当季雑詠）です。</p>';
+    return '<button class="kteaser" data-act="tab" data-t="solo"><span>💪 今日の俳筋力トレーニング</span><b>' + esc(SER[sr].name) + 'シリーズ「' + esc(promptFor(sr, n)) + '」</b><small>ひとりで一句 ›</small></button>';
   }
   var MTN = '<svg class="mtn" viewBox="0 0 400 34" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 33 L70 20 L112 27 L190 5 L236 20 L282 12 L340 26 L400 22" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>';
   function vHero() {
