@@ -967,7 +967,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.04v';
+  var APP_VER = 'v2026.11.04w';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1142,7 +1142,9 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     prevCnt = seen;
   }
   var BASE_URL = 'https://haikunosusono.web.app/';
-  function inviteLink(s) { return /^[A-Za-z0-9._~-]+$/.test(s.id) ? BASE_URL + '#' + s.id : BASE_URL; }
+  /* 招待のリンクに ?v= をつける：Xなどは、同じURLの古いカード（題・絵）を覚えているので、別のURLとして新しく読みにいかせる */
+  var OG_V = '?v=2';
+  function inviteLink(s) { return /^[A-Za-z0-9._~-]+$/.test(s.id) ? BASE_URL + OG_V + '#' + s.id : BASE_URL + OG_V; }
   function inviteText(s) { if (s.tei) return '「俳句の裾野」の定例句会（デモ）' + teiSlotName(dn(s.date), s.slot) + '　' + mdLabel(dn(s.date)) + s.slot + '時。お題は当季雑詠。見学もできます。 ' + inviteLink(s) + '\n#俳句の裾野 #俳句 #句会'; return '「俳句の裾野」で句会をひらいています。兼題は「' + s.ch + '」。あと' + Math.max(0, s.size - count(s)) + '人で始まります。 ' + inviteLink(s) + '\n#俳句の裾野 #俳句 #haiku\nhttps://haikunosusono.web.app'; }
   function ready() {
     if (!db) { toast('保存先につながっていません'); return false; }
