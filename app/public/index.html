@@ -957,7 +957,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.04l';
+  var APP_VER = 'v2026.11.04m';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -6155,9 +6155,9 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       vHeroNow() +
       '<p class="hero-name">すその句会</p>' +
       (myId ? '' : '<p class="hero-ease">きょうの気分を、五・七・五に。</p><p class="hero-ease2">うまく詠もうとしなくて大丈夫。ひとりでそっと言葉を置くもよし、みんなの視点を楽しむもよし。見るだけでも、大歓迎です。</p>') +
-      (myId ? '<p class="hero-lead">俳句を一句' + '持ち寄' + 'って、毎晩決まった時刻にみんなで始める、オンライン句会です</p>' : '<p class="hero-lead">初心者から経験者まで、いつでも気楽に集まる句会です。朝でも夜中でも、合う時間に、ふらっと一句。</p><p class="hero-tt">きょうの回：' + teiHoursFor(dayNum()).map(function (hh) { return (slotNow(hh) ? '<b>' : '') + hh + '時' + (slotNow(hh) ? '</b>' : ''); }).join('・') + (teiDayOff(dayNum()) ? '' : '<small>（土日祝は 10・13・15時も）</small>') + '　どの回でも、見るだけでもOK</p>') +
+      (myId ? '<p class="hero-lead">俳句を一句' + '持ち寄' + 'って、決まった時刻にみんなで始める、オンライン句会です。一日に何回も。乗り遅れても、つぎの回にどうぞ。</p>' : '<p class="hero-lead">初心者から経験者まで、いつでも気楽に集まる句会です。朝でも夜中でも、合う時間に、ふらっと一句。</p><p class="hero-tt">きょうの回：' + teiHoursFor(dayNum()).map(function (hh) { return (slotNow(hh) ? '<b>' : '') + hh + '時' + (slotNow(hh) ? '</b>' : ''); }).join('・') + (teiDayOff(dayNum()) ? '' : '<small>（土日祝は 10・13・15時も）</small>') + '　どの回でも、見るだけでもOK</p>') +
       (myId ? '' : '<details class="hero-more" data-k="facts"' + (foldOpen.facts ? ' open' : '') + '><summary>くわしく（時間・持ちもの・流れ）</summary>') +
-      '<ul class="hero-facts" aria-label="ひと目でわかる情報"><li>🕘 <b>毎晩21:00</b>開始</li><li>✍️ <b>一句</b>持参</li><li>⏱ 所要 <b>約60分</b></li><li>👀 登録なしで' + '見学' + 'OK</li><li>📧 登録は<b>メールだけ・無料</b></li></ul>' + (myId ? '' : '</details>') +
+      '<ul class="hero-facts" aria-label="ひと目でわかる情報"><li>🕘 <b>毎日 21・23・25時</b>（土日祝は昼も）</li><li>✍️ <b>一句</b>持参</li><li>⏱ 所要 <b>約60分</b></li><li>👀 登録なしで' + '見学' + 'OK</li><li>📧 登録は<b>メールだけ・無料</b></li></ul>' + (myId ? '' : '</details>') +
       '<div class="hero-cta"><button class="btn primary big" data-act="' + (myId ? 'hero-join' : 'fbgate') + '">' + (myId ? heroJoinLabel() : heroJoinLabel().replace('に参加する', 'をのぞく・参加する')) + '</button>' +
       '<button class="btn hero-solo" data-act="tab" data-t="diary">✍️ ひとりで一句、ストックする</button>' +
       (myId ? '' : '<button class="link" data-act="hero-watch">登録なしで見学する</button><small class="hero-ws">見学では、句会のようすを、はじめから見られます</small>') + '</div>' +
