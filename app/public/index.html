@@ -568,7 +568,7 @@ h3.sec { font-size: 1rem; }
 .hero-cta .btn.primary { font-size: 1.08rem; padding: 12px 18px; }
 .hero-cta .link { align-self: center; font-size: .92rem; }
 .hero-sub { margin: 8px 0 0; font-size: .78rem; }
-.hero-ease { margin: 0 0 6px; font-size: .95rem; color: var(--accent); font-weight: 700; } .engawa { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 0 10px; } .engawa .lb { font-size: .78rem; color: var(--ink-soft); margin-right: .2em; }
+.hero-ease { margin: 0 0 2px; font-size: 1.02rem; color: var(--accent); font-weight: 700; } .hero-ease2 { margin: 0 0 8px; font-size: .88rem; color: var(--ink-soft); } .hero-cta .hero-solo { width: 100%; margin-top: 6px; font-size: .92rem; } .engawa { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 0 10px; } .engawa .lb { font-size: .78rem; color: var(--ink-soft); margin-right: .2em; }
 .hero-more { margin: 0 0 10px; } .hero-more > summary { cursor: pointer; font-size: .84rem; color: var(--ink-soft); padding: 4px 0; list-style: none; } .hero-more > summary::before { content: '▸ '; } .hero-more[open] > summary::before { content: '▾ '; } .hero-more[open] > summary { margin-bottom: 6px; }
 @media (max-width: 480px) { .appurl { font-size: .74rem; margin-bottom: 4px; } .top { gap: 2px; } .brand { font-size: 1.45rem; } .brand .team { font-size: .42em; } .tagline { font-size: .82rem; line-height: 1.4; } .tagline2 { font-size: .8rem; } .date { font-size: .9rem; } .topr { gap: 4px; } .hero { padding: 12px 14px 14px; margin-top: 6px; } .hero-lead { font-size: 1rem; } .hero-facts li { font-size: .76rem; padding: 1px 8px; } .hero-steps { font-size: .84rem; margin-bottom: 10px; } }
 
@@ -956,7 +956,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.04i';
+  var APP_VER = 'v2026.11.04j';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -6153,15 +6153,16 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     return '<section class="hero" aria-label="俳句の裾野とは">' +
       vHeroNow() +
       '<p class="hero-name">すその句会</p>' +
-      (myId ? '' : '<p class="hero-ease">きょうの気分を、五・七・五に。見るだけ・聞いてるだけでも、大歓迎です。</p>') +
+      (myId ? '' : '<p class="hero-ease">きょうの気分を、五・七・五に。</p><p class="hero-ease2">うまく詠もうとしなくて大丈夫。ひとりでそっと言葉を置くもよし、みんなの視点を楽しむもよし。見るだけでも、大歓迎です。</p>') +
       '<p class="hero-lead">俳句を一句' + '持ち寄' + 'って、毎晩決まった時刻にみんなで始める、オンライン句会です</p>' +
       (myId ? '' : '<details class="hero-more" data-k="facts"' + (foldOpen.facts ? ' open' : '') + '><summary>くわしく（時間・持ちもの・流れ）</summary>') +
       '<ul class="hero-facts" aria-label="ひと目でわかる情報"><li>🕘 <b>毎晩21:00</b>開始</li><li>✍️ <b>一句</b>持参</li><li>⏱ 所要 <b>約60分</b></li><li>👀 登録なしで' + '見学' + 'OK</li><li>📧 登録は<b>メールだけ・無料</b></li></ul>' + (myId ? '' : '</details>') +
       '<div class="hero-cta"><button class="btn primary big" data-act="' + (myId ? 'hero-join' : 'fbgate') + '">' + (myId ? heroJoinLabel() : heroJoinLabel().replace('に参加する', 'をのぞく・参加する')) + '</button>' +
+      '<button class="btn hero-solo" data-act="tab" data-t="diary">✍️ ひとりで一句、ストックする</button>' +
       (myId ? '' : '<button class="link" data-act="hero-watch">登録なしで見学する</button><small class="hero-ws">見学では、句会のようすを、はじめから見られます</small>') + '</div>' +
       (myId ? '' : '<div class="engawa" aria-label="気楽な入り方"><span class="lb">縁側から、どうぞ</span><button class="chip fit" data-act="tab" data-t="diary">1. ひとりで、つくる</button><button class="chip fit" data-act="hero-watch">2. のぞく（見学）</button><button class="chip fit" data-act="fbgate">3. 慣れたら、出してみる</button></div>') +
       (myId ? '' : '<details class="hero-more" data-k="steps"' + (foldOpen.steps ? ' open' : '') + '><summary>参加の流れ（3つ）</summary>') +
-      '<ol class="hero-steps"><li>一句つくる（お題は自由。今日の' + '兼題' + 'からでもOK）</li><li>' + heroAimTime() + 'までに、このアプリで投句する</li><li>' + heroAimTime() + 'に句会が始まる。席に案内されるので、みんなで詠み合う</li></ol>' +
+      '<ol class="hero-steps"><li>ふっと浮かんだ一句をつくる（お題は自由。今日の' + '兼題' + 'からでもOK）</li><li>' + heroAimTime() + 'までに、このアプリで投句する</li><li>' + heroAimTime() + 'に句会が始まる。席に案内されるので、みんなで詠み合う</li></ol>' +
       (myId ? '' : '</details>') +
       '<p class="note hero-sub">はじめてでも、ふりがなとチュートリアルつきです。</p>' + MTN + '</section>' + vMonthlyLine() + vToday(); /* 定例句会の枠のすぐ下に、月例句会の案内。そのあとに、俳筋力トレーニング */
   }
