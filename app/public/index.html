@@ -10,11 +10,15 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>俳句のアプリ「チームすその」｜俳句の裾野 初心者歓迎</title>
-<meta name="description" content="楽しくなければ俳句じゃない！俳筋力をきたえる、俳句初心者向けの無料アプリ。毎月の句会に、気軽に参加できます。">
+<meta name="description" content="初心者から経験者まで、いつでも気楽に集まるオンライン句会。毎日 21時・23時・25時（土日祝は 10・13・15時も）。登録なしで見学OK、登録はメールだけ・無料。">
 <meta property="og:type" content="website">
-<meta property="og:title" content="俳句のアプリ「チームすその」">
-<meta property="og:description" content="楽しくなければ俳句じゃないぜ！俳筋力トレーニング、してみませんか？">
+<meta property="og:title" content="俳句の裾野｜毎日ひらく、オンライン句会">
+<meta property="og:description" content="初心者から経験者まで、いつでも気楽に集まる句会。毎日 21時・23時・25時（土日祝は 10・13・15時も）。登録なしで見学OK、登録はメールだけ・無料。">
 <meta property="og:url" content="https://haikunosusono.web.app">
+<meta property="og:image" content="https://haikunosusono.web.app/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap">
 <style>
 /* 一列の縦長。日替わりの一字題を上に置き、「ひとり（研鑽）」と「みんな（投句・選句）」を切り替える */
@@ -957,7 +961,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.04p';
+  var APP_VER = 'v2026.11.04q';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
