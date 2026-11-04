@@ -633,6 +633,9 @@ h3.sec { font-size: 1rem; }
 .cmi.hostline { background: var(--tile2); border-radius: 12px; padding: 6px 10px; }
 .cmi.chara { background: var(--tile4); border-radius: 12px; padding: 6px 10px; }
 .ngp .ngsteps { margin: 6px 0 10px; padding-left: 1.4em; font-size: .9rem; line-height: 1.7; } .ngp .ngsteps li { margin: 4px 0; }
+.sklist { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 6px; } .sklist .skpick { display: flex; gap: 10px; align-items: center; text-align: left; font-weight: 400; padding: 8px 12px; line-height: 1.5; min-height: 44px; } .sklist .kn { flex: 0 0 2.2em; font-weight: 700; color: var(--ink-soft); } .sklist .skpick.on .kn { color: inherit; } .sklist small { display: block; font-size: .75rem; opacity: .8; }
+.skst .chip { flex: 0 0 auto; font-size: .8rem; min-height: 32px; cursor: default; } .sk-st { gap: 8px; flex-wrap: wrap; } .sk-stc { display: inline-flex; align-items: center; gap: 4px; } .sk-stc input[type=text] { width: 5.5em; } .sk-stc input[type=number] { width: 4em; } .sk-stc small { color: var(--ink-soft); font-size: .78rem; }
+.skh { margin: 14px 0 6px; font-size: 1rem; } .skh small { font-weight: 400; color: var(--ink-soft); margin-left: 8px; } .skres { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; } .skres .skq { line-height: 1.6; } .skres .kn { font-weight: 700; color: var(--ink-soft); margin-right: 8px; } .skres textarea { width: 100%; box-sizing: border-box; font-size: .92rem; }
 .ngp .ngu { font-size: .78rem; color: var(--ink-soft); overflow-wrap: anywhere; flex: 1; min-width: 0; }
 .ngp .row2 { gap: 8px; align-items: center; flex-wrap: wrap; }
 .sttwrap { overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; }
@@ -964,7 +967,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.04u';
+  var APP_VER = 'v2026.11.04v';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1335,7 +1338,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     return '<details class="panel ngp"><summary>🪜 その先へ：ためた句を、ほかの句会に出してみる</summary>' +
       '<p class="note">裾野でためた句は、ほかのネット句会にも出せます。たとえば<b>夏雲システム</b>（無料のネット句会のしくみ。多くの結社や仲間の句会が使っています）。裾野は、毎日の練習場。腕だめしは、外の句会で。</p>' +
       '<ol class="ngsteps"><li>出たい句会の案内（メールや X など）から、<b>投句画面のURL</b>をもらう。</li><li>下の「夏雲システムに出す」に、そのURLを覚えさせる。</li><li>句の横の「☁️ 夏雲へ」を押す → 句がコピーされ、投句画面がひらく。貼りつけて、送信。ふりがなは、夏雲の書き方（｜漢字（かな））に直ります。</li></ol>' +
-      '<p class="note">どの句会に出ればいい？　<a href="https://nolimbre.wixsite.com/natsugumo" target="_blank" rel="noopener">夏雲システムの紹介ページ</a>に、しくみの説明があります。はじめは、「見学OK」「初心者歓迎」と書いてある句会から。句会ごとに、きまり（句数・締切・名乗り方）がちがうので、案内をよく読んでから。</p></details>';
+      '<p class="note">どの句会に出ればいい？　<a href="https://nolimbre.wixsite.com/natsugumo" target="_blank" rel="noopener">夏雲システムの紹介ページ</a>に、しくみの説明があります。はじめは、「見学OK」「初心者歓迎」と書いてある句会から。句会ごとに、きまり（句数・締切・名乗り方）がちがうので、案内をよく読んでから。</p><div class="row"><button class="chip fit" data-act="page" data-p="senku">🗂 選句の道具（ほかの句会で選をするとき）</button></div></details>';
   }
   function ngPanel() {
     var h = '<details class="panel ngp"' + (ngOpen ? ' open' : '') + '><summary>☁️ 夏雲システムに出す（投句画面のURLを覚えておく）</summary>' +
@@ -3166,6 +3169,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     ['ほかの人の句を、SNSにのせてもいいですか？', 'いけません。ほかの人の句や選評は、本人の了解なしに、SNSにのせたり、大会などに投句したりしないでください。画面を撮影してのせることも、同じです。'],
     ['データを消したいときは？', '設定の「自分のデータを消す」から、ご自分で消せます。句会に出した句は、ほかの人との記録なので残ります。それも消したいときは、お問い合わせから、内容を書いて送ってください。運営者が確認します。'],
     ['夏雲システムなど、ほかの句会に出せますか？', '出せます。ストッ句の「夏雲システムに出す」に投句画面のURLを覚えさせると、句の横の「夏雲へ」で、句をコピーして投句画面がひらきます（ふりがなは夏雲の書き方「｜漢字（かな）」に直ります）。貼りつけて送信するのは、ご自身で。URLは、この端末の中だけに残ります。'],
+    ['ほかの句会の選句を、手もとで整理できますか？', 'できます。メニューの「選句の道具」に、句の一覧を貼ると、自句に印をつけて外し、予選→並選→特選と段階で絞れます。段の名前と句数は、句会に合わせて変えられます（天・地・人など）。AIは使わず、一覧も結果も、この端末の中だけに残ります。選評は、ご自身の言葉で。'],
     ['不具合や、ほしい機能があるときは？', 'お問い合わせから、お気軽にお知らせください。運営者に届きます。返事は、このページに表示されます。']
   ];
   /* 機種ごとの手順を、絵（大きなアイコン）の流れで見せる。文字は大きめに。 */
@@ -3732,6 +3736,102 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function kshPick(pur) {
     var p = KSH_PRESET[pur] || KSH_PRESET.free; ksh.pur = pur; ksh.per = p.per; ksh.order = p.order; ksh.form = p.form; if (p.chap) ksh.chap = p.chap; if (p.n) ksh.n = p.n;
     kshTitle = ''; kshImgUrl = ''; kshOverride = {}; kshSel = p.auto ? kshCands().map(function (e) { return e.id; }).slice(0, kshMax()) : [];
+  }
+
+  /* ---- 選句の道具：ほかの句会（夏雲システムなど）の一覧を貼って、予選→並選→特選と段階で絞る。AIは使わない。保存は、この端末の中だけ ---- */
+  var SK_PRESETS = [['特選1・並選4・予選', [['特選', 1], ['並選', 4], ['予選', 0]]], ['特選1・並選3・予選', [['特選', 1], ['並選', 3], ['予選', 0]]], ['天・地・人・予選', [['天', 1], ['地', 1], ['人', 1], ['予選', 0]]], ['特選2・並選5・予選', [['特選', 2], ['並選', 5], ['予選', 0]]]];
+  var sk = { title: '', src: '', items: [], st: [['特選', 1], ['並選', 4], ['予選', 0]], step: 0, picks: {}, notes: {} };
+  try { var sk0 = JSON.parse(localStorage.getItem('ikku-senku') || 'null'); if (sk0 && sk0.items) sk = sk0; } catch (_) {}
+  function skSave() { try { localStorage.setItem('ikku-senku', JSON.stringify(sk)); } catch (_) {} }
+  function skParse(txt) {
+    var out = [], n = 0;
+    String(txt || '').split(/\r?\n/).forEach(function (l) {
+      l = l.replace(/^[\s　]+|[\s　]+$/g, ''); if (!l) return;
+      var m = l.match(/^[（(\[【]?([0-9０-９]{1,3})[）)\]】.．、,:：　\s]+(.+)$/), no = '';
+      if (m) { no = m[1].replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }); l = m[2].trim(); }
+      n++; out.push({ n: no || String(n), t: l, me: false });
+    });
+    return out;
+  }
+  function skStages() { return sk.st.length; }
+  /* 段 k（0=いちばん上）の候補：ひとつ下の段で拾った句。いちばん下の段は、自句以外ぜんぶ */
+  function skCands(k) { var ids = []; if (k === skStages() - 1) sk.items.forEach(function (it, i) { if (!it.me) ids.push(i); }); else ids = (sk.picks[k + 1] || []).slice(); return ids; }
+  function skLimit(k) { var t = 0; for (var j = 0; j <= k; j++) { if (!sk.st[j][1]) return 0; t += sk.st[j][1]; } return t; }
+  function skRank(i) { for (var k = 0; k < skStages(); k++) if ((sk.picks[k] || []).indexOf(i) >= 0) return k; return -1; }
+  function skText() {
+    var L = []; if (sk.title) L.push('【' + sk.title + '】');
+    for (var k = 0; k < skStages(); k++) {
+      var ids = sk.items.map(function (_, i) { return i; }).filter(function (i) { return skRank(i) === k; });
+      L.push(sk.st[k][0] + '（' + ids.length + '句）');
+      ids.forEach(function (i) { L.push(sk.items[i].n + '　' + sk.items[i].t); if ((sk.notes[i] || '').trim()) L.push('　' + sk.notes[i].trim()); });
+      L.push('');
+    }
+    var me = sk.items.filter(function (it) { return it.me; }); if (me.length) L.push('自句：' + me.map(function (it) { return it.n; }).join('・'));
+    return L.join('\n').trim();
+  }
+  function vSenku() {
+    var chip = function (act, v, label, on, extra) { return '<button class="chip fit' + (on ? ' on' : '') + '" data-act="' + act + '" data-v="' + esc(String(v)) + '"' + (extra || '') + '>' + label + '</button>'; };
+    var h = '<h2 class="sec">選句の道具<small>ほかの句会の選を、段階で</small></h2>' +
+      '<div class="howto"><b>句の一覧を貼って、予選 → 並選 → 特選と、段階で絞ります</b><span>夏雲システムなど、ほかの句会で選をするときの、手もとの道具です。AIは使いません。句の一覧や選んだ結果は、この端末の中だけに残り、裾野のサーバーには送られません。選評は、ご自身の言葉で。</span></div>';
+    var N = skStages(), last = N - 1;
+    /* 手順の見出し */
+    var steps = ['① 一覧を貼る', '② 自句に印'];
+    for (var k = last; k >= 0; k--) steps.push(sk.st[k][0]);
+    steps.push('まとめ');
+    h += '<div class="row skst">' + steps.map(function (t, i) { return '<span class="chip fit' + (i === sk.step ? ' on' : '') + '"' + (i < sk.step ? ' style="opacity:.7"' : '') + '>' + esc(t) + '</span>'; }).join('') + '</div>';
+    if (sk.step === 0) {
+      h += '<div class="panel"><div class="field"><label for="sk-title">句会の名前（なくてもよい）</label><input type="text" id="sk-title" data-f="sk-title" maxlength="40" value="' + esc(sk.title) + '" placeholder="例：第42回なごやか句会"></div>' +
+        '<div class="field"><label for="sk-src">句の一覧（1行に1句。番号つきでも、なしでも）</label><textarea id="sk-src" data-f="sk-src" rows="10" placeholder="1　初時雨猫も小蓑をほしげなり&#10;2　…">' + esc(sk.src) + '</textarea></div>' +
+        '<div class="field"><label>選の組み立て</label><div class="row">' + SK_PRESETS.map(function (pz, i) { return chip('sk-preset', i, pz[0], JSON.stringify(pz[1]) === JSON.stringify(sk.st)); }).join('') + '</div>' +
+        '<div class="row sk-st">' + sk.st.map(function (st, k) { return '<span class="sk-stc"><input type="text" data-f="sk-sn" data-k="' + k + '" value="' + esc(st[0]) + '" maxlength="6" aria-label="段の名前"><input type="number" min="0" max="99" data-f="sk-sc" data-k="' + k + '" value="' + st[1] + '" aria-label="句数"' + (k === sk.st.length - 1 ? ' disabled' : '') + '>' + (k === sk.st.length - 1 ? '<small>いくつでも</small>' : '<small>句</small>') + '</span>'; }).join('') + '</div><p class="note">上の段から順に。いちばん下の段（予選）は、数をきめず広く拾います。名前は、句会に合わせて書きかえられます（天・地・人など）。</p></div>' +
+        '<div class="actions"><button class="btn primary" data-act="sk-parse">一覧にする →</button>' + (sk.items.length ? '<button class="btn" data-act="sk-go" data-v="1">つづきから →</button>' : '') + '</div></div>';
+      return h;
+    }
+    if (!sk.items.length) { sk.step = 0; return h + '<p class="note">まず、句の一覧を貼ってください。</p>'; }
+    if (sk.step === 1) {
+      h += '<div class="panel"><p class="lead">自分の句を見つけて、印をつけてください（選の対象から外れます）</p><ul class="sklist">' + sk.items.map(function (it, i) { return '<li><button class="chip fit skpick' + (it.me ? ' on' : '') + '" data-act="sk-me" data-i="' + i + '"><span class="kn">' + esc(it.n) + '</span><span>' + esc(it.t) + (it.me ? '<small>自句</small>' : '') + '</span></button></li>'; }).join('') + '</ul>' +
+        '<p class="note">自句：' + (sk.items.filter(function (it) { return it.me; }).length || 'なし') + '　全 ' + sk.items.length + ' 句</p>' +
+        '<div class="actions"><button class="btn" data-act="sk-go" data-v="0">← 一覧へ</button><button class="btn primary" data-act="sk-go" data-v="2">' + esc(sk.st[last][0]) + 'へ →</button></div></div>';
+      return h;
+    }
+    var si = sk.step - 2; /* 0 = いちばん下の段 */
+    if (si < N) {
+      var k = last - si, cands = skCands(k), picks = sk.picks[k] || [], lim = skLimit(k), hi = k > 0 ? skLimit(k - 1) : 0;
+      h += '<div class="panel"><p class="lead">' + esc(sk.st[k][0]) + '：' + (k === last ? '気になる句を、広く拾ってください' : 'ひとつ下の段（' + esc(sk.st[k + 1][0]) + '）の ' + cands.length + ' 句から、えらんでください') + '</p>' +
+        '<p class="note">えらんだ：<b>' + picks.length + '</b> 句' + (lim ? '／' + lim + ' 句まで' + (k > 0 && hi ? '（このあと上の段へ ' + hi + ' 句を送るぶんをふくむ）' : '') : '') + '</p>' +
+        '<ul class="sklist">' + cands.map(function (i) { var it = sk.items[i], on = picks.indexOf(i) >= 0; return '<li><button class="chip fit skpick' + (on ? ' on' : '') + '" data-act="sk-pick" data-k="' + k + '" data-i="' + i + '"><span class="kn">' + esc(it.n) + '</span><span>' + esc(it.t) + '</span></button></li>'; }).join('') + '</ul>' +
+        (cands.length ? '' : '<p class="note">候補がありません。ひとつ前の段で、句を拾ってください。</p>') +
+        '<div class="actions"><button class="btn" data-act="sk-go" data-v="' + (sk.step - 1) + '">← もどる</button><button class="btn primary" data-act="sk-go" data-v="' + (sk.step + 1) + '">' + (k === 0 ? 'まとめへ →' : esc(sk.st[k - 1][0]) + 'へ →') + '</button></div></div>';
+      return h;
+    }
+    /* まとめ */
+    h += '<div class="panel"><p class="lead">まとめ' + (sk.title ? '：' + esc(sk.title) : '') + '</p>';
+    for (var kk = 0; kk < N; kk++) {
+      var ids = sk.items.map(function (_, i) { return i; }).filter(function (i) { return skRank(i) === kk; });
+      h += '<h3 class="skh">' + esc(sk.st[kk][0]) + '<small>' + ids.length + '句' + (sk.st[kk][1] && ids.length > sk.st[kk][1] ? '（' + sk.st[kk][1] + '句の約束より多い）' : '') + '</small></h3>' +
+        (ids.length ? '<ul class="skres">' + ids.map(function (i) { var it = sk.items[i]; return '<li><div class="skq"><span class="kn">' + esc(it.n) + '</span>' + esc(it.t) + '</div><textarea rows="2" data-f="sk-note" data-i="' + i + '" placeholder="選評（自分の言葉で。なくてもよい）">' + esc(sk.notes[i] || '') + '</textarea></li>'; }).join('') + '</ul>' : '<p class="note">なし</p>');
+    }
+    var me2 = sk.items.filter(function (it) { return it.me; });
+    if (me2.length) h += '<p class="note">自句：' + me2.map(function (it) { return esc(it.n) + '　' + esc(it.t); }).join('／') + '（選の対象外）</p>';
+    h += '<div class="actions"><button class="btn primary" data-act="sk-copy">📋 文でコピー</button><button class="btn" data-act="sk-go" data-v="' + (sk.step - 1) + '">← もどる</button><button class="btn" data-act="sk-reset">はじめから（一覧を消す）</button></div>' +
+      '<p class="note">コピーした文を、夏雲システムの選句画面に写してください。記号や入れかたは、句会ごとのきまりに合わせて。</p></div>';
+    return h;
+  }
+  function skAct(act, t) {
+    var v = t.dataset.v;
+    if (act === 'sk-preset') { sk.st = JSON.parse(JSON.stringify(SK_PRESETS[+v][1])); sk.picks = {}; skSave(); render(); return true; }
+    if (act === 'sk-parse') { var its = skParse(sk.src); if (!its.length) { toast('句の一覧を貼ってください'); return true; } if (!sk.st.length) sk.st = [['予選', 0]]; sk.st[sk.st.length - 1][1] = 0; sk.items = its; sk.picks = {}; sk.notes = {}; sk.step = 1; skSave(); render(); return true; }
+    if (act === 'sk-go') { sk.step = Math.max(0, Math.min(+v || 0, skStages() + 2)); skSave(); render(); window.scrollTo(0, 0); return true; }
+    if (act === 'sk-me') { var i = +t.dataset.i; sk.items[i].me = !sk.items[i].me; Object.keys(sk.picks).forEach(function (k) { sk.picks[k] = sk.picks[k].filter(function (x) { return x !== i; }); }); skSave(); render(); return true; }
+    if (act === 'sk-pick') {
+      var k = +t.dataset.k, i2 = +t.dataset.i, arr = sk.picks[k] = sk.picks[k] || [], at = arr.indexOf(i2), lim = skLimit(k);
+      if (at >= 0) { arr.splice(at, 1); for (var j = k - 1; j >= 0; j--) if (sk.picks[j]) sk.picks[j] = sk.picks[j].filter(function (x) { return x !== i2; }); }
+      else { if (lim && arr.length >= lim) { toast(sk.st[k][0] + 'は ' + lim + ' 句まで。どれかを外してから'); return true; } arr.push(i2); }
+      skSave(); render(); return true;
+    }
+    if (act === 'sk-copy') { var tx = skText(); try { navigator.clipboard.writeText(tx).then(function () { toast('コピーしました'); }, function () { toast('コピーできませんでした'); }); } catch (_) { toast('コピーできませんでした'); } return true; }
+    if (act === 'sk-reset') { if (!confirm('一覧と選んだ結果を消して、はじめからにしますか？')) return true; sk = { title: '', src: '', items: [], st: sk.st, step: 0, picks: {}, notes: {} }; skSave(); render(); return true; }
+    return false;
   }
   function vKushu() {
     var chip = function (act, v, label, on) { return '<button class="chip fit' + (on ? ' on' : '') + '" data-act="' + act + '" data-v="' + esc(v) + '">' + label + '</button>'; };
@@ -4654,7 +4754,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     return '<h2 class="sec">用語集<small>句会のことば・俳句のことば</small></h2><div class="field"><input type="search" data-f="gloss-q" value="' + esc(glossQ) + '" placeholder="ことばで しらべる（例：披講）" aria-label="用語をしらべる"></div><div id="gloss-list">' + glossList() + '</div><p class="note">ここにあることばは、一般的な句会の使いかたです。会によって、ちがうこともあります。</p>';
   }
   function vKigoPage() { return '<h2 class="sec">季語をしらべる<small>漢字でも、ひらがなでも</small></h2>' + kigoBox(true); }
-  function pageView() { return page === 'gloss' ? vGloss() : page === 'kigo' ? vKigoPage() : page === 'stock' ? vStock() : page === 'contact' ? vContact() : page === 'terms' ? vTerms() : page === 'my' ? vMy() : page === 'hints' ? vHints() : page === 'hyo' ? vHyo() : page === 'kata' ? vKata() : page === 'kushu' ? vKushu() : page === 'renkan' ? vRenkanPage() : page === 'kokoro' ? vKokoro() : page === 'admin' ? vAdmin() : page === 'about' ? vAbout() : page === 'news' ? vNewsPage() : page === 'faq' ? vFaq() : page === 'notify' ? vNotify() : page === 'archive' ? vArchive() : page === 'hall' ? vHall() : page === 'manner' ? vManner() : vPrivacy(); }
+  function pageView() { return page === 'gloss' ? vGloss() : page === 'kigo' ? vKigoPage() : page === 'stock' ? vStock() : page === 'contact' ? vContact() : page === 'terms' ? vTerms() : page === 'my' ? vMy() : page === 'hints' ? vHints() : page === 'hyo' ? vHyo() : page === 'kata' ? vKata() : page === 'kushu' ? vKushu() : page === 'senku' ? vSenku() : page === 'renkan' ? vRenkanPage() : page === 'kokoro' ? vKokoro() : page === 'admin' ? vAdmin() : page === 'about' ? vAbout() : page === 'news' ? vNewsPage() : page === 'faq' ? vFaq() : page === 'notify' ? vNotify() : page === 'archive' ? vArchive() : page === 'hall' ? vHall() : page === 'manner' ? vManner() : vPrivacy(); }
   function vManner() {
     return '<h2 class="sec">句のあつかいとマナー<small>ここは練習の場です</small></h2>' +
       '<div class="howto"><b>ここで作った句は、「未発表」のあつかいです</b><span>「俳句の裾野」は、俳句を鍛える練習の場です。ここで作った句は、練習の句なので、未発表のあつかいにします。</span></div>' +
@@ -6335,7 +6435,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     function pg(p, label) { return mb('page', ' data-p="' + p + '"', label); }
     var g = function (t, items) { return '<div class="mgrp"><b>' + t + '</b><div class="row">' + items.join('') + '</div></div>'; };
     return '<details class="panel menu"><summary>☰ メニュー・機能まとめ</summary>' +
-      g('つくる', [mb('tk-start', '', '🧩 句づくり'), pg('kigo', '🔍 季語をしらべる'), pg('gloss', '📖 用語集'), pg('stock', '📒 ストッ句'), pg('renkan', '🧵 連作の部屋'), pg('kushu', '📖 句集づくり')]) +
+      g('つくる', [mb('tk-start', '', '🧩 句づくり'), pg('kigo', '🔍 季語をしらべる'), pg('gloss', '📖 用語集'), pg('stock', '📒 ストッ句'), pg('renkan', '🧵 連作の部屋'), pg('kushu', '📖 句集づくり'), pg('senku', '🗂 選句の道具')]) +
       g('まなぶ', [mb('tut', '', '🌱 一句つくれるチュートリアル'), mb('tutd', '', '🔍 さらに深くチュートリアル'), pg('about', 'できること'), pg('kokoro', '🍵 はじめに（ことば）'), pg('kata', '📐 俳句の型と技の部屋'), pg('hyo', '🎓 評のトレーニング'), pg('hints', '句会の評のヒント'), pg('manner', '句のあつかい・マナー'), pg('faq', 'よくある質問'), pg('notify', 'スマホの通知のしかた')]) +
       g('じぶん', [pg('my', 'マイページ'), pg('archive', '句会アーカイブ')]) +
       g('声をとどける', [pg('contact', '📮 ご意見・ご要望'), pg('terms', '利用規約'), pg('privacy', 'プライバシー')]) +
@@ -7017,6 +7117,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'wipe-do') { wipeMine(); }
     else if (act === 'app-reload') { toast('最新の版に、読みこみ直します'); setTimeout(appReload, 300); }
     else if (act === 'st-csv') { stDownload(); }
+    else if (act.indexOf('sk-') === 0 && skAct(act, t)) {}
     else if (act === 'ng-send') { ngSend(t.dataset.id); }
     else if (act === 'ng-sel') { ngSel = +t.dataset.i || 0; ngSave(); ngOpen = true; render(); }
     else if (act === 'ng-del') { ngList.splice(+t.dataset.i || 0, 1); if (ngSel >= ngList.length) ngSel = 0; ngSave(); ngOpen = true; toast('消しました'); render(); }
@@ -7379,6 +7480,11 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (f === 'nw-body') nf.body = t.value;
     else if (f === 'nw-url') nf.url = t.value;
     else if (f === 'ng-name') ngDraft.n = t.value;
+    else if (f === 'sk-title') { sk.title = t.value; skSave(); }
+    else if (f === 'sk-src') { sk.src = t.value; skSave(); }
+    else if (f === 'sk-sn') { var kk1 = +t.dataset.k; if (sk.st[kk1]) { sk.st[kk1][0] = t.value.trim() || sk.st[kk1][0]; skSave(); } }
+    else if (f === 'sk-sc') { var kk2 = +t.dataset.k; if (sk.st[kk2]) { sk.st[kk2][1] = Math.max(0, Math.min(99, parseInt(t.value, 10) || 0)); skSave(); } }
+    else if (f === 'sk-note') { sk.notes[+t.dataset.i] = t.value; skSave(); }
     else if (f === 'ng-url') ngDraft.u = t.value;
     else if (f === 'cm') { cmDraft[t.dataset.eid] = t.value; var st3 = scur(); if (st3 && myId && db && st3.entries && st3.entries[myId] && t.value && Date.now() - (typedAt[st3.id] || 0) > 4000) { typedAt[st3.id] = Date.now(); try { write(st3.id, nest(['typing', myId], Date.now())); } catch (_) {} } }
     else if (f === 'ga' || f === 'gb' || f === 'gc') {
