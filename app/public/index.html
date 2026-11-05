@@ -636,7 +636,7 @@ h3.sec { font-size: 1rem; }
 .sklist { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 6px; } .sklist .skpick { display: flex; gap: 10px; align-items: center; text-align: left; font-weight: 400; padding: 8px 12px; line-height: 1.5; min-height: 44px; } .sklist .kn { flex: 0 0 2.2em; font-weight: 700; color: var(--ink-soft); } .sklist .skpick.on .kn { color: inherit; } .sklist small { display: block; font-size: .75rem; opacity: .8; }
 .skst .chip { flex: 0 0 auto; font-size: .8rem; min-height: 32px; cursor: default; } .sk-st { display: grid; gap: 6px; } .sk-stc { display: flex; align-items: center; gap: 6px; } .sk-stc .link { margin-left: 4px; } .sk-stc .sk-sym { width: 3.2em; text-align: center; } .sk-stc input[type=text] { width: 5.5em; } .sk-stc input[type=number] { width: 4em; } .sk-stc small { color: var(--ink-soft); font-size: .78rem; }
 .skh { margin: 14px 0 6px; font-size: 1rem; } .skh small { font-weight: 400; color: var(--ink-soft); margin-left: 8px; } .skres { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; } .skres .skq { line-height: 1.6; } .skres .kn { font-weight: 700; color: var(--ink-soft); margin-right: 8px; } .skres textarea { width: 100%; box-sizing: border-box; font-size: .92rem; } .skwarn { color: #b8402f; } .skhead { padding: 10px 12px; } .skhead .skdl { color: #b8402f; font-size: .85rem; } .skcounts { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .9rem; } .skc.over, .skc.short { color: #b8402f; } .skc small { color: var(--ink-soft); }
-.sk-sohyo { width: 100%; box-sizing: border-box; font-size: .92rem; } .skmiss { background: #fff1ec; border: 1px solid #e8b3a4; border-radius: 10px; padding: 8px 12px; margin: 6px 0 10px; font-size: .9rem; line-height: 1.6; } .skdirect li { margin-bottom: 8px; } .skranks { gap: 6px; margin-top: 4px; } .skranks .chip { flex: 0 0 auto; min-height: 36px; font-size: .85rem; } .skranks .chip.dim { opacity: .4; } .skranks .chip small { font-weight: 400; margin-left: 3px; } .sk-must { flex: 0 0 auto; min-height: 32px; font-size: .8rem; padding: 0 .8em; }
+.sk-sohyo { width: 100%; box-sizing: border-box; font-size: .92rem; } .skswitch { align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; } .skswitch .chip { flex: 0 0 auto; min-height: 36px; font-size: .88rem; } .skswitch .chip small { font-weight: 400; margin-left: 4px; opacity: .8; } .skmiss { background: #fff1ec; border: 1px solid #e8b3a4; border-radius: 10px; padding: 8px 12px; margin: 6px 0 10px; font-size: .9rem; line-height: 1.6; } .skdirect li { margin-bottom: 8px; } .skranks { gap: 6px; margin-top: 4px; } .skranks .chip { flex: 0 0 auto; min-height: 36px; font-size: .85rem; } .skranks .chip.dim { opacity: .4; } .skranks .chip small { font-weight: 400; margin-left: 3px; } .sk-must { flex: 0 0 auto; min-height: 32px; font-size: .8rem; padding: 0 .8em; }
 .skrow { display: flex; gap: 8px; align-items: flex-start; } .skrow .sk-sym { width: 3.2em; text-align: center; flex: 0 0 auto; } .skrow textarea { flex: 1; } .skrest { margin: 12px 0; } .skrest summary { cursor: pointer; font-weight: 700; }
 .ngcards { display: grid; gap: 10px; margin: 8px 0; } .ngcard { border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--paper); } .ngcard.on { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent); } .ngcard .row2 { align-items: center; margin-bottom: 4px; } .ngcard .row { gap: 10px; }
 .ngrow { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: .92rem; } .ngrow .ngl { flex: 0 0 5.5em; color: var(--ink-soft); font-size: .8rem; } .ngrow .ngv { flex: 1; min-width: 0; overflow-wrap: anywhere; } .ngrow .btn.small { min-height: 34px; padding: .2em .9em; font-size: .85rem; } .ngcard .actions { margin-top: 8px; }
@@ -972,7 +972,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.05k';
+  var APP_VER = 'v2026.11.05l';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3769,7 +3769,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   var SK_PRESETS = [['特選1・並選4・予選', [['特選', 1, '特'], ['並選', 4, '佳'], ['予選', 0, '']]], ['特選1・並選3・予選', [['特選', 1, '特'], ['並選', 3, '佳'], ['予選', 0, '']]], ['天・地・人・予選', [['天', 1, '特'], ['地', 1, '佳'], ['人', 1, '1'], ['予選', 0, '']]], ['特選2・並選5・予選', [['特選', 2, '特'], ['並選', 5, '佳'], ['予選', 0, '']]]];
   var sk = { title: '', src: '', items: [], st: [['特選', 1], ['並選', 4], ['予選', 0]], step: 0, picks: {}, notes: {} };
   try { var sk0 = JSON.parse(localStorage.getItem('ikku-senku') || 'null'); if (sk0 && sk0.items) sk = sk0; } catch (_) {}
-  function skSave() { try { localStorage.setItem('ikku-senku', JSON.stringify(sk)); } catch (_) {} if (sk.ngi != null && ngList[sk.ngi]) { ngList[sk.ngi].st = JSON.parse(JSON.stringify(sk.st)); ngList[sk.ngi].legend = sk.legend || ''; ngList[sk.ngi].mode = sk.mode || 'step'; ngList[sk.ngi].dl = sk.deadline || ''; ngSave(); } }
+  /* 句会カードごとに、途中の状態（一覧・選・選評）も覚える：いくつもの句会の選句を、行ったり来たりできる */
+  function skSave() { try { localStorage.setItem('ikku-senku', JSON.stringify(sk)); } catch (_) {} if (sk.ngi != null && ngList[sk.ngi]) { var c = ngList[sk.ngi]; c.st = JSON.parse(JSON.stringify(sk.st)); c.legend = sk.legend || ''; c.mode = sk.mode || 'step'; c.dl = sk.deadline || ''; c.work = { title: sk.title, src: sk.src, items: sk.items, picks: sk.picks, notes: sk.notes, syms: sk.syms || {}, sohyo: sk.sohyo || '', step: sk.step }; ngSave(); } }
   function skParse(txt) {
     var out = [], n = 0;
     String(txt || '').split(/\r?\n/).forEach(function (l) {
@@ -3781,6 +3782,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     return out;
   }
   function skStages() { return sk.st.length; }
+  function skStagesOf(c) { return (c.st || sk.st).length; }
   /* 段 k（0=いちばん上）の候補：ひとつ下の段で拾った句。いちばん下の段は、自句以外ぜんぶ */
   function skCands(k) { var ids = []; if (k === skStages() - 1) sk.items.forEach(function (it, i) { if (!it.me) ids.push(i); }); else ids = (sk.picks[k + 1] || []).slice(); return ids; }
   function skLimit(k) { var t = 0; for (var j = 0; j <= k; j++) { if (!sk.st[j][1]) return 0; t += sk.st[j][1]; } return t; }
@@ -3830,6 +3832,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var chip = function (act, v, label, on, extra) { return '<button class="chip fit' + (on ? ' on' : '') + '" data-act="' + act + '" data-v="' + esc(String(v)) + '"' + (extra || '') + '>' + label + '</button>'; };
     var h = '<h2 class="sec">選句の道具<small>ほかの句会の選を、段階で</small></h2>' +
       '<div class="howto"><b>句の一覧を貼って、予選 → 並選 → 特選と、段階で絞ります</b><span>夏雲システムなど、ほかの句会で選をするときの、手もとの道具です。AIは使いません。句の一覧や選んだ結果は、この端末の中だけに残り、裾野のサーバーには送られません。選評は、ご自身の言葉で。</span></div>';
+    if (ngList.length) h += '<div class="row skswitch"><span class="note">句会：</span>' + ngList.map(function (x, i) { var w = x.work, prog = w && w.items && w.items.length ? '<small>' + (w.step >= skStagesOf(x) + 2 || (x.mode === 'direct' && w.step >= 3) ? 'まとめ' : '選句中') + '</small>' : ''; return '<button class="chip fit' + (sk.ngi === i ? ' on' : '') + '" data-act="ng-senku" data-i="' + i + '">' + esc(x.n || '句会' + (i + 1)) + prog + '</button>'; }).join('') + (sk.ngi == null ? '<span class="chip fit on">（カードなし）</span>' : '') + '</div><p class="note">句会カード（ストッ句の「夏雲システムの句会」）ごとに、途中の選も別々に残ります。</p>';
     var N = skStages(), last = N - 1, direct = sk.mode === 'direct';
     /* 手順の見出し */
     var steps = ['① 一覧を貼る', '② 自句に印'];
@@ -3895,7 +3898,14 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<p class="note">「夏雲の形」は、夏雲システムの「選評フォーマットによる登録」に、そのまま貼れる形です（句の行は、貼った一覧の行をそのまま使います。記号は、段ごとの「記号」か、句ごとに書いた記号）。「ふつうの文」は、段ごとに句と選評を並べた控えです。</p></div>';
     return h;
   }
-  function ngSenku(ni) { var nx = ngList[ni]; if (!nx) return; if (sk.ngi !== ni) sk = { title: nx.n || '', src: '', items: [], st: nx.st ? JSON.parse(JSON.stringify(nx.st)) : sk.st, step: 0, picks: {}, notes: {}, syms: {}, legend: nx.legend || '', mode: nx.mode || 'step', deadline: nx.dl || '', ngi: ni }; page = 'senku'; skSave(); render(); window.scrollTo(0, 0); }
+  function ngSenku(ni) {
+    var nx = ngList[ni]; if (!nx) return;
+    if (sk.ngi !== ni) {
+      var w = nx.work || {};
+      sk = { title: w.title || nx.n || '', src: w.src || '', items: w.items || [], st: nx.st ? JSON.parse(JSON.stringify(nx.st)) : sk.st, step: w.items && w.items.length ? (w.step || 1) : 0, picks: w.picks || {}, notes: w.notes || {}, syms: w.syms || {}, sohyo: w.sohyo || '', legend: nx.legend || '', mode: nx.mode || 'step', deadline: nx.dl || '', ngi: ni };
+    }
+    page = 'senku'; skSave(); render(); window.scrollTo(0, 0);
+  }
   function skAct(act, t) {
     var v = t.dataset.v;
     if (act === 'sk-preset') { sk.st = JSON.parse(JSON.stringify(SK_PRESETS[+v][1])); sk.picks = {}; skSave(); render(); return true; }
