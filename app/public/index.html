@@ -634,7 +634,7 @@ h3.sec { font-size: 1rem; }
 .cmi.chara { background: var(--tile4); border-radius: 12px; padding: 6px 10px; }
 .ngp .ngsteps { margin: 6px 0 10px; padding-left: 1.4em; font-size: .9rem; line-height: 1.7; } .ngp .ngsteps li { margin: 4px 0; }
 .sklist { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 6px; } .sklist .skpick { display: flex; gap: 10px; align-items: center; text-align: left; font-weight: 400; padding: 8px 12px; line-height: 1.5; min-height: 44px; } .sklist .kn { flex: 0 0 2.2em; font-weight: 700; color: var(--ink-soft); } .sklist .skpick.on .kn { color: inherit; } .sklist small { display: block; font-size: .75rem; opacity: .8; }
-.skst .chip { flex: 0 0 auto; font-size: .8rem; min-height: 32px; cursor: default; } .sk-st { gap: 8px; flex-wrap: wrap; } .sk-stc { display: inline-flex; align-items: center; gap: 4px; } .sk-stc input[type=text] { width: 5.5em; } .sk-stc input[type=number] { width: 4em; } .sk-stc small { color: var(--ink-soft); font-size: .78rem; }
+.skst .chip { flex: 0 0 auto; font-size: .8rem; min-height: 32px; cursor: default; } .sk-st { display: grid; gap: 6px; } .sk-stc { display: flex; align-items: center; gap: 6px; } .sk-stc .link { margin-left: 4px; } .sk-stc input[type=text] { width: 5.5em; } .sk-stc input[type=number] { width: 4em; } .sk-stc small { color: var(--ink-soft); font-size: .78rem; }
 .skh { margin: 14px 0 6px; font-size: 1rem; } .skh small { font-weight: 400; color: var(--ink-soft); margin-left: 8px; } .skres { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; } .skres .skq { line-height: 1.6; } .skres .kn { font-weight: 700; color: var(--ink-soft); margin-right: 8px; } .skres textarea { width: 100%; box-sizing: border-box; font-size: .92rem; }
 .ngcards { display: grid; gap: 10px; margin: 8px 0; } .ngcard { border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--paper); } .ngcard.on { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent); } .ngcard .row2 { align-items: center; margin-bottom: 4px; } .ngcard .row { gap: 10px; }
 .ngrow { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: .92rem; } .ngrow .ngl { flex: 0 0 5.5em; color: var(--ink-soft); font-size: .8rem; } .ngrow .ngv { flex: 1; min-width: 0; overflow-wrap: anywhere; } .ngrow .btn.small { min-height: 34px; padding: .2em .9em; font-size: .85rem; } .ngcard .actions { margin-top: 8px; }
@@ -970,7 +970,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.05d';
+  var APP_VER = 'v2026.11.05e';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1354,7 +1354,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
         (x.h ? '<div class="ngrow"><span class="ngl">俳号</span><span class="ngv">' + esc(x.h) + '</span><button class="btn small" data-act="ng-copy" data-v="' + esc(x.h) + '">コピー</button></div>' : '') +
         (x.p ? '<div class="ngrow"><span class="ngl">パスワード</span><span class="ngv">' + (x.show ? esc(x.p) : '●●●●●●') + '</span><button class="btn small" data-act="ng-copy" data-v="' + esc(x.p) + '">コピー</button><button class="link" data-act="ng-show" data-i="' + i + '">' + (x.show ? 'かくす' : '見る') + '</button></div>' : '') +
         '<div class="ngrow"><span class="ngl">URL</span><span class="ngv ngu">' + esc(x.u) + '</span></div>' +
-        '<div class="actions"><button class="btn primary" data-act="ng-open" data-i="' + i + '">この句会をひらく ▶</button>' + (on ? '' : '<button class="btn" data-act="ng-sel" data-i="' + i + '">出す先にする</button>') + '</div></div>';
+        '<div class="actions"><button class="btn primary" data-act="ng-open" data-i="' + i + '">この句会をひらく ▶</button><button class="btn" data-act="ng-senku" data-i="' + i + '">🗂 この句会の選句へ</button>' + (on ? '' : '<button class="btn" data-act="ng-sel" data-i="' + i + '">出す先にする</button>') + '</div></div>';
     }).join('') + '</div><p class="note">✓ の句会に、「夏雲へ」で出します。</p>';
     h += '<details class="ngadd"' + (ngEdit !== null ? ' open' : '') + '><summary>' + (ngEdit !== null ? '✏️ 句会を直す' : '＋ 句会を追加') + '</summary>' +
       '<div class="field"><label for="ng-name">句会の名前</label><input type="text" id="ng-name" data-f="ng-name" maxlength="30" value="' + esc(ngDraft.n) + '" placeholder="例：〇〇ネット句会"></div>' +
@@ -3765,7 +3765,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   var SK_PRESETS = [['特選1・並選4・予選', [['特選', 1], ['並選', 4], ['予選', 0]]], ['特選1・並選3・予選', [['特選', 1], ['並選', 3], ['予選', 0]]], ['天・地・人・予選', [['天', 1], ['地', 1], ['人', 1], ['予選', 0]]], ['特選2・並選5・予選', [['特選', 2], ['並選', 5], ['予選', 0]]]];
   var sk = { title: '', src: '', items: [], st: [['特選', 1], ['並選', 4], ['予選', 0]], step: 0, picks: {}, notes: {} };
   try { var sk0 = JSON.parse(localStorage.getItem('ikku-senku') || 'null'); if (sk0 && sk0.items) sk = sk0; } catch (_) {}
-  function skSave() { try { localStorage.setItem('ikku-senku', JSON.stringify(sk)); } catch (_) {} }
+  function skSave() { try { localStorage.setItem('ikku-senku', JSON.stringify(sk)); } catch (_) {} if (sk.ngi != null && ngList[sk.ngi]) { ngList[sk.ngi].st = JSON.parse(JSON.stringify(sk.st)); ngSave(); } }
   function skParse(txt) {
     var out = [], n = 0;
     String(txt || '').split(/\r?\n/).forEach(function (l) {
@@ -3806,7 +3806,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       h += '<div class="panel"><div class="field"><label for="sk-title">句会の名前（なくてもよい）</label><input type="text" id="sk-title" data-f="sk-title" maxlength="40" value="' + esc(sk.title) + '" placeholder="例：第42回なごやか句会"></div>' +
         '<div class="field"><label for="sk-src">句の一覧（1行に1句。番号つきでも、なしでも）</label><textarea id="sk-src" data-f="sk-src" rows="10" placeholder="1　初時雨猫も小蓑をほしげなり&#10;2　…">' + esc(sk.src) + '</textarea></div>' +
         '<div class="field"><label>選の組み立て</label><div class="row">' + SK_PRESETS.map(function (pz, i) { return chip('sk-preset', i, pz[0], JSON.stringify(pz[1]) === JSON.stringify(sk.st)); }).join('') + '</div>' +
-        '<div class="row sk-st">' + sk.st.map(function (st, k) { return '<span class="sk-stc"><input type="text" data-f="sk-sn" data-k="' + k + '" value="' + esc(st[0]) + '" maxlength="6" aria-label="段の名前"><input type="number" min="0" max="99" data-f="sk-sc" data-k="' + k + '" value="' + st[1] + '" aria-label="句数"' + (k === sk.st.length - 1 ? ' disabled' : '') + '>' + (k === sk.st.length - 1 ? '<small>いくつでも</small>' : '<small>句</small>') + '</span>'; }).join('') + '</div><p class="note">上の段から順に。いちばん下の段（予選）は、数をきめず広く拾います。名前は、句会に合わせて書きかえられます（天・地・人など）。</p></div>' +
+        '<div class="sk-st">' + sk.st.map(function (st, k) { return '<span class="sk-stc"><input type="text" data-f="sk-sn" data-k="' + k + '" value="' + esc(st[0]) + '" maxlength="6" aria-label="段の名前"><input type="number" min="0" max="99" data-f="sk-sc" data-k="' + k + '" value="' + st[1] + '" aria-label="句数"><small>' + (st[1] ? '句' : 'いくつでも') + '</small>' + (sk.st.length > 1 ? '<button class="link" data-act="sk-stdel" data-v="' + k + '" aria-label="この段を消す">✕</button>' : '') + '</span>'; }).join('') + '<div class="row"><button class="chip fit" data-act="sk-stadd">＋ 段を足す</button></div></div><p class="note">上の段から順に、名前と句数を。句数「0」は、数をきめず広く拾う段（予選など）。段は、足したり消したりできます（天・地・人、秀逸・佳作、など句会のきまりに合わせて）。' + (sk.ngi != null && ngList[sk.ngi] ? 'この組み立ては、句会「' + esc(ngList[sk.ngi].n || '') + '」のカードが覚えます。' : '') + '</p></div>' +
         '<div class="actions"><button class="btn primary" data-act="sk-parse">一覧にする →</button>' + (sk.items.length ? '<button class="btn" data-act="sk-go" data-v="1">つづきから →</button>' : '') + '</div></div>';
       return h;
     }
@@ -3840,9 +3840,12 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       '<p class="note">コピーした文を、夏雲システムの選句画面に写してください。記号や入れかたは、句会ごとのきまりに合わせて。</p></div>';
     return h;
   }
+  function ngSenku(ni) { var nx = ngList[ni]; if (!nx) return; if (sk.ngi !== ni) sk = { title: nx.n || '', src: '', items: [], st: nx.st ? JSON.parse(JSON.stringify(nx.st)) : sk.st, step: 0, picks: {}, notes: {}, ngi: ni }; page = 'senku'; skSave(); render(); window.scrollTo(0, 0); }
   function skAct(act, t) {
     var v = t.dataset.v;
     if (act === 'sk-preset') { sk.st = JSON.parse(JSON.stringify(SK_PRESETS[+v][1])); sk.picks = {}; skSave(); render(); return true; }
+    if (act === 'sk-stadd') { if (sk.st.length >= 8) { toast('段は8つまで'); return true; } var lastSt = sk.st[sk.st.length - 1]; if (lastSt && !lastSt[1]) sk.st.splice(sk.st.length - 1, 0, ['並選', 3]); else sk.st.push(['予選', 0]); sk.picks = {}; skSave(); render(); return true; }
+    if (act === 'sk-stdel') { if (sk.st.length <= 1) return true; sk.st.splice(+v, 1); sk.picks = {}; skSave(); render(); return true; }
     if (act === 'sk-parse') { var its = skParse(sk.src); if (!its.length) { toast('句の一覧を貼ってください'); return true; } if (!sk.st.length) sk.st = [['予選', 0]]; sk.st[sk.st.length - 1][1] = 0; sk.items = its; sk.picks = {}; sk.notes = {}; sk.step = 1; skSave(); render(); return true; }
     if (act === 'sk-go') { sk.step = Math.max(0, Math.min(+v || 0, skStages() + 2)); skSave(); render(); window.scrollTo(0, 0); return true; }
     if (act === 'sk-me') { var i = +t.dataset.i; sk.items[i].me = !sk.items[i].me; Object.keys(sk.picks).forEach(function (k) { sk.picks[k] = sk.picks[k].filter(function (x) { return x !== i; }); }); skSave(); render(); return true; }
@@ -3853,7 +3856,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       skSave(); render(); return true;
     }
     if (act === 'sk-copy') { var tx = skText(); try { navigator.clipboard.writeText(tx).then(function () { toast('コピーしました'); }, function () { toast('コピーできませんでした'); }); } catch (_) { toast('コピーできませんでした'); } return true; }
-    if (act === 'sk-reset') { if (!confirm('一覧と選んだ結果を消して、はじめからにしますか？')) return true; sk = { title: '', src: '', items: [], st: sk.st, step: 0, picks: {}, notes: {} }; skSave(); render(); return true; }
+    if (act === 'sk-reset') { if (!confirm('一覧と選んだ結果を消して、はじめからにしますか？')) return true; sk = { title: sk.ngi != null && ngList[sk.ngi] ? (ngList[sk.ngi].n || '') : '', src: '', items: [], st: sk.st, step: 0, picks: {}, notes: {}, ngi: sk.ngi }; skSave(); render(); return true; }
     return false;
   }
   function vKushu() {
@@ -7149,6 +7152,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'ng-cancel') { ngEdit = null; ngDraft = { n: '', u: '', h: '', p: '' }; ngOpen = true; render(); }
     else if (act === 'ng-show') { var si = +t.dataset.i || 0; if (ngList[si]) { ngList[si].show = !ngList[si].show; ngOpen = true; render(); } }
     else if (act === 'ng-copy') { var cv2 = String(t.dataset.v || ''); try { navigator.clipboard.writeText(cv2).then(function () { toast('コピーしました'); }, function () { toast('コピーできませんでした'); }); } catch (_) { toast('コピーできませんでした'); } }
+    else if (act === 'ng-senku') { ngSenku(+t.dataset.i || 0); }
     else if (act === 'ng-open') { var oi = +t.dataset.i || 0, ox = ngList[oi]; if (ox && /^https:\/\//.test(ox.u)) { try { window.open(ox.u, '_blank'); } catch (_) {} } }
     else if (act === 'st-copy') { stCopy(); }
     else if (act === 'st-share') { stShare(); }
