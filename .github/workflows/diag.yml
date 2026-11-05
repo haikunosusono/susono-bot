@@ -1,0 +1,19 @@
+name: 診断（句会の進みぐあい）
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: '日づけ YYYY-MM-DD（空なら定例ぜんぶ）'
+        default: ''
+jobs:
+  diag:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - env:
+          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          DATE: ${{ github.event.inputs.date }}
+        run: node tools/diag-kukai.js
