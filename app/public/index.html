@@ -972,7 +972,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.05i';
+  var APP_VER = 'v2026.11.05j';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1362,6 +1362,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       '<div class="field"><label for="ng-name">句会の名前</label><input type="text" id="ng-name" data-f="ng-name" maxlength="30" value="' + esc(ngDraft.n) + '" placeholder="例：〇〇ネット句会"></div>' +
       '<div class="field"><label for="ng-url">投句画面のURL（https:// から）</label><input type="url" id="ng-url" data-f="ng-url" maxlength="300" value="' + esc(ngDraft.u) + '" placeholder="夏雲システムの、その句会の投句画面のURL"></div>' +
       '<div class="field"><label for="ng-h">俳号（その句会での名乗り。なくてもよい）</label><input type="text" id="ng-h" data-f="ng-h" maxlength="30" value="' + esc(ngDraft.h) + '"></div>' +
+      '<div class="field"><label for="ng-cu">選句画面のURL（なくてもよい。投句画面のURLから自動で作れないときだけ）</label><input type="url" id="ng-cu" data-f="ng-cu" maxlength="300" value="' + esc(ngDraft.cu || '') + '"></div>' +
       '<div class="field"><label for="ng-p">パスワード（なくてもよい）</label><input type="text" id="ng-p" data-f="ng-p" maxlength="60" value="' + esc(ngDraft.p) + '" autocomplete="off"></div>' +
       '<p class="note">パスワードを入れると、この端末の中に、そのまま残ります。共用のパソコンや、人に貸す端末では、入れないでください。</p>' +
       '<div class="actions"><button class="btn small primary" data-act="ng-add">' + (ngEdit !== null ? '直して保存' : 'この句会を覚える') + '</button>' + (ngEdit !== null ? '<button class="btn small" data-act="ng-cancel">やめる</button>' : '') + '</div></details></details>';
@@ -3818,6 +3819,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     return '<div class="panel skhead"><div class="row2"><b>' + esc(sk.title || '句会') + '</b>' + (sk.deadline ? '<span class="skdl">締切：' + esc(sk.deadline) + '</span>' : '') + '</div><p class="note">決まり：' + esc(rule) + (sk.items.length ? '　全 ' + sk.items.length + ' 句（自句 ' + sk.items.filter(function (it) { return it.me; }).length + '）' : '') + '</p><div class="skcounts">' + parts.join('') + '</div></div>';
   }
   /* 記号があるのに選評が空の句：夏雲では「記号だけの行」は登録されない */
+  /* 夏雲の「選評フォーマットによる登録」の画面：カードに書いた選句画面のURLか、投句画面のURL（…/gathering/44/…）から作る */
+  function skCommentUrl() { var c = sk.ngi != null ? ngList[sk.ngi] : null; if (!c) return ''; if (c.cu && /^https:\/\//.test(c.cu)) return c.cu; var m = String(c.u || '').match(/^(https:\/\/[^\/]+\/kakushika\/gathering\/\d+)/); return m ? m[1] + '/comment' : ''; }
   function skMissing() { var out = []; sk.items.forEach(function (it, i) { if (it.me) return; var k = skRank(i), sym = skSym(i, k); if (sym && !String(sk.notes[i] || '').trim()) out.push(i); }); return out; }
   function skSetRank(i, k) { /* 直接えらぶ：段 k にする（下の段にも入れる）。k<0 で外す */
     for (var j = 0; j < skStages(); j++) { var arr = sk.picks[j] = sk.picks[j] || [], at = arr.indexOf(i); if (k >= 0 && j >= k) { if (at < 0) arr.push(i); } else if (at >= 0) arr.splice(at, 1); }
@@ -3884,7 +3887,9 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (sk.legend) h += '<details class="skrest"><summary>この句会の記号の意味（メモ）</summary><pre class="kshpre">' + esc(sk.legend) + '</pre></details>';
     var me2 = sk.items.filter(function (it) { return it.me; });
     if (me2.length) h += '<h3 class="skh">自句<small>選の対象外。コメントは、夏雲では記号なしで入ります</small></h3><ul class="skres">' + sk.items.map(function (it, i) { return it.me ? '<li><div class="skq"><span class="kn">' + esc(it.n) + '</span>' + esc(it.t) + '</div><textarea rows="2" data-f="sk-note" data-i="' + i + '" placeholder="自句へのコメント（なくてもよい）">' + esc(sk.notes[i] || '') + '</textarea></li>' : ''; }).join('') + '</ul>';
-    h += '<div class="actions"><button class="btn primary" data-act="sk-copy-ng">📋 夏雲の形でコピー</button><button class="btn" data-act="sk-copy">📋 ふつうの文でコピー</button><button class="btn" data-act="sk-go" data-v="' + (sk.step - 1) + '">← もどる</button><button class="btn" data-act="sk-reset">はじめから（一覧を消す）</button></div>' +
+    var cu = skCommentUrl();
+    h += '<div class="actions">' + (cu ? '<button class="btn primary" data-act="sk-copy-open">📋 コピーして、夏雲の選句画面をひらく</button><button class="btn" data-act="sk-copy-ng">📋 夏雲の形でコピーだけ</button>' : '<button class="btn primary" data-act="sk-copy-ng">📋 夏雲の形でコピー</button>') + '<button class="btn" data-act="sk-copy">📋 ふつうの文でコピー</button><button class="btn" data-act="sk-go" data-v="' + (sk.step - 1) + '">← もどる</button><button class="btn" data-act="sk-reset">はじめから（一覧を消す）</button></div>' +
+      (cu ? '<p class="note">ひらいた夏雲の画面の「選評フォーマットによる登録」の欄に貼って、登録ボタンを押してください（登録は、ご自身で）。</p>' : (sk.ngi != null ? '<p class="note">句会カードの投句画面URLから選句画面のURLが作れませんでした。カードの「編集」で「選句画面のURL」を書くと、ここから直接ひらけます。</p>' : '')) +
       '<p class="note">「夏雲の形」は、夏雲システムの「選評フォーマットによる登録」に、そのまま貼れる形です（句の行は、貼った一覧の行をそのまま使います。記号は、段ごとの「記号」か、句ごとに書いた記号）。「ふつうの文」は、段ごとに句と選評を並べた控えです。</p></div>';
     return h;
   }
@@ -3911,6 +3916,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       else { if (lim && arr.length >= lim) { toast(sk.st[k][0] + 'は ' + lim + ' 句まで。どれかを外してから'); return true; } arr.push(i2); }
       skSave(); render(); return true;
     }
+    if (act === 'sk-copy-open') { var tn2 = skNgText(), cu2 = skCommentUrl(); if (!tn2) { toast('記号のある段に、句がありません'); return true; } var w2 = null; try { w2 = window.open(cu2, '_blank'); } catch (_) {} var ms2 = skMissing(); try { navigator.clipboard.writeText(tn2).then(function () { toast(ms2.length ? 'コピーしました。ただし ' + ms2.length + ' 句は選評が空です' : 'コピーしました。夏雲の画面に貼って、登録してください'); }, function () { toast('コピーできませんでした'); }); } catch (_) { toast('コピーできませんでした'); } if (!w2) toast('選句画面がひらけませんでした。文はコピーずみです'); return true; }
     if (act === 'sk-copy-ng') { var tn = skNgText(); if (!tn) { toast('記号のある段に、句がありません'); return true; } var ms = skMissing(); try { navigator.clipboard.writeText(tn).then(function () { toast(ms.length ? '夏雲の形でコピーしました。ただし ' + ms.length + ' 句は選評が空です（夏雲では登録されません）' : '夏雲の形でコピーしました'); }, function () { toast('コピーできませんでした'); }); } catch (_) { toast('コピーできませんでした'); } return true; }
     if (act === 'sk-copy') { var tx = skText(); try { navigator.clipboard.writeText(tx).then(function () { toast('コピーしました'); }, function () { toast('コピーできませんでした'); }); } catch (_) { toast('コピーできませんでした'); } return true; }
     if (act === 'sk-reset') { if (!confirm('一覧と選んだ結果を消して、はじめからにしますか？')) return true; sk = { title: sk.ngi != null && ngList[sk.ngi] ? (ngList[sk.ngi].n || '') : '', src: '', items: [], st: sk.st, step: 0, picks: {}, notes: {}, syms: {}, legend: sk.legend || '', mode: sk.mode || 'step', deadline: sk.deadline || '', ngi: sk.ngi }; skSave(); render(); return true; }
@@ -7204,8 +7210,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'ng-send') { ngSend(t.dataset.id); }
     else if (act === 'ng-sel') { ngSel = +t.dataset.i || 0; ngSave(); ngOpen = true; render(); }
     else if (act === 'ng-del') { ngList.splice(+t.dataset.i || 0, 1); if (ngSel >= ngList.length) ngSel = 0; ngSave(); ngOpen = true; toast('消しました'); render(); }
-    else if (act === 'ng-add') { var nu = String(ngDraft.u || '').trim(); if (!/^https:\/\/\S+$/.test(nu)) { toast('URLは https:// からはじまるものを'); return; } var rec = { n: String(ngDraft.n || '').trim(), u: nu, h: String(ngDraft.h || '').trim(), p: String(ngDraft.p || '') }; if (ngEdit !== null && ngList[ngEdit]) { ngList[ngEdit] = rec; } else { ngList.push(rec); ngSel = ngList.length - 1; } ngEdit = null; ngDraft = { n: '', u: '', h: '', p: '' }; ngSave(); ngOpen = true; toast('覚えました'); render(); }
-    else if (act === 'ng-edit') { var ei = +t.dataset.i || 0, ex = ngList[ei] || {}; ngEdit = ei; ngDraft = { n: ex.n || '', u: ex.u || '', h: ex.h || '', p: ex.p || '' }; ngOpen = true; render(); }
+    else if (act === 'ng-add') { var nu = String(ngDraft.u || '').trim(); if (!/^https:\/\/\S+$/.test(nu)) { toast('URLは https:// からはじまるものを'); return; } var rec = { n: String(ngDraft.n || '').trim(), u: nu, h: String(ngDraft.h || '').trim(), p: String(ngDraft.p || ''), cu: String(ngDraft.cu || '').trim() }; if (ngEdit !== null && ngList[ngEdit]) { var keep = ngList[ngEdit]; rec.st = keep.st; rec.legend = keep.legend; rec.mode = keep.mode; rec.dl = keep.dl; ngList[ngEdit] = rec; } else { ngList.push(rec); ngSel = ngList.length - 1; } ngEdit = null; ngDraft = { n: '', u: '', h: '', p: '' }; ngSave(); ngOpen = true; toast('覚えました'); render(); }
+    else if (act === 'ng-edit') { var ei = +t.dataset.i || 0, ex = ngList[ei] || {}; ngEdit = ei; ngDraft = { n: ex.n || '', u: ex.u || '', h: ex.h || '', p: ex.p || '', cu: ex.cu || '' }; ngOpen = true; render(); }
     else if (act === 'ng-cancel') { ngEdit = null; ngDraft = { n: '', u: '', h: '', p: '' }; ngOpen = true; render(); }
     else if (act === 'ng-show') { var si = +t.dataset.i || 0; if (ngList[si]) { ngList[si].show = !ngList[si].show; ngOpen = true; render(); } }
     else if (act === 'ng-copy') { var cv2 = String(t.dataset.v || ''); try { navigator.clipboard.writeText(cv2).then(function () { toast('コピーしました'); }, function () { toast('コピーできませんでした'); }); } catch (_) { toast('コピーできませんでした'); } }
@@ -7581,6 +7587,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (f === 'ng-url') ngDraft.u = t.value;
     else if (f === 'ng-h') ngDraft.h = t.value;
     else if (f === 'ng-p') ngDraft.p = t.value;
+    else if (f === 'ng-cu') ngDraft.cu = t.value;
     else if (f === 'cm') { cmDraft[t.dataset.eid] = t.value; var st3 = scur(); if (st3 && myId && db && st3.entries && st3.entries[myId] && t.value && Date.now() - (typedAt[st3.id] || 0) > 4000) { typedAt[st3.id] = Date.now(); try { write(st3.id, nest(['typing', myId], Date.now())); } catch (_) {} } }
     else if (f === 'ga' || f === 'gb' || f === 'gc') {
       var gs = scur(), gdr = gs && drafts['s:' + gs.id];
