@@ -967,7 +967,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.05a';
+  var APP_VER = 'v2026.11.05b';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1334,7 +1334,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ngSave() { try { localStorage.setItem('ikku-natsugumo', JSON.stringify(ngList)); localStorage.setItem('ikku-natsugumo-sel', String(ngSel)); } catch (_) {} }
   function ngCur() { return ngList[ngSel] || ngList[0] || null; }
   /* 夏雲システムのルビの書き方：｜漢字（かな）。裾野のルビ（漢字《かな》）を、その形にして渡す */
-  function ngText(v) { return String(v || '').replace(RB_RE, '｜$1（$2）').replace(/[ ]/g, '　'); }
+  function ngText(v) { return String(v || '').replace(RB_RE, '｜$1\u0001$2\u0002').replace(/[（(]/g, '｜（').replace(/[)]/g, '）').replace(/\u0001/g, '（').replace(/\u0002/g, '）').replace(/[ ]/g, '　'); } /* ルビでない（　）は「｜（」にする（夏雲の決まり） */
   /* 裾野でためた句を、ほかの句会へ（夏雲システムへの流れ）。特定の句会はすすめない */
   function ngNext() {
     return '<details class="panel ngp"><summary>🪜 その先へ：ためた句を、ほかの句会に出してみる</summary>' +
