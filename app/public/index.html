@@ -85,7 +85,8 @@ button, input { font: inherit; color: inherit; }
 .today .st { font-size: .75rem; min-height: 1.3em; color: var(--accent); font-weight: 700; }
 .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
 .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.field label { font-size: .8rem; font-weight: 700; letter-spacing: .06em; color: var(--ink-soft); display: flex; justify-content: space-between; gap: 6px; }
+.field label { font-size: .8rem; font-weight: 700; letter-spacing: .06em; color: var(--ink-soft); display: flex; flex-wrap: wrap; align-items: baseline; justify-content: flex-start; gap: 0 4px; }
+.field label > .cnt, .field label > small:last-child, .field label > span.r { margin-left: auto; }
 .cnt { font-weight: 500; font-variant-numeric: tabular-nums; }
 input[type=text] { width: 100%; min-height: 44px; padding: .5em .7em; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; }
 .trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
@@ -636,7 +637,7 @@ h3.sec { font-size: 1rem; }
 .sklist { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 6px; } .sklist .skpick { display: flex; gap: 10px; align-items: center; text-align: left; font-weight: 400; padding: 8px 12px; line-height: 1.5; min-height: 44px; } .sklist .kn { flex: 0 0 2.2em; font-weight: 700; color: var(--ink-soft); } .sklist .skpick.on .kn { color: inherit; } .sklist small { display: block; font-size: .75rem; opacity: .8; }
 .skst .chip { flex: 0 0 auto; font-size: .8rem; min-height: 32px; cursor: default; } .sk-st { display: grid; gap: 6px; } .sk-stc { display: flex; align-items: center; gap: 6px; } .sk-stc .link { margin-left: 4px; } .sk-stc .sk-sym { width: 3.2em; text-align: center; } .sk-stc input[type=text] { width: 5.5em; } .sk-stc input[type=number] { width: 4em; } .sk-stc small { color: var(--ink-soft); font-size: .78rem; }
 .skh { margin: 14px 0 6px; font-size: 1rem; } .skh small { font-weight: 400; color: var(--ink-soft); margin-left: 8px; } .skres { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; } .skres .skq { line-height: 1.6; } .skres .kn { font-weight: 700; color: var(--ink-soft); margin-right: 8px; } .skres textarea { width: 100%; box-sizing: border-box; font-size: .92rem; } .skwarn { color: #b8402f; } .skhead { padding: 10px 12px; } .skhead .skdl { color: #b8402f; font-size: .85rem; } .skcounts { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .9rem; } .skc.over, .skc.short { color: #b8402f; } .skc small { color: var(--ink-soft); }
-.sk-sohyo { width: 100%; box-sizing: border-box; font-size: .92rem; } .skrule { margin: 6px 0 10px; } .skrule summary { cursor: pointer; font-weight: 700; } .skswitch { align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; } .skswitch .chip { flex: 0 0 auto; min-height: 36px; font-size: .88rem; } .skswitch .chip small { font-weight: 400; margin-left: 4px; opacity: .8; } .skmiss { background: #fff1ec; border: 1px solid #e8b3a4; border-radius: 10px; padding: 8px 12px; margin: 6px 0 10px; font-size: .9rem; line-height: 1.6; } .skdirect li { margin-bottom: 8px; } .skranks { gap: 6px; margin-top: 4px; } .skranks .chip { flex: 0 0 auto; min-height: 36px; font-size: .85rem; } .skranks .chip.dim { opacity: .4; } .skranks .chip small { font-weight: 400; margin-left: 3px; } .sk-must { flex: 0 0 auto; min-height: 32px; font-size: .8rem; padding: 0 .8em; }
+.sk-sohyo { width: 100%; box-sizing: border-box; font-size: .92rem; } .sktut { font-size: .92rem; line-height: 1.8; } .sktut summary { cursor: pointer; font-weight: 700; } .sktut p { margin: 10px 0; } .skrule { margin: 6px 0 10px; } .skrule summary { cursor: pointer; font-weight: 700; } .skswitch { align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; } .skswitch .chip { flex: 0 0 auto; min-height: 36px; font-size: .88rem; } .skswitch .chip small { font-weight: 400; margin-left: 4px; opacity: .8; } .skmiss { background: #fff1ec; border: 1px solid #e8b3a4; border-radius: 10px; padding: 8px 12px; margin: 6px 0 10px; font-size: .9rem; line-height: 1.6; } .skdirect li { margin-bottom: 8px; } .skranks { gap: 6px; margin-top: 4px; } .skranks .chip { flex: 0 0 auto; min-height: 36px; font-size: .85rem; } .skranks .chip.dim { opacity: .4; } .skranks .chip small { font-weight: 400; margin-left: 3px; } .sk-must { flex: 0 0 auto; min-height: 32px; font-size: .8rem; padding: 0 .8em; }
 .skrow { display: flex; gap: 8px; align-items: flex-start; } .skrow .sk-sym { width: 3.2em; text-align: center; flex: 0 0 auto; } .skrow textarea { flex: 1; } .skrest { margin: 12px 0; } .skrest summary { cursor: pointer; font-weight: 700; }
 .ngcards { display: grid; gap: 10px; margin: 8px 0; } .ngcard { border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--paper); } .ngcard.on { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent); } .ngcard .row2 { align-items: center; margin-bottom: 4px; } .ngcard .row { gap: 10px; }
 .ngrow { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: .92rem; } .ngrow .ngl { flex: 0 0 5.5em; color: var(--ink-soft); font-size: .8rem; } .ngrow .ngv { flex: 1; min-width: 0; overflow-wrap: anywhere; } .ngrow .btn.small { min-height: 34px; padding: .2em .9em; font-size: .85rem; } .ngcard .actions { margin-top: 8px; }
@@ -972,7 +973,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.05m';
+  var APP_VER = 'v2026.11.05n';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3812,6 +3813,20 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var me = sk.items.filter(function (it) { return it.me; }); if (me.length) L.push('自句：' + me.map(function (it) { return it.n; }).join('・'));
     return L.join('\n').trim();
   }
+  function vSenkuTut() {
+    return '<details class="panel sktut"><summary>📖 くわしい説明（はじめての方へ）</summary>' +
+      '<p><b>これは、なにをする道具？</b><br>夏雲システムなど、ほかの句会で「選」をするときの、手もとの作業台です。句会から届いた句の一覧を貼りつけて、自分の句を外し、予選 → 並選 → 特選と段階で絞って、選評を書き、最後に夏雲にそのまま貼れる文にします。AIは使いません。選ぶのも、評を書くのも、あなたです。</p>' +
+      '<p><b>保存について</b><br>貼った一覧・選んだ結果・選評は、この端末（スマホやパソコン）の中にだけ残ります。裾野のサーバーには送られません。閉じても消えず、次にひらくと続きからです。</p>' +
+      '<p><b>はじめの準備（1回だけ）</b><br>ストッ句の部屋の「☁️ 夏雲システムの句会」に、句会のカードを作っておくと便利です（句会名・投句画面のURL・俳号）。カードの「🗂 この句会の選句へ」からひらくと、その句会の決まり（段・数・記号）や途中の選を、カードが覚えます。</p>' +
+      '<p><b>① 一覧を貼る</b><br>夏雲の投句一覧を、そのままコピーして貼ります（「1. 句」のように番号つきでも、句だけでも）。句会名・締切もメモできます。「選の決まり」をひらくと、段の名前・句数・記号を句会に合わせられます。<br>　・段：特選・並選・予選、天・地・人、特選・佳作など、自由。「＋ 段を足す」「✕」で増減。<br>　・句数：上限です。「まで」なら少なくてもOK、「必ず」ならきっちりその数（足りないと、まとめで赤く知らせます）。「0」は数をきめず広く拾う段。<br>　・記号：夏雲の選評フォーマットの記号（特・佳・1〜9・a〜e・z）。句会の案内に合わせて。<br>　・えらびかた：「段階で絞る」（予選→並選→特選）か、「直接えらぶ」（句ごとに段をつける）。</p>' +
+      '<p><b>② 自句を外す</b><br>一覧から自分の句をタップして「自句」の印。選の対象から外れます（自句へのコメントは、あとで書けます）。</p>' +
+      '<p><b>③ 予選 → 並選 → 特選</b><br>まず予選で、気になる句を広く拾います。並選は、予選で拾った句の中から。特選は、並選の中から。上の「句会情報の欄」に、段ごとの「選んだ数／上限」がいつも出ます。上限に達した段は、ほかの句にはつけられません（押すと「どれかを外してから」）。</p>' +
+      '<p><b>④ まとめ</b><br>段ごとに句が並び、句ごとに選評を書きます（自分の言葉で、1〜2文でも）。記号があるのに選評が空の句は、上に赤で一覧が出ます。<b>夏雲では、記号だけの行は選評として登録されません</b>。ひとことでも書いてください。選に入らなかった句にも、記号（理由の番号など）やひとことを書けます。総評の欄もあります。</p>' +
+      '<p><b>⑤ 夏雲に貼る</b><br>「📋 コピーして、夏雲の選句画面をひらく」を押すと、夏雲の形の文がコピーされ、その句会の「選評フォーマットによる登録」の画面がひらきます。「フォーマットで入力」の欄に貼って、送信。登録のあと、夏雲の「評価一覧」の「現在」の数が、裾野の「選んだ数／上限」と合っていれば、ぜんぶ入っています。</p>' +
+      '<p><b>いくつもの句会に出ているとき</b><br>いちばん上の「句会：」で切り替えます。句会ごとに、途中の選も別々に残ります。</p>' +
+      '<p class="note">夏雲の形：「句の行（一覧とまったく同じ）」＋「記号＋選評」の2行で1組。自句はコメントだけ（記号なし）。総評は末尾に「総評」として。</p>' +
+      '<p class="note">夏雲システム（野良古さん作）には、いつもお世話になっています。この道具は、夏雲システムの「選評フォーマットによる登録」を使わせていただく、手もとの下書き台です。夏雲システムの仕組みには、いっさい手を触れていません。登録は、夏雲の画面で、ご自身の操作で。</p></details>';
+  }
   function skRow(i, k, ph) { var it = sk.items[i]; return '<li><div class="skq"><span class="kn">' + esc(it.n) + '</span>' + esc(it.t) + '</div><div class="skrow"><input type="text" class="sk-sym" data-f="sk-isym" data-i="' + i + '" maxlength="1" value="' + esc(sk.syms && sk.syms[i] || '') + '" placeholder="' + esc(k >= 0 ? (sk.st[k][2] || '記号') : '記号') + '" aria-label="夏雲の記号"><textarea rows="2" data-f="sk-note" data-i="' + i + '" placeholder="' + esc(ph) + '">' + esc(sk.notes[i] || '') + '</textarea></div></li>'; }
   /* 段ごとの数：いま何句（その段どまり）／上限 */
   function skCount(k) { var c = 0; sk.items.forEach(function (_, i) { if (skRank(i) === k) c++; }); return c; }
@@ -3832,6 +3847,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var chip = function (act, v, label, on, extra) { return '<button class="chip fit' + (on ? ' on' : '') + '" data-act="' + act + '" data-v="' + esc(String(v)) + '"' + (extra || '') + '>' + label + '</button>'; };
     var h = '<h2 class="sec">選句の道具<small>ほかの句会の選を、段階で</small></h2>' +
       '<div class="howto"><b>句の一覧を貼って、予選 → 並選 → 特選と、段階で絞ります</b><span>夏雲システムなど、ほかの句会で選をするときの、手もとの道具です。AIは使いません。句の一覧や選んだ結果は、この端末の中だけに残り、裾野のサーバーには送られません。選評は、ご自身の言葉で。</span></div>';
+    h += vSenkuTut();
     if (ngList.length) h += '<div class="row skswitch"><span class="note">句会：</span>' + ngList.map(function (x, i) { var w = x.work, prog = w && w.items && w.items.length ? '<small>' + (w.step >= skStagesOf(x) + 2 || (x.mode === 'direct' && w.step >= 3) ? 'まとめ' : '選句中') + '</small>' : ''; return '<button class="chip fit' + (sk.ngi === i ? ' on' : '') + '" data-act="ng-senku" data-i="' + i + '">' + esc(x.n || '句会' + (i + 1)) + prog + '</button>'; }).join('') + (sk.ngi == null ? '<span class="chip fit on">（カードなし）</span>' : '') + '</div><p class="note">句会カード（ストッ句の「夏雲システムの句会」）ごとに、途中の選も別々に残ります。</p>';
     var N = skStages(), last = N - 1, direct = sk.mode === 'direct';
     /* 手順の見出し */
