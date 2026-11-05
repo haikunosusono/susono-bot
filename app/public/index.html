@@ -635,7 +635,8 @@ h3.sec { font-size: 1rem; }
 .ngp .ngsteps { margin: 6px 0 10px; padding-left: 1.4em; font-size: .9rem; line-height: 1.7; } .ngp .ngsteps li { margin: 4px 0; }
 .sklist { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 6px; } .sklist .skpick { display: flex; gap: 10px; align-items: center; text-align: left; font-weight: 400; padding: 8px 12px; line-height: 1.5; min-height: 44px; } .sklist .kn { flex: 0 0 2.2em; font-weight: 700; color: var(--ink-soft); } .sklist .skpick.on .kn { color: inherit; } .sklist small { display: block; font-size: .75rem; opacity: .8; }
 .skst .chip { flex: 0 0 auto; font-size: .8rem; min-height: 32px; cursor: default; } .sk-st { display: grid; gap: 6px; } .sk-stc { display: flex; align-items: center; gap: 6px; } .sk-stc .link { margin-left: 4px; } .sk-stc .sk-sym { width: 3.2em; text-align: center; } .sk-stc input[type=text] { width: 5.5em; } .sk-stc input[type=number] { width: 4em; } .sk-stc small { color: var(--ink-soft); font-size: .78rem; }
-.skh { margin: 14px 0 6px; font-size: 1rem; } .skh small { font-weight: 400; color: var(--ink-soft); margin-left: 8px; } .skres { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; } .skres .skq { line-height: 1.6; } .skres .kn { font-weight: 700; color: var(--ink-soft); margin-right: 8px; } .skres textarea { width: 100%; box-sizing: border-box; font-size: .92rem; } .skwarn { color: #b8402f; } .sk-must { flex: 0 0 auto; min-height: 32px; font-size: .8rem; padding: 0 .8em; }
+.skh { margin: 14px 0 6px; font-size: 1rem; } .skh small { font-weight: 400; color: var(--ink-soft); margin-left: 8px; } .skres { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; } .skres .skq { line-height: 1.6; } .skres .kn { font-weight: 700; color: var(--ink-soft); margin-right: 8px; } .skres textarea { width: 100%; box-sizing: border-box; font-size: .92rem; } .skwarn { color: #b8402f; } .skhead { padding: 10px 12px; } .skhead .skdl { color: #b8402f; font-size: .85rem; } .skcounts { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .9rem; } .skc.over, .skc.short { color: #b8402f; } .skc small { color: var(--ink-soft); }
+.skmiss { background: #fff1ec; border: 1px solid #e8b3a4; border-radius: 10px; padding: 8px 12px; margin: 6px 0 10px; font-size: .9rem; line-height: 1.6; } .skdirect li { margin-bottom: 8px; } .skranks { gap: 6px; margin-top: 4px; } .skranks .chip { flex: 0 0 auto; min-height: 36px; font-size: .85rem; } .skranks .chip.dim { opacity: .4; } .skranks .chip small { font-weight: 400; margin-left: 3px; } .sk-must { flex: 0 0 auto; min-height: 32px; font-size: .8rem; padding: 0 .8em; }
 .skrow { display: flex; gap: 8px; align-items: flex-start; } .skrow .sk-sym { width: 3.2em; text-align: center; flex: 0 0 auto; } .skrow textarea { flex: 1; } .skrest { margin: 12px 0; } .skrest summary { cursor: pointer; font-weight: 700; }
 .ngcards { display: grid; gap: 10px; margin: 8px 0; } .ngcard { border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--paper); } .ngcard.on { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent); } .ngcard .row2 { align-items: center; margin-bottom: 4px; } .ngcard .row { gap: 10px; }
 .ngrow { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: .92rem; } .ngrow .ngl { flex: 0 0 5.5em; color: var(--ink-soft); font-size: .8rem; } .ngrow .ngv { flex: 1; min-width: 0; overflow-wrap: anywhere; } .ngrow .btn.small { min-height: 34px; padding: .2em .9em; font-size: .85rem; } .ngcard .actions { margin-top: 8px; }
@@ -971,7 +972,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.05h';
+  var APP_VER = 'v2026.11.05i';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3767,7 +3768,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   var SK_PRESETS = [['特選1・並選4・予選', [['特選', 1, '特'], ['並選', 4, '佳'], ['予選', 0, '']]], ['特選1・並選3・予選', [['特選', 1, '特'], ['並選', 3, '佳'], ['予選', 0, '']]], ['天・地・人・予選', [['天', 1, '特'], ['地', 1, '佳'], ['人', 1, '1'], ['予選', 0, '']]], ['特選2・並選5・予選', [['特選', 2, '特'], ['並選', 5, '佳'], ['予選', 0, '']]]];
   var sk = { title: '', src: '', items: [], st: [['特選', 1], ['並選', 4], ['予選', 0]], step: 0, picks: {}, notes: {} };
   try { var sk0 = JSON.parse(localStorage.getItem('ikku-senku') || 'null'); if (sk0 && sk0.items) sk = sk0; } catch (_) {}
-  function skSave() { try { localStorage.setItem('ikku-senku', JSON.stringify(sk)); } catch (_) {} if (sk.ngi != null && ngList[sk.ngi]) { ngList[sk.ngi].st = JSON.parse(JSON.stringify(sk.st)); ngList[sk.ngi].legend = sk.legend || ''; ngSave(); } }
+  function skSave() { try { localStorage.setItem('ikku-senku', JSON.stringify(sk)); } catch (_) {} if (sk.ngi != null && ngList[sk.ngi]) { ngList[sk.ngi].st = JSON.parse(JSON.stringify(sk.st)); ngList[sk.ngi].legend = sk.legend || ''; ngList[sk.ngi].mode = sk.mode || 'step'; ngList[sk.ngi].dl = sk.deadline || ''; ngSave(); } }
   function skParse(txt) {
     var out = [], n = 0;
     String(txt || '').split(/\r?\n/).forEach(function (l) {
@@ -3808,18 +3809,35 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     return L.join('\n').trim();
   }
   function skRow(i, k, ph) { var it = sk.items[i]; return '<li><div class="skq"><span class="kn">' + esc(it.n) + '</span>' + esc(it.t) + '</div><div class="skrow"><input type="text" class="sk-sym" data-f="sk-isym" data-i="' + i + '" maxlength="1" value="' + esc(sk.syms && sk.syms[i] || '') + '" placeholder="' + esc(k >= 0 ? (sk.st[k][2] || '記号') : '記号') + '" aria-label="夏雲の記号"><textarea rows="2" data-f="sk-note" data-i="' + i + '" placeholder="' + esc(ph) + '">' + esc(sk.notes[i] || '') + '</textarea></div></li>'; }
+  /* 段ごとの数：いま何句（その段どまり）／上限 */
+  function skCount(k) { var c = 0; sk.items.forEach(function (_, i) { if (skRank(i) === k) c++; }); return c; }
+  function skHead() {
+    var N = skStages(), parts = [];
+    for (var k = 0; k < N; k++) { var c = skCount(k), n = sk.st[k][1]; parts.push('<span class="skc' + (n && c > n ? ' over' : n && sk.st[k][3] && c < n ? ' short' : '') + '"><b>' + esc(sk.st[k][0]) + '</b> ' + c + (n ? '／' + n + (sk.st[k][3] ? '（必ず）' : '') : '') + (sk.st[k][2] ? ' <small>' + esc(sk.st[k][2]) + '</small>' : '') + '</span>'); }
+    var rule = sk.st.map(function (st) { return st[0] + (st[1] ? st[1] + '句' + (st[3] ? '（必ず）' : 'まで') : ''); }).join('・');
+    return '<div class="panel skhead"><div class="row2"><b>' + esc(sk.title || '句会') + '</b>' + (sk.deadline ? '<span class="skdl">締切：' + esc(sk.deadline) + '</span>' : '') + '</div><p class="note">決まり：' + esc(rule) + (sk.items.length ? '　全 ' + sk.items.length + ' 句（自句 ' + sk.items.filter(function (it) { return it.me; }).length + '）' : '') + '</p><div class="skcounts">' + parts.join('') + '</div></div>';
+  }
+  /* 記号があるのに選評が空の句：夏雲では「記号だけの行」は登録されない */
+  function skMissing() { var out = []; sk.items.forEach(function (it, i) { if (it.me) return; var k = skRank(i), sym = skSym(i, k); if (sym && !String(sk.notes[i] || '').trim()) out.push(i); }); return out; }
+  function skSetRank(i, k) { /* 直接えらぶ：段 k にする（下の段にも入れる）。k<0 で外す */
+    for (var j = 0; j < skStages(); j++) { var arr = sk.picks[j] = sk.picks[j] || [], at = arr.indexOf(i); if (k >= 0 && j >= k) { if (at < 0) arr.push(i); } else if (at >= 0) arr.splice(at, 1); }
+  }
   function vSenku() {
     var chip = function (act, v, label, on, extra) { return '<button class="chip fit' + (on ? ' on' : '') + '" data-act="' + act + '" data-v="' + esc(String(v)) + '"' + (extra || '') + '>' + label + '</button>'; };
     var h = '<h2 class="sec">選句の道具<small>ほかの句会の選を、段階で</small></h2>' +
       '<div class="howto"><b>句の一覧を貼って、予選 → 並選 → 特選と、段階で絞ります</b><span>夏雲システムなど、ほかの句会で選をするときの、手もとの道具です。AIは使いません。句の一覧や選んだ結果は、この端末の中だけに残り、裾野のサーバーには送られません。選評は、ご自身の言葉で。</span></div>';
-    var N = skStages(), last = N - 1;
+    var N = skStages(), last = N - 1, direct = sk.mode === 'direct';
     /* 手順の見出し */
     var steps = ['① 一覧を貼る', '② 自句に印'];
-    for (var k = last; k >= 0; k--) steps.push(sk.st[k][0]);
+    if (direct) steps.push('えらぶ'); else for (var k = last; k >= 0; k--) steps.push(sk.st[k][0]);
     steps.push('まとめ');
+    var SUM = steps.length - 1; /* まとめの step 番号 */
     h += '<div class="row skst">' + steps.map(function (t, i) { return '<span class="chip fit' + (i === sk.step ? ' on' : '') + '"' + (i < sk.step ? ' style="opacity:.7"' : '') + '>' + esc(t) + '</span>'; }).join('') + '</div>';
+    if (sk.step > 0 && sk.items.length) h += skHead();
     if (sk.step === 0) {
       h += '<div class="panel"><div class="field"><label for="sk-title">句会の名前（なくてもよい）</label><input type="text" id="sk-title" data-f="sk-title" maxlength="40" value="' + esc(sk.title) + '" placeholder="例：第42回なごやか句会"></div>' +
+        '<div class="field"><label for="sk-dl">締切（メモ。なくてもよい）</label><input type="text" id="sk-dl" data-f="sk-dl" maxlength="40" value="' + esc(sk.deadline || '') + '" placeholder="例：11月10日 21時"></div>' +
+        '<div class="field"><label>えらびかた</label><div class="row">' + chip('sk-mode', 'step', '段階で絞る（予選→並選→特選）', !direct) + chip('sk-mode', 'direct', '直接えらぶ（句ごとに段をつける）', direct) + '</div></div>' +
         '<div class="field"><label for="sk-src">句の一覧（1行に1句。番号つきでも、なしでも）</label><textarea id="sk-src" data-f="sk-src" rows="10" placeholder="1　初時雨猫も小蓑をほしげなり&#10;2　…">' + esc(sk.src) + '</textarea></div>' +
         '<div class="field"><label>選の組み立て</label><div class="row">' + SK_PRESETS.map(function (pz, i) { return chip('sk-preset', i, pz[0], JSON.stringify(pz[1]) === JSON.stringify(sk.st)); }).join('') + '</div>' +
         '<div class="sk-st">' + sk.st.map(function (st, k) { return '<span class="sk-stc"><input type="text" data-f="sk-sn" data-k="' + k + '" value="' + esc(st[0]) + '" maxlength="6" aria-label="段の名前"><input type="number" min="0" max="99" data-f="sk-sc" data-k="' + k + '" value="' + st[1] + '" aria-label="句数"><small>' + (st[1] ? '句' : 'いくつでも') + '</small>' + (st[1] ? '<button class="chip fit sk-must' + (st[3] ? ' on' : '') + '" data-act="sk-must" data-v="' + k + '">' + (st[3] ? '必ず' : 'まで') + '</button>' : '') + '<input type="text" class="sk-sym" data-f="sk-sy" data-k="' + k + '" value="' + esc(st[2] || '') + '" maxlength="1" placeholder="記号" aria-label="夏雲の記号">' + (sk.st.length > 1 ? '<button class="link" data-act="sk-stdel" data-v="' + k + '" aria-label="この段を消す">✕</button>' : '') + '</span>'; }).join('') + '<div class="row"><button class="chip fit" data-act="sk-stadd">＋ 段を足す</button></div></div><p class="note">上の段から順に、名前と句数を。句数「0」は、数をきめず広く拾う段（予選など）。段は、足したり消したりできます（天・地・人、秀逸・佳作、など句会のきまりに合わせて）。「まで／必ず」は、その句数が上限か、きっちり選ぶ決まりか（「必ず」の段は、足りないとまとめで知らせます）。右はしの「記号」は、夏雲システムの選評フォーマットの評価の記号（特・佳・1〜9・a〜e・z）。句会の案内に合わせて。空の段は、夏雲の文に出しません。' + (sk.ngi != null && ngList[sk.ngi] ? 'この組み立ては、句会「' + esc(ngList[sk.ngi].n || '') + '」のカードが覚えます。' : '') + '</p></div>' +
@@ -3831,11 +3849,19 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (sk.step === 1) {
       h += '<div class="panel"><p class="lead">自分の句を見つけて、印をつけてください（選の対象から外れます）</p><ul class="sklist">' + sk.items.map(function (it, i) { return '<li><button class="chip fit skpick' + (it.me ? ' on' : '') + '" data-act="sk-me" data-i="' + i + '"><span class="kn">' + esc(it.n) + '</span><span>' + esc(it.t) + (it.me ? '<small>自句</small>' : '') + '</span></button></li>'; }).join('') + '</ul>' +
         '<p class="note">自句：' + (sk.items.filter(function (it) { return it.me; }).length || 'なし') + '　全 ' + sk.items.length + ' 句</p>' +
-        '<div class="actions"><button class="btn" data-act="sk-go" data-v="0">← 一覧へ</button><button class="btn primary" data-act="sk-go" data-v="2">' + esc(sk.st[last][0]) + 'へ →</button></div></div>';
+        '<div class="actions"><button class="btn" data-act="sk-go" data-v="0">← 一覧へ</button><button class="btn primary" data-act="sk-go" data-v="2">' + (direct ? 'えらぶ' : esc(sk.st[last][0])) + 'へ →</button></div></div>';
+      return h;
+    }
+    if (direct && sk.step === 2) {
+      var cd = sk.items.map(function (_, i) { return i; }).filter(function (i) { return !sk.items[i].me; });
+      h += '<div class="panel"><p class="lead">句ごとに、段をつけてください（もう一度押すと外れます）</p><p class="note">上の数が「上限」に達した段は、ほかの句にはつけられません。</p><ul class="sklist skdirect">' + cd.map(function (i) {
+        var it = sk.items[i], r = skRank(i);
+        return '<li><div class="skq"><span class="kn">' + esc(it.n) + '</span>' + esc(it.t) + '</div><div class="row skranks">' + sk.st.map(function (st, k) { var full = st[1] && skCount(k) >= st[1] && r !== k; return '<button class="chip fit' + (r === k ? ' on' : '') + (full ? ' dim' : '') + '" data-act="sk-rank" data-k="' + k + '" data-i="' + i + '">' + esc(st[0]) + (st[2] ? '<small>' + esc(st[2]) + '</small>' : '') + '</button>'; }).join('') + '</div></li>';
+      }).join('') + '</ul><div class="actions"><button class="btn" data-act="sk-go" data-v="1">← もどる</button><button class="btn primary" data-act="sk-go" data-v="3">まとめへ →</button></div></div>';
       return h;
     }
     var si = sk.step - 2; /* 0 = いちばん下の段 */
-    if (si < N) {
+    if (!direct && si < N) {
       var k = last - si, cands = skCands(k), picks = sk.picks[k] || [], lim = skLimit(k), hi = k > 0 ? skLimit(k - 1) : 0;
       h += '<div class="panel"><p class="lead">' + esc(sk.st[k][0]) + '：' + (k === last ? '気になる句を、広く拾ってください' : 'ひとつ下の段（' + esc(sk.st[k + 1][0]) + '）の ' + cands.length + ' 句から、えらんでください') + (sk.st[k][3] && sk.st[k][1] ? '<small>　この段は ' + sk.st[k][1] + ' 句、必ず</small>' : '') + '</p>' +
         '<p class="note">えらんだ：<b>' + picks.length + '</b> 句' + (lim ? '／' + lim + ' 句まで' + (k > 0 && hi ? '（このあと上の段へ ' + hi + ' 句を送るぶんをふくむ）' : '') : '') + '</p>' +
@@ -3846,21 +3872,23 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     }
     /* まとめ */
     h += '<div class="panel"><p class="lead">まとめ' + (sk.title ? '：' + esc(sk.title) : '') + '</p>';
+    var miss = skMissing();
+    if (miss.length) h += '<div class="skmiss"><b>⚠ 選評が空の句が ' + miss.length + ' 句</b>：' + miss.map(function (i) { return esc(sk.items[i].n); }).join('・') + '<br><small>夏雲システムでは、記号だけの行は選評として登録されません。ひとことでも書いてください。</small></div>';
     for (var kk = 0; kk < N; kk++) {
       var ids = sk.items.map(function (_, i) { return i; }).filter(function (i) { return skRank(i) === kk; });
-      h += '<h3 class="skh">' + esc(sk.st[kk][0]) + '<small>' + ids.length + '句' + (sk.st[kk][1] && ids.length > sk.st[kk][1] ? '（' + sk.st[kk][1] + '句の約束より多い）' : sk.st[kk][3] && sk.st[kk][1] && ids.length < sk.st[kk][1] ? '<b class="skwarn">（この句会は ' + sk.st[kk][1] + ' 句、必ず。あと ' + (sk.st[kk][1] - ids.length) + ' 句）</b>' : '') + '</small></h3>' +
-        (ids.length ? '<ul class="skres">' + ids.map(function (i) { return skRow(i, kk, '選評（自分の言葉で。なくてもよい）'); }).join('') + '</ul>' : '<p class="note">なし</p>');
+      h += '<h3 class="skh">' + esc(sk.st[kk][0]) + '<small>' + ids.length + '句' + (sk.st[kk][1] ? '／' + sk.st[kk][1] : '') + (sk.st[kk][1] && ids.length > sk.st[kk][1] ? '<b class="skwarn">（' + sk.st[kk][1] + '句の約束より多い）</b>' : sk.st[kk][3] && sk.st[kk][1] && ids.length < sk.st[kk][1] ? '<b class="skwarn">（この句会は ' + sk.st[kk][1] + ' 句、必ず。あと ' + (sk.st[kk][1] - ids.length) + ' 句）</b>' : '') + '</small></h3>' +
+        (ids.length ? '<ul class="skres">' + ids.map(function (i) { return skRow(i, kk, '選評（自分の言葉で）'); }).join('') + '</ul>' : '<p class="note">なし</p>');
     }
     var rest = sk.items.map(function (_, i) { return i; }).filter(function (i) { return !sk.items[i].me && skRank(i) < 0; });
-    if (rest.length) h += '<details class="skrest"><summary>選に入らなかった句（' + rest.length + '句）に、記号やひとことを書く</summary><p class="note">句会によっては、選に入らない句にも記号（理由の番号など）やひとことを書きます。書いた句だけ、夏雲の文に入ります。</p><ul class="skres">' + rest.map(function (i) { return skRow(i, -1, 'ひとこと（なくてもよい）'); }).join('') + '</ul></details>';
+    if (rest.length) h += '<details class="skrest"><summary>選に入らなかった句（' + rest.length + '句）に、記号やひとことを書く</summary><p class="note">句会によっては、選に入らない句にも記号（理由の番号など）やひとことを書きます。書いた句だけ、夏雲の文に入ります（記号だけでは登録されないので、ひとことも）。</p><ul class="skres">' + rest.map(function (i) { return skRow(i, -1, 'ひとこと'); }).join('') + '</ul></details>';
     if (sk.legend) h += '<details class="skrest"><summary>この句会の記号の意味（メモ）</summary><pre class="kshpre">' + esc(sk.legend) + '</pre></details>';
     var me2 = sk.items.filter(function (it) { return it.me; });
     if (me2.length) h += '<h3 class="skh">自句<small>選の対象外。コメントは、夏雲では記号なしで入ります</small></h3><ul class="skres">' + sk.items.map(function (it, i) { return it.me ? '<li><div class="skq"><span class="kn">' + esc(it.n) + '</span>' + esc(it.t) + '</div><textarea rows="2" data-f="sk-note" data-i="' + i + '" placeholder="自句へのコメント（なくてもよい）">' + esc(sk.notes[i] || '') + '</textarea></li>' : ''; }).join('') + '</ul>';
     h += '<div class="actions"><button class="btn primary" data-act="sk-copy-ng">📋 夏雲の形でコピー</button><button class="btn" data-act="sk-copy">📋 ふつうの文でコピー</button><button class="btn" data-act="sk-go" data-v="' + (sk.step - 1) + '">← もどる</button><button class="btn" data-act="sk-reset">はじめから（一覧を消す）</button></div>' +
-      '<p class="note">「夏雲の形」は、夏雲システムの「選評フォーマットによる登録」に、そのまま貼れる形です（句の行は、貼った一覧の行をそのまま使います。記号は、段ごとの「記号」）。「ふつうの文」は、段ごとに句と選評を並べた控えです。</p></div>';
+      '<p class="note">「夏雲の形」は、夏雲システムの「選評フォーマットによる登録」に、そのまま貼れる形です（句の行は、貼った一覧の行をそのまま使います。記号は、段ごとの「記号」か、句ごとに書いた記号）。「ふつうの文」は、段ごとに句と選評を並べた控えです。</p></div>';
     return h;
   }
-  function ngSenku(ni) { var nx = ngList[ni]; if (!nx) return; if (sk.ngi !== ni) sk = { title: nx.n || '', src: '', items: [], st: nx.st ? JSON.parse(JSON.stringify(nx.st)) : sk.st, step: 0, picks: {}, notes: {}, syms: {}, legend: nx.legend || '', ngi: ni }; page = 'senku'; skSave(); render(); window.scrollTo(0, 0); }
+  function ngSenku(ni) { var nx = ngList[ni]; if (!nx) return; if (sk.ngi !== ni) sk = { title: nx.n || '', src: '', items: [], st: nx.st ? JSON.parse(JSON.stringify(nx.st)) : sk.st, step: 0, picks: {}, notes: {}, syms: {}, legend: nx.legend || '', mode: nx.mode || 'step', deadline: nx.dl || '', ngi: ni }; page = 'senku'; skSave(); render(); window.scrollTo(0, 0); }
   function skAct(act, t) {
     var v = t.dataset.v;
     if (act === 'sk-preset') { sk.st = JSON.parse(JSON.stringify(SK_PRESETS[+v][1])); sk.picks = {}; skSave(); render(); return true; }
@@ -3868,7 +3896,14 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (act === 'sk-must') { var mk = +v; if (sk.st[mk]) { sk.st[mk][3] = sk.st[mk][3] ? 0 : 1; skSave(); render(); } return true; }
     if (act === 'sk-stdel') { if (sk.st.length <= 1) return true; sk.st.splice(+v, 1); sk.picks = {}; skSave(); render(); return true; }
     if (act === 'sk-parse') { var its = skParse(sk.src); if (!its.length) { toast('句の一覧を貼ってください'); return true; } if (!sk.st.length) sk.st = [['予選', 0]]; sk.st[sk.st.length - 1][1] = 0; sk.items = its; sk.picks = {}; sk.notes = {}; sk.syms = {}; sk.step = 1; skSave(); render(); return true; }
-    if (act === 'sk-go') { sk.step = Math.max(0, Math.min(+v || 0, skStages() + 2)); skSave(); render(); window.scrollTo(0, 0); return true; }
+    if (act === 'sk-go') { sk.step = Math.max(0, Math.min(+v || 0, sk.mode === 'direct' ? 3 : skStages() + 2)); skSave(); render(); window.scrollTo(0, 0); return true; }
+    if (act === 'sk-mode') { sk.mode = v === 'direct' ? 'direct' : 'step'; skSave(); render(); return true; }
+    if (act === 'sk-rank') {
+      var rk = +t.dataset.k, ri = +t.dataset.i, cur = skRank(ri);
+      if (cur === rk) skSetRank(ri, -1);
+      else { var lim2 = sk.st[rk][1]; if (lim2 && skCount(rk) >= lim2) { toast(sk.st[rk][0] + 'は ' + lim2 + ' 句まで。どれかを外してから'); return true; } skSetRank(ri, rk); }
+      skSave(); render(); return true;
+    }
     if (act === 'sk-me') { var i = +t.dataset.i; sk.items[i].me = !sk.items[i].me; Object.keys(sk.picks).forEach(function (k) { sk.picks[k] = sk.picks[k].filter(function (x) { return x !== i; }); }); skSave(); render(); return true; }
     if (act === 'sk-pick') {
       var k = +t.dataset.k, i2 = +t.dataset.i, arr = sk.picks[k] = sk.picks[k] || [], at = arr.indexOf(i2), lim = skLimit(k);
@@ -3876,9 +3911,9 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       else { if (lim && arr.length >= lim) { toast(sk.st[k][0] + 'は ' + lim + ' 句まで。どれかを外してから'); return true; } arr.push(i2); }
       skSave(); render(); return true;
     }
-    if (act === 'sk-copy-ng') { var tn = skNgText(); if (!tn) { toast('記号のある段に、句がありません'); return true; } try { navigator.clipboard.writeText(tn).then(function () { toast('夏雲の形でコピーしました'); }, function () { toast('コピーできませんでした'); }); } catch (_) { toast('コピーできませんでした'); } return true; }
+    if (act === 'sk-copy-ng') { var tn = skNgText(); if (!tn) { toast('記号のある段に、句がありません'); return true; } var ms = skMissing(); try { navigator.clipboard.writeText(tn).then(function () { toast(ms.length ? '夏雲の形でコピーしました。ただし ' + ms.length + ' 句は選評が空です（夏雲では登録されません）' : '夏雲の形でコピーしました'); }, function () { toast('コピーできませんでした'); }); } catch (_) { toast('コピーできませんでした'); } return true; }
     if (act === 'sk-copy') { var tx = skText(); try { navigator.clipboard.writeText(tx).then(function () { toast('コピーしました'); }, function () { toast('コピーできませんでした'); }); } catch (_) { toast('コピーできませんでした'); } return true; }
-    if (act === 'sk-reset') { if (!confirm('一覧と選んだ結果を消して、はじめからにしますか？')) return true; sk = { title: sk.ngi != null && ngList[sk.ngi] ? (ngList[sk.ngi].n || '') : '', src: '', items: [], st: sk.st, step: 0, picks: {}, notes: {}, syms: {}, legend: sk.legend || '', ngi: sk.ngi }; skSave(); render(); return true; }
+    if (act === 'sk-reset') { if (!confirm('一覧と選んだ結果を消して、はじめからにしますか？')) return true; sk = { title: sk.ngi != null && ngList[sk.ngi] ? (ngList[sk.ngi].n || '') : '', src: '', items: [], st: sk.st, step: 0, picks: {}, notes: {}, syms: {}, legend: sk.legend || '', mode: sk.mode || 'step', deadline: sk.deadline || '', ngi: sk.ngi }; skSave(); render(); return true; }
     return false;
   }
   function vKushu() {
@@ -7540,6 +7575,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (f === 'sk-sc') { var kk2 = +t.dataset.k; if (sk.st[kk2]) { sk.st[kk2][1] = Math.max(0, Math.min(99, parseInt(t.value, 10) || 0)); skSave(); } }
     else if (f === 'sk-note') { sk.notes[+t.dataset.i] = t.value; skSave(); }
     else if (f === 'sk-legend') { sk.legend = t.value; skSave(); }
+    else if (f === 'sk-dl') { sk.deadline = t.value; skSave(); }
     else if (f === 'sk-isym') { sk.syms = sk.syms || {}; sk.syms[+t.dataset.i] = String(t.value || '').trim().slice(0, 1); skSave(); }
     else if (f === 'sk-sy') { var kk3 = +t.dataset.k; if (sk.st[kk3]) { sk.st[kk3][2] = String(t.value || '').trim().slice(0, 1); skSave(); } }
     else if (f === 'ng-url') ngDraft.u = t.value;
