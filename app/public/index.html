@@ -636,6 +636,9 @@ h3.sec { font-size: 1rem; }
 .sklist { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 6px; } .sklist .skpick { display: flex; gap: 10px; align-items: center; text-align: left; font-weight: 400; padding: 8px 12px; line-height: 1.5; min-height: 44px; } .sklist .kn { flex: 0 0 2.2em; font-weight: 700; color: var(--ink-soft); } .sklist .skpick.on .kn { color: inherit; } .sklist small { display: block; font-size: .75rem; opacity: .8; }
 .skst .chip { flex: 0 0 auto; font-size: .8rem; min-height: 32px; cursor: default; } .sk-st { gap: 8px; flex-wrap: wrap; } .sk-stc { display: inline-flex; align-items: center; gap: 4px; } .sk-stc input[type=text] { width: 5.5em; } .sk-stc input[type=number] { width: 4em; } .sk-stc small { color: var(--ink-soft); font-size: .78rem; }
 .skh { margin: 14px 0 6px; font-size: 1rem; } .skh small { font-weight: 400; color: var(--ink-soft); margin-left: 8px; } .skres { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; } .skres .skq { line-height: 1.6; } .skres .kn { font-weight: 700; color: var(--ink-soft); margin-right: 8px; } .skres textarea { width: 100%; box-sizing: border-box; font-size: .92rem; }
+.ngcards { display: grid; gap: 10px; margin: 8px 0; } .ngcard { border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--paper); } .ngcard.on { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent); } .ngcard .row2 { align-items: center; margin-bottom: 4px; } .ngcard .row { gap: 10px; }
+.ngrow { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: .92rem; } .ngrow .ngl { flex: 0 0 5.5em; color: var(--ink-soft); font-size: .8rem; } .ngrow .ngv { flex: 1; min-width: 0; overflow-wrap: anywhere; } .ngrow .btn.small { min-height: 34px; padding: .2em .9em; font-size: .85rem; } .ngcard .actions { margin-top: 8px; }
+.ngadd { margin-top: 8px; } .ngadd summary { cursor: pointer; font-weight: 700; }
 .ngp .ngu { font-size: .78rem; color: var(--ink-soft); overflow-wrap: anywhere; flex: 1; min-width: 0; }
 .ngp .row2 { gap: 8px; align-items: center; flex-wrap: wrap; }
 .sttwrap { overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; }
@@ -967,7 +970,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.05b';
+  var APP_VER = 'v2026.11.05c';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1329,7 +1332,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   var stView = 'table', stFil = 'all';
   try { stView = localStorage.getItem('ikku-stview') || 'table'; } catch (_) {}
   /* ---- 夏雲システムに出す：句をコピーして、覚えておいた投句画面をひらく（URLは、この端末の中だけに保存。送信は本人が） ---- */
-  var ngList = [], ngSel = 0, ngDraft = { n: '', u: '' }, ngOpen = false;
+  var ngList = [], ngSel = 0, ngDraft = { n: '', u: '', h: '', p: '' }, ngOpen = false, ngEdit = null;
   try { ngList = JSON.parse(localStorage.getItem('ikku-natsugumo') || '[]') || []; ngSel = +(localStorage.getItem('ikku-natsugumo-sel') || 0) || 0; } catch (_) { ngList = []; }
   function ngSave() { try { localStorage.setItem('ikku-natsugumo', JSON.stringify(ngList)); localStorage.setItem('ikku-natsugumo-sel', String(ngSel)); } catch (_) {} }
   function ngCur() { return ngList[ngSel] || ngList[0] || null; }
@@ -1343,12 +1346,23 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       '<p class="note">どの句会に出ればいい？　<a href="https://nolimbre.wixsite.com/natsugumo" target="_blank" rel="noopener">夏雲システムの紹介ページ</a>に、しくみの説明があります。はじめは、「見学OK」「初心者歓迎」と書いてある句会から。句会ごとに、きまり（句数・締切・名乗り方）がちがうので、案内をよく読んでから。</p><div class="row"><button class="chip fit" data-act="page" data-p="senku">🗂 選句の道具（ほかの句会で選をするとき）</button></div></details>';
   }
   function ngPanel() {
-    var h = '<details class="panel ngp"' + (ngOpen ? ' open' : '') + '><summary>☁️ 夏雲システムに出す（投句画面のURLを覚えておく）</summary>' +
-      '<p class="note">夏雲システムの句会に出すときの手助けです。句の横の「☁️ 夏雲へ」を押すと、句をコピーして（ふりがなは、夏雲の書き方「｜漢字（かな）」に直します）、ここで覚えた投句画面をひらきます。夏雲の画面で貼りつけて、「送信」を押すのは、ご自身で。URLは、この端末の中だけに残ります（裾野には送られません）。</p>';
-    if (ngList.length) h += '<ul class="list nglist">' + ngList.map(function (x, i) { return '<li class="row2"><button class="chip fit' + (i === ngSel ? ' on' : '') + '" data-act="ng-sel" data-i="' + i + '">' + (i === ngSel ? '✓ ' : '') + esc(x.n || '句会' + (i + 1)) + '</button><span class="ngu">' + esc(x.u) + '</span><button class="link" data-act="ng-del" data-i="' + i + '">消す</button></li>'; }).join('') + '</ul><p class="note">✓ がついている句会に出します。</p>';
-    h += '<div class="field"><label for="ng-name">句会の名前</label><input type="text" id="ng-name" data-f="ng-name" maxlength="30" value="' + esc(ngDraft.n) + '" placeholder="例：〇〇ネット句会"></div>' +
+    var h = '<details class="panel ngp"' + (ngOpen ? ' open' : '') + '><summary>☁️ 夏雲システムの句会（投句画面とログイン情報を覚えておく）</summary>' +
+      '<p class="note">夏雲システムなどの句会の、投句画面のURL・俳号・パスワードをまとめておけます。<b>この端末の中にだけ</b>保存され、裾野のサーバーには送られません。句の横の「☁️ 夏雲へ」を押すと、句をコピーして（ふりがなは夏雲の書き方「｜漢字（かな）」に直して）、✓ の句会の投句画面をひらきます。貼りつけて送信するのは、ご自身で。</p>';
+    if (ngList.length) h += '<div class="ngcards">' + ngList.map(function (x, i) {
+      var on = i === ngSel;
+      return '<div class="ngcard' + (on ? ' on' : '') + '"><div class="row2"><b>' + (on ? '✓ ' : '') + esc(x.n || '句会' + (i + 1)) + '</b><span class="row"><button class="link" data-act="ng-edit" data-i="' + i + '">編集</button><button class="link" data-act="ng-del" data-i="' + i + '">消す</button></span></div>' +
+        (x.h ? '<div class="ngrow"><span class="ngl">俳号</span><span class="ngv">' + esc(x.h) + '</span><button class="btn small" data-act="ng-copy" data-v="' + esc(x.h) + '">コピー</button></div>' : '') +
+        (x.p ? '<div class="ngrow"><span class="ngl">パスワード</span><span class="ngv">' + (x.show ? esc(x.p) : '●●●●●●') + '</span><button class="btn small" data-act="ng-copy" data-v="' + esc(x.p) + '">コピー</button><button class="link" data-act="ng-show" data-i="' + i + '">' + (x.show ? 'かくす' : '見る') + '</button></div>' : '') +
+        '<div class="ngrow"><span class="ngl">URL</span><span class="ngv ngu">' + esc(x.u) + '</span></div>' +
+        '<div class="actions"><button class="btn primary" data-act="ng-open" data-i="' + i + '">この句会をひらく ▶</button>' + (on ? '' : '<button class="btn" data-act="ng-sel" data-i="' + i + '">出す先にする</button>') + '</div></div>';
+    }).join('') + '</div><p class="note">✓ の句会に、「夏雲へ」で出します。</p>';
+    h += '<details class="ngadd"' + (ngEdit !== null ? ' open' : '') + '><summary>' + (ngEdit !== null ? '✏️ 句会を直す' : '＋ 句会を追加') + '</summary>' +
+      '<div class="field"><label for="ng-name">句会の名前</label><input type="text" id="ng-name" data-f="ng-name" maxlength="30" value="' + esc(ngDraft.n) + '" placeholder="例：〇〇ネット句会"></div>' +
       '<div class="field"><label for="ng-url">投句画面のURL（https:// から）</label><input type="url" id="ng-url" data-f="ng-url" maxlength="300" value="' + esc(ngDraft.u) + '" placeholder="夏雲システムの、その句会の投句画面のURL"></div>' +
-      '<div class="actions"><button class="btn small" data-act="ng-add">この句会を覚える</button></div></details>';
+      '<div class="field"><label for="ng-h">俳号（その句会での名乗り。なくてもよい）</label><input type="text" id="ng-h" data-f="ng-h" maxlength="30" value="' + esc(ngDraft.h) + '"></div>' +
+      '<div class="field"><label for="ng-p">パスワード（なくてもよい）</label><input type="text" id="ng-p" data-f="ng-p" maxlength="60" value="' + esc(ngDraft.p) + '" autocomplete="off"></div>' +
+      '<p class="note">パスワードを入れると、この端末の中に、そのまま残ります。共用のパソコンや、人に貸す端末では、入れないでください。</p>' +
+      '<div class="actions"><button class="btn small primary" data-act="ng-add">' + (ngEdit !== null ? '直して保存' : 'この句会を覚える') + '</button>' + (ngEdit !== null ? '<button class="btn small" data-act="ng-cancel">やめる</button>' : '') + '</div></details></details>';
     return h;
   }
   function ngSend(id) {
@@ -7126,7 +7140,12 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'ng-send') { ngSend(t.dataset.id); }
     else if (act === 'ng-sel') { ngSel = +t.dataset.i || 0; ngSave(); ngOpen = true; render(); }
     else if (act === 'ng-del') { ngList.splice(+t.dataset.i || 0, 1); if (ngSel >= ngList.length) ngSel = 0; ngSave(); ngOpen = true; toast('消しました'); render(); }
-    else if (act === 'ng-add') { var nu = String(ngDraft.u || '').trim(); if (!/^https:\/\/\S+$/.test(nu)) { toast('URLは https:// からはじまるものを'); return; } ngList.push({ n: String(ngDraft.n || '').trim(), u: nu }); ngSel = ngList.length - 1; ngDraft = { n: '', u: '' }; ngSave(); ngOpen = true; toast('覚えました'); render(); }
+    else if (act === 'ng-add') { var nu = String(ngDraft.u || '').trim(); if (!/^https:\/\/\S+$/.test(nu)) { toast('URLは https:// からはじまるものを'); return; } var rec = { n: String(ngDraft.n || '').trim(), u: nu, h: String(ngDraft.h || '').trim(), p: String(ngDraft.p || '') }; if (ngEdit !== null && ngList[ngEdit]) { ngList[ngEdit] = rec; } else { ngList.push(rec); ngSel = ngList.length - 1; } ngEdit = null; ngDraft = { n: '', u: '', h: '', p: '' }; ngSave(); ngOpen = true; toast('覚えました'); render(); }
+    else if (act === 'ng-edit') { var ei = +t.dataset.i || 0, ex = ngList[ei] || {}; ngEdit = ei; ngDraft = { n: ex.n || '', u: ex.u || '', h: ex.h || '', p: ex.p || '' }; ngOpen = true; render(); }
+    else if (act === 'ng-cancel') { ngEdit = null; ngDraft = { n: '', u: '', h: '', p: '' }; ngOpen = true; render(); }
+    else if (act === 'ng-show') { var si = +t.dataset.i || 0; if (ngList[si]) { ngList[si].show = !ngList[si].show; ngOpen = true; render(); } }
+    else if (act === 'ng-copy') { var cv2 = String(t.dataset.v || ''); try { navigator.clipboard.writeText(cv2).then(function () { toast('コピーしました'); }, function () { toast('コピーできませんでした'); }); } catch (_) { toast('コピーできませんでした'); } }
+    else if (act === 'ng-open') { var oi = +t.dataset.i || 0, ox = ngList[oi]; if (ox && /^https:\/\//.test(ox.u)) { try { window.open(ox.u, '_blank'); } catch (_) {} } }
     else if (act === 'st-copy') { stCopy(); }
     else if (act === 'st-share') { stShare(); }
     else if (act === 'homeos') { homeOs = t.dataset.os === 'and' ? 'and' : 'ios'; render(); }
@@ -7491,6 +7510,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (f === 'sk-sc') { var kk2 = +t.dataset.k; if (sk.st[kk2]) { sk.st[kk2][1] = Math.max(0, Math.min(99, parseInt(t.value, 10) || 0)); skSave(); } }
     else if (f === 'sk-note') { sk.notes[+t.dataset.i] = t.value; skSave(); }
     else if (f === 'ng-url') ngDraft.u = t.value;
+    else if (f === 'ng-h') ngDraft.h = t.value;
+    else if (f === 'ng-p') ngDraft.p = t.value;
     else if (f === 'cm') { cmDraft[t.dataset.eid] = t.value; var st3 = scur(); if (st3 && myId && db && st3.entries && st3.entries[myId] && t.value && Date.now() - (typedAt[st3.id] || 0) > 4000) { typedAt[st3.id] = Date.now(); try { write(st3.id, nest(['typing', myId], Date.now())); } catch (_) {} } }
     else if (f === 'ga' || f === 'gb' || f === 'gc') {
       var gs = scur(), gdr = gs && drafts['s:' + gs.id];
