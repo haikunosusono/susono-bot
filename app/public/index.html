@@ -967,7 +967,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.04w';
+  var APP_VER = 'v2026.11.05a';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1450,6 +1450,8 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   var PRAISE_NAMES = ['ひなた', 'さくら', 'こはる', 'ももか', 'そよ風'];
   function personaName(s, uid) { if (uid === 'hinata') return PRAISE_NAMES[hash(String((s && s.id) || '')) % PRAISE_NAMES.length] + '（ほめ担当・ボット）'; return window.PERSONAS_ ? PERSONAS_[uid] : ''; }
   function nameOf(s, uid) { if (window.PERSONAS_ && PERSONAS_[uid]) return personaName(s, uid); var e = (s.entries || {})[uid]; return e && e.haigo ? e.haigo : '名無し'; }
+  /* 進行の書きこみは、一度で終わりにしない：失敗や回線の切れで止まらないよう、少し待ってもう一度（状態の確認は writeIf 側でするので、二重には進まない） */
+  function once(key, ms) { var t = flags[key]; if (t && Date.now() - t < (ms || 15000)) return false; flags[key] = Date.now(); return true; }
   function allDone(s) {
     var es = ents(s); if (es.length < 2) return false;
     return es.every(function (e) { var v = (s.votes || {})[e.id]; return v && v.fin === true; });
@@ -1918,18 +1920,18 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       if (s.tei && s.status === 'done' && s.staleClosed && !s.startedAt && !flags['r' + s.id] && Date.now() < teiStartMs(s) + TEI_LIVE_MIN * 60000) {
         flags['r' + s.id] = 1; write(s.id, { status: 'gathering', staleClosed: false, startAt: teiStartMs(s) });
       }
-      if (s.tei && s.status === 'gathering' && inEntry && !flags['q' + s.id]) {
+      if (s.tei && s.status === 'gathering' && inEntry) {
         var tst = teiStartMs(s);
-        if (Date.now() > tst + TEI_LIVE_MIN * 60000) { flags['q' + s.id] = 1; write(s.id, { status: 'done', staleClosed: true }); }
-        else if (Date.now() >= tst) { flags['q' + s.id] = 1; teiStart(s); }
+        if (Date.now() > tst + TEI_LIVE_MIN * 60000) { if (once('q' + s.id)) write(s.id, { status: 'done', staleClosed: true }); }
+        else if (Date.now() >= tst) { if (once('q' + s.id)) teiStart(s); }
       }
       if (!s.tei && s.status === 'gathering' && inEntry && count(s) >= s.size && !flags['q' + s.id]) {
         flags['q' + s.id] = 1;
         if (s.std === 'flat') flatStart(s); else writeIf(s.id, function (c) { return c.status === 'gathering'; }, function () { return { status: 'selecting', selectStart: Date.now() }; });
       }
       if (s.status === 'reveal' && inEntry) {
-        if (!s.opened && cmtIdx(s) >= count(s) && !flags['o' + s.id]) { flags['o' + s.id] = 1; writeIf(s.id, function (c) { return c.status === 'reveal' && !c.opened; }, function () { return { opened: true, openedAt: Date.now() }; }); }
-        if (s.opened && Date.now() - (s.openedAt || Date.now()) >= CLOSE_SEC * 1000 && !flags['d' + s.id]) { flags['d' + s.id] = 1; writeIf(s.id, function (c) { return c.status === 'reveal' && c.opened; }, function () { return { status: 'done' }; }); }
+        if (!s.opened && cmtIdx(s) >= count(s) && once('o' + s.id)) { writeIf(s.id, function (c) { return c.status === 'reveal' && !c.opened; }, function () { return { opened: true, openedAt: Date.now() }; }); }
+        if (s.opened && Date.now() - (s.openedAt || Date.now()) >= CLOSE_SEC * 1000 && once('d' + s.id)) { writeIf(s.id, function (c) { return c.status === 'reveal' && c.opened; }, function () { return { status: 'done' }; }); }
       }
       if (!s.tei && s.status === 'gathering' && inSeat && seatCount(s) >= s.size && !flags['g' + s.id]) {
         flags['g' + s.id] = 1; write(s.id, { status: 'writing', writeStart: Date.now() });
@@ -1942,10 +1944,11 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
           else write(s.id, { status: 'done' });
         }
       }
-      if (s.status === 'selecting' && inEntry) {
+      /* 選句→披講：句を出した人のページが進める。だれも進めないまま20秒すぎたら、見ている人（ログインずみ）のページでも進める */
+      if (s.status === 'selecting' && myId) {
         var left = selSec(s) - (Date.now() - (s.selectStart || Date.now())) / 1000;
-        if ((allDone(s) || left <= 0) && !flags['r' + s.id]) {
-          flags['r' + s.id] = 1; writeIf(s.id, function (c) { return c.status === 'selecting'; }, function (c) { return revealPatch(c); }).then(function (c) { try { senseiAI(c); setTimeout(function () { botAI(c); }, 8000); senseiJudge(c); } catch (_) {} });
+        if ((inEntry ? (allDone(s) || left <= 0) : left <= -20) && once('r' + s.id)) {
+          writeIf(s.id, function (c) { return c.status === 'selecting'; }, function (c) { return revealPatch(c); }).then(function (c) { try { senseiAI(c); setTimeout(function () { botAI(c); }, 8000); senseiJudge(c); } catch (_) {} });
         }
       }
     });
