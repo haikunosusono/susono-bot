@@ -637,7 +637,10 @@ h3.sec { font-size: 1rem; }
 .sklist { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 6px; } .sklist .skpick { display: flex; gap: 10px; align-items: center; text-align: left; font-weight: 400; padding: 8px 12px; line-height: 1.5; min-height: 44px; } .sklist .kn { flex: 0 0 2.2em; font-weight: 700; color: var(--ink-soft); } .sklist .skpick.on .kn { color: inherit; } .sklist small { display: block; font-size: .75rem; opacity: .8; }
 .skst .chip { flex: 0 0 auto; font-size: .8rem; min-height: 32px; cursor: default; } .sk-st { display: grid; gap: 6px; } .sk-stc { display: flex; align-items: center; gap: 6px; } .sk-stc .link { margin-left: 4px; } .sk-stc .sk-sym { width: 3.2em; text-align: center; } .sk-stc input[type=text] { width: 5.5em; } .sk-stc input[type=number] { width: 4em; } .sk-stc small { color: var(--ink-soft); font-size: .78rem; }
 .skh { margin: 14px 0 6px; font-size: 1rem; } .skh small { font-weight: 400; color: var(--ink-soft); margin-left: 8px; } .skres { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; } .skres .skq { line-height: 1.6; } .skres .kn { font-weight: 700; color: var(--ink-soft); margin-right: 8px; } .skres textarea { width: 100%; box-sizing: border-box; font-size: .92rem; } .skwarn { color: #b8402f; } .skhead { padding: 10px 12px; } .skhead .skdl { color: #b8402f; font-size: .85rem; } .skcounts { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .9rem; } .skc.over, .skc.short { color: #b8402f; } .skc small { color: var(--ink-soft); }
-.sk-sohyo { width: 100%; box-sizing: border-box; font-size: .92rem; } .sktut { font-size: .92rem; line-height: 1.8; } .sktut summary { cursor: pointer; font-weight: 700; } .sktut p { margin: 10px 0; } .skmode { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; } .skmode-b { border: 2px solid var(--line); border-radius: 14px; background: var(--paper); padding: 10px 8px; text-align: center; cursor: pointer; font: inherit; color: inherit; } .skmode-b b { display: block; font-size: .95rem; } .skmode-b small { display: block; color: var(--ink-soft); font-size: .75rem; margin-top: 2px; } .skmode-b.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--paper)); } .skrule { margin: 6px 0 10px; } .skrule summary { cursor: pointer; font-weight: 700; } .skswitch { align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; } .skswitch .chip { flex: 0 0 auto; min-height: 36px; font-size: .88rem; } .skswitch .chip small { font-weight: 400; margin-left: 4px; opacity: .8; } .sktbl { display: grid; gap: 8px; margin: 8px 0; } .skr { display: grid; grid-template-columns: 1fr 3.2em; grid-template-areas: 'q q' 'ranks sym' 'note note'; gap: 6px 8px; align-items: start; border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; background: var(--paper); } .skr.sel { border-color: var(--accent); } .skr.empty { background: #fff6f3; border-color: #e8b3a4; } .skr .skq { grid-area: q; line-height: 1.6; } .skr .skranks { grid-area: ranks; display: flex; flex-wrap: wrap; gap: 4px; } .skr .skranks .chip { flex: 0 0 auto; min-height: 32px; font-size: .8rem; padding: 0 .7em; } .skr .skranks .chip.dim { opacity: .4; } .skr .sk-sym { grid-area: sym; width: 3.2em; text-align: center; } .skr .sknosym { color: var(--ink-soft); text-align: center; align-self: center; } .skr textarea { grid-area: note; width: 100%; box-sizing: border-box; font-size: .9rem; min-height: 2.6em; } .skr .skme { background: var(--ink-soft); border-color: var(--ink-soft); }
+.sk-sohyo { width: 100%; box-sizing: border-box; font-size: .92rem; } .sktut { font-size: .92rem; line-height: 1.8; } .sktut summary { cursor: pointer; font-weight: 700; } .sktut p { margin: 10px 0; } .skflow { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 2px; margin: 6px 0 10px; } .skstep { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); padding: 4px 10px 4px 6px; font: inherit; font-size: .82rem; color: var(--ink-soft); cursor: pointer; position: relative; } .skstep .skn { display: inline-flex; width: 20px; height: 20px; border-radius: 50%; align-items: center; justify-content: center; background: var(--line); font-size: .72rem; font-weight: 700; } .skstep.done .skn { background: var(--accent); color: #fff; } .skstep.now { border-color: var(--accent); color: var(--ink); font-weight: 700; background: color-mix(in srgb, var(--accent) 12%, var(--paper)); } .skstep.now .skn { background: var(--accent); color: #fff; } .skstep .sknow { font-size: .68rem; color: var(--accent); margin-left: 2px; } .skarrow { color: var(--ink-soft); font-size: .9rem; }
+.sktimer { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; } .sktimer .chip { flex: 0 0 auto; min-height: 32px; font-size: .8rem; } .sktimer input[type=number] { width: 4em; } .sktimer .sktl { font-size: 1.2rem; font-variant-numeric: tabular-nums; margin-left: 6px; } .sktimer .sktl.low { color: #b8402f; }
+.skquick { background: color-mix(in srgb, var(--accent) 6%, var(--paper)); border-radius: 12px; padding: 8px 10px; margin: 6px 0 10px; } .skquick .field { margin-bottom: 6px; } .skquick .row { gap: 6px; align-items: center; } .skquick input { flex: 1; min-width: 0; }
+.skmode { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; } .skmode-b { border: 2px solid var(--line); border-radius: 14px; background: var(--paper); padding: 10px 8px; text-align: center; cursor: pointer; font: inherit; color: inherit; } .skmode-b b { display: block; font-size: .95rem; } .skmode-b small { display: block; color: var(--ink-soft); font-size: .75rem; margin-top: 2px; } .skmode-b.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--paper)); } .skrule { margin: 6px 0 10px; } .skrule summary { cursor: pointer; font-weight: 700; } .skswitch { align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; } .skswitch .chip { flex: 0 0 auto; min-height: 36px; font-size: .88rem; } .skswitch .chip small { font-weight: 400; margin-left: 4px; opacity: .8; } .sktbl { display: grid; gap: 8px; margin: 8px 0; } .skr { display: grid; grid-template-columns: 1fr 3.2em; grid-template-areas: 'q q' 'ranks sym' 'note note'; gap: 6px 8px; align-items: start; border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; background: var(--paper); } .skr.sel { border-color: var(--accent); } .skr.empty { background: #fff6f3; border-color: #e8b3a4; } .skr .skq { grid-area: q; line-height: 1.6; } .skr .skranks { grid-area: ranks; display: flex; flex-wrap: wrap; gap: 4px; } .skr .skranks .chip { flex: 0 0 auto; min-height: 32px; font-size: .8rem; padding: 0 .7em; } .skr .skranks .chip.dim { opacity: .4; } .skr .sk-sym { grid-area: sym; width: 3.2em; text-align: center; } .skr .sknosym { color: var(--ink-soft); text-align: center; align-self: center; } .skr textarea { grid-area: note; width: 100%; box-sizing: border-box; font-size: .9rem; min-height: 2.6em; } .skr .skme { background: var(--ink-soft); border-color: var(--ink-soft); }
 @media (min-width: 720px) { .skr { grid-template-columns: 2fr auto 3.2em 2fr; grid-template-areas: 'q ranks sym note'; } }
 .skmiss { background: #fff1ec; border: 1px solid #e8b3a4; border-radius: 10px; padding: 8px 12px; margin: 6px 0 10px; font-size: .9rem; line-height: 1.6; } .skdirect li { margin-bottom: 8px; } .skranks { gap: 6px; margin-top: 4px; } .skranks .chip { flex: 0 0 auto; min-height: 36px; font-size: .85rem; } .skranks .chip.dim { opacity: .4; } .skranks .chip small { font-weight: 400; margin-left: 3px; } .sk-must { flex: 0 0 auto; min-height: 32px; font-size: .8rem; padding: 0 .8em; }
 .skrow { display: flex; gap: 8px; align-items: flex-start; } .skrow .sk-sym { width: 3.2em; text-align: center; flex: 0 0 auto; } .skrow textarea { flex: 1; } .skrest { margin: 12px 0; } .skrest summary { cursor: pointer; font-weight: 700; }
@@ -975,7 +978,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.06b';
+  var APP_VER = 'v2026.11.06c';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -3773,7 +3776,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   var sk = { title: '', src: '', items: [], st: [['特選', 1], ['並選', 4], ['予選', 0]], step: 0, picks: {}, notes: {} };
   try { var sk0 = JSON.parse(localStorage.getItem('ikku-senku') || 'null'); if (sk0 && sk0.items) sk = sk0; } catch (_) {}
   /* 句会カードごとに、途中の状態（一覧・選・選評）も覚える：いくつもの句会の選句を、行ったり来たりできる */
-  function skSave() { try { localStorage.setItem('ikku-senku', JSON.stringify(sk)); } catch (_) {} if (sk.ngi != null && ngList[sk.ngi]) { var c = ngList[sk.ngi]; c.st = JSON.parse(JSON.stringify(sk.st)); c.legend = sk.legend || ''; c.mode = sk.mode || 'step'; c.blank = sk.blank || ''; c.dl = sk.deadline || ''; c.work = { title: sk.title, src: sk.src, items: sk.items, picks: sk.picks, notes: sk.notes, syms: sk.syms || {}, sohyo: sk.sohyo || '', step: sk.step }; ngSave(); } }
+  function skSave() { try { localStorage.setItem('ikku-senku', JSON.stringify(sk)); } catch (_) {} if (sk.ngi != null && ngList[sk.ngi]) { var c = ngList[sk.ngi]; c.st = JSON.parse(JSON.stringify(sk.st)); c.legend = sk.legend || ''; c.mode = sk.mode || 'step'; c.blank = sk.blank || ''; c.tm = !!sk.tm; c.tmMin = sk.tmMin || 20; c.tmChime = !!sk.tmChime; c.dl = sk.deadline || ''; c.work = { title: sk.title, src: sk.src, items: sk.items, picks: sk.picks, notes: sk.notes, syms: sk.syms || {}, sohyo: sk.sohyo || '', step: sk.step }; ngSave(); } }
   function skParse(txt) {
     var out = [], n = 0;
     String(txt || '').split(/\r?\n/).forEach(function (l) {
@@ -3816,6 +3819,23 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var me = sk.items.filter(function (it) { return it.me; }); if (me.length) L.push('自句：' + me.map(function (it) { return it.n; }).join('・'));
     return L.join('\n').trim();
   }
+  /* 選句タイマー：あり／なし、チャイムあり／なし。残りは1秒ごとに書きかえる（端末の中だけ） */
+  var skTick = null;
+  function skTimerBar() {
+    if (!sk.items.length) return '';
+    var on = !!sk.tm, left = sk.tmEnd ? Math.max(0, Math.round((sk.tmEnd - Date.now()) / 1000)) : 0;
+    var h = '<div class="sktimer"><span class="note">タイマー</span><button class="chip fit' + (on ? ' on' : '') + '" data-act="sk-tm" data-v="1">あり</button><button class="chip fit' + (!on ? ' on' : '') + '" data-act="sk-tm" data-v="0">なし</button>';
+    if (on) {
+      h += '<input type="number" min="1" max="180" data-f="sk-tmmin" value="' + (sk.tmMin || 20) + '" aria-label="分"><span class="note">分</span>' +
+        (sk.tmEnd ? '<button class="btn small" data-act="sk-tmstop">止める</button><b id="sk-timer" class="sktl' + (left <= 60 ? ' low' : '') + '">' + skFmt(left) + '</b>' : '<button class="btn small primary" data-act="sk-tmstart">スタート</button>') +
+        '<button class="chip fit' + (sk.tmChime ? ' on' : '') + '" data-act="sk-tmchime">' + (sk.tmChime ? '🔔 チャイムあり' : '🔕 チャイムなし') + '</button>';
+    }
+    h += '</div>';
+    if (on && sk.tmEnd && !skTick) skTick = setInterval(function () { var el = document.getElementById('sk-timer'); if (!sk.tmEnd) { clearInterval(skTick); skTick = null; return; } var l = Math.max(0, Math.round((sk.tmEnd - Date.now()) / 1000)); if (el) { el.textContent = skFmt(l); if (l <= 60) el.classList.add('low'); } if (l <= 0) { clearInterval(skTick); skTick = null; sk.tmEnd = 0; skSave(); toast('選句の時間です'); if (sk.tmChime) { try { beep(); } catch (_) {} } if (page === 'senku') render(); } }, 1000);
+    if (!(on && sk.tmEnd) && skTick) { clearInterval(skTick); skTick = null; }
+    return h;
+  }
+  function skFmt(sec) { var m = Math.floor(sec / 60), s2 = sec % 60; return m + ':' + (s2 < 10 ? '0' : '') + s2; }
   function vSenkuTut() {
     return '<details class="panel sktut"><summary>📖 くわしい説明（はじめての方へ）</summary>' +
       '<p><b>これは、なにをする道具？</b><br>夏雲システムなど、ほかの句会で「選」をするときの、手もとの作業台です。句会から届いた句の一覧を貼りつけて、自分の句を外し、予選 → 並選 → 特選と段階で絞って、選評を書き、最後に夏雲にそのまま貼れる文にします。AIは使いません。選ぶのも、評を書くのも、あなたです。</p>' +
@@ -3858,7 +3878,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (direct) steps.push('えらぶ'); else for (var k = last; k >= 0; k--) steps.push(sk.st[k][0]);
     steps.push('まとめ');
     var SUM = steps.length - 1; /* まとめの step 番号 */
-    h += '<div class="row skst">' + steps.map(function (t, i) { return '<span class="chip fit' + (i === sk.step ? ' on' : '') + '"' + (i < sk.step ? ' style="opacity:.7"' : '') + '>' + esc(t) + '</span>'; }).join('') + '</div>';
+    h += '<div class="skflow">' + steps.map(function (t, i) { var st = i < sk.step ? 'done' : i === sk.step ? 'now' : 'todo'; return '<button class="skstep ' + st + '" data-act="sk-go" data-v="' + i + '"><span class="skn">' + (i < sk.step ? '✓' : (i + 1)) + '</span><span class="skt">' + esc(t.replace(/^[①②] /, '')) + '</span>' + (i === sk.step ? '<span class="sknow">いまここ</span>' : '') + '</button>' + (i < steps.length - 1 ? '<span class="skarrow">›</span>' : ''); }).join('') + '</div>';
+    h += skTimerBar();
     if (sk.step > 0 && sk.items.length) h += skHead();
     if (sk.step === 0) {
       h += '<div class="panel"><div class="field"><label for="sk-title">句会の名前（なくてもよい）</label><input type="text" id="sk-title" data-f="sk-title" maxlength="40" value="' + esc(sk.title) + '" placeholder="例：第42回なごやか句会"></div>' +
@@ -3876,8 +3897,14 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     }
     if (!sk.items.length) { sk.step = 0; return h + '<p class="note">まず、句の一覧を貼ってください。</p>'; }
     if (sk.step === 1) {
-      h += '<div class="panel"><p class="lead">まず、自分の句を外します。自分の句をタップして「自句」の印を（選の対象から外れます）</p><ul class="sklist">' + sk.items.map(function (it, i) { return '<li><button class="chip fit skpick' + (it.me ? ' on' : '') + '" data-act="sk-me" data-i="' + i + '"><span class="kn">' + esc(it.n) + '</span><span>' + esc(it.t) + (it.me ? '<small>自句</small>' : '') + '</span></button></li>'; }).join('') + '</ul>' +
-        '<p class="note">自句：' + (sk.items.filter(function (it) { return it.me; }).length || 'なし') + '　全 ' + sk.items.length + ' 句</p>' +
+      var q = String(sk.q || '').trim(), myTx = {}; try { mine.forEach(function (m) { myTx[plain(joinKu(m).a).replace(/[\s　]/g, '')] = 1; }); } catch (_) {}
+      var hit = sk.items.filter(function (it) { return !it.me && myTx[String(it.t).replace(/[\s　]/g, '')]; }).length;
+      h += '<div class="panel"><p class="lead">まず、自分の句を外します。自分の句をタップして「自句」の印を（選の対象から外れます）</p>' +
+        '<div class="skquick"><div class="field"><label for="sk-menums">自句の番号をまとめて（例：3, 7, 12）</label><div class="row"><input type="text" id="sk-menums" data-f="sk-menums" value="' + esc(sk.menums || '') + '" placeholder="3, 7, 12" inputmode="numeric"><button class="btn small primary" data-act="sk-menums">この番号を自句に</button></div></div>' +
+        '<div class="field"><label for="sk-q">句の一部で絞る</label><input type="search" id="sk-q" data-f="sk-q" value="' + esc(sk.q || '') + '" placeholder="例：洗濯"></div>' +
+        (hit ? '<div class="row"><button class="btn small" data-act="sk-mestock">📒 ストッ句と同じ句 ' + hit + ' 句を、自句にする</button></div><p class="note">自分のストッ句にある句と、文がぴったり同じものです（端末の中で照らしています）。</p>' : '') + '</div>' +
+        '<ul class="sklist">' + sk.items.map(function (it, i) { if (q && String(it.t).indexOf(q) < 0 && String(it.n) !== q) return ''; return '<li><button class="chip fit skpick' + (it.me ? ' on' : '') + '" data-act="sk-me" data-i="' + i + '"><span class="kn">' + esc(it.n) + '</span><span>' + esc(it.t) + (it.me ? '<small>自句</small>' : myTx[String(it.t).replace(/[\s　]/g, '')] ? '<small>ストッ句にあり</small>' : '') + '</span></button></li>'; }).join('') + '</ul>' +
+        '<p class="note">自句：' + (sk.items.filter(function (it) { return it.me; }).map(function (it) { return it.n; }).join('・') || 'なし') + '　全 ' + sk.items.length + ' 句</p>' +
         '<div class="actions"><button class="btn" data-act="sk-go" data-v="0">← 一覧へ</button><button class="btn primary" data-act="sk-go" data-v="2">' + (direct ? 'えらぶ' : esc(sk.st[last][0])) + 'へ →</button></div></div>';
       return h;
     }
@@ -3925,7 +3952,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var nx = ngList[ni]; if (!nx) return;
     if (sk.ngi !== ni) {
       var w = nx.work || {};
-      sk = { title: w.title || nx.n || '', src: w.src || '', items: w.items || [], st: nx.st ? JSON.parse(JSON.stringify(nx.st)) : sk.st, step: w.items && w.items.length ? (w.step || 1) : 0, picks: w.picks || {}, notes: w.notes || {}, syms: w.syms || {}, sohyo: w.sohyo || '', legend: nx.legend || '', mode: nx.mode || 'step', blank: nx.blank || '', deadline: nx.dl || '', ngi: ni };
+      sk = { title: w.title || nx.n || '', src: w.src || '', items: w.items || [], st: nx.st ? JSON.parse(JSON.stringify(nx.st)) : sk.st, step: w.items && w.items.length ? (w.step || 1) : 0, picks: w.picks || {}, notes: w.notes || {}, syms: w.syms || {}, sohyo: w.sohyo || '', legend: nx.legend || '', mode: nx.mode || 'step', blank: nx.blank || '', tm: !!nx.tm, tmMin: nx.tmMin || 20, tmChime: !!nx.tmChime, deadline: nx.dl || '', ngi: ni };
     }
     page = 'senku'; skSave(); render(); window.scrollTo(0, 0);
   }
@@ -3937,6 +3964,12 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (act === 'sk-stdel') { if (sk.st.length <= 1) return true; sk.st.splice(+v, 1); sk.picks = {}; skSave(); render(); return true; }
     if (act === 'sk-parse') { var its = skParse(sk.src); if (!its.length) { toast('句の一覧を貼ってください'); return true; } if (!sk.st.length) sk.st = [['予選', 0]]; sk.st[sk.st.length - 1][1] = 0; sk.items = its; sk.picks = {}; sk.notes = {}; sk.syms = {}; sk.sohyo = ''; sk.step = 1; skSave(); render(); return true; }
     if (act === 'sk-go') { sk.step = Math.max(0, Math.min(+v || 0, sk.mode === 'direct' ? 3 : skStages() + 2)); skSave(); render(); window.scrollTo(0, 0); return true; }
+    if (act === 'sk-tm') { sk.tm = v === '1'; if (!sk.tm) sk.tmEnd = 0; skSave(); render(); return true; }
+    if (act === 'sk-tmstart') { sk.tmEnd = Date.now() + (Math.max(1, Math.min(180, +sk.tmMin || 20))) * 60000; skSave(); render(); return true; }
+    if (act === 'sk-tmstop') { sk.tmEnd = 0; skSave(); render(); return true; }
+    if (act === 'sk-tmchime') { sk.tmChime = !sk.tmChime; skSave(); render(); return true; }
+    if (act === 'sk-menums') { var nums = String(sk.menums || '').split(/[^0-9０-９]+/).map(function (x) { return x.replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }); }).filter(Boolean); var cnt = 0; sk.items.forEach(function (it, i) { if (nums.indexOf(String(it.n)) >= 0 && !it.me) { it.me = true; cnt++; Object.keys(sk.picks).forEach(function (k) { sk.picks[k] = sk.picks[k].filter(function (x) { return x !== i; }); }); } }); sk.menums = ''; skSave(); toast(cnt ? cnt + ' 句を自句にしました' : 'その番号の句が見あたりません'); render(); return true; }
+    if (act === 'sk-mestock') { var myTx2 = {}; try { mine.forEach(function (m) { myTx2[plain(joinKu(m).a).replace(/[\s　]/g, '')] = 1; }); } catch (_) {} var c2 = 0; sk.items.forEach(function (it, i) { if (!it.me && myTx2[String(it.t).replace(/[\s　]/g, '')]) { it.me = true; c2++; Object.keys(sk.picks).forEach(function (k) { sk.picks[k] = sk.picks[k].filter(function (x) { return x !== i; }); }); } }); skSave(); toast(c2 + ' 句を自句にしました'); render(); return true; }
     if (act === 'sk-blank') { sk.blank = sk.blank === 'sp' ? '' : 'sp'; skSave(); render(); return true; }
     if (act === 'sk-mode') { sk.mode = v === 'direct' ? 'direct' : 'step'; skSave(); render(); return true; }
     if (act === 'sk-rank') {
@@ -7618,6 +7651,9 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (f === 'sk-note') { sk.notes[+t.dataset.i] = t.value; skSave(); }
     else if (f === 'sk-legend') { sk.legend = t.value; skSave(); }
     else if (f === 'sk-dl') { sk.deadline = t.value; skSave(); }
+    else if (f === 'sk-menums') { sk.menums = t.value; }
+    else if (f === 'sk-q') { sk.q = t.value; render(); var qi = document.getElementById('sk-q'); if (qi) { qi.focus(); try { qi.setSelectionRange(qi.value.length, qi.value.length); } catch (_) {} } }
+    else if (f === 'sk-tmmin') { sk.tmMin = Math.max(1, Math.min(180, parseInt(t.value, 10) || 20)); skSave(); }
     else if (f === 'sk-sohyo') { sk.sohyo = t.value; skSave(); }
     else if (f === 'sk-isym') { sk.syms = sk.syms || {}; sk.syms[+t.dataset.i] = String(t.value || '').trim().slice(0, 1); skSave(); }
     else if (f === 'sk-sy') { var kk3 = +t.dataset.k; if (sk.st[kk3]) { sk.st[kk3][2] = String(t.value || '').trim().slice(0, 1); skSave(); } }
