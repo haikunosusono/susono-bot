@@ -978,7 +978,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.06c';
+  var APP_VER = 'v2026.11.08a';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1361,7 +1361,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       return '<div class="ngcard' + (on ? ' on' : '') + '"><div class="row2"><b>' + (on ? '✓ ' : '') + esc(x.n || '句会' + (i + 1)) + '</b><span class="row"><button class="link" data-act="ng-edit" data-i="' + i + '">編集</button><button class="link" data-act="ng-del" data-i="' + i + '">消す</button></span></div>' +
         (x.h ? '<div class="ngrow"><span class="ngl">俳号</span><span class="ngv">' + esc(x.h) + '</span><button class="btn small" data-act="ng-copy" data-v="' + esc(x.h) + '">コピー</button></div>' : '') +
         (x.p ? '<div class="ngrow"><span class="ngl">パスワード</span><span class="ngv">' + (x.show ? esc(x.p) : '●●●●●●') + '</span><button class="btn small" data-act="ng-copy" data-v="' + esc(x.p) + '">コピー</button><button class="link" data-act="ng-show" data-i="' + i + '">' + (x.show ? 'かくす' : '見る') + '</button></div>' : '') +
-        '<div class="ngrow"><span class="ngl">URL</span><span class="ngv ngu">' + esc(x.u) + '</span></div>' +
+        '<div class="ngrow"><span class="ngl">URL</span><span class="ngv ngu">' + (x.u ? esc(x.u) : '<small>（まだ。「編集」で投句画面のURLを）</small>') + '</span></div>' +
         '<div class="actions"><button class="btn primary" data-act="ng-open" data-i="' + i + '">この句会をひらく ▶</button><button class="btn" data-act="ng-senku" data-i="' + i + '">🗂 この句会の選句へ</button>' + (on ? '' : '<button class="btn" data-act="ng-sel" data-i="' + i + '">出す先にする</button>') + '</div></div>';
     }).join('') + '</div><p class="note">✓ の句会に、「夏雲へ」で出します。</p>';
     h += '<details class="ngadd"' + (ngEdit !== null ? ' open' : '') + '><summary>' + (ngEdit !== null ? '✏️ 句会を直す' : '＋ 句会を追加') + '</summary>' +
@@ -3871,7 +3871,9 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var h = '<h2 class="sec">選句の道具<small>ほかの句会の選を、段階で</small></h2>' +
       '<div class="howto"><b>句の一覧を貼って、予選 → 並選 → 特選と、段階で絞ります</b><span>夏雲システムなど、ほかの句会で選をするときの、手もとの道具です。AIは使いません。句の一覧や選んだ結果は、この端末の中だけに残り、裾野のサーバーには送られません。選評は、ご自身の言葉で。</span></div>';
     h += vSenkuTut();
-    if (ngList.length) h += '<div class="row skswitch"><span class="note">句会：</span>' + ngList.map(function (x, i) { var w = x.work, prog = w && w.items && w.items.length ? '<small>' + (w.step >= skStagesOf(x) + 2 || (x.mode === 'direct' && w.step >= 3) ? 'まとめ' : '選句中') + '</small>' : ''; return '<button class="chip fit' + (sk.ngi === i ? ' on' : '') + '" data-act="ng-senku" data-i="' + i + '">' + esc(x.n || '句会' + (i + 1)) + prog + '</button>'; }).join('') + (sk.ngi == null ? '<span class="chip fit on">（カードなし）</span>' : '') + '</div><p class="note">句会カード（ストッ句の「夏雲システムの句会」）ごとに、途中の選も別々に残ります。</p>';
+    if (ngList.length) h += '<div class="row skswitch"><span class="note">句会：</span>' + ngList.map(function (x, i) { var w = x.work, prog = w && w.items && w.items.length ? '<small>' + (w.step >= skStagesOf(x) + 2 || (x.mode === 'direct' && w.step >= 3) ? 'まとめ' : '選句中') + '</small>' : ''; return '<button class="chip fit' + (sk.ngi === i ? ' on' : '') + '" data-act="ng-senku" data-i="' + i + '">' + esc(x.n || '句会' + (i + 1)) + prog + '</button>'; }).join('') + (sk.ngi == null ? '<span class="chip fit on">（カードなし）</span>' : '') + '<button class="chip fit" data-act="sk-newcard">＋ 新しい句会</button></div>' +
+      (sk.ngi != null && ngList[sk.ngi] && sk.title && sk.title !== (ngList[sk.ngi].n || '') ? '<div class="skmiss">⚠ いま開いているのは「' + esc(ngList[sk.ngi].n || '') + '」のカードですが、句会名の欄は「' + esc(sk.title) + '」になっています。別の句会なら、「＋ 新しい句会」で「' + esc(sk.title) + '」のカードをつくると、この選はそちらに移ります（「' + esc(ngList[sk.ngi].n || '') + '」の選は、そのまま残ります）。<br><button class="btn small primary" data-act="sk-newcard">「' + esc(sk.title) + '」のカードをつくって、この選を移す</button></div>' : '') +
+      '<p class="note">句会カード（ストッ句の「夏雲システムの句会」）ごとに、途中の選も別々に残ります。</p>';
     var N = skStages(), last = N - 1, direct = sk.mode === 'direct';
     /* 手順の見出し */
     var steps = ['① 一覧を貼る', '② 自句を外す'];
@@ -3962,8 +3964,16 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (act === 'sk-stadd') { if (sk.st.length >= 8) { toast('段は8つまで'); return true; } var lastSt = sk.st[sk.st.length - 1]; if (lastSt && !lastSt[1]) sk.st.splice(sk.st.length - 1, 0, ['並選', 3, '佳']); else sk.st.push(['予選', 0, '']); sk.picks = {}; skSave(); render(); return true; }
     if (act === 'sk-must') { var mk = +v; if (sk.st[mk]) { sk.st[mk][3] = sk.st[mk][3] ? 0 : 1; skSave(); render(); } return true; }
     if (act === 'sk-stdel') { if (sk.st.length <= 1) return true; sk.st.splice(+v, 1); sk.picks = {}; skSave(); render(); return true; }
-    if (act === 'sk-parse') { var its = skParse(sk.src); if (!its.length) { toast('句の一覧を貼ってください'); return true; } if (!sk.st.length) sk.st = [['予選', 0]]; sk.st[sk.st.length - 1][1] = 0; sk.items = its; sk.picks = {}; sk.notes = {}; sk.syms = {}; sk.sohyo = ''; sk.step = 1; skSave(); render(); return true; }
+    if (act === 'sk-parse') { var its = skParse(sk.src); if (!its.length) { toast('句の一覧を貼ってください'); return true; } if (sk.ngi != null && ngList[sk.ngi] && ngList[sk.ngi].work && ngList[sk.ngi].work.items && ngList[sk.ngi].work.items.length) ngList[sk.ngi].prevWork = ngList[sk.ngi].work; if (!sk.st.length) sk.st = [['予選', 0]]; sk.st[sk.st.length - 1][1] = 0; sk.items = its; sk.picks = {}; sk.notes = {}; sk.syms = {}; sk.sohyo = ''; sk.step = 1; skSave(); render(); return true; }
     if (act === 'sk-go') { sk.step = Math.max(0, Math.min(+v || 0, sk.mode === 'direct' ? 3 : skStages() + 2)); skSave(); render(); window.scrollTo(0, 0); return true; }
+    if (act === 'sk-newcard') {
+      var nm = String(sk.title || '').trim(); if (!nm || (sk.ngi != null && ngList[sk.ngi] && nm === (ngList[sk.ngi].n || ''))) { nm = prompt('新しい句会の名前'); if (!nm) return true; nm = nm.trim(); }
+      var oldi = sk.ngi, oldCard = oldi != null ? ngList[oldi] : null;
+      /* いまの選を新しいカードへ移す。元のカードには、移す前に保存してあった選を残す（前回の選句ぶん） */
+      ngList.push({ n: nm, u: '', h: '', p: '', st: JSON.parse(JSON.stringify(sk.st)), legend: sk.legend || '', mode: sk.mode || 'step', blank: sk.blank || '', tm: !!sk.tm, tmMin: sk.tmMin || 20, tmChime: !!sk.tmChime, dl: sk.deadline || '' });
+      if (oldCard && oldCard.prevWork) { oldCard.work = oldCard.prevWork; delete oldCard.prevWork; } else if (oldCard) { delete oldCard.work; }
+      sk.ngi = ngList.length - 1; sk.title = nm; ngSel = ngSel; ngSave(); skSave(); toast('「' + nm + '」のカードをつくりました。URLや俳号は、ストッ句の「夏雲システムの句会」の「編集」から'); render(); return true;
+    }
     if (act === 'sk-tm') { sk.tm = v === '1'; if (!sk.tm) sk.tmEnd = 0; skSave(); render(); return true; }
     if (act === 'sk-tmstart') { sk.tmEnd = Date.now() + (Math.max(1, Math.min(180, +sk.tmMin || 20))) * 60000; skSave(); render(); return true; }
     if (act === 'sk-tmstop') { sk.tmEnd = 0; skSave(); render(); return true; }
@@ -7279,7 +7289,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'ng-send') { ngSend(t.dataset.id); }
     else if (act === 'ng-sel') { ngSel = +t.dataset.i || 0; ngSave(); ngOpen = true; render(); }
     else if (act === 'ng-del') { ngList.splice(+t.dataset.i || 0, 1); if (ngSel >= ngList.length) ngSel = 0; ngSave(); ngOpen = true; toast('消しました'); render(); }
-    else if (act === 'ng-add') { var nu = String(ngDraft.u || '').trim(); if (!/^https:\/\/\S+$/.test(nu)) { toast('URLは https:// からはじまるものを'); return; } var rec = { n: String(ngDraft.n || '').trim(), u: nu, h: String(ngDraft.h || '').trim(), p: String(ngDraft.p || ''), cu: String(ngDraft.cu || '').trim() }; if (ngEdit !== null && ngList[ngEdit]) { var keep = ngList[ngEdit]; rec.st = keep.st; rec.legend = keep.legend; rec.mode = keep.mode; rec.dl = keep.dl; ngList[ngEdit] = rec; } else { ngList.push(rec); ngSel = ngList.length - 1; } ngEdit = null; ngDraft = { n: '', u: '', h: '', p: '' }; ngSave(); ngOpen = true; toast('覚えました'); render(); }
+    else if (act === 'ng-add') { var nu = String(ngDraft.u || '').trim(); if (!/^https:\/\/\S+$/.test(nu)) { toast('URLは https:// からはじまるものを'); return; } var rec = { n: String(ngDraft.n || '').trim(), u: nu, h: String(ngDraft.h || '').trim(), p: String(ngDraft.p || ''), cu: String(ngDraft.cu || '').trim() }; if (ngEdit !== null && ngList[ngEdit]) { ngList[ngEdit] = Object.assign({}, ngList[ngEdit], rec); } else { ngList.push(rec); ngSel = ngList.length - 1; } ngEdit = null; ngDraft = { n: '', u: '', h: '', p: '' }; ngSave(); ngOpen = true; toast('覚えました'); render(); }
     else if (act === 'ng-edit') { var ei = +t.dataset.i || 0, ex = ngList[ei] || {}; ngEdit = ei; ngDraft = { n: ex.n || '', u: ex.u || '', h: ex.h || '', p: ex.p || '', cu: ex.cu || '' }; ngOpen = true; render(); }
     else if (act === 'ng-cancel') { ngEdit = null; ngDraft = { n: '', u: '', h: '', p: '' }; ngOpen = true; render(); }
     else if (act === 'ng-show') { var si = +t.dataset.i || 0; if (ngList[si]) { ngList[si].show = !ngList[si].show; ngOpen = true; render(); } }
