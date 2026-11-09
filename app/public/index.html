@@ -647,6 +647,7 @@ h3.sec { font-size: 1rem; }
 .ngcards { display: grid; gap: 10px; margin: 8px 0; } .ngcard { border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--paper); } .ngcard.on { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent); } .ngcard .row2 { align-items: center; margin-bottom: 4px; } .ngcard .row { gap: 10px; }
 .ngrow { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: .92rem; } .ngrow .ngl { flex: 0 0 5.5em; color: var(--ink-soft); font-size: .8rem; } .ngrow .ngv { flex: 1; min-width: 0; overflow-wrap: anywhere; } .ngrow .btn.small { min-height: 34px; padding: .2em .9em; font-size: .85rem; } .ngcard .actions { margin-top: 8px; }
 .ngadd { margin-top: 8px; } .ngadd summary { cursor: pointer; font-weight: 700; }
+.cardv .cpick { width: 100%; max-width: 520px; margin: 0 auto; text-align: left; background: rgba(20,26,30,.92); border: 1px solid rgba(255,255,255,.14); border-radius: 12px; padding: 8px 12px; color: #e8e4da; } .cardv .cpick summary { cursor: pointer; font-weight: 700; font-size: .9rem; color: #f0ece2; } .cardv .cpick .cnote { text-align: left; margin: 8px 0 4px; } .cardv .cpick .cbtns { justify-content: flex-start; } .cardv .cpick input, .cardv .cpick textarea { color: #1f1e1b; background: #f6f1e6; } .cseal { width: 5em; text-align: center; font-size: 1.1rem; } .cdot { display: inline-block; width: .9em; height: .9em; border-radius: 50%; margin-right: 4px; vertical-align: -1px; } .ctext { width: 100%; box-sizing: border-box; font-size: .9rem; line-height: 1.6; }
 .ngp .ngu { font-size: .78rem; color: var(--ink-soft); overflow-wrap: anywhere; flex: 1; min-width: 0; }
 .ngp .row2 { gap: 8px; align-items: center; flex-wrap: wrap; }
 .sttwrap { overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; }
@@ -978,7 +979,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.08a';
+  var APP_VER = 'v2026.11.09a';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -5986,43 +5987,71 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     }
     return y;
   }
+  /* じぶんの短冊：落款の文字・朱印の色・色合いを、端末の中に覚える（「俳句の裾野」の題・句会の行・URLは変えない） */
+  var CARD_THEMES = [
+    ['sumi', '墨', { bg: ['#1b2a2c', '#0f1719'], hills: ['rgba(60,92,84,.45)', 'rgba(36,62,58,.7)', 'rgba(22,40,38,.9)'], frame: 'rgba(232,224,204,.22)', brand: '#e9e2cf', soft: '#b9b29b', ku: '#f4efe2', haigo: '#d8d0b8', tag: '#d9c9a0', url: '#8f8a78', badgeBg: '#f1e2d3', badgeInk: '#6a3a22' }],
+    ['kami', '紙', { bg: ['#f6f1e6', '#ebe3d2'], hills: ['rgba(120,140,110,.25)', 'rgba(90,110,90,.35)', 'rgba(60,80,70,.5)'], frame: 'rgba(80,70,50,.25)', brand: '#2b2a26', soft: '#6e6757', ku: '#1f1e1b', haigo: '#4a463d', tag: '#6a5a3a', url: '#8a8474', badgeBg: '#2b2a26', badgeInk: '#f6f1e6' }],
+    ['ai', '藍', { bg: ['#16243f', '#0b1426'], hills: ['rgba(70,100,150,.4)', 'rgba(50,75,120,.6)', 'rgba(30,50,90,.9)'], frame: 'rgba(220,228,240,.22)', brand: '#e8ecf4', soft: '#aeb8cc', ku: '#f3f5fa', haigo: '#cfd6e4', tag: '#c9d3e6', url: '#8792a8', badgeBg: '#e3e8f3', badgeInk: '#1f2e4f' }],
+    ['cha', '茶', { bg: ['#3a2a1e', '#1f160f'], hills: ['rgba(140,100,60,.4)', 'rgba(110,75,45,.6)', 'rgba(70,48,30,.9)'], frame: 'rgba(240,226,200,.22)', brand: '#f0e4cf', soft: '#c4b49a', ku: '#f8f0e0', haigo: '#dccfb6', tag: '#e0cfa8', url: '#9a8c74', badgeBg: '#f1e2d3', badgeInk: '#6a3a22' }]
+  ];
+  var SEAL_COLS = [['#b8402f', '朱'], ['#2d3a6b', '紺'], ['#2a2a2a', '墨'], ['#2f6b4a', '緑'], ['#8a5a9a', '紫']];
+  var cardPref = { seal: '裾', sealCol: '#b8402f', theme: 'sumi' };
+  try { var cp0 = JSON.parse(localStorage.getItem('ikku-card') || 'null'); if (cp0) cardPref = Object.assign(cardPref, cp0); } catch (_) {}
+  function cardPrefSave() { try { localStorage.setItem('ikku-card', JSON.stringify(cardPref)); } catch (_) {} }
+  function cardTheme() { for (var i = 0; i < CARD_THEMES.length; i++) if (CARD_THEMES[i][0] === cardPref.theme) return CARD_THEMES[i][2]; return CARD_THEMES[0][2]; }
+  /* 句会の種類のタグ：定例・月例・ふらっと・合言葉…（句会の行から読む） */
+  function cardTag(o) { var sb = String(o.sub || ''); return /定例句会/.test(sb) ? '#定例句会' : /月例句会/.test(sb) ? '#月例句会' : /ふらっと/.test(sb) ? '#ふらっと句会' : /合言葉|吟行/.test(sb) ? '#句会' : ''; }
+  function drawSeal(ctx, sx, sy, size, ink) {
+    var t = Array.from(String(cardPref.seal || '裾').trim()).slice(0, 2); if (!t.length) t = ['裾'];
+    ctx.fillStyle = cardPref.sealCol || '#b8402f'; ctx.fillRect(sx, sy, size, size);
+    ctx.fillStyle = ink || '#f4efe2'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    if (t.length === 1) { ctx.font = Math.round(size * 0.69) + 'px ' + CARD_FONT; ctx.fillText(t[0], sx + size / 2, sy + size * 0.54); }
+    else { ctx.font = Math.round(size * 0.42) + 'px ' + CARD_FONT; ctx.fillText(t[0], sx + size / 2, sy + size * 0.3); ctx.fillText(t[1], sx + size / 2, sy + size * 0.72); }
+  }
   function drawCard(o) {
-    var W = 1200, H = 1200, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    var W = 1200, H = 1200, cv = document.createElement('canvas'); cv.width = W; cv.height = H; var T = cardTheme();
     var ctx = cv.getContext('2d'), g = ctx.createLinearGradient(0, 0, W, H);
-    g.addColorStop(0, '#1b2a2c'); g.addColorStop(1, '#0f1719'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    g.addColorStop(0, T.bg[0]); g.addColorStop(1, T.bg[1]); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
     // 裾野：なだらかな山すそ
     function hill(base, amp, col, ph) { ctx.beginPath(); ctx.moveTo(0, H); for (var x = 0; x <= W; x += 20) ctx.lineTo(x, base - amp * Math.pow(Math.sin((x / W) * Math.PI * 0.9 + ph), 2) * (1 - x / W * 0.4)); ctx.lineTo(W, H); ctx.closePath(); ctx.fillStyle = col; ctx.fill(); }
-    hill(1090, 190, 'rgba(60,92,84,.45)', 0.6); hill(1130, 150, 'rgba(36,62,58,.7)', 0.2); hill(1170, 90, 'rgba(22,40,38,.9)', 0.9);
-    ctx.strokeStyle = 'rgba(232,224,204,.22)'; ctx.lineWidth = 2; ctx.strokeRect(34, 34, W - 68, H - 68);
+    hill(1090, 190, T.hills[0], 0.6); hill(1130, 150, T.hills[1], 0.2); hill(1170, 90, T.hills[2], 0.9);
+    ctx.strokeStyle = T.frame; ctx.lineWidth = 2; ctx.strokeRect(34, 34, W - 68, H - 68);
     // ブランド
-    ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left'; ctx.fillStyle = '#e9e2cf';
+    ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left'; ctx.fillStyle = T.brand;
     ctx.font = '50px ' + CARD_FONT; ctx.fillText('俳句の裾野', 84, 128);
-    ctx.font = '19px ' + CARD_FONT; ctx.fillStyle = '#b9b29b'; ctx.fillText('す    そ    の', 84 + 150, 78);
-    if (o.sub) { ctx.font = '26px ' + CARD_FONT; ctx.fillStyle = '#b9b29b'; ctx.fillText(o.sub, 86, 176); }
+    ctx.font = '19px ' + CARD_FONT; ctx.fillStyle = T.soft; ctx.fillText('す    そ    の', 84 + 150, 78);
+    if (o.sub) { ctx.font = '26px ' + CARD_FONT; ctx.fillStyle = T.soft; ctx.fillText(o.sub, 86, 176); }
     // 句（縦一行）
     var cells = cardCells(String(o.text || '')), n = 0;
     cells.forEach(function (c) { n += /[　 ]/.test(c.c) ? 0.7 : 1; });
     var top = 215, avail = 800, s = Math.max(18, Math.min(72, Math.floor(avail / (Math.max(n, 1) * 1.12))));
-    var kx = W * 0.56, endY = drawVertical(ctx, cells, kx, top, s, '#f4efe2');
+    var kx = W * 0.56, endY = drawVertical(ctx, cells, kx, top, s, T.ku);
     // 落款（俳号）
     var hg = Array.from(String(o.haigo || '').trim());
     if (hg.length) {
       var hs = Math.max(22, Math.round(s * 0.55)), hh = hg.length * hs * 1.12, hy = Math.max(top + 60, endY - hh);
-      drawVertical(ctx, hg.map(function (c) { return { c: c }; }), W * 0.56 - s * 1.6 - hs * 0.5, hy, hs, '#d8d0b8');
+      drawVertical(ctx, hg.map(function (c) { return { c: c }; }), W * 0.56 - s * 1.6 - hs * 0.5, hy, hs, T.haigo);
     }
-    // 朱印
-    var sx = W - 190, sy = 150; ctx.fillStyle = '#b8402f'; ctx.fillRect(sx, sy, 78, 78);
-    ctx.fillStyle = '#f4efe2'; ctx.font = '54px ' + CARD_FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('裾', sx + 39, sy + 42);
+    // 朱印（じぶんの落款）
+    drawSeal(ctx, W - 190, 150, 78, '#f4efe2');
     // バッジ
     ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
     if (o.badge) {
       ctx.font = '30px ' + CARD_FONT; var bw = ctx.measureText(o.badge).width + 56;
-      ctx.fillStyle = '#f1e2d3'; ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(84, H - 190, bw, 58, 29); else ctx.rect(84, H - 190, bw, 58); ctx.fill();
-      ctx.fillStyle = '#6a3a22'; ctx.fillText(o.badge, 84 + 28, H - 190 + 39);
+      ctx.fillStyle = T.badgeBg; ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(84, H - 190, bw, 58, 29); else ctx.rect(84, H - 190, bw, 58); ctx.fill();
+      ctx.fillStyle = T.badgeInk; ctx.fillText(o.badge, 84 + 28, H - 190 + 39);
     }
-    ctx.textAlign = 'right'; ctx.fillStyle = '#d9c9a0'; ctx.font = '30px ' + CARD_FONT; ctx.fillText('#俳句の裾野', W - 84, H - 150);
-    ctx.fillStyle = '#8f8a78'; ctx.font = '22px ' + CARD_FONT; ctx.fillText('haikunosusono.web.app', W - 84, H - 112);
+    var tg = cardTag(o);
+    ctx.textAlign = 'right'; ctx.fillStyle = T.tag; ctx.font = '30px ' + CARD_FONT; ctx.fillText('#俳句の裾野' + (tg ? '　' + tg : ''), W - 84, H - 150);
+    ctx.fillStyle = T.url; ctx.font = '22px ' + CARD_FONT; ctx.fillText('haikunosusono.web.app', W - 84, H - 112);
     return cv;
+  }
+  function cardPicker() {
+    return '<details class="cpick"><summary>🎴 じぶんの短冊にする（落款・色）</summary>' +
+      '<p class="cnote">落款の文字（1〜2文字。俳号の一字など）</p><div class="cbtns"><input type="text" class="cseal" data-f="card-seal" maxlength="2" value="' + esc(cardPref.seal || '') + '" placeholder="裾"></div>' +
+      '<p class="cnote">朱印の色</p><div class="cbtns">' + SEAL_COLS.map(function (c) { return '<button class="btn small' + (cardPref.sealCol === c[0] ? ' primary' : '') + '" data-act="card-sealcol" data-v="' + c[0] + '"><span class="cdot" style="background:' + c[0] + '"></span>' + c[1] + '</button>'; }).join('') + '</div>' +
+      '<p class="cnote">色合い</p><div class="cbtns">' + CARD_THEMES.map(function (t) { return '<button class="btn small' + (cardPref.theme === t[0] ? ' primary' : '') + '" data-act="card-theme" data-v="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
+      '<p class="cnote">「俳句の裾野」の題・句会の行・URLは、そのままです。選んだ落款と色は、この端末が覚えます。</p></details>';
   }
   /* 句碑：石に刻んだふうの画像（かたち・石・書体を、いろいろ選べる） */
   var KUHI_FONTS = [
@@ -6176,11 +6205,12 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (o.trophy && cardStyle === 'card') cardStyle = 'trophy';
     if (cardStyle === 'photo' && o.own === false) cardStyle = 'card';
     var cv = cardStyle === 'kuhi' ? drawKuhi(o) : cardStyle === 'trophy' ? drawTrophy(o) : cardStyle === 'photo' ? drawPhoto(o) : drawCard(o), full = plain(String(o.text || '')).replace(/[ ]/g, '　');
-    cardText = '「' + full + '」' + (o.haigo ? '\n' + o.haigo : '') + '\n#俳句の裾野 #俳句 #haiku\nhttps://haikunosusono.web.app';
+    var tg0 = cardTag(o);
+    cardText = '「' + full + '」' + (o.haigo ? '\n' + o.haigo : '') + '\n#俳句の裾野' + (tg0 ? ' ' + tg0 : '') + ' #俳句 #haiku\nhttps://haikunosusono.web.app';
     if (cardStyle === 'kuhi' && o.head) cardText = '#俳句の裾野 ' + o.head + (o.res ? '　' + o.res : '') + '\n「' + full + '」' + (o.haigo ? '　' + o.haigo : '') + '\n\n#俳句の裾野 #俳句 #haiku\nhttps://haikunosusono.web.app';
     markFirst('f_card');
     el.hidden = false;
-    el.innerHTML = '<img id="cardimg" alt="句のカード"' + (o.own === false ? ' class="noown" draggable="false"' : '') + '><div class="cbtns"><button class="btn small' + (cardStyle === 'card' ? ' primary' : '') + '" data-act="card-style" data-v="card">📱 デジタル短冊</button>' + (o.trophy ? '<button class="btn small' + (cardStyle === 'trophy' ? ' primary' : '') + '" data-act="card-style" data-v="trophy">🏆 トロフィー</button>' : '') + '<button class="btn small' + (cardStyle === 'kuhi' ? ' primary' : '') + '" data-act="card-style" data-v="kuhi">🪨 句碑</button>' + (o.own === false ? '' : '<button class="btn small' + (cardStyle === 'photo' ? ' primary' : '') + '" data-act="card-style" data-v="photo">📷 写真俳句</button>') + '</div>' + (cardStyle === 'kuhi' ? kuhiPicker(o) : cardStyle === 'photo' ? photoPicker() : '') + '<div class="cbtns">' + (o.own === false ? '' : '<button class="btn primary" data-act="card-share">Xに投稿</button><button class="btn" data-act="card-save">画像を保存</button>') + '<button class="btn" data-act="card-close">閉じる</button></div>' + (o.own === false ? '<p class="cnote">この句の投稿・保存は、作者ご本人だけができます。ほかの人の句を、本人の了解なしに公開しないでください。</p>' : '<p class="cnote">「Xに投稿」で、画像と文面がそのまま共有画面に渡ります。出ないときは、画像を保存して、Xの投稿に添付してください（画像を長押しでも保存できます）。</p><p class="cnote">自分の句だけを投稿してください。Xなどに公開した句は、大会によって「既発表」とされることがあります。大会に出す句は、募集のきまりを確かめてから。</p>');
+    el.innerHTML = '<img id="cardimg" alt="句のカード"' + (o.own === false ? ' class="noown" draggable="false"' : '') + '><div class="cbtns"><button class="btn small' + (cardStyle === 'card' ? ' primary' : '') + '" data-act="card-style" data-v="card">📱 デジタル短冊</button>' + (o.trophy ? '<button class="btn small' + (cardStyle === 'trophy' ? ' primary' : '') + '" data-act="card-style" data-v="trophy">🏆 トロフィー</button>' : '') + '<button class="btn small' + (cardStyle === 'kuhi' ? ' primary' : '') + '" data-act="card-style" data-v="kuhi">🪨 句碑</button>' + (o.own === false ? '' : '<button class="btn small' + (cardStyle === 'photo' ? ' primary' : '') + '" data-act="card-style" data-v="photo">📷 写真俳句</button>') + '</div>' + (cardStyle === 'kuhi' ? kuhiPicker(o) : cardStyle === 'photo' ? photoPicker() : cardStyle === 'card' && o.own !== false ? cardPicker() : '') + (o.own === false ? '' : '<details class="cpick ctweet"><summary>✍️ 投稿の文を見る・直す</summary><p class="cnote">この文と、上の画像を、Xに投稿します。直してから投稿できます。</p><textarea class="ctext" data-f="card-text" rows="5">' + esc(cardText) + '</textarea></details>') + '<div class="cbtns">' + (o.own === false ? '' : '<button class="btn primary" data-act="card-share">Xに投稿</button><button class="btn" data-act="card-save">画像を保存</button>') + '<button class="btn" data-act="card-close">閉じる</button></div>' + (o.own === false ? '<p class="cnote">この句の投稿・保存は、作者ご本人だけができます。ほかの人の句を、本人の了解なしに公開しないでください。</p>' : '<p class="cnote">「Xに投稿」で、画像と文面がそのまま共有画面に渡ります。出ないときは、画像を保存して、Xの投稿に添付してください（画像を長押しでも保存できます）。</p><p class="cnote">自分の句だけを投稿してください。Xなどに公開した句は、大会によって「既発表」とされることがあります。大会に出す句は、募集のきまりを確かめてから。</p>');
     var im = document.getElementById('cardimg');
     try { cv.toBlob(function (b) { cardBlob = b; if (b) im.src = URL.createObjectURL(b); }, 'image/png'); } catch (_) { im.src = cv.toDataURL('image/png'); }
   }
@@ -7166,7 +7196,12 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       if (e.target === cvEl) { cvClose(); return; }
       var b = e.target.closest('[data-act]'); if (!b) return;
       var ac = b.getAttribute('data-act');
-      if (ac === 'card-share') cardShare(); else if (ac === 'card-save') cardSave(); else if (ac === 'card-close') cvClose(); else if (ac === 'card-style') openCard(cardKey, b.getAttribute('data-v')); else if (ac === 'kuhi-v') { kuhiV = +b.getAttribute('data-v'); openCard(cardKey); } else if (ac === 'kuhi-f') { kuhiF = +b.getAttribute('data-v'); openCard(cardKey); } else if (ac === 'cp') { var ck = b.getAttribute('data-k'); cp[ck] = ck === 'dim' ? +b.getAttribute('data-v') : b.getAttribute('data-v'); openCard(cardKey); }
+      if (ac === 'card-share') cardShare(); else if (ac === 'card-save') cardSave(); else if (ac === 'card-close') cvClose(); else if (ac === 'card-style') openCard(cardKey, b.getAttribute('data-v')); else if (ac === 'kuhi-v') { kuhiV = +b.getAttribute('data-v'); openCard(cardKey); } else if (ac === 'kuhi-f') { kuhiF = +b.getAttribute('data-v'); openCard(cardKey); } else if (ac === 'cp') { var ck = b.getAttribute('data-k'); cp[ck] = ck === 'dim' ? +b.getAttribute('data-v') : b.getAttribute('data-v'); openCard(cardKey); } else if (ac === 'card-sealcol') { cardPref.sealCol = b.getAttribute('data-v'); cardPrefSave(); openCard(cardKey); } else if (ac === 'card-theme') { cardPref.theme = b.getAttribute('data-v'); cardPrefSave(); openCard(cardKey); }
+    });
+    cvEl.addEventListener('input', function (e) {
+      var t = e.target; if (!t || !t.dataset) return;
+      if (t.dataset.f === 'card-text') { cardText = t.value; }
+      else if (t.dataset.f === 'card-seal') { cardPref.seal = String(t.value || '').trim().slice(0, 2) || '裾'; cardPrefSave(); var im0 = document.getElementById('cardimg'), o0 = cardSrc[cardKey]; if (im0 && o0 && cardStyle === 'card') { var cv0 = drawCard(o0); try { cv0.toBlob(function (b) { cardBlob = b; if (b) im0.src = URL.createObjectURL(b); }, 'image/png'); } catch (_) { im0.src = cv0.toDataURL('image/png'); } } }
     });
     cvEl.addEventListener('change', function (e) {
       var t = e.target; if (!t || !t.dataset || t.dataset.f !== 'card-photo' || !t.files || !t.files[0]) return;
