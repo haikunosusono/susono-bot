@@ -33,7 +33,7 @@
     '#fb-gate input{width:100%;box-sizing:border-box;font:inherit;font-size:1rem;padding:10px 12px;border:1px solid var(--line,#d3d8d2);border-radius:10px;background:var(--paper,#fff);color:inherit}' +
     '#fb-gate .btn{display:block;width:100%;box-sizing:border-box;font:inherit;font-size:1rem;font-weight:700;padding:12px;border-radius:10px;border:0;margin-top:14px;background:var(--accent,#2a7a6a);color:var(--accent-ink,#fff);cursor:pointer}' +
     '#fb-gate .btn[disabled]{opacity:.55;cursor:default}' +
-    '#fb-gate .btn.xb{background:#000;color:#fff}#fb-gate .or{text-align:center;color:var(--ink-soft,#4b5565);font-size:.8rem;margin:14px 0 0}' +
+    '#fb-gate .btn.xb{background:#000;color:#fff}#fb-gate .btn.gb{background:#fff;color:#1f1f1f;border:1px solid #ccc}#fb-gate .btn.gb .gi{display:inline-block;width:1.1em;height:1.1em;vertical-align:-2px;margin-right:6px;border-radius:50%;background:conic-gradient(#ea4335 0 25%,#fbbc05 0 50%,#34a853 0 75%,#4285f4 0)}#fb-gate .or{text-align:center;color:var(--ink-soft,#4b5565);font-size:.8rem;margin:14px 0 0}' +
     '#fb-gate .lnk{background:none;border:0;font:inherit;color:var(--accent,#2a7a6a);text-decoration:underline;cursor:pointer;padding:0}' +
     '#fb-gate .row{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:center;margin-top:14px;font-size:.9rem}' +
     '#fb-gate .msg{margin:10px 0 0;font-size:.9rem;min-height:1.3em}#fb-gate .msg.err{color:var(--warn,#8f5a0c)}' +
@@ -50,7 +50,8 @@
     if (/weak-password/.test(c)) return 'パスワードは6文字以上にしてください';
     if (/too-many-requests/.test(c)) return 'しばらく時間をおいてから、もう一度ためしてください';
     if (/network/.test(c)) return 'ネットにつながっていないようです';
-    if (/operation-not-allowed/.test(c)) return 'Xでのログインは、いま準備中です。メールアドレスでどうぞ';
+    if (/operation-not-allowed/.test(c)) return 'このログインの方法は、いま準備中です。メールアドレスでどうぞ';
+    if (/account-exists-with-different-credential/.test(c)) return 'このメールアドレスは、べつの方法（メールやX）で登録ずみです。その方法でログインしてから、マイページでつないでください';
     if (/popup-closed|cancelled-popup/.test(c)) return 'Xのログインを、とちゅうでやめました';
     if (/account-exists-with-different-credential/.test(c)) return 'このXアカウントのメールアドレスは、裾野に登録ずみです。メールアドレスでログインしてから、マイページで「Xをつなぐ」を押してください';
     if (/credential-already-in-use/.test(c)) return 'このXアカウントは、べつの裾野のアカウントで使われています';
@@ -70,7 +71,7 @@
         '<div class="row"><button class="lnk" data-mode="login">ログインにもどる</button></div>';
     } else {
       var signup = mode === 'signup';
-      h += '<button class="btn xb" data-go="x">𝕏 Xのアカウントで' + (signup ? 'はじめる' : 'ログイン') + '</button><p class="or">― または、メールアドレスで ―</p>' +
+      h += '<button class="btn xb" data-go="x">𝕏 Xのアカウントで' + (signup ? 'はじめる' : 'ログイン') + '</button><button class="btn gb" data-go="g"><span class="gi"></span>Googleのアカウントで' + (signup ? 'はじめる' : 'ログイン') + '</button><p class="or">― または、メールアドレスで ―</p>' +
         '<label for="fb-email">メールアドレス</label><input type="email" id="fb-email" autocomplete="email" inputmode="email" value="' + esc(email) + '">' +
         '<label for="fb-pass">パスワード' + (signup ? '（6文字以上。自分で決めます）' : '') + '</label><input type="password" id="fb-pass" autocomplete="' + (signup ? 'new-password' : 'current-password') + '">' +
         '<button class="btn" data-go="' + (signup ? 'signup' : 'login') + '">' + (signup ? '登録してはじめる' : 'ログイン') + '</button>' +
@@ -87,12 +88,15 @@
   function setBusy(b) { busy = b; if (gate) Array.prototype.forEach.call(gate.querySelectorAll('.btn'), function (x) { x.disabled = b; }); }
   /* Xでログイン：ふつうはポップアップ。ひらけない（スマホのホーム画面アプリなど）ときは、画面ごと移動する */
   function xProvider() { return new firebase.auth.TwitterAuthProvider(); }
-  function xSignIn() {
-    return auth.signInWithPopup(xProvider()).catch(function (e) {
-      if (/popup-blocked|operation-not-supported|web-storage-unsupported/.test((e && e.code) || '')) return auth.signInWithRedirect(xProvider());
+  function gProvider() { var pr = new firebase.auth.GoogleAuthProvider(); try { pr.setCustomParameters({ prompt: 'select_account' }); } catch (e) {} return pr; }
+  function popSignIn(pr) {
+    return auth.signInWithPopup(pr).catch(function (e) {
+      if (/popup-blocked|operation-not-supported|web-storage-unsupported/.test((e && e.code) || '')) return auth.signInWithRedirect(pr);
       throw e;
     });
   }
+  function xSignIn() { return popSignIn(xProvider()); }
+  function gSignIn() { return popSignIn(gProvider()); }
   try { auth.getRedirectResult().catch(function (e) { setTimeout(function () { say(msgFor(e), true); }, 300); }); } catch (e) {}
   /* マイページから：いまのアカウント（メール）に、Xもつなぐ。どちらでログインしても、同じ記録になる */
   window.fbHasX = function () { var u = auth.currentUser; return !!(u && (u.providerData || []).some(function (p) { return p && p.providerId === 'twitter.com'; })); };
@@ -101,6 +105,11 @@
     var u = auth.currentUser; if (!u) return Promise.reject({ code: 'no-user' });
     return u.linkWithPopup(xProvider()).catch(function (e) { e.msg = msgFor(e); throw e; });
   };
+  window.fbHasG = function () { var u = auth.currentUser; return !!(u && (u.providerData || []).some(function (p) { return p && p.providerId === 'google.com'; })); };
+  window.fbLinkG = function () {
+    var u = auth.currentUser; if (!u) return Promise.reject({ code: 'no-user' });
+    return u.linkWithPopup(gProvider()).catch(function (e) { e.msg = msgFor(e); throw e; });
+  };
   document.addEventListener('click', function (ev) {
     if (!gate || !gate.contains(ev.target)) return;
     var t = ev.target.closest('[data-mode],[data-go],[data-skip]'); if (!t) return;
@@ -108,6 +117,7 @@
     if (t.dataset.mode) { mode = t.dataset.mode; drawGate(); return; }
     if (busy) return;
     if (t.dataset.go === 'x') { setBusy(true); say('Xの画面をひらきます…'); xSignIn().catch(function (e) { say(msgFor(e), true); }).then(function () { setBusy(false); }); return; }
+    if (t.dataset.go === 'g') { setBusy(true); say('Googleの画面をひらきます…'); gSignIn().catch(function (e) { say(msgFor(e), true); }).then(function () { setBusy(false); }); return; }
     var email = String((gate.querySelector('#fb-email') || {}).value || '').trim();
     var pw = String((gate.querySelector('#fb-pass') || {}).value || '');
     if (!email) { say('メールアドレスを入れてください', true); return; }
