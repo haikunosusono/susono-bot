@@ -1,5 +1,6 @@
 name: 俳句の裾野 スマホ通知
 # はじまる15分前に、通知ONの人へ届ける。時刻は UTC（日本時間 = UTC + 9時間）。GitHubの都合で、数分おくれることがあります
+# :57 の回は「念のための2回目」。15分前の回がGitHub側で動かなかったときの保険で、ふだんは「送りずみ」で何もしません
 on:
   schedule:
     - cron: '45 0 * * *'    # 9:45   10時の回（土日祝のみ）
@@ -8,6 +9,12 @@ on:
     - cron: '45 11 * * *'   # 20:45  21時の回（毎日）
     - cron: '45 13 * * *'   # 22:45  23時の回（毎日）
     - cron: '45 15 * * *'   # 24:45  25時の回（毎日）
+    - cron: '57 0 * * *'    # 念のための2回目（9:57）
+    - cron: '57 3 * * *'
+    - cron: '57 5 * * *'
+    - cron: '57 11 * * *'
+    - cron: '57 13 * * *'
+    - cron: '57 15 * * *'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -23,7 +30,19 @@ jobs:
           node-version: 22
       - run: npm install web-push@3.6.7 --no-save
       - name: 通知を送る
+        id: send
+        continue-on-error: true
         env:
           VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || '0' }}
         run: node push.js
+      - name: 失敗したら、3分後にもう一度（送れなかった分だけ）
+        if: steps.send.outcome == 'failure'
+        env:
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || '0' }}
+        run: |
+          sleep 180
+          node push.js

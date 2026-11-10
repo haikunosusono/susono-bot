@@ -1,6 +1,8 @@
 // スマホ通知（Web Push）：はじまる15分前に、ONの人へ通知を送る。GitHub Actions（push.yml）から動く
 // 必要なもの：GitHubのSecretsに VAPID_PRIVATE_KEY。公開鍵はアプリ（index.html）と同じもの
 const webpush = require('web-push');
+const crypto = require('crypto');
+const fs = require('./tools/fsauth.js');
 const PROJECT = process.env.FB_PROJECT || 'haikunosusono';
 const PUB = 'BAkyv8J-yNlH2PIRuLSfLcE_yfeAbcZrpyHD85DcLr7MxqOj_qQngT-S6d0c4lfrETLBn_bVAmXHNKV0K4Doh4o';
 const DRY = process.env.DRY_RUN === '1';
@@ -18,22 +20,18 @@ function findSlot(now) {
   for (let d = jd - 1; d <= jd + 1; d++) for (const h of hoursFor(d)) { const st = startOf(d, h), diff = st - now; if (diff > 0 && diff <= 35 * 60000) return { jd: d, h, st, sid: sidOf(d, h) }; }
   return null;
 }
+// 宛先の一覧（サービスアカウントの鍵があれば、それで読む。一時的なつまずきは、少し待ってもう一度）
 async function listSubs() {
-  const out = []; let tok = '';
-  for (let i = 0; i < 20; i++) {
-    const r = await fetch('https://firestore.googleapis.com/v1/projects/' + PROJECT + '/databases/(default)/documents/pushq?pageSize=300' + (tok ? '&pageToken=' + tok : ''));
-    if (!r.ok) throw new Error('Firestore ' + r.status);
-    const j = await r.json();
-    (j.documents || []).forEach((d) => {
-      const f = d.fields || {};
-      const sub = f.sub && f.sub.stringValue, on = f.on && f.on.booleanValue, all = f.all && f.all.booleanValue;
-      const sids = ((f.sids && f.sids.arrayValue && f.sids.arrayValue.values) || []).map((v) => v.stringValue);
-      if (sub && on) out.push({ sub: JSON.parse(sub), all: !!all, sids });
-    });
-    tok = j.nextPageToken || ''; if (!tok) break;
-  }
+  const docs = await fs.withRetry(() => fs.list('pushq', 300), 3, '宛先の読み込み');
+  const out = [];
+  docs.forEach((d) => {
+    const f = d.data || {};
+    if (f.sub && f.on) { try { out.push({ id: d.id, sub: JSON.parse(f.sub), all: !!f.all, sids: Array.isArray(f.sids) ? f.sids : [] }); } catch (_) {} }
+  });
   return out;
 }
+// 宛先の合言葉（端末のURLから作る短い印）。送れた宛先を覚えておき、送り直しのとき二重に送らない
+function epKey(sub) { return crypto.createHash('sha1').update(String(sub && sub.endpoint || '')).digest('hex').slice(0, 16); }
 (async () => {
   const now = process.env.NOW_MS ? Number(process.env.NOW_MS) : Date.now(), slot = findSlot(now);
   if (!slot) { console.log('いま通知する回はありません'); return; }
@@ -43,12 +41,38 @@ async function listSubs() {
   const subs = (await listSubs()).filter((s) => s.all || s.sids.indexOf(slot.sid) >= 0);
   console.log('通知先:', subs.length + '件');
   if (DRY) { console.log('DRY_RUN：送りません'); return; }
+  // 送りずみの宛先（この回）：Firestore の oplog/push-<回> に残す。送り直し（同じ実行の中でも、あとの実行でも）は、送れなかった分だけ
+  const canLog = !!(await fs.token()), logPath = 'oplog/push-' + slot.sid;
+  let sent = [];
+  if (canLog) { try { const lg = await fs.withRetry(() => fs.get(logPath), 3, '送信記録の読み込み'); sent = (lg && Array.isArray(lg.sent)) ? lg.sent : []; } catch (e) { console.log('送信記録が読めませんでした（二重送信をさけるため、送らずに終わります）:', e.message); process.exit(1); } }
+  else console.log('（サービスアカウントの鍵がないので、送信記録なしで送ります）');
+  const todo = subs.filter((s) => sent.indexOf(epKey(s.sub)) < 0);
+  console.log('送りずみ', sent.length, '件／これから', todo.length, '件');
+  if (!todo.length) { console.log('送るものはありません（この回は送りずみ）'); return; }
   const priv = String(process.env.VAPID_PRIVATE_KEY || '').replace(/[\s"']/g, '');
   if (!priv) { console.log('VAPID_PRIVATE_KEY が未設定のため、送りません'); return; }
   try { webpush.setVapidDetails('mailto:hattyam@gmail.com', PUB, priv); } catch (e) { console.log('鍵の形がちがいます（' + priv.length + '文字）:', e.message); return; }
-  let ok = 0, ng = 0;
-  for (const s of subs) {
-    try { await webpush.sendNotification(s.sub, JSON.stringify({ title: '俳句の裾野', body, url: 'https://haikunosusono.web.app/', tag: slot.sid }), { TTL: 1800 }); ok++; } catch (e) { ng++; console.log('失敗:', e.statusCode || '', String(e.body || e.message || '').slice(0, 120)); }
+  let ok = 0, ng = 0, gone = 0;
+  const newly = [];
+  async function saveLog() { if (!canLog || !newly.length) return; try { await fs.withRetry(() => fs.patch(logPath, { sid: slot.sid, sent: sent.concat(newly), at: new Date().toISOString() }), 3, '送信記録の保存'); } catch (e) { console.log('送信記録を保存できませんでした:', e.message); } }
+  for (const s of todo) {
+    const key = epKey(s.sub);
+    try {
+      await webpush.sendNotification(s.sub, JSON.stringify({ title: '俳句の裾野', body, url: 'https://haikunosusono.web.app/', tag: slot.sid }), { TTL: 1800 });
+      ok++; newly.push(key);
+      if (newly.length % 10 === 0) await saveLog(); // 途中で落ちても、送れた分は記録に残す
+    } catch (e) {
+      const code = e.statusCode || 0;
+      if (code === 404 || code === 410) {
+        // 期限切れ・解除ずみの宛先：登録から外す（掃除）。鍵があるときだけ
+        gone++; newly.push(key);
+        if (canLog && s.id) { try { await fs.del('pushq/' + s.id); console.log('期限切れの宛先を外しました:', code); } catch (e2) { console.log('外せませんでした:', e2.message); } }
+        else console.log('期限切れの宛先:', code);
+      } else { ng++; console.log('失敗:', code || '', String(e.body || e.message || '').slice(0, 120)); }
+    }
   }
-  console.log('送信 成功', ok, '失敗', ng);
+  await saveLog();
+  console.log('送信 成功', ok, '失敗', ng, '期限切れ', gone, '（この回の送りずみ合計', sent.length + newly.length, '件）');
+  // 1件でも失敗があれば「失敗」で終わる → 数分後の送り直し（送れなかった分だけ）につながる
+  if (ng) process.exit(1);
 })().catch((e) => { console.error(e); process.exit(1); });
