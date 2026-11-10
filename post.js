@@ -145,7 +145,7 @@ async function buildAny() {
   if (want === 'auto') { const a = autoKind(t); kind = a.kind; slot = a.slot; }
   else if (want !== 'daily') slot = slotFor(want, t);
   if (kind === 'none') return { d: jstDate(), kind, text: '', skip: 'この時刻に合う定例句会がないので、投稿しません' };
-  if (kind === 'daily') return Object.assign({ skip: '' }, build());
+  if (kind === 'daily') return Object.assign({ skip: '', key: 'daily-' + jstDate() }, build());
   const on = (process.env.TEI_POSTS || 'announce,thanks').split(',').map(x => x.trim());
   // 21時の実況（人が集まった回だけ・1回につき最大1つ）は、変数 TEI_LIVE=0 でとめられる（ふだんは出す）
   const liveOn = kind === 'start' && slot && slot.h === 21 && process.env.TEI_LIVE !== '0';
@@ -164,7 +164,7 @@ async function buildAny() {
     const pub = await fetchPub(slot.sid);
     body = (!pub || !pub.humans) ? noshowText(slot) : thanksText(slot, pub.humans, pub.bots);
   }
-  return { d: slot.date, kind, text: fitTags(body, link, liveOn ? '#俳句の裾野 #俳句 #句会' : TEI_TAGS), skip: '' };
+  return { d: slot.date, kind, text: fitTags(body, link, liveOn ? '#俳句の裾野 #俳句 #句会' : TEI_TAGS), skip: '', key: kind + '-' + slot.sid };
 }
 function build() {
   const d = jstDate(), m = menu[d];
@@ -187,8 +187,16 @@ function authHeader(method, url, key, secret, token, tokenSecret, extra, fixed) 
   return 'OAuth ' + Object.keys(p).sort().map(k => enc(k) + '="' + enc(p[k]) + '"').join(', ');
 }
 async function main() {
-  const { d, kind, text, skip } = await buildAny();
+  const { d, kind, text, skip, key } = await buildAny();
   if (skip) { console.log('（' + kind + '：' + skip + '）'); return; }
+  // 投稿ずみの記録（Firestore の oplog/tweet-<種類-回>）。送り直し・念のための2回目で、二重に投稿しないため
+  let fsa = null; try { fsa = require('./tools/fsauth.js'); } catch (_) {}
+  const logPath = key ? 'oplog/tweet-' + key : '', canLog = !!(fsa && logPath && await fsa.token());
+  if (canLog && process.env.DRY_RUN !== '1') {
+    try { const lg = await fsa.withRetry(() => fsa.get(logPath), 3, '投稿記録の読み込み'); if (lg && lg.done) { console.log('（' + key + ' は投稿ずみなので、何もしません）'); return; } }
+    catch (e) { console.log('投稿記録が読めませんでした（二重投稿をさけるため、投稿せずに終わります）:', e.message); process.exit(1); }
+  }
+  const markDone = async (how) => { if (!canLog) return; try { await fsa.withRetry(() => fsa.patch(logPath, { key, done: true, how: how || 'posted', at: new Date().toISOString() }), 3, '投稿記録の保存'); } catch (e) { console.log('投稿記録を保存できませんでした:', e.message); } };
   console.log('--- ' + d + ' (' + kind + ') / 重み付き文字数 ' + weighted(text) + ' ---\n' + text + '\n---');
   const e = process.env, keys = [e.X_API_KEY, e.X_API_SECRET, e.X_ACCESS_TOKEN, e.X_ACCESS_SECRET];
   if (e.DRY_RUN === '1' || keys.some(k => !k)) { console.log('（投稿はしていません：DRY_RUN または鍵が未設定）'); return; }
@@ -199,8 +207,11 @@ async function main() {
   if (!r.ok) {
     const dup = /duplicate/i.test(j);
     console.log((dup ? '::notice title=X::同じ文の投稿なので、Xに断られました（失敗あつかいにしません）' : '::error title=X::' + r.status + ' ') + (dup ? '' : j.replace(/\r?\n/g, ' ').slice(0, 400)));
+    if (dup) await markDone('duplicate');
     if (!dup) process.exit(1);
+    return;
   }
+  await markDone('posted');
 }
 if (require.main === module) main().catch(err => { console.error(err); process.exit(1); });
 module.exports = { liveText, build, buildAny, autoKind, slotsAround, weighted, authHeader, announceText, thanksText };

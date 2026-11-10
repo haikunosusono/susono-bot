@@ -979,7 +979,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.09a';
+  var APP_VER = 'v2026.11.10a';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -5988,14 +5988,49 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     return y;
   }
   /* じぶんの短冊：落款の文字・朱印の色・色合いを、端末の中に覚える（「俳句の裾野」の題・句会の行・URLは変えない） */
+  /* 短冊・句碑で選べる書体（Googleフォントは、はじめて選んだときに読み込む） */
+  var WEB_FONTS = [
+    { n: '明朝', f: CARD_FONT, g: '' },
+    { n: 'しっぽり明朝', f: '"Shippori Mincho B1",' + CARD_FONT, g: '' },
+    { n: '教科書体', f: '"Klee One",' + CARD_FONT, g: 'Klee+One:wght@600' },
+    { n: '筆文字', f: '"Yuji Syuku",' + CARD_FONT, g: 'Yuji+Syuku' },
+    { n: '太い筆', f: '"Yuji Mai",' + CARD_FONT, g: 'Yuji+Mai' },
+    { n: '古風な明朝', f: '"Zen Antique",' + CARD_FONT, g: 'Zen+Antique' },
+    { n: 'ひな明朝', f: '"Hina Mincho",' + CARD_FONT, g: 'Hina+Mincho' },
+    { n: '楷書ふう', f: '"Zen Kurenaido",' + CARD_FONT, g: 'Zen+Kurenaido' },
+    { n: '手書き', f: '"Yomogi",' + CARD_FONT, g: 'Yomogi' },
+    { n: '丸ゴシック', f: '"Zen Maru Gothic","Hiragino Maru Gothic ProN","Noto Sans JP",sans-serif', g: '' },
+    { n: '角ゴシック', f: '"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic","Noto Sans JP","Meiryo",sans-serif', g: '' },
+    { n: '飾り明朝', f: '"Kaisei Decol",' + CARD_FONT, g: 'Kaisei+Decol' }
+  ];
+  var webFontsLoaded = {};
+  function loadWebFont(i, text, cb) {
+    var F = WEB_FONTS[i] || WEB_FONTS[0];
+    if (!F.g || webFontsLoaded[i]) { cb(); return; }
+    webFontsLoaded[i] = 1;
+    var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://fonts.googleapis.com/css2?family=' + F.g + '&display=swap'; document.head.appendChild(l);
+    var fam = F.f.split(',')[0], done = false, go = function () { if (done) return; done = true; try { cb(); } catch (_) {} };
+    try { document.fonts.load('40px ' + fam, text || '俳句の裾野').then(function () { setTimeout(go, 80); }, go); } catch (_) { go(); }
+    setTimeout(go, 4000);
+  }
   var CARD_THEMES = [
     ['sumi', '墨', { bg: ['#1b2a2c', '#0f1719'], hills: ['rgba(60,92,84,.45)', 'rgba(36,62,58,.7)', 'rgba(22,40,38,.9)'], frame: 'rgba(232,224,204,.22)', brand: '#e9e2cf', soft: '#b9b29b', ku: '#f4efe2', haigo: '#d8d0b8', tag: '#d9c9a0', url: '#8f8a78', badgeBg: '#f1e2d3', badgeInk: '#6a3a22' }],
     ['kami', '紙', { bg: ['#f6f1e6', '#ebe3d2'], hills: ['rgba(120,140,110,.25)', 'rgba(90,110,90,.35)', 'rgba(60,80,70,.5)'], frame: 'rgba(80,70,50,.25)', brand: '#2b2a26', soft: '#6e6757', ku: '#1f1e1b', haigo: '#4a463d', tag: '#6a5a3a', url: '#8a8474', badgeBg: '#2b2a26', badgeInk: '#f6f1e6' }],
     ['ai', '藍', { bg: ['#16243f', '#0b1426'], hills: ['rgba(70,100,150,.4)', 'rgba(50,75,120,.6)', 'rgba(30,50,90,.9)'], frame: 'rgba(220,228,240,.22)', brand: '#e8ecf4', soft: '#aeb8cc', ku: '#f3f5fa', haigo: '#cfd6e4', tag: '#c9d3e6', url: '#8792a8', badgeBg: '#e3e8f3', badgeInk: '#1f2e4f' }],
-    ['cha', '茶', { bg: ['#3a2a1e', '#1f160f'], hills: ['rgba(140,100,60,.4)', 'rgba(110,75,45,.6)', 'rgba(70,48,30,.9)'], frame: 'rgba(240,226,200,.22)', brand: '#f0e4cf', soft: '#c4b49a', ku: '#f8f0e0', haigo: '#dccfb6', tag: '#e0cfa8', url: '#9a8c74', badgeBg: '#f1e2d3', badgeInk: '#6a3a22' }]
+    ['cha', '茶', { bg: ['#3a2a1e', '#1f160f'], hills: ['rgba(140,100,60,.4)', 'rgba(110,75,45,.6)', 'rgba(70,48,30,.9)'], frame: 'rgba(240,226,200,.22)', brand: '#f0e4cf', soft: '#c4b49a', ku: '#f8f0e0', haigo: '#dccfb6', tag: '#e0cfa8', url: '#9a8c74', badgeBg: '#f1e2d3', badgeInk: '#6a3a22' }],
+    ['nezu', '鼠', { bg: ['#4a4a48', '#2a2a29'], hills: ['rgba(140,140,130,.35)', 'rgba(100,100,95,.55)', 'rgba(60,60,58,.9)'], frame: 'rgba(235,235,225,.2)', brand: '#efede6', soft: '#bdbbb2', ku: '#f6f4ee', haigo: '#d9d6cc', tag: '#d3d0c4', url: '#97958c', badgeBg: '#efede6', badgeInk: '#333' }],
+    ['shu', '朱', { bg: ['#7a2a1e', '#3d1410'], hills: ['rgba(200,120,90,.35)', 'rgba(150,70,50,.6)', 'rgba(90,35,25,.9)'], frame: 'rgba(250,230,210,.25)', brand: '#fbeadc', soft: '#e3b9a3', ku: '#fff4ea', haigo: '#f0d2c0', tag: '#f1cfb8', url: '#c49a86', badgeBg: '#fbeadc', badgeInk: '#6a2a1a' }],
+    ['matcha', '抹茶', { bg: ['#4f6b3a', '#263a1c'], hills: ['rgba(170,200,120,.35)', 'rgba(110,150,80,.55)', 'rgba(50,80,40,.9)'], frame: 'rgba(240,245,225,.22)', brand: '#f1f5e3', soft: '#c5d2ad', ku: '#f8fbef', haigo: '#dbe5c8', tag: '#d6e2b8', url: '#9fae86', badgeBg: '#f1f5e3', badgeInk: '#2d4420' }],
+    ['sakura', '桜', { bg: ['#f8e6ea', '#f1d4dc'], hills: ['rgba(200,120,150,.25)', 'rgba(170,90,120,.35)', 'rgba(120,60,90,.5)'], frame: 'rgba(90,40,60,.25)', brand: '#3a2630', soft: '#7a5a66', ku: '#2a1a22', haigo: '#5a3e4a', tag: '#7a4a5e', url: '#9a7a88', badgeBg: '#3a2630', badgeInk: '#f8e6ea' }],
+    ['sora', '空', { bg: ['#e4eef7', '#cfe0ef'], hills: ['rgba(120,150,190,.3)', 'rgba(90,120,160,.45)', 'rgba(60,80,120,.6)'], frame: 'rgba(40,60,90,.25)', brand: '#1f2d3d', soft: '#5a6b80', ku: '#172230', haigo: '#3a4a60', tag: '#3a5a80', url: '#7a8aa0', badgeBg: '#1f2d3d', badgeInk: '#e4eef7' }],
+    ['kaki', '柿渋', { bg: ['#8a5a2a', '#4a2e12'], hills: ['rgba(220,170,110,.35)', 'rgba(170,120,70,.55)', 'rgba(100,65,30,.9)'], frame: 'rgba(250,235,210,.25)', brand: '#fbefdc', soft: '#dcc2a0', ku: '#fff7e8', haigo: '#efd8b8', tag: '#f0d6ae', url: '#c2a584', badgeBg: '#fbefdc', badgeInk: '#5a3610' }],
+    ['yoru', '夜空', { bg: ['#0e1430', '#05081a'], hills: ['rgba(60,80,140,.4)', 'rgba(40,55,110,.6)', 'rgba(20,28,70,.9)'], frame: 'rgba(220,228,250,.2)', brand: '#eef0fa', soft: '#aab2d0', ku: '#f7f8ff', haigo: '#d2d8ee', tag: '#c8d0ee', url: '#8089ab', badgeBg: '#eef0fa', badgeInk: '#1a2050' }],
+    ['kinari', '生成り', { bg: ['#f3ead7', '#e8dcc2'], hills: ['rgba(150,130,90,.25)', 'rgba(120,100,70,.35)', 'rgba(80,65,45,.5)'], frame: 'rgba(80,65,45,.25)', brand: '#2b2418', soft: '#6e6250', ku: '#1f1a12', haigo: '#4a4030', tag: '#6a5a3a', url: '#8a8070', badgeBg: '#2b2418', badgeInk: '#f3ead7' }],
+    ['murasaki', '紫', { bg: ['#3d2a52', '#1e1430'], hills: ['rgba(160,120,200,.35)', 'rgba(120,85,160,.55)', 'rgba(70,45,100,.9)'], frame: 'rgba(240,230,250,.22)', brand: '#f2ecfa', soft: '#c6b8da', ku: '#f9f5ff', haigo: '#dfd4ee', tag: '#dccdf0', url: '#a090b8', badgeBg: '#f2ecfa', badgeInk: '#3d2a52' }],
+    ['wakakusa', '若草', { bg: ['#eef3e0', '#dbe6c4'], hills: ['rgba(120,160,80,.3)', 'rgba(90,130,60,.45)', 'rgba(50,80,40,.6)'], frame: 'rgba(40,60,30,.25)', brand: '#223018', soft: '#5e6e4a', ku: '#1a2412', haigo: '#3e4e2e', tag: '#4a6a2a', url: '#7f8f6a', badgeBg: '#223018', badgeInk: '#eef3e0' }]
   ];
-  var SEAL_COLS = [['#b8402f', '朱'], ['#2d3a6b', '紺'], ['#2a2a2a', '墨'], ['#2f6b4a', '緑'], ['#8a5a9a', '紫']];
-  var cardPref = { seal: '裾', sealCol: '#b8402f', theme: 'sumi' };
+  var SEAL_COLS = [['#b8402f', '朱'], ['#9b1b30', '臙脂'], ['#d7533a', '朱赤'], ['#c9a227', '金茶'], ['#2d3a6b', '紺'], ['#165e83', '藍'], ['#2a2a2a', '墨'], ['#5a5a5a', '鼠'], ['#2f6b4a', '緑'], ['#5b7a2a', '松葉'], ['#8a5a9a', '紫'], ['#745399', '江戸紫'], ['#a66b2a', '琥珀'], ['#3c7a8a', '浅葱']];
+  var cardPref = { seal: '裾', sealCol: '#b8402f', theme: 'sumi', font: 0 };
   try { var cp0 = JSON.parse(localStorage.getItem('ikku-card') || 'null'); if (cp0) cardPref = Object.assign(cardPref, cp0); } catch (_) {}
   function cardPrefSave() { try { localStorage.setItem('ikku-card', JSON.stringify(cardPref)); } catch (_) {} }
   function cardTheme() { for (var i = 0; i < CARD_THEMES.length; i++) if (CARD_THEMES[i][0] === cardPref.theme) return CARD_THEMES[i][2]; return CARD_THEMES[0][2]; }
@@ -6025,6 +6060,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var cells = cardCells(String(o.text || '')), n = 0;
     cells.forEach(function (c) { n += /[　 ]/.test(c.c) ? 0.7 : 1; });
     var top = 215, avail = 800, s = Math.max(18, Math.min(72, Math.floor(avail / (Math.max(n, 1) * 1.12))));
+    KUHI_FONT_CUR = (WEB_FONTS[cardPref.font] || WEB_FONTS[0]).f;
     var kx = W * 0.56, endY = drawVertical(ctx, cells, kx, top, s, T.ku);
     // 落款（俳号）
     var hg = Array.from(String(o.haigo || '').trim());
@@ -6032,6 +6068,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       var hs = Math.max(22, Math.round(s * 0.55)), hh = hg.length * hs * 1.12, hy = Math.max(top + 60, endY - hh);
       drawVertical(ctx, hg.map(function (c) { return { c: c }; }), W * 0.56 - s * 1.6 - hs * 0.5, hy, hs, T.haigo);
     }
+    KUHI_FONT_CUR = null;
     // 朱印（じぶんの落款）
     drawSeal(ctx, W - 190, 150, 78, '#f4efe2');
     // バッジ
@@ -6046,48 +6083,90 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     ctx.fillStyle = T.url; ctx.font = '22px ' + CARD_FONT; ctx.fillText('haikunosusono.web.app', W - 84, H - 112);
     return cv;
   }
+  function cardFontThen(cb, fi) { var o = cardSrc[cardKey] || {}; loadWebFont(fi != null ? fi : (cardPref.font || 0), plain(String(o.text || '')) + String(o.haigo || ''), cb); }
   function cardPicker() {
     return '<details class="cpick"><summary>🎴 じぶんの短冊にする（落款・色）</summary>' +
       '<p class="cnote">落款の文字（1〜2文字。俳号の一字など）</p><div class="cbtns"><input type="text" class="cseal" data-f="card-seal" maxlength="2" value="' + esc(cardPref.seal || '') + '" placeholder="裾"></div>' +
       '<p class="cnote">朱印の色</p><div class="cbtns">' + SEAL_COLS.map(function (c) { return '<button class="btn small' + (cardPref.sealCol === c[0] ? ' primary' : '') + '" data-act="card-sealcol" data-v="' + c[0] + '"><span class="cdot" style="background:' + c[0] + '"></span>' + c[1] + '</button>'; }).join('') + '</div>' +
       '<p class="cnote">色合い</p><div class="cbtns">' + CARD_THEMES.map(function (t) { return '<button class="btn small' + (cardPref.theme === t[0] ? ' primary' : '') + '" data-act="card-theme" data-v="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
+      '<p class="cnote">書体</p><div class="cbtns">' + WEB_FONTS.map(function (f, i) { return '<button class="btn small' + ((cardPref.font || 0) === i ? ' primary' : '') + '" data-act="card-font" data-v="' + i + '">' + esc(f.n) + '</button>'; }).join('') + '</div>' +
+      '<div class="cbtns"><button class="btn small" data-act="card-random">🎲 おまかせ（色と書体をランダムに）</button></div>' +
       '<p class="cnote">「俳句の裾野」の題・句会の行・URLは、そのままです。選んだ落款と色は、この端末が覚えます。</p></details>';
   }
   /* 句碑：石に刻んだふうの画像（かたち・石・書体を、いろいろ選べる） */
-  var KUHI_FONTS = [
-    { n: '明朝', f: CARD_FONT },
-    { n: '角ゴシック', f: '"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic","YuGothic","Noto Sans CJK JP","Noto Sans JP","Meiryo",sans-serif' },
-    { n: '丸ゴシック', f: '"Hiragino Maru Gothic ProN","Yu Gothic","YuGothic","Noto Sans CJK JP","Noto Sans JP",sans-serif' },
-    { n: '行書ふう', f: '"HGP行書体","HG行書体","Yuji Syuku","Klee One","Hiragino Mincho ProN","Yu Mincho","Noto Serif CJK JP",serif' }
+  /* 句碑：場所（背景）・石・かたち・苔・書体を、べつべつに選べる。選ばなければ、句ごとにランダム */
+  var KUHI_SCENES = [
+    { n: '野原', sky: ['#dfe7e4', '#eef0e8', '#7f8f6a', '#4f6040'], ex: '' },
+    { n: '山のふもと', sky: ['#cfe0ee', '#e6eef0', '#6f8a5e', '#3f5538'], ex: 'mtn' },
+    { n: '川べり', sky: ['#dbe6ea', '#eef2ec', '#86987a', '#566a4a'], ex: 'river' },
+    { n: '海辺', sky: ['#cfe3f2', '#e9f1f5', '#8f9a86', '#5f6a56'], ex: 'sea' },
+    { n: 'お寺の庭', sky: ['#e6e3da', '#f1eee4', '#9a9a8c', '#6a6a5c'], ex: 'temple' },
+    { n: '神社の杜', sky: ['#d9e2d4', '#e8ede0', '#4f6a44', '#2e4028'], ex: 'torii' },
+    { n: '橋のたもと', sky: ['#dde6ec', '#edf1ee', '#7f8f70', '#4f6048'], ex: 'bridge' },
+    { n: '公園', sky: ['#dbe9f2', '#eef3ee', '#8aa67a', '#5a7a4a'], ex: 'park' },
+    { n: '雪景色', sky: ['#d9dfe6', '#e9edf1', '#eef1f4', '#cfd6dd'], ex: 'snow' },
+    { n: '夕暮れ', sky: ['#4a3a5a', '#e2905a', '#5a5040', '#2e2a22'], ex: 'sun' },
+    { n: '月夜', night: 1, sky: ['#141b33', '#27325a', '#2c3a3a', '#16241e'], ex: 'moon' },
+    { n: '桜のころ', sky: ['#f2e4ea', '#f7eef0', '#8fa07a', '#5f7048'], ex: 'sakura' },
+    { n: '紅葉のころ', sky: ['#e8dcc8', '#f1e6d2', '#9a7a4a', '#6a4a2a'], ex: 'momiji' },
+    { n: '雨の日', sky: ['#b9c0c4', '#cfd4d6', '#6f7f68', '#465040'], ex: 'rain' }
   ];
-  var KUHI_TYPES = [
-    { n: '自然石', shape: 'nat', sky: ['#dfe7e4', '#eef0e8', '#7f8f6a', '#4f6040'], st: ['#9a9893', '#7d7b76', '#5f5d58'], pol: ['#b9b7b1', '#a3a09a'], ink: '#1a1714', edge: '#141210', hi: 'rgba(255,255,255,.55)', moss: 0 },
-    { n: '角柱（黒御影）', shape: 'rect', sky: ['#e6e3da', '#f1eee4', '#8a8f78', '#566248'], st: ['#4a4a4f', '#2f2f33', '#1f1f22'], pol: ['#3a3a3f', '#26262a'], ink: '#e8d9a2', edge: null, hi: 'rgba(0,0,0,.5)', moss: 0 },
-    { n: '丸い川石', shape: 'oval', sky: ['#dbe6ea', '#eef2ec', '#86987a', '#566a4a'], st: ['#a49b8c', '#8a8172', '#6c6458'], pol: ['#b9b0a1', '#a69d8e'], ink: '#2a2420', edge: '#1c1814', hi: 'rgba(255,255,255,.5)', moss: 0 },
-    { n: '板碑（白御影）', shape: 'slab', sky: ['#cfe0ee', '#eaf1ee', '#86a07a', '#587048'], st: ['#e0ddd5', '#cbc7bd', '#aeaa9f'], pol: ['#ece9e1', '#d9d5cb'], ink: '#2b2622', edge: null, hi: 'rgba(255,255,255,.8)', moss: 0 },
-    { n: '苔むす古碑', shape: 'nat', sky: ['#c9d3c4', '#dde2d2', '#5f7a4e', '#3b5030'], st: ['#85897a', '#6d7364', '#52584a'], pol: ['#9ea392', '#8a907f'], ink: '#1b1f17', edge: '#10130d', hi: 'rgba(255,255,255,.4)', moss: 1 },
-    { n: '月夜の碑', shape: 'rect', night: 1, sky: ['#141b33', '#27325a', '#2c3a3a', '#16241e'], st: ['#6a6f82', '#4a4e60', '#2f3242'], pol: ['#5b6074', '#464a5c'], ink: '#f4f1e2', edge: null, hi: 'rgba(0,0,0,.55)', moss: 0 }
+  var KUHI_STONES = [
+    { n: '灰の自然石', st: ['#9a9893', '#7d7b76', '#5f5d58'], pol: ['#b9b7b1', '#a3a09a'], ink: '#1a1714', edge: '#141210', hi: 'rgba(255,255,255,.55)' },
+    { n: '黒御影', st: ['#4a4a4f', '#2f2f33', '#1f1f22'], pol: ['#3a3a3f', '#26262a'], ink: '#e8d9a2', edge: null, hi: 'rgba(0,0,0,.5)' },
+    { n: '白御影', st: ['#e0ddd5', '#cbc7bd', '#aeaa9f'], pol: ['#ece9e1', '#d9d5cb'], ink: '#2b2622', edge: null, hi: 'rgba(255,255,255,.8)' },
+    { n: '川石（茶）', st: ['#a49b8c', '#8a8172', '#6c6458'], pol: ['#b9b0a1', '#a69d8e'], ink: '#2a2420', edge: '#1c1814', hi: 'rgba(255,255,255,.5)' },
+    { n: '青石', st: ['#6f8390', '#55677a', '#3e4c5a'], pol: ['#8a9ba6', '#728492'], ink: '#101418', edge: '#0a0d10', hi: 'rgba(255,255,255,.45)' },
+    { n: '赤御影', st: ['#9a6a5a', '#7a4e42', '#5a3830'], pol: ['#b08276', '#9a6e62'], ink: '#f2e6d2', edge: null, hi: 'rgba(0,0,0,.45)' },
+    { n: '砂岩', st: ['#d2bc8e', '#b89e70', '#957d55'], pol: ['#e0cca2', '#cbb486'], ink: '#3a2a18', edge: '#2a1e10', hi: 'rgba(255,255,255,.5)' },
+    { n: '古い苔色の石', st: ['#85897a', '#6d7364', '#52584a'], pol: ['#9ea392', '#8a907f'], ink: '#1b1f17', edge: '#10130d', hi: 'rgba(255,255,255,.4)' }
   ];
-  var kuhiV = null, kuhiF = null;
+  var KUHI_SHAPES = [
+    { n: '自然石', shape: 'nat' }, { n: '丸い石', shape: 'oval' }, { n: '角柱', shape: 'rect' }, { n: '板碑（とがり）', shape: 'slab' }, { n: '横長の石', shape: 'wide' }, { n: '細長い柱', shape: 'tall' }
+  ];
+  var KUHI_MOSS = ['苔なし', '苔すこし', '苔おおい', 'てっぺんまで苔'];
+  var kuhiPref = { sc: null, st: null, sh: null, moss: null, f: null };
+  try { var kp0 = JSON.parse(localStorage.getItem('ikku-kuhi') || 'null'); if (kp0) kuhiPref = Object.assign(kuhiPref, kp0); } catch (_) {}
+  function kuhiPrefSave() { try { localStorage.setItem('ikku-kuhi', JSON.stringify(kuhiPref)); } catch (_) {} }
   function kuhiPick(o) {
-    var h = hash(String(o.text || '') + 'v'), v = o.kv != null ? o.kv : (kuhiV != null ? kuhiV : h % KUHI_TYPES.length), f = o.kf != null ? o.kf : (kuhiF != null ? kuhiF : 0);
-    return { v: v % KUHI_TYPES.length, f: f % KUHI_FONTS.length };
+    var h = hash(String(o.text || '') + 'v'), h2 = hash(String(o.text || '') + 's'), h3 = hash(String(o.text || '') + 'h');
+    return {
+      sc: (kuhiPref.sc != null ? kuhiPref.sc : h % KUHI_SCENES.length) % KUHI_SCENES.length,
+      st: (kuhiPref.st != null ? kuhiPref.st : h2 % KUHI_STONES.length) % KUHI_STONES.length,
+      sh: (kuhiPref.sh != null ? kuhiPref.sh : h3 % KUHI_SHAPES.length) % KUHI_SHAPES.length,
+      moss: (kuhiPref.moss != null ? kuhiPref.moss : (h2 % 3 === 0 ? 1 : 0)) % 4,
+      f: (kuhiPref.f != null ? kuhiPref.f : 0) % WEB_FONTS.length
+    };
   }
   function drawKuhi(o) {
     var W = 1200, H = 1200, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
-    var ctx = cv.getContext('2d'), pk = kuhiPick(o), T = KUHI_TYPES[pk.v];
-    KUHI_FONT_CUR = KUHI_FONTS[pk.f].f;
+    var ctx = cv.getContext('2d'), pk = kuhiPick(o), SC = KUHI_SCENES[pk.sc], T = Object.assign({}, KUHI_STONES[pk.st], { shape: KUHI_SHAPES[pk.sh].shape, moss: pk.moss, night: SC.night, sky: SC.sky });
+    KUHI_FONT_CUR = WEB_FONTS[pk.f].f;
     /* 空と地面 */
     var sky = ctx.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, T.sky[0]); sky.addColorStop(0.62, T.sky[1]); sky.addColorStop(0.63, T.sky[2]); sky.addColorStop(1, T.sky[3]);
     ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
     var rnd = (function (seed) { return function () { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }; })(hash(String(o.text || '') + 'k') % 1000 + 7);
-    if (T.night) {
+    var ex = SC.ex, gy0 = H * 0.63;
+    function tree(x, y, sz, col) { ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y - sz * 0.9, sz * 0.55, 0, Math.PI * 2); ctx.arc(x - sz * 0.4, y - sz * 0.6, sz * 0.45, 0, Math.PI * 2); ctx.arc(x + sz * 0.4, y - sz * 0.6, sz * 0.45, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = 'rgba(60,40,25,.8)'; ctx.fillRect(x - sz * 0.06, y - sz * 0.5, sz * 0.12, sz * 0.5); }
+    if (ex === 'mtn') { [[0, 560, 'rgba(90,110,130,.5)'], [380, 500, 'rgba(70,95,110,.55)'], [820, 540, 'rgba(85,105,120,.5)']].forEach(function (m) { ctx.fillStyle = m[2]; ctx.beginPath(); ctx.moveTo(m[0] - 300, gy0); ctx.lineTo(m[0] + 100, m[1]); ctx.lineTo(m[0] + 260, m[1] + 80); ctx.lineTo(m[0] + 380, m[1] + 30); ctx.lineTo(m[0] + 800, gy0); ctx.closePath(); ctx.fill(); }); }
+    if (ex === 'river') { var rv = ctx.createLinearGradient(0, gy0 + 40, 0, H); rv.addColorStop(0, 'rgba(120,160,190,.9)'); rv.addColorStop(1, 'rgba(70,110,150,.95)'); ctx.fillStyle = rv; ctx.beginPath(); ctx.moveTo(0, gy0 + 60); ctx.quadraticCurveTo(300, gy0 + 20, 600, gy0 + 90); ctx.quadraticCurveTo(900, gy0 + 160, W, gy0 + 60); ctx.lineTo(W, gy0 + 230); ctx.quadraticCurveTo(800, gy0 + 300, 400, gy0 + 240); ctx.quadraticCurveTo(150, gy0 + 200, 0, gy0 + 250); ctx.closePath(); ctx.fill(); for (var ri = 0; ri < 40; ri++) { ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 2; var rx = rnd() * W, ry = gy0 + 80 + rnd() * 140; ctx.beginPath(); ctx.moveTo(rx, ry); ctx.lineTo(rx + 30 + rnd() * 60, ry); ctx.stroke(); } }
+    if (ex === 'sea') { var se = ctx.createLinearGradient(0, gy0 - 200, 0, gy0 + 40); se.addColorStop(0, '#5f8fb8'); se.addColorStop(1, '#3f6f98'); ctx.fillStyle = se; ctx.fillRect(0, gy0 - 200, W, 240); for (var wi = 0; wi < 60; wi++) { ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = 2; var wx = rnd() * W, wy = gy0 - 190 + rnd() * 220; ctx.beginPath(); ctx.moveTo(wx, wy); ctx.lineTo(wx + 20 + rnd() * 50, wy); ctx.stroke(); } ctx.fillStyle = 'rgba(230,220,190,.9)'; ctx.fillRect(0, gy0 + 20, W, 60); }
+    if (ex === 'temple') { ctx.fillStyle = 'rgba(60,45,40,.85)'; ctx.beginPath(); ctx.moveTo(40, 430); ctx.quadraticCurveTo(300, 380, 560, 430); ctx.lineTo(540, 470); ctx.lineTo(60, 470); ctx.closePath(); ctx.fill(); ctx.fillStyle = 'rgba(120,90,70,.85)'; ctx.fillRect(110, 470, 24, 290); ctx.fillRect(460, 470, 24, 290); ctx.fillStyle = 'rgba(70,55,45,.8)'; ctx.fillRect(90, 460, 420, 16); ctx.fillStyle = 'rgba(150,140,120,.6)'; for (var gi = 0; gi < 300; gi++) { ctx.fillRect(rnd() * W, gy0 + rnd() * 120, 3, 3); } }
+    if (ex === 'torii') { tree(140, gy0 + 10, 160, 'rgba(40,70,40,.85)'); tree(1060, gy0 + 10, 150, 'rgba(35,65,38,.85)'); ctx.fillStyle = '#b8402f'; ctx.fillRect(150, 380, 26, 400); ctx.fillRect(430, 380, 26, 400); ctx.beginPath(); ctx.moveTo(100, 370); ctx.quadraticCurveTo(300, 330, 500, 370); ctx.lineTo(500, 400); ctx.quadraticCurveTo(300, 365, 100, 400); ctx.closePath(); ctx.fill(); ctx.fillRect(130, 440, 350, 22); }
+    if (ex === 'bridge') { ctx.fillStyle = 'rgba(90,70,55,.9)'; ctx.beginPath(); ctx.moveTo(0, 620); ctx.quadraticCurveTo(300, 470, 620, 600); ctx.lineTo(620, 650); ctx.quadraticCurveTo(300, 530, 0, 680); ctx.closePath(); ctx.fill(); for (var bi = 0; bi < 7; bi++) { ctx.fillRect(40 + bi * 85, 560 - Math.sin(bi / 6 * Math.PI) * 60, 10, 70); } ctx.fillStyle = 'rgba(110,150,180,.8)'; ctx.fillRect(0, gy0 + 60, W, 160); }
+    if (ex === 'park') { tree(120, gy0 + 30, 170, 'rgba(70,120,60,.85)'); tree(1080, gy0 + 20, 190, 'rgba(60,110,55,.85)'); ctx.fillStyle = 'rgba(110,80,50,.9)'; ctx.fillRect(960, gy0 + 90, 160, 18); ctx.fillRect(975, gy0 + 108, 14, 50); ctx.fillRect(1090, gy0 + 108, 14, 50); ctx.fillRect(960, gy0 + 60, 160, 14); }
+    if (ex === 'snow') { for (var sn = 0; sn < 160; sn++) { ctx.fillStyle = 'rgba(255,255,255,' + (0.5 + rnd() * 0.5) + ')'; ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, 2 + rnd() * 4, 0, Math.PI * 2); ctx.fill(); } }
+    if (ex === 'sun') { var sg = ctx.createRadialGradient(240, 560, 10, 240, 560, 220); sg.addColorStop(0, 'rgba(255,220,160,.95)'); sg.addColorStop(0.3, 'rgba(255,190,120,.5)'); sg.addColorStop(1, 'rgba(255,170,100,0)'); ctx.fillStyle = sg; ctx.fillRect(0, 300, 600, 460); ctx.fillStyle = '#ffd9a0'; ctx.beginPath(); ctx.arc(240, 560, 70, 0, Math.PI * 2); ctx.fill(); }
+    if (ex === 'moon' || T.night) {
       for (var si = 0; si < 90; si++) { ctx.fillStyle = 'rgba(255,255,240,' + (0.3 + rnd() * 0.6) + ')'; ctx.fillRect(rnd() * W, rnd() * H * 0.55, 2 + rnd() * 2, 2 + rnd() * 2); }
       var mg = ctx.createRadialGradient(1010, 170, 10, 1010, 170, 190); mg.addColorStop(0, 'rgba(255,250,225,.95)'); mg.addColorStop(0.3, 'rgba(255,248,215,.55)'); mg.addColorStop(1, 'rgba(255,248,215,0)');
       ctx.fillStyle = mg; ctx.fillRect(780, 0, 420, 420); ctx.fillStyle = '#fdf8e2'; ctx.beginPath(); ctx.arc(1010, 170, 62, 0, Math.PI * 2); ctx.fill();
     }
+    if (ex === 'sakura') { tree(150, gy0 + 10, 190, 'rgba(240,190,205,.9)'); tree(1060, gy0, 170, 'rgba(238,185,200,.9)'); for (var pi = 0; pi < 120; pi++) { ctx.fillStyle = 'rgba(245,200,215,' + (0.5 + rnd() * 0.5) + ')'; ctx.beginPath(); ctx.ellipse(rnd() * W, rnd() * H, 4 + rnd() * 5, 2 + rnd() * 3, rnd() * 3, 0, Math.PI * 2); ctx.fill(); } }
+    if (ex === 'momiji') { tree(150, gy0 + 10, 190, 'rgba(200,70,40,.9)'); tree(1060, gy0, 170, 'rgba(220,120,40,.9)'); for (var li = 0; li < 80; li++) { ctx.fillStyle = rnd() < 0.5 ? 'rgba(200,70,40,.8)' : 'rgba(225,140,40,.8)'; ctx.beginPath(); ctx.ellipse(rnd() * W, gy0 + rnd() * (H - gy0), 6 + rnd() * 6, 3 + rnd() * 4, rnd() * 3, 0, Math.PI * 2); ctx.fill(); } }
+    if (ex === 'rain') { ctx.strokeStyle = 'rgba(200,210,220,.45)'; ctx.lineWidth = 2; for (var ra = 0; ra < 220; ra++) { var rx2 = rnd() * W, ry2 = rnd() * H; ctx.beginPath(); ctx.moveTo(rx2, ry2); ctx.lineTo(rx2 - 6, ry2 + 28); ctx.stroke(); } }
     /* 草むら（点々） */
-    for (var i = 0; i < 900; i++) { var gx = rnd() * W, gy = H * 0.63 + rnd() * H * 0.37; ctx.fillStyle = T.night ? (rnd() < 0.5 ? 'rgba(60,90,70,.5)' : 'rgba(20,40,30,.55)') : (rnd() < 0.5 ? 'rgba(120,150,90,.55)' : 'rgba(60,80,45,.5)'); ctx.beginPath(); ctx.ellipse(gx, gy, 6 + rnd() * 14, 3 + rnd() * 6, 0, 0, Math.PI * 2); ctx.fill(); }
+    if (ex !== 'snow' && ex !== 'temple') for (var i = 0; i < 900; i++) { var gx = rnd() * W, gy = H * 0.63 + rnd() * H * 0.37; ctx.fillStyle = T.night ? (rnd() < 0.5 ? 'rgba(60,90,70,.5)' : 'rgba(20,40,30,.55)') : (rnd() < 0.5 ? 'rgba(120,150,90,.55)' : 'rgba(60,80,45,.5)'); ctx.beginPath(); ctx.ellipse(gx, gy, 6 + rnd() * 14, 3 + rnd() * 6, 0, 0, Math.PI * 2); ctx.fill(); }
     /* 台座 */
     ctx.fillStyle = T.night ? '#3a3d4c' : '#6f6a62'; ctx.beginPath(); ctx.moveTo(250, 1010); ctx.lineTo(950, 1010); ctx.lineTo(1000, 1080); ctx.lineTo(200, 1080); ctx.closePath(); ctx.fill();
     ctx.fillStyle = T.night ? '#2a2c38' : '#56524b'; ctx.fillRect(200, 1080, 800, 28);
@@ -6096,7 +6175,9 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       nat: [[330, 1012], [300, 760], [330, 420], [380, 230], [470, 150], [640, 120], [800, 150], [880, 250], [905, 480], [890, 780], [870, 1012]],
       oval: [[340, 1012], [290, 800], [300, 520], [380, 300], [520, 190], [690, 190], [830, 290], [915, 500], [920, 800], [880, 1012]],
       rect: [[340, 1012], [340, 120], [900, 120], [900, 1012]],
-      slab: [[350, 1012], [350, 300], [640, 110], [890, 300], [890, 1012]]
+      slab: [[350, 1012], [350, 300], [640, 110], [890, 300], [890, 1012]],
+      wide: [[230, 1012], [220, 700], [260, 420], [420, 330], [640, 300], [860, 330], [980, 440], [990, 720], [960, 1012]],
+      tall: [[460, 1012], [450, 600], [470, 160], [530, 90], [690, 90], [760, 160], [780, 600], [760, 1012]]
     }, px = pxs[T.shape];
     ctx.save(); ctx.beginPath(); ctx.moveTo(px[0][0], px[0][1]);
     for (var j = 1; j < px.length; j++) {
@@ -6110,12 +6191,12 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     ctx.clip();
     /* 石の肌：ざらつき */
     for (var k = 0; k < 2600; k++) { ctx.fillStyle = rnd() < 0.5 ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.07)'; var rx = 290 + rnd() * 640, ry = 110 + rnd() * 920; ctx.fillRect(rx, ry, 2 + rnd() * 5, 2 + rnd() * 5); }
-    if (T.moss) { for (var mm = 0; mm < 420; mm++) { var my = 700 + rnd() * 320, mx = 290 + rnd() * 640; ctx.fillStyle = 'rgba(' + (70 + Math.floor(rnd() * 40)) + ',' + (110 + Math.floor(rnd() * 50)) + ',50,' + (0.25 + rnd() * 0.35) + ')'; ctx.beginPath(); ctx.ellipse(mx, my, 6 + rnd() * 16, 3 + rnd() * 7, 0, 0, Math.PI * 2); ctx.fill(); } }
+    if (T.moss) { var mN = T.moss === 1 ? 300 : T.moss === 2 ? 700 : 1100, mTop = T.moss === 1 ? 760 : T.moss === 2 ? 520 : 110; for (var mm = 0; mm < mN; mm++) { var my = mTop + rnd() * (1020 - mTop), mx = 220 + rnd() * 780; if (T.moss === 2 && my < 760 && mx > 420 && mx < 820) continue; ctx.fillStyle = 'rgba(' + (70 + Math.floor(rnd() * 40)) + ',' + (110 + Math.floor(rnd() * 50)) + ',50,' + (0.25 + rnd() * 0.35) + ')'; ctx.beginPath(); ctx.ellipse(mx, my, 6 + rnd() * 16, 3 + rnd() * 7, 0, 0, Math.PI * 2); ctx.fill(); } }
     ctx.restore();
     /* 磨いた面（字が読みやすいように、石の中央をなめらかに） */
     var cells = cardCells(String(o.text || '')), n = 0; cells.forEach(function (c) { n += /[　 ]/.test(c.c) ? 0.7 : 1; });
-    var top = 200, avail = 760, sz = Math.max(24, Math.min(84, Math.floor(avail / (Math.max(n, 1) * 1.12))));
-    var kx = 625, hg = Array.from(String(o.haigo || '').trim()), hs = Math.max(24, Math.round(sz * 0.55));
+    var top = T.shape === 'wide' ? 360 : 200, avail = T.shape === 'wide' ? 620 : 760, sz = Math.max(24, Math.min(T.shape === 'tall' ? 70 : 84, Math.floor(avail / (Math.max(n, 1) * 1.12))));
+    var kx = T.shape === 'tall' ? 640 : 625, hg = Array.from(String(o.haigo || '').trim()), hs = Math.max(24, Math.round(sz * 0.55));
     var px0 = kx - sz * 1.6 - hs - 30, px1 = kx + sz * 0.9, py0 = top - 40, py1 = top + Math.max(n, 1) * sz * 1.12 + 50;
     if (T.shape === 'slab') { py0 = Math.max(py0, 260); py1 = Math.max(py1, py0 + 120); }
     ctx.save(); ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(px0, py0, px1 - px0, py1 - py0, 18); else ctx.rect(px0, py0, px1 - px0, py1 - py0);
@@ -6216,9 +6297,11 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   }
   /* 句碑のかたち・書体を選ぶ */
   function kuhiPicker(o) {
-    var pk = kuhiPick(o);
-    return '<p class="cnote">かたち・石</p><div class="cbtns">' + KUHI_TYPES.map(function (x, i) { return '<button class="btn small' + (pk.v === i ? ' primary' : '') + '" data-act="kuhi-v" data-v="' + i + '">' + esc(x.n) + '</button>'; }).join('') + '</div>' +
-      '<p class="cnote">書体</p><div class="cbtns">' + KUHI_FONTS.map(function (x, i) { return '<button class="btn small' + (pk.f === i ? ' primary' : '') + '" data-act="kuhi-f" data-v="' + i + '">' + esc(x.n) + '</button>'; }).join('') + '</div>';
+    var pk = kuhiPick(o), row = function (label, act, arr, cur, nameOf) { return '<p class="cnote">' + label + '</p><div class="cbtns">' + arr.map(function (x, i) { return '<button class="btn small' + (cur === i ? ' primary' : '') + '" data-act="' + act + '" data-v="' + i + '">' + esc(nameOf(x)) + '</button>'; }).join('') + '</div>'; };
+    return '<details class="cpick" open><summary>🪨 句碑をえらぶ（場所・石・かたち・苔・書体）</summary><div class="cbtns"><button class="btn small primary" data-act="kuhi-random">🎲 おまかせ（ぜんぶランダム）</button></div>' +
+      row('場所', 'kuhi-sc', KUHI_SCENES, pk.sc, function (x) { return x.n; }) + row('石', 'kuhi-st', KUHI_STONES, pk.st, function (x) { return x.n; }) + row('かたち', 'kuhi-sh', KUHI_SHAPES, pk.sh, function (x) { return x.n; }) + row('苔', 'kuhi-moss', KUHI_MOSS, pk.moss, function (x) { return x; }) +
+      '<p class="cnote">書体</p><div class="cbtns">' + WEB_FONTS.map(function (f, i) { return '<button class="btn small' + (pk.f === i ? ' primary' : '') + '" data-act="kuhi-f" data-v="' + i + '">' + esc(f.n) + '</button>'; }).join('') + '</div>' +
+      '<p class="cnote">選ばなければ、句ごとにちがう組み合わせになります。選んだものは、この端末が覚えます。</p></details>';
   }
   function cardOwn() { var o = cardKey && cardSrc[cardKey]; return !(o && o.own === false); }
   function cardShare() {
@@ -7196,7 +7279,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       if (e.target === cvEl) { cvClose(); return; }
       var b = e.target.closest('[data-act]'); if (!b) return;
       var ac = b.getAttribute('data-act');
-      if (ac === 'card-share') cardShare(); else if (ac === 'card-save') cardSave(); else if (ac === 'card-close') cvClose(); else if (ac === 'card-style') openCard(cardKey, b.getAttribute('data-v')); else if (ac === 'kuhi-v') { kuhiV = +b.getAttribute('data-v'); openCard(cardKey); } else if (ac === 'kuhi-f') { kuhiF = +b.getAttribute('data-v'); openCard(cardKey); } else if (ac === 'cp') { var ck = b.getAttribute('data-k'); cp[ck] = ck === 'dim' ? +b.getAttribute('data-v') : b.getAttribute('data-v'); openCard(cardKey); } else if (ac === 'card-sealcol') { cardPref.sealCol = b.getAttribute('data-v'); cardPrefSave(); openCard(cardKey); } else if (ac === 'card-theme') { cardPref.theme = b.getAttribute('data-v'); cardPrefSave(); openCard(cardKey); }
+      if (ac === 'card-share') cardShare(); else if (ac === 'card-save') cardSave(); else if (ac === 'card-close') cvClose(); else if (ac === 'card-style') openCard(cardKey, b.getAttribute('data-v')); else if (ac === 'kuhi-f') { kuhiPref.f = +b.getAttribute('data-v'); kuhiPrefSave(); cardFontThen(function () { openCard(cardKey); }, kuhiPref.f); } else if (ac === 'cp') { var ck = b.getAttribute('data-k'); cp[ck] = ck === 'dim' ? +b.getAttribute('data-v') : b.getAttribute('data-v'); openCard(cardKey); } else if (ac === 'card-sealcol') { cardPref.sealCol = b.getAttribute('data-v'); cardPrefSave(); openCard(cardKey); } else if (ac === 'card-theme') { cardPref.theme = b.getAttribute('data-v'); cardPrefSave(); openCard(cardKey); } else if (ac === 'card-font') { cardPref.font = +b.getAttribute('data-v') || 0; cardPrefSave(); cardFontThen(function () { openCard(cardKey); }); } else if (ac === 'card-random') { cardPref.theme = CARD_THEMES[Math.floor(Math.random() * CARD_THEMES.length)][0]; cardPref.sealCol = SEAL_COLS[Math.floor(Math.random() * SEAL_COLS.length)][0]; cardPref.font = Math.floor(Math.random() * WEB_FONTS.length); cardPrefSave(); cardFontThen(function () { openCard(cardKey); }); } else if (ac === 'kuhi-random') { kuhiPref = { sc: Math.floor(Math.random() * KUHI_SCENES.length), st: Math.floor(Math.random() * KUHI_STONES.length), sh: Math.floor(Math.random() * KUHI_SHAPES.length), moss: Math.floor(Math.random() * 4), f: Math.floor(Math.random() * WEB_FONTS.length) }; kuhiPrefSave(); cardFontThen(function () { openCard(cardKey); }, kuhiPref.f); } else if (ac === 'kuhi-sc' || ac === 'kuhi-st' || ac === 'kuhi-sh' || ac === 'kuhi-moss') { kuhiPref[ac.slice(5)] = +b.getAttribute('data-v'); kuhiPrefSave(); openCard(cardKey); }
     });
     cvEl.addEventListener('input', function (e) {
       var t = e.target; if (!t || !t.dataset) return;

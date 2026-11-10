@@ -24,6 +24,27 @@ on:
     - cron: '0 15 * * *'      # 翌0:00  25時「よなよな句会」まで「あと1時間」（毎日）
     - cron: '0 16 * * *'      # 翌1:00  同上「はじまりました」（変数 TEI_POSTS に start を入れたときだけ）
     - cron: '30 17 * * *'     # 翌2:30  25時「よなよな句会」のお礼（毎日）
+    # ↓ 念のための2回目（12分あと）。上の回がGitHub側で動かなかったときの保険。ふだんは「投稿ずみ」で何もしません
+    - cron: '12 22 * * *'
+    - cron: '12 0 * * *'
+    - cron: '12 3 * * *'
+    - cron: '12 5 * * *'
+    - cron: '12 11 * * *'
+    - cron: '12 13 * * *'
+    - cron: '12 1 * * *'
+    - cron: '12 4 * * *'
+    - cron: '12 6 * * *'
+    - cron: '12 12 * * *'
+    - cron: '12 14 * * *'
+    - cron: '22 12 * * *'
+    - cron: '42 2 * * *'
+    - cron: '42 5 * * *'
+    - cron: '42 7 * * *'
+    - cron: '42 13 * * *'
+    - cron: '42 15 * * *'
+    - cron: '12 15 * * *'
+    - cron: '12 16 * * *'
+    - cron: '42 17 * * *'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -44,7 +65,10 @@ jobs:
         with:
           node-version: 22
       - name: つぶやく
+        id: tweet
+        continue-on-error: true
         env:
+          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           X_API_KEY: ${{ secrets.X_API_KEY }}
           X_API_SECRET: ${{ secrets.X_API_SECRET }}
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
@@ -56,3 +80,20 @@ jobs:
           TEXT: ${{ github.event.inputs.text }}
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || '0' }}
         run: node post.js
+      - name: 失敗したら、3分後にもう一度（投稿ずみなら何もしない）
+        if: steps.tweet.outcome == 'failure'
+        env:
+          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          INCLUDE_LINK: ${{ vars.INCLUDE_LINK || '1' }}
+          TEI_POSTS: ${{ vars.TEI_POSTS }}
+          TEI_LIVE: ${{ vars.TEI_LIVE }}
+          KIND: ${{ github.event.inputs.kind || 'auto' }}
+          TEXT: ${{ github.event.inputs.text }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || '0' }}
+        run: |
+          sleep 180
+          node post.js
