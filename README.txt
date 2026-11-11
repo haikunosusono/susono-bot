@@ -72,3 +72,9 @@ menu.json は、アプリと同じ計算でつくった、約400日ぶんの「�
     （KEY の行だけは、いまの鍵の行のままにする）。メールの宛先は、Apps Script の持ち主の Gmail です（設定は要りません）。
   ・いたずら対策：1時間に20通まで。同じ本文は1日1回だけ。
   ・試し：GitHub の Actions →「ご意見の見回り」→ Run workflow で dry=1 にすると、送らずに表示だけします。
+
+■ 裾野の時計（Apps Script）
+GitHubの予約実行（cron）が数時間おくれる日があるため、Google Apps Script の「1分ごとのトリガー」から、GitHub Actions の
+workflow_dispatch（push.yml / tweet.yml）を日本時間の決まった時刻にたたく。手順と中身は tools/clock-apps-script.js の先頭に。
+GitHub側の cron は保険として残す。二重には動かない（送りずみ・投稿ずみを Firestore の oplog に記録しているため）。
+GitHubトークン（細かい権限：この倉庫の Actions の Read and write だけ）は Apps Script のスクリプト プロパティ GH_TOKEN にだけ置く。
