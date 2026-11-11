@@ -19,7 +19,7 @@ var TABLE = {
   '09:45': ['push.yml', { dry_run: '0' }], '12:45': ['push.yml', { dry_run: '0' }], '14:45': ['push.yml', { dry_run: '0' }],
   '20:45': ['push.yml', { dry_run: '0' }], '22:45': ['push.yml', { dry_run: '0' }], '00:45': ['push.yml', { dry_run: '0' }],
   // つぶやき
-  '07:00': ['tweet.yml', { dry_run: '0', kind: 'auto' }],
+  '07:00': ['tweet.yml', { dry_run: '0', kind: 'auto' }], '19:00': ['tweet.yml', { dry_run: '0', kind: 'auto' }],
   '09:00': ['tweet.yml', { dry_run: '0', kind: 'auto' }], '12:00': ['tweet.yml', { dry_run: '0', kind: 'auto' }], '14:00': ['tweet.yml', { dry_run: '0', kind: 'auto' }],
   '20:00': ['tweet.yml', { dry_run: '0', kind: 'auto' }], '22:00': ['tweet.yml', { dry_run: '0', kind: 'auto' }], '00:00': ['tweet.yml', { dry_run: '0', kind: 'auto' }],
   '10:00': ['tweet.yml', { dry_run: '0', kind: 'auto' }], '13:00': ['tweet.yml', { dry_run: '0', kind: 'auto' }], '15:00': ['tweet.yml', { dry_run: '0', kind: 'auto' }],
