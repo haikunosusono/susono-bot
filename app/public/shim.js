@@ -52,6 +52,7 @@
     if (/network/.test(c)) return 'ネットにつながっていないようです';
     if (/operation-not-allowed/.test(c)) return 'このログインの方法は、いま準備中です。メールアドレスでどうぞ';
     if (/account-exists-with-different-credential/.test(c)) return 'このメールアドレスは、べつの方法（メールやX）で登録ずみです。その方法でログインしてから、マイページでつないでください';
+    if (/credential-already-in-use|provider-already-linked/.test(c)) return 'そのアカウントは、べつの記録で使われています（先に新しくログインして、空のアカウントができています）。「お問い合わせ」から知らせてください。空のほうを外して、つなげられるようにします';
     if (/popup-closed|cancelled-popup/.test(c)) return 'Xのログインを、とちゅうでやめました';
     if (/account-exists-with-different-credential/.test(c)) return 'このXアカウントのメールアドレスは、裾野に登録ずみです。メールアドレスでログインしてから、マイページで「Xをつなぐ」を押してください';
     if (/credential-already-in-use/.test(c)) return 'このXアカウントは、べつの裾野のアカウントで使われています';
