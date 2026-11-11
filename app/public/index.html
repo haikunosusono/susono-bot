@@ -811,7 +811,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
 <script src="vendor/firebase-auth-compat.js"></script>
 <script src="vendor/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
-<script src="shim.js?v=28o"></script>
+<script src="shim.js?v=28p"></script>
 <script>
 (function () {
   'use strict';
@@ -979,7 +979,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.12a';
+  var APP_VER = 'v2026.11.12b';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -1341,6 +1341,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   var stView = 'table', stFil = 'all';
   try { stView = localStorage.getItem('ikku-stview') || 'table'; } catch (_) {}
   /* ---- 夏雲システムに出す：句をコピーして、覚えておいた投句画面をひらく（URLは、この端末の中だけに保存。送信は本人が） ---- */
+  var lmDraft = { m: '', p: '' }; /* マイページ：メールアドレスをつなぐ欄の下書き */
   var ngList = [], ngSel = 0, ngDraft = { n: '', u: '', h: '', p: '' }, ngOpen = false, ngEdit = null;
   try { ngList = JSON.parse(localStorage.getItem('ikku-natsugumo') || '[]') || []; ngSel = +(localStorage.getItem('ikku-natsugumo-sel') || 0) || 0; } catch (_) { ngList = []; }
   function ngSave() { try { localStorage.setItem('ikku-natsugumo', JSON.stringify(ngList)); localStorage.setItem('ikku-natsugumo-sel', String(ngSel)); } catch (_) {} }
@@ -3402,6 +3403,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     h += '<p class="note">入力すると、そのつど保存されます。いまは自分だけに見えます。ほかの人に見せる機能は、いまはありません。' + (!db ? '（ログインしていないので、このブラウザにだけ保存されます）' : '') + '</p></div>';
     if (myId && window.fbLinkX) h += '<div class="panel"><b>🔗 ログインの方法をつなぐ</b><p class="note">X・Google・メールアドレスは、それぞれ別のアカウントになります。<b>先に、いまの（記録のある）アカウントでログインしたまま</b>、下の「つなぐ」を押すと、次からどの方法で入っても同じ記録になります。先に別の方法で新しくログインしてしまうと、空のアカウントができて「ストッ句がゼロ」に見えます（元の記録は、元のアカウントに残っています）。</p></div>';
     if (window.fbLinkX && myId) h += '<div class="panel"><b>𝕏 Xのアカウント</b>' + (window.fbHasX() ? '<p class="note">Xがつながっています。Xでも、同じ記録でログインできます。</p>' : '<p class="note">Xをつなぐと、次からは「Xのアカウントでログイン」でも入れます。記録は、いまのまま同じです。Xに投稿されることはありません。</p><div class="actions"><button class="btn" data-act="linkx">Xをつなぐ</button></div>') + '</div>';
+    if (window.fbLinkMail && myId && window.fbHasMail && !window.fbHasMail()) h += '<div class="panel"><b>✉️ メールアドレスとパスワード</b><p class="note">メールアドレスとパスワードをつなぐと、次からは「メールアドレスでログイン」でも、同じ記録で入れます（XやGoogleが使えないときの予備にも）。</p><div class="field"><label for="lm-mail">メールアドレス</label><input type="email" id="lm-mail" data-f="lm-mail" value="' + esc(lmDraft.m) + '" autocomplete="email"></div><div class="field"><label for="lm-pass">パスワード（6文字以上）</label><input type="password" id="lm-pass" data-f="lm-pass" value="' + esc(lmDraft.p) + '" autocomplete="new-password"></div><div class="actions"><button class="btn" data-act="linkmail">メールアドレスをつなぐ</button></div></div>';
     if (window.fbLinkG && myId) h += '<div class="panel"><b>Googleのアカウント</b>' + (window.fbHasG && window.fbHasG() ? '<p class="note">Googleがつながっています。Googleでも、同じ記録でログインできます。</p>' : '<p class="note">Googleをつなぐと、次からは「Googleのアカウントでログイン」でも入れます。記録は、いまのまま同じです。</p><div class="actions"><button class="btn" data-act="linkg">Googleをつなぐ</button></div>') + '</div>' +
       '<p class="note">「そのアカウントは、べつの記録で使われています」と出たときは、先に別の方法で新しくログインして、空のアカウントができています。「お問い合わせ」から「X（またはGoogle）のアカウントが二つになった。記録のある方に、まとめてほしい」と知らせてください。記録のある方は触らず、空の方を外してつなげます。</p>';
     if (window.fbLogout) h += '<div class="actions"><button class="btn" data-act="fblogout">ログアウト</button></div><p class="note">ログアウトしても、ストッ句や句会の記録は消えません。次にログインすると、また見られます。</p>';
@@ -7468,6 +7470,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (act === 'nw-post') postNews();
     else if (act === 'nw-del') { if (isAdmin && db && db.doc('news/' + t.dataset.id).delete) db.doc('news/' + t.dataset.id).delete().then(function () { toast('消しました'); }).catch(failMsg); }
     else if (act === 'inq-seen') { if (!isAdmin || !db) return; var sp = { seen: {} }; sp.seen[t.dataset.key] = true; db.doc('inquiries/' + t.dataset.uid).update(sp).catch(failMsg); }
+    else if (act === 'linkmail') { var lmM = String(lmDraft.m || '').trim(), lmP = String(lmDraft.p || ''); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(lmM)) { toast('メールアドレスの形がちがうようです'); return; } if (lmP.length < 6) { toast('パスワードは6文字以上にしてください'); return; } if (window.fbLinkMail) window.fbLinkMail(lmM, lmP).then(function () { lmDraft = { m: '', p: '' }; toast('メールアドレスがつながりました。次からメールでも入れます'); render(); }).catch(function (e) { toast((e && e.msg) || 'つなげませんでした'); }); }
     else if (act === 'linkg') { if (window.fbLinkG) window.fbLinkG().then(function () { toast('Googleがつながりました'); render(); }).catch(function (e) { toast((e && e.msg) || 'つなげませんでした'); }); }
     else if (act === 'linkx') { if (window.fbLinkX) window.fbLinkX().then(function () { toast('Xがつながりました'); render(); }).catch(function (e) { toast((e && e.msg) || 'つなげませんでした'); }); }
     else if (act === 'fblogout') { if (window.fbLogout) window.fbLogout(); }
@@ -7778,6 +7781,8 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     else if (f === 'nw-body') nf.body = t.value;
     else if (f === 'nw-url') nf.url = t.value;
     else if (f === 'ng-name') ngDraft.n = t.value;
+    else if (f === 'lm-mail') lmDraft.m = t.value;
+    else if (f === 'lm-pass') lmDraft.p = t.value;
     else if (f === 'sk-title') { sk.title = t.value; skSave(); }
     else if (f === 'sk-src') { sk.src = t.value; skSave(); }
     else if (f === 'sk-sn') { var kk1 = +t.dataset.k; if (sk.st[kk1]) { sk.st[kk1][0] = t.value.trim() || sk.st[kk1][0]; skSave(); } }

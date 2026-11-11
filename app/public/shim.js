@@ -106,6 +106,12 @@
     var u = auth.currentUser; if (!u) return Promise.reject({ code: 'no-user' });
     return u.linkWithPopup(xProvider()).catch(function (e) { e.msg = msgFor(e); throw e; });
   };
+  /* マイページから：XやGoogleで入っている人が、メールアドレスとパスワードもつなぐ（次からメールでも同じ記録で入れる） */
+  window.fbLinkMail = function (email, pass) {
+    var u = auth.currentUser; if (!u) return Promise.reject({ code: 'no-user' });
+    var cred = firebase.auth.EmailAuthProvider.credential(String(email || '').trim(), String(pass || ''));
+    return u.linkWithCredential(cred).catch(function (e) { e.msg = msgFor(e); throw e; });
+  };
   window.fbHasG = function () { var u = auth.currentUser; return !!(u && (u.providerData || []).some(function (p) { return p && p.providerId === 'google.com'; })); };
   window.fbLinkG = function () {
     var u = auth.currentUser; if (!u) return Promise.reject({ code: 'no-user' });
