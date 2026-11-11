@@ -1,7 +1,7 @@
 // アカウントをまとめる：FROM の記録（ストッ句・プロフィール・句会の記録の中の名前）を TO へまとめ、FROM のログインを消す
 // そのあと本人が、TO でログインしたまま、マイページの「Xをつなぐ／Googleをつなぐ／メールアドレスをつなぐ」を押せば、ひとつになる
 // 動かし方：GitHub Actions「アカウントをまとめる」で FROM と TO の uid を入れる（Firebaseコンソール → Authentication → Users に出る）。DRY=1 なら見るだけ
-const fs = require('./tools/fsauth.js');
+const fs = require('./fsauth.js');
 const FROM = String(process.env.FROM_UID || '').trim(), TO = String(process.env.TO_UID || '').trim(), DRY = process.env.DRY !== '0';
 const PROJECT = process.env.FB_PROJECT || 'haikunosusono';
 (async () => {
