@@ -1,0 +1,27 @@
+name: アカウントをまとめる
+on:
+  workflow_dispatch:
+    inputs:
+      from_uid:
+        description: 'FROM：消す方（空、または少ない方）の uid'
+        required: true
+      to_uid:
+        description: 'TO：残す方（記録のある方）の uid'
+        required: true
+      dry:
+        description: '1 なら見るだけ（0 で実行）'
+        default: '1'
+jobs:
+  merge:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - env:
+          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FROM_UID: ${{ github.event.inputs.from_uid }}
+          TO_UID: ${{ github.event.inputs.to_uid }}
+          DRY: ${{ github.event.inputs.dry }}
+        run: node tools/merge-accounts.js
