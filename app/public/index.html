@@ -647,7 +647,10 @@ h3.sec { font-size: 1rem; }
 .ngcards { display: grid; gap: 10px; margin: 8px 0; } .ngcard { border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--paper); } .ngcard.on { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent); } .ngcard .row2 { align-items: center; margin-bottom: 4px; } .ngcard .row { gap: 10px; }
 .ngrow { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: .92rem; } .ngrow .ngl { flex: 0 0 5.5em; color: var(--ink-soft); font-size: .8rem; } .ngrow .ngv { flex: 1; min-width: 0; overflow-wrap: anywhere; } .ngrow .btn.small { min-height: 34px; padding: .2em .9em; font-size: .85rem; } .ngcard .actions { margin-top: 8px; }
 .ngadd { margin-top: 8px; } .ngadd summary { cursor: pointer; font-weight: 700; }
-.cardv .cpick { width: 100%; max-width: 520px; margin: 0 auto; text-align: left; background: rgba(20,26,30,.92); border: 1px solid rgba(255,255,255,.14); border-radius: 12px; padding: 8px 12px; color: #e8e4da; } .cardv .cpick summary { cursor: pointer; font-weight: 700; font-size: .9rem; color: #f0ece2; } .cardv .cpick .cnote { text-align: left; margin: 8px 0 4px; } .cardv .cpick .cbtns { justify-content: flex-start; } .cardv .cpick input, .cardv .cpick textarea { color: #1f1e1b; background: #f6f1e6; } .cseal { width: 5em; text-align: center; font-size: 1.1rem; } .cdot { display: inline-block; width: .9em; height: .9em; border-radius: 50%; margin-right: 4px; vertical-align: -1px; } .ctext { width: 100%; box-sizing: border-box; font-size: .9rem; line-height: 1.6; }
+.cardv .csub { margin: 6px 0; border-top: 1px solid rgba(255,255,255,.12); padding-top: 6px; } .cardv .csub summary { font-size: .86rem; } .cardv .cpal { display: inline-flex; align-items: center; gap: 6px; font-size: .82rem; background: rgba(255,255,255,.1); border-radius: 999px; padding: 4px 10px; } .cardv .cpal input { width: 36px; height: 28px; border: 0; padding: 0; background: none; }
+.tana { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; } .tanai .tanab { display: block; width: 100%; padding: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: none; cursor: pointer; } .tanai img { display: block; width: 100%; aspect-ratio: 1; } .tanai .row { justify-content: space-between; gap: 4px; font-size: .78rem; }
+.cardv .cpick { width: 100%; max-width: 520px; margin: 0 auto; text-align: left; background: rgba(20,26,30,.92); border: 1px solid rgba(255,255,255,.14); border-radius: 12px; padding: 8px 12px; color: #e8e4da; } .cardv .cpick summary { cursor: pointer; font-weight: 700; font-size: .9rem; color: #f0ece2; } .cardv .cpick .cnote { text-align: left; margin: 8px 0 4px; } .cardv .cpick .cbtns { justify-content: flex-start; }
+.cardv .cpick .btn:not(.primary) { color: #1f1e1b; } .cardv .cpick input, .cardv .cpick textarea { color: #1f1e1b; background: #f6f1e6; } .cseal { width: 5em; text-align: center; font-size: 1.1rem; } .cdot { display: inline-block; width: .9em; height: .9em; border-radius: 50%; margin-right: 4px; vertical-align: -1px; } .ctext { width: 100%; box-sizing: border-box; font-size: .9rem; line-height: 1.6; }
 .ngp .ngu { font-size: .78rem; color: var(--ink-soft); overflow-wrap: anywhere; flex: 1; min-width: 0; }
 .ngp .row2 { gap: 8px; align-items: center; flex-wrap: wrap; }
 .sttwrap { overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; }
@@ -1333,7 +1336,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       return h + '<div class="empty"><p>' + (filt === 'n' ? '「あとで推敲」の句はありません。' : (kind === 'd' ? 'まだ句がありません。今日の一句を、気軽に残してみましょう。' : 'まだストッ句がありません。今日の兼題で、最初の一句を詠んでみましょう。')) + '</p></div>';
     }
     return h + '<div class="board">' + list.map(function (e) {
-      return '<article class="slip"><div class="no"><span>' + esc(mdLabel(dn(e.date))) + ' <span class="k">' + (e.series === 'd' ? '初心者部屋' : e.series === 'x' ? esc(e.ch) : SER[e.series].name + '「' + esc(e.ch) + '」') + '</span></span><span class="tag ' + (e.conf === 'n' ? 'n' : e.conf === 'k' ? 'k' : '') + '">' + (CONF[e.conf] || 'ふつう') + '</span></div><div class="tan">' + ku(e) + '</div>' + stMemoRow(e) + '<div class="actions">' + cardBtn('m:' + e.id, { text: joinKu(e).a, haigo: haigo, sub: (e.series === 'd' ? '初心者部屋' : SER[e.series].name + '「' + e.ch + '」') + '　' + mdLabel(dn(e.date)), badge: e.conf === 'k' ? 'かんぺきの一句' : '' }) + '<button class="link" data-act="edit" data-id="' + esc(e.id) + '">推敲する</button><button class="link" data-act="st-pick" data-id="' + esc(e.id) + '">🏮 句会に出す</button><button class="link" data-act="ng-send" data-id="' + esc(e.id) + '">☁️ 夏雲へ</button><button class="link" data-act="st-memo" data-id="' + esc(e.id) + '">📝メモ</button>' + (delAsk === e.id ? '<span class="note">この句を消します。もとにもどせません。</span><button class="btn danger" data-act="del-yes" data-id="' + esc(e.id) + '">消す</button><button class="btn" data-act="del-no">やめる</button>' : '<button class="link" data-act="del-ask" data-id="' + esc(e.id) + '">消す</button>') + '</div></article>';
+      return '<article class="slip"><div class="no"><span>' + esc(mdLabel(dn(e.date))) + ' <span class="k">' + (e.series === 'd' ? '初心者部屋' : e.series === 'x' ? esc(e.ch) : SER[e.series].name + '「' + esc(e.ch) + '」') + '</span></span><span class="tag ' + (e.conf === 'n' ? 'n' : e.conf === 'k' ? 'k' : '') + '">' + (CONF[e.conf] || 'ふつう') + '</span></div><div class="tan">' + ku(e) + '</div>' + stMemoRow(e) + '<div class="actions">' + cardBtn('m:' + e.id, { text: joinKu(e).a, haigo: haigo, sub: (e.series === 'd' ? '初心者部屋' : SER[e.series].name + '「' + e.ch + '」') + '　' + mdLabel(dn(e.date)), badge: e.conf === 'k' ? 'かんぺきの一句' : '', dai: e.series !== 'd' && e.series !== 'x' && e.ch ? e.ch : '' }) + '<button class="link" data-act="edit" data-id="' + esc(e.id) + '">推敲する</button><button class="link" data-act="st-pick" data-id="' + esc(e.id) + '">🏮 句会に出す</button><button class="link" data-act="ng-send" data-id="' + esc(e.id) + '">☁️ 夏雲へ</button><button class="link" data-act="st-memo" data-id="' + esc(e.id) + '">📝メモ</button>' + (delAsk === e.id ? '<span class="note">この句を消します。もとにもどせません。</span><button class="btn danger" data-act="del-yes" data-id="' + esc(e.id) + '">消す</button><button class="btn" data-act="del-no">やめる</button>' : '<button class="link" data-act="del-ask" data-id="' + esc(e.id) + '">消す</button>') + '</div></article>';
     }).join('') + '</div>';
   }
 
@@ -1440,7 +1443,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (!list.length) return h + '<div class="empty"><p>' + (stFil === 'all' ? 'まだストッ句がありません。どの部屋からでも、一句つくると、ここにたまっていきます。' : 'この手ごたえの句は、まだありません。') + '</p></div>';
     if (stView === 'tan') {
       h += '<div class="board">' + list.map(function (e) {
-        return '<article class="slip"><div class="no"><span>' + esc(mdLabel(dn(e.date))) + ' <span class="k">' + esc(stSrc(e)) + '</span></span><span class="tag ' + (e.conf === 'n' ? 'n' : e.conf === 'k' ? 'k' : '') + '">' + (CONF[e.conf] || 'ふつう') + '</span></div><div class="tan">' + ku(e) + '</div>' + stMemoRow(e) + '<div class="actions">' + cardBtn('m:' + e.id, { text: joinKu(e).a, haigo: haigo, sub: stSrc(e) + '　' + mdLabel(dn(e.date)), badge: e.conf === 'k' ? 'かんぺきの一句' : '' }) + '<button class="link" data-act="edit" data-id="' + esc(e.id) + '">推敲する</button><button class="link" data-act="st-pick" data-id="' + esc(e.id) + '">🏮 句会に出す</button><button class="link" data-act="ng-send" data-id="' + esc(e.id) + '">☁️ 夏雲へ</button><button class="link" data-act="st-memo" data-id="' + esc(e.id) + '">📝メモ</button>' + (delAsk === e.id ? '<span class="note">この句を消します。もとにもどせません。</span><button class="btn danger" data-act="del-yes" data-id="' + esc(e.id) + '">消す</button><button class="btn" data-act="del-no">やめる</button>' : '<button class="link" data-act="del-ask" data-id="' + esc(e.id) + '">消す</button>') + '</div></article>';
+        return '<article class="slip"><div class="no"><span>' + esc(mdLabel(dn(e.date))) + ' <span class="k">' + esc(stSrc(e)) + '</span></span><span class="tag ' + (e.conf === 'n' ? 'n' : e.conf === 'k' ? 'k' : '') + '">' + (CONF[e.conf] || 'ふつう') + '</span></div><div class="tan">' + ku(e) + '</div>' + stMemoRow(e) + '<div class="actions">' + cardBtn('m:' + e.id, { text: joinKu(e).a, haigo: haigo, sub: stSrc(e) + '　' + mdLabel(dn(e.date)), badge: e.conf === 'k' ? 'かんぺきの一句' : '', dai: SER[e.series] && e.series !== 'd' && e.series !== 'x' && e.ch ? e.ch : '' }) + '<button class="link" data-act="edit" data-id="' + esc(e.id) + '">推敲する</button><button class="link" data-act="st-pick" data-id="' + esc(e.id) + '">🏮 句会に出す</button><button class="link" data-act="ng-send" data-id="' + esc(e.id) + '">☁️ 夏雲へ</button><button class="link" data-act="st-memo" data-id="' + esc(e.id) + '">📝メモ</button>' + (delAsk === e.id ? '<span class="note">この句を消します。もとにもどせません。</span><button class="btn danger" data-act="del-yes" data-id="' + esc(e.id) + '">消す</button><button class="btn" data-act="del-no">やめる</button>' : '<button class="link" data-act="del-ask" data-id="' + esc(e.id) + '">消す</button>') + '</div></article>';
       }).join('') + '</div>';
       return h;
     }
@@ -3230,7 +3233,10 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     ['ログインできない（メールアドレスかパスワードがちがう、と出る）', 'まず、登録したときのメールアドレスかどうかを確かめてください。パスワードがわからなくなったときは「パスワードを忘れた」から。はじめから「Xのアカウントでログイン」した方は、メールアドレスではなく、Xのボタンからログインしてください（メールとXは、別のアカウントになります。ストッ句が見あたらないときは、ログインの方法がちがっていることが多いです）。'],
     ['俳号を変えたい', 'マイページの「プロフィールを編集」で、いつでも変えられます。変えたあとの句会から、新しい俳号で表示されます。'],
     ['海外から使えますか？', '使えます。ただし、句会の時刻はすべて日本時間です（たとえば21時の回は、日本時間の21時）。表示の時刻も日本時間なので、お住まいの時差を足し引きしてください。'],
-    ['不具合や、ほしい機能があるときは？', 'お問い合わせから、お気軽にお知らせください。運営者に届きます。返事は、このページに表示されます。']
+    ['短冊のデザインは、どう選ぶ？', '自分の句の「画像にして投稿」から。色合いは「おだやか・ふんわり・しずか・はげしい・すっきり・かわいい」の雰囲気でさがせます。模様、枠、飾り（猫・春夏秋冬・花など）、書体（筆・明朝・手書き・丸・古い字など）、落款（文字・かたち・色・書体）も選べます。「🎲おまかせ」はランダム、「🍃句にあわせて」は季語の季節とAIの読みから、「📅きょうの短冊」は日がわりのおすすめ。「⭐いまのを基本にする」で、自分の基本を覚えておけます。季節の限定紙は、その時期だけ出ます。'],
+      ['短冊の棚とは？', '「画像を保存」か「Xに投稿」した短冊が、マイページの「短冊の棚」に並びます（この端末の中だけに、60枚まで）。押すと大きく見られ、「このデザインを使う」で、同じ色・模様・書体をつぎの短冊に使えます。'],
+      ['句碑は、どうしたらもらえる？', '句会で優勝すると、その句の句碑が除幕されます（「優勝記念」の銘板つき。同点のときは、それぞれに）。マイページのトロフィーの「🪨 句碑」から、いつでも出しなおせます。ストッ句からは作れません。'],
+      ['不具合や、ほしい機能があるときは？', 'お問い合わせから、お気軽にお知らせください。運営者に届きます。返事は、このページに表示されます。']
   ];
   /* 機種ごとの手順を、絵（大きなアイコン）の流れで見せる。文字は大きめに。 */
   /* ホーム画面に置く方法（絵つき） */
@@ -5921,6 +5927,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (kansho.length) h += '<div class="panel"><b>🔍 鑑賞賞：' + kansho.length + '回</b><p class="note">その月に、いちばん多く評を書いた人に贈られます。</p></div>';
     if (monWins) h += '<div class="panel"><b>月例句会の称号：' + esc(rk) + '</b><p class="note">優勝' + monWins + '回。優勝3回で特待生 → さらに5回で名人 → さらに10回で天位。その先は……まだ、ひみつです。</p></div>';
     h += '<h3 class="sec">トロフィー<small>' + trophies.length + '個</small></h3>' + (trophies.length ? '<div class="shelf">' + trophies.slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); }).map(function (x) { return '<div class="tcup">' + TROPHY_SVG + '<span>' + esc(x.kind || '') + '<br>' + esc(x.ch || '') + '</span>' + (x.a ? '<button class="link" data-act="card" data-ck="' + esc(ckSet('tr-' + x.id, { text: plain(String(x.a || '') + String(x.b || '') + String(x.c || '')), haigo: haigo, sub: (x.kind || '') + '　' + (x.ch || ''), badge: (x.pts || 0) + '点', trophy: true })) + '" data-style="trophy">🏆 画像にする</button>' + (x.kuhi ? '<button class="link" data-act="card" data-ck="' + esc(ckSet('tk-' + x.id, { text: plain(String(x.a || '') + String(x.b || '') + String(x.c || '')), haigo: haigo, head: x.head || '', res: x.res || '', plaque: kuhiPlaque({ head: x.head, res: x.res, date: x.date }) })) + '" data-style="kuhi">🪨 句碑</button>' : '') : '') + '</div>'; }).join('') + '</div>' : '<p class="note">句会で最高点をとると、ここに飾られます。</p>');
+    try { h += vTana(); } catch (_) {}
     return h;
   }
   /* ---- トロフィー・バッジ・裾野だより ---- */
@@ -6028,19 +6035,27 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   /* じぶんの短冊：落款の文字・朱印の色・色合いを、端末の中に覚える（「俳句の裾野」の題・句会の行・URLは変えない） */
   /* 短冊・句碑で選べる書体（Googleフォントは、はじめて選んだときに読み込む） */
   var WEB_FONTS = [
-    { n: '明朝', f: CARD_FONT, g: '' },
-    { n: 'しっぽり明朝', f: '"Shippori Mincho B1",' + CARD_FONT, g: '' },
-    { n: '教科書体', f: '"Klee One",' + CARD_FONT, g: 'Klee+One:wght@600' },
-    { n: '筆文字', f: '"Yuji Syuku",' + CARD_FONT, g: 'Yuji+Syuku' },
-    { n: '太い筆', f: '"Yuji Mai",' + CARD_FONT, g: 'Yuji+Mai' },
-    { n: '古風な明朝', f: '"Zen Antique",' + CARD_FONT, g: 'Zen+Antique' },
-    { n: 'ひな明朝', f: '"Hina Mincho",' + CARD_FONT, g: 'Hina+Mincho' },
-    { n: '楷書ふう', f: '"Zen Kurenaido",' + CARD_FONT, g: 'Zen+Kurenaido' },
-    { n: '手書き', f: '"Yomogi",' + CARD_FONT, g: 'Yomogi' },
-    { n: '丸ゴシック', f: '"Zen Maru Gothic","Hiragino Maru Gothic ProN","Noto Sans JP",sans-serif', g: '' },
-    { n: '角ゴシック', f: '"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic","Noto Sans JP","Meiryo",sans-serif', g: '' },
-    { n: '飾り明朝', f: '"Kaisei Decol",' + CARD_FONT, g: 'Kaisei+Decol' }
+    { n: '明朝', f: CARD_FONT, g: '', c: '明朝', sl: 1 },
+    { n: 'しっぽり明朝', f: '"Shippori Mincho B1",' + CARD_FONT, g: 'Shippori+Mincho+B1', c: '明朝' },
+    { n: '教科書体', f: '"Klee One",' + CARD_FONT, g: 'Klee+One:wght@600', c: '手書き・教科書' },
+    { n: '筆文字', f: '"Yuji Syuku",' + CARD_FONT, g: 'Yuji+Syuku', c: '筆・墨', sl: 1 },
+    { n: '太い筆', f: '"Yuji Mai",' + CARD_FONT, g: 'Yuji+Mai', c: '筆・墨', sl: 1 },
+    { n: '古風な明朝', f: '"Zen Antique",' + CARD_FONT, g: 'Zen+Antique', c: '古い・変わり', sl: 1 },
+    { n: 'ひな明朝', f: '"Hina Mincho",' + CARD_FONT, g: 'Hina+Mincho', c: '明朝' },
+    { n: '楷書ふう', f: '"Zen Kurenaido",' + CARD_FONT, g: 'Zen+Kurenaido', c: '手書き・教科書' },
+    { n: '手書き', f: '"Yomogi",' + CARD_FONT, g: 'Yomogi', c: '手書き・教科書' },
+    { n: '丸ゴシック', f: '"Zen Maru Gothic","Hiragino Maru Gothic ProN","Noto Sans JP",sans-serif', g: 'Zen+Maru+Gothic:wght@500', c: '丸・ポップ', sl: 1 },
+    { n: '角ゴシック', f: '"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic","Noto Sans JP","Meiryo",sans-serif', g: '', c: 'ゴシック' },
+    { n: '飾り明朝', f: '"Kaisei Decol",' + CARD_FONT, g: 'Kaisei+Decol', c: '古い・変わり', sl: 1 }
   ];
+  /* 足した書体（番号は、うしろに足すだけ。前からある12種の番号は変えない＝句碑や、覚えた設定がずれないように） */
+  [['墨の筆', 'Yuji Boku', '筆・墨', 1], ['変体仮名（あかり）', 'Yuji Hentaigana Akari', '筆・墨'], ['変体仮名（あけぼの）', 'Yuji Hentaigana Akebono', '筆・墨'], ['手紙の筆', 'New Tegomin', '筆・墨'], ['彫刻体', 'Chokokutai', '筆・墨', 1],
+    ['太い明朝', 'Kaisei Tokumin', '明朝'], ['春の海', 'Kaisei HarunoUmi', '明朝'], ['オプチ明朝', 'Kaisei Opti', '明朝'], ['さわらび明朝', 'Sawarabi Mincho', '明朝'], ['UD明朝', 'BIZ UDPMincho', '明朝'],
+    ['やわらか古風', 'Zen Antique Soft', '古い・変わり'], ['しっぽりアンチック', 'Shippori Antique', '古い・変わり'], ['古い活字', 'Zen Old Mincho', '古い・変わり'], ['レゲエ', 'Reggae One', '古い・変わり', 1], ['立体の字', 'Rampart One', '古い・変わり'], ['ドット文字', 'DotGothic16', '古い・変わり', 1], ['線路の字', 'Train One', '古い・変わり'], ['ほそい棒の字', 'Stick', '古い・変わり'],
+    ['ペン字', 'Yusei Magic', '手書き・教科書'], ['はしり書き', 'Slackside One', '手書き・教科書'],
+    ['キウイ丸', 'Kiwi Maru', '丸・ポップ'], ['はちまるポップ', 'Hachi Maru Pop', '丸・ポップ'], ['もちポップ', 'Mochiy Pop One', '丸・ポップ'], ['ぽってり', 'Potta One', '丸・ポップ', 1], ['丸い字', 'M PLUS Rounded 1c', '丸・ポップ'], ['小杉丸', 'Kosugi Maru', '丸・ポップ'], ['だるま', 'Darumadrop One', '丸・ポップ'], ['チェリーポップ', 'Cherry Bomb One', '丸・ポップ'], ['月見丸', 'Tsukimi Rounded', '丸・ポップ'],
+    ['極太ゴシック', 'Dela Gothic One', 'ゴシック', 1], ['ロック', 'RocknRoll One', 'ゴシック'], ['ゼン角ゴシック', 'Zen Kaku Gothic New', 'ゴシック']
+  ].forEach(function (x) { WEB_FONTS.push({ n: x[0], f: '"' + x[1] + '",' + CARD_FONT, g: x[1].replace(/ /g, '+'), c: x[2], sl: x[3] || 0 }); });
   var webFontsLoaded = {};
   function loadWebFont(i, text, cb) {
     var F = WEB_FONTS[i] || WEB_FONTS[0];
@@ -6067,28 +6082,184 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     ['murasaki', '紫', { bg: ['#3d2a52', '#1e1430'], hills: ['rgba(160,120,200,.35)', 'rgba(120,85,160,.55)', 'rgba(70,45,100,.9)'], frame: 'rgba(240,230,250,.22)', brand: '#f2ecfa', soft: '#c6b8da', ku: '#f9f5ff', haigo: '#dfd4ee', tag: '#dccdf0', url: '#a090b8', badgeBg: '#f2ecfa', badgeInk: '#3d2a52' }],
     ['wakakusa', '若草', { bg: ['#eef3e0', '#dbe6c4'], hills: ['rgba(120,160,80,.3)', 'rgba(90,130,60,.45)', 'rgba(50,80,40,.6)'], frame: 'rgba(40,60,30,.25)', brand: '#223018', soft: '#5e6e4a', ku: '#1a2412', haigo: '#3e4e2e', tag: '#4a6a2a', url: '#7f8f6a', badgeBg: '#223018', badgeInk: '#eef3e0' }]
   ];
+  /* 色合いを足す（明るい紙・暗い紙）。文字の色は、紙の明るさから決める */
+  function mkT(b0, b1, light) {
+    return { bg: [b0, b1], hills: light ? ['rgba(0,0,0,.06)', 'rgba(0,0,0,.09)', 'rgba(0,0,0,.14)'] : ['rgba(255,255,255,.10)', 'rgba(255,255,255,.07)', 'rgba(0,0,0,.28)'], frame: light ? 'rgba(60,50,40,.28)' : 'rgba(240,235,220,.24)', brand: light ? '#2b2a26' : '#f1ece0', soft: light ? '#6e6757' : '#c2bba8', ku: light ? '#1f1e1b' : '#f7f3e8', haigo: light ? '#4a463d' : '#ddd6c2', tag: light ? '#6a5a3a' : '#dccfa8', url: light ? '#8a8474' : '#958f7c', badgeBg: light ? '#2b2a26' : '#f1e6d6', badgeInk: light ? '#f6f1e6' : '#5a3a22' };
+  }
+  [['yamabuki', '山吹', '#f7e3a1', '#f0cf73', 1], ['fuji', '藤', '#e6dcf2', '#d2c2e8', 1], ['ruri', '瑠璃', '#1f3f8f', '#0f2460', 0], ['shiro', '白', '#fdfcf8', '#f3f0e8', 1], ['kuro', '黒', '#171717', '#050505', 0], ['suou', '蘇芳', '#7a2440', '#3f1020', 0], ['asagi', '浅葱', '#cfe9e6', '#a8d6d2', 1], ['momo', '桃', '#fde0e6', '#f9c6d2', 1], ['mizu', '水', '#dff3f8', '#c2e6f0', 1], ['beni', '紅', '#c2253a', '#7d1022', 0], ['kin', '金', '#e3c878', '#c09a3e', 1], ['midori', '深緑', '#1f4a36', '#0e2a1e', 0], ['haizakura', '灰桜', '#e8dcdc', '#d8c8c8', 1], ['usuzumi', '薄墨', '#d9d9d6', '#bfbfbb', 1], ['remon', '檸檬', '#fbf4c0', '#f5e98a', 1], ['mikan', '蜜柑', '#f9c98a', '#f2a65a', 1],
+    ['hanafubuki', '花吹雪', '#fbe9ef', '#f6cfe0', 1], ['wakaba', '若葉', '#dff0c8', '#bfe09a', 1], ['tanabata', '七夕', '#101a4a', '#060a26', 0], ['hanabi', '花火', '#0b1030', '#02030f', 0], ['tsukimi', '月見', '#1c2340', '#0c1024', 0], ['momijigari', '紅葉狩', '#8f2f1a', '#4a1408', 0], ['yukigeshiki', '雪景色', '#eef3f8', '#d8e2ee', 1], ['kinbyobu', '金屏風', '#e8cc74', '#b8902f', 1]
+  ].forEach(function (x) { CARD_THEMES.push([x[0], x[1], mkT(x[2], x[3], !!x[4])]); });
+  /* 雰囲気（形容詞）で色合いをさがす */
+  var CARD_MOODS = ['おだやか', 'ふんわり', 'しずか', 'はげしい', 'すっきり', 'かわいい'];
+  var THEME_MOOD = { sumi: 'しずか', kami: 'おだやか', ai: 'しずか', cha: 'おだやか', nezu: 'しずか', shu: 'はげしい', matcha: 'おだやか すっきり', sakura: 'ふんわり かわいい', sora: 'ふんわり すっきり', kaki: 'はげしい おだやか', yoru: 'しずか', kinari: 'おだやか', murasaki: 'はげしい しずか', wakakusa: 'すっきり かわいい',
+    yamabuki: 'ふんわり はげしい', fuji: 'ふんわり かわいい', ruri: 'しずか すっきり', shiro: 'すっきり', kuro: 'しずか はげしい', suou: 'はげしい', asagi: 'すっきり おだやか', momo: 'かわいい ふんわり', mizu: 'すっきり ふんわり', beni: 'はげしい', kin: 'はげしい', midori: 'しずか おだやか', haizakura: 'おだやか ふんわり', usuzumi: 'しずか おだやか', remon: 'かわいい すっきり', mikan: 'かわいい はげしい',
+    hanafubuki: 'ふんわり かわいい', wakaba: 'すっきり', tanabata: 'しずか', hanabi: 'はげしい', tsukimi: 'しずか', momijigari: 'はげしい', yukigeshiki: 'しずか すっきり', kinbyobu: 'はげしい' };
+  /* 季節の限定紙：その時期だけ、色合いの一覧に出る（月日・両端をふくむ。年をまたぐものもある） */
+  var THEME_LIM = { hanafubuki: ['03-20', '04-20'], wakaba: ['04-21', '05-31'], tanabata: ['07-01', '07-07'], hanabi: ['07-15', '08-31'], tsukimi: ['09-01', '10-15'], momijigari: ['11-01', '12-10'], yukigeshiki: ['12-10', '02-20'], kinbyobu: ['12-25', '01-15'] };
+  function themeAvail(id) { var l = THEME_LIM[id]; if (!l) return true; var md = ds(dayNum()).slice(5); return l[0] <= l[1] ? (md >= l[0] && md <= l[1]) : (md >= l[0] || md <= l[1]); }
+  function limLabel(id) { var l = THEME_LIM[id]; return l ? (+l[0].slice(0, 2)) + '/' + (+l[0].slice(3)) + '〜' + (+l[1].slice(0, 2)) + '/' + (+l[1].slice(3)) : ''; }
+  var CARD_PATTERNS = [['hills', '裾野の山'], ['none', 'なし'], ['kasumi', '霞'], ['kinpaku', '金箔ちらし'], ['sakura', '桜ちらし'], ['momiji', '紅葉ちらし'], ['seigaiha', '青海波'], ['hoshi', '星空'], ['ame', '雨'], ['yuki', '雪'], ['nami', '波紋'], ['take', '竹'], ['tsuki', '月'], ['shima', '縞'], ['ichimatsu', '市松']];
+  var CARD_FRAMES = [['thin', '細線'], ['double', '二重線'], ['none', 'なし'], ['gold', '金縁'], ['round', '角丸'], ['washi', '和紙のふち'], ['tanzaku', '短冊のかたち']];
+  var CARD_MOTIFS = [['none', 'なし'], ['neko', '猫'], ['haru', '春（桜の枝）'], ['natsu', '夏（金魚）'], ['aki', '秋（月とすすき）'], ['fuyu', '冬（雪だるま）'], ['hana', '花'], ['heart', 'ハート'], ['hoshi', '星'], ['tori', '鳥'], ['fuji', '富士']];
+  var SEAL_SHAPES = [['sq', '角（白文）'], ['sq2', '角（朱文）'], ['round', '丸（白文）'], ['round2', '丸（朱文）'], ['tall', '縦長']];
   var SEAL_COLS = [['#b8402f', '朱'], ['#9b1b30', '臙脂'], ['#d7533a', '朱赤'], ['#c9a227', '金茶'], ['#2d3a6b', '紺'], ['#165e83', '藍'], ['#2a2a2a', '墨'], ['#5a5a5a', '鼠'], ['#2f6b4a', '緑'], ['#5b7a2a', '松葉'], ['#8a5a9a', '紫'], ['#745399', '江戸紫'], ['#a66b2a', '琥珀'], ['#3c7a8a', '浅葱']];
-  var cardPref = { seal: '裾', sealCol: '#b8402f', theme: 'sumi', font: 0 };
+  var CARD_DEF = { seal: '裾', sealCol: '#b8402f', sealShape: 'sq', sealFont: 0, theme: 'sumi', font: 0, pattern: 'hills', frame: 'thin', motif: 'none', dai: true };
+  var cardPref = Object.assign({}, CARD_DEF), cardMood = '';
   try { var cp0 = JSON.parse(localStorage.getItem('ikku-card') || 'null'); if (cp0) cardPref = Object.assign(cardPref, cp0); } catch (_) {}
   function cardPrefSave() { try { localStorage.setItem('ikku-card', JSON.stringify(cardPref)); } catch (_) {} }
-  function cardTheme() { for (var i = 0; i < CARD_THEMES.length; i++) if (CARD_THEMES[i][0] === cardPref.theme) return CARD_THEMES[i][2]; return CARD_THEMES[0][2]; }
+  function cardTheme(P) { P = P || cardPref; for (var i = 0; i < CARD_THEMES.length; i++) if (CARD_THEMES[i][0] === P.theme) return CARD_THEMES[i][2]; return CARD_THEMES[0][2]; }
+  function hexLight(h) { var m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i.exec(String(h || '')); if (!m) return false; return (parseInt(m[1], 16) * 0.299 + parseInt(m[2], 16) * 0.587 + parseInt(m[3], 16) * 0.114) / 255 > 0.6; }
   /* 句会の種類のタグ：定例・月例・ふらっと・合言葉…（句会の行から読む） */
   function cardTag(o) { var sb = String(o.sub || ''); return /定例句会/.test(sb) ? '#定例句会' : /月例句会/.test(sb) ? '#月例句会' : /ふらっと/.test(sb) ? '#ふらっと句会' : /合言葉|吟行/.test(sb) ? '#句会' : ''; }
-  function drawSeal(ctx, sx, sy, size, ink) {
-    var t = Array.from(String(cardPref.seal || '裾').trim()).slice(0, 2); if (!t.length) t = ['裾'];
-    ctx.fillStyle = cardPref.sealCol || '#b8402f'; ctx.fillRect(sx, sy, size, size);
-    ctx.fillStyle = ink || '#f4efe2'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    if (t.length === 1) { ctx.font = Math.round(size * 0.69) + 'px ' + CARD_FONT; ctx.fillText(t[0], sx + size / 2, sy + size * 0.54); }
-    else { ctx.font = Math.round(size * 0.42) + 'px ' + CARD_FONT; ctx.fillText(t[0], sx + size / 2, sy + size * 0.3); ctx.fillText(t[1], sx + size / 2, sy + size * 0.72); }
+  /* 落款：かたち（角・丸・縦長）と、白文（地が色）・朱文（字が色）、書体をえらべる */
+  function drawSeal(ctx, sx, sy, size, ink, P) {
+    P = P || cardPref;
+    var t = Array.from(String(P.seal || '裾').trim()).slice(0, 2); if (!t.length) t = ['裾'];
+    var col = P.sealCol || '#b8402f', sh = P.sealShape || 'sq', line = sh === 'sq2' || sh === 'round2', F = (WEB_FONTS[P.sealFont || 0] || WEB_FONTS[0]).f;
+    var w = sh === 'tall' ? size * 0.74 : size, h = sh === 'tall' ? size * 1.28 : size, x = sx + (size - w) / 2, y = sy;
+    ctx.save(); ctx.beginPath();
+    if (sh === 'round' || sh === 'round2') ctx.arc(sx + size / 2, sy + size / 2, size / 2, 0, Math.PI * 2); else if (ctx.roundRect) ctx.roundRect(x, y, w, h, size * 0.06); else ctx.rect(x, y, w, h);
+    if (line) { ctx.lineWidth = Math.max(3, size * 0.07); ctx.strokeStyle = col; ctx.stroke(); } else { ctx.fillStyle = col; ctx.fill(); }
+    ctx.fillStyle = line ? col : (ink || '#f4efe2'); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    var cx = sx + size / 2, k = (sh === 'round' || sh === 'round2') ? 0.86 : 1;
+    if (t.length === 1) { ctx.font = Math.round(size * 0.66 * k) + 'px ' + F; ctx.fillText(t[0], cx, y + h * 0.53); }
+    else { var fs = sh === 'tall' ? size * 0.5 : size * 0.4 * k; ctx.font = Math.round(fs) + 'px ' + F; ctx.fillText(t[0], cx, y + h * (sh === 'tall' ? 0.28 : 0.31)); ctx.fillText(t[1], cx, y + h * (sh === 'tall' ? 0.74 : 0.72)); }
+    ctx.restore();
   }
-  function drawCard(o) {
-    var W = 1200, H = 1200, cv = document.createElement('canvas'); cv.width = W; cv.height = H; var T = cardTheme();
+  function cardShapes(ctx) {
+    return {
+      heart: function (x, y, s, col) { ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(x, y + s * 0.3); ctx.bezierCurveTo(x, y, x - s * 0.5, y, x - s * 0.5, y + s * 0.3); ctx.bezierCurveTo(x - s * 0.5, y + s * 0.6, x, y + s * 0.8, x, y + s); ctx.bezierCurveTo(x, y + s * 0.8, x + s * 0.5, y + s * 0.6, x + s * 0.5, y + s * 0.3); ctx.bezierCurveTo(x + s * 0.5, y, x, y, x, y + s * 0.3); ctx.fill(); },
+      star: function (x, y, r, col, n, inner, rot) { n = n || 5; ctx.fillStyle = col; ctx.beginPath(); for (var i = 0; i < n * 2; i++) { var a = (rot || 0) - Math.PI / 2 + i * Math.PI / n, rr = i % 2 ? r * (inner || 0.45) : r; ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } ctx.closePath(); ctx.fill(); },
+      blossom: function (x, y, r, col, mid) { ctx.fillStyle = col; for (var i = 0; i < 5; i++) { var a = -Math.PI / 2 + i * Math.PI * 2 / 5; ctx.beginPath(); ctx.ellipse(x + Math.cos(a) * r * 0.55, y + Math.sin(a) * r * 0.55, r * 0.5, r * 0.36, a, 0, Math.PI * 2); ctx.fill(); } ctx.fillStyle = mid || 'rgba(240,200,90,.9)'; ctx.beginPath(); ctx.arc(x, y, r * 0.18, 0, Math.PI * 2); ctx.fill(); }
+    };
+  }
+  /* 模様（紙ぜんたいに、うすく） */
+  function cardPatternDraw(ctx, id, W, H, T, L, rnd) {
+    var k = L ? '40,30,20' : '255,250,235', i, S = cardShapes(ctx);
+    if (id === 'hills') {
+      var hill = function (base, amp, col, ph) { ctx.beginPath(); ctx.moveTo(0, H); for (var x = 0; x <= W; x += 20) ctx.lineTo(x, base - amp * Math.pow(Math.sin((x / W) * Math.PI * 0.9 + ph), 2) * (1 - x / W * 0.4)); ctx.lineTo(W, H); ctx.closePath(); ctx.fillStyle = col; ctx.fill(); };
+      hill(1090, 190, T.hills[0], 0.6); hill(1130, 150, T.hills[1], 0.2); hill(1170, 90, T.hills[2], 0.9);
+    } else if (id === 'kasumi') {
+      for (i = 0; i < 9; i++) { var kw = 320 + rnd() * 640, kh = 16 + rnd() * 26, kx = rnd() * (W + 200) - 200 - kw * 0.2, ky = 110 + rnd() * 960; ctx.fillStyle = 'rgba(' + k + ',' + (L ? 0.07 : 0.11) + ')'; ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(kx, ky, kw, kh, kh / 2); else ctx.rect(kx, ky, kw, kh); ctx.fill(); ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(kx + kw * 0.3, ky + kh + 6, kw * 0.8, kh * 0.7, kh / 2); else ctx.rect(kx + kw * 0.3, ky + kh + 6, kw * 0.8, kh * 0.7); ctx.fill(); }
+    } else if (id === 'kinpaku') {
+      for (i = 0; i < 190; i++) { ctx.save(); ctx.translate(rnd() * W, rnd() * H); ctx.rotate(rnd() * Math.PI); var ks = 3 + rnd() * (i < 12 ? 26 : 10); ctx.fillStyle = (/^#(e|d|c)/i.test(T.bg[0]) && /kin|#e3c|#e8c/.test(T.bg[0]) ? 'rgba(255,244,200,' : 'rgba(212,175,55,') + (0.35 + rnd() * 0.5) + ')'; ctx.fillRect(-ks / 2, -ks / 2, ks, ks * (0.5 + rnd())); ctx.restore(); }
+    } else if (id === 'sakura') {
+      for (i = 0; i < 120; i++) { ctx.save(); ctx.translate(rnd() * W, rnd() * H); ctx.rotate(rnd() * Math.PI); ctx.fillStyle = (L ? 'rgba(225,120,155,' : 'rgba(250,200,215,') + (0.3 + rnd() * 0.45) + ')'; ctx.beginPath(); ctx.ellipse(0, 0, 7 + rnd() * 9, 4 + rnd() * 4, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
+    } else if (id === 'momiji') {
+      var mc = ['200,70,40', '225,140,40', '180,40,30', '230,170,60'];
+      for (i = 0; i < 60; i++) S.star(rnd() * W, rnd() * H, 10 + rnd() * 16, 'rgba(' + mc[Math.floor(rnd() * mc.length)] + ',' + (0.35 + rnd() * 0.45) + ')', 7, 0.42, rnd() * 6);
+    } else if (id === 'seigaiha') {
+      ctx.strokeStyle = 'rgba(' + k + ',' + (L ? 0.10 : 0.13) + ')'; ctx.lineWidth = 2;
+      for (var r = 0, y = 60; y < H + 80; r++, y += 60) for (var x2 = (r % 2 ? 60 : 0); x2 < W + 80; x2 += 120) for (var q = 1; q <= 4; q++) { ctx.beginPath(); ctx.arc(x2, y, q * 14 + 4, Math.PI, Math.PI * 2); ctx.stroke(); }
+    } else if (id === 'hoshi') {
+      for (i = 0; i < 230; i++) { ctx.fillStyle = 'rgba(' + (L ? '120,110,60' : '255,250,220') + ',' + (0.25 + rnd() * 0.6) + ')'; var hs2 = 1.5 + rnd() * 3; ctx.fillRect(rnd() * W, rnd() * H, hs2, hs2); }
+      for (i = 0; i < 16; i++) S.star(rnd() * W, rnd() * H * 0.9, 8 + rnd() * 10, 'rgba(' + (L ? '200,160,40' : '255,240,180') + ',.7)', 4, 0.3, 0);
+    } else if (id === 'ame') {
+      ctx.strokeStyle = 'rgba(' + (L ? '70,90,120' : '200,215,230') + ',.32)'; ctx.lineWidth = 2;
+      for (i = 0; i < 280; i++) { var ax = rnd() * W, ay = rnd() * H; ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax - 7, ay + 30); ctx.stroke(); }
+    } else if (id === 'yuki') {
+      for (i = 0; i < 190; i++) { ctx.fillStyle = (L ? 'rgba(150,175,205,' : 'rgba(255,255,255,') + (0.35 + rnd() * 0.5) + ')'; ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, 2 + rnd() * 6, 0, Math.PI * 2); ctx.fill(); }
+    } else if (id === 'nami') {
+      ctx.strokeStyle = 'rgba(' + k + ',' + (L ? 0.13 : 0.16) + ')'; ctx.lineWidth = 2;
+      for (i = 0; i < 11; i++) { var nx = rnd() * W, ny = 200 + rnd() * 900; for (var nq = 1; nq <= 4; nq++) { ctx.beginPath(); ctx.ellipse(nx, ny, nq * 34, nq * 11, 0, 0, Math.PI * 2); ctx.stroke(); } }
+    } else if (id === 'take') {
+      for (i = 0; i < 4; i++) { var tx = 70 + i * 78 + rnd() * 26, tw = 24 + rnd() * 14; ctx.fillStyle = L ? 'rgba(80,130,70,.32)' : 'rgba(150,200,130,.26)'; ctx.fillRect(tx, 0, tw, H); ctx.strokeStyle = L ? 'rgba(40,80,40,.4)' : 'rgba(220,240,200,.35)'; ctx.lineWidth = 3; for (var ty = 90 + rnd() * 120; ty < H; ty += 170 + rnd() * 60) { ctx.beginPath(); ctx.moveTo(tx - 2, ty); ctx.lineTo(tx + tw + 2, ty); ctx.stroke(); if (rnd() < 0.6) { ctx.save(); ctx.translate(tx + tw, ty); ctx.rotate(-0.5 + rnd() * 0.5); ctx.fillStyle = L ? 'rgba(70,120,60,.4)' : 'rgba(160,210,140,.32)'; ctx.beginPath(); ctx.ellipse(46, 0, 46, 8, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); } } }
+    } else if (id === 'tsuki') {
+      var mg = ctx.createRadialGradient(300, 360, 20, 300, 360, 330); mg.addColorStop(0, L ? 'rgba(235,205,120,.55)' : 'rgba(255,248,215,.5)'); mg.addColorStop(0.5, L ? 'rgba(235,205,120,.16)' : 'rgba(255,248,215,.14)'); mg.addColorStop(1, 'rgba(255,248,215,0)'); ctx.fillStyle = mg; ctx.fillRect(0, 30, 660, 680);
+      ctx.fillStyle = L ? 'rgba(240,215,140,.75)' : 'rgba(253,248,226,.85)'; ctx.beginPath(); ctx.arc(300, 360, 150, 0, Math.PI * 2); ctx.fill();
+    } else if (id === 'shima') {
+      ctx.fillStyle = 'rgba(' + k + ',' + (L ? 0.05 : 0.06) + ')'; for (var sx2 = 60; sx2 < W; sx2 += 90) ctx.fillRect(sx2, 0, 40, H);
+    } else if (id === 'ichimatsu') {
+      ctx.fillStyle = 'rgba(' + k + ',' + (L ? 0.045 : 0.055) + ')'; for (var iy = 0; iy < H; iy += 80) for (var ix = (iy / 80 % 2 ? 80 : 0); ix < W; ix += 160) ctx.fillRect(ix, iy, 80, 80);
+    }
+  }
+  /* 枠 */
+  function cardFrameDraw(ctx, id, W, H, T, L, rnd) {
+    var k = L ? '60,50,40' : '240,235,220';
+    if (id === 'thin') { ctx.strokeStyle = T.frame; ctx.lineWidth = 2; ctx.strokeRect(34, 34, W - 68, H - 68); }
+    else if (id === 'double') { ctx.strokeStyle = T.frame; ctx.lineWidth = 4; ctx.strokeRect(30, 30, W - 60, H - 60); ctx.lineWidth = 1.5; ctx.strokeRect(46, 46, W - 92, H - 92); }
+    else if (id === 'gold') { var gg = ctx.createLinearGradient(0, 0, W, H); gg.addColorStop(0, '#f1d98a'); gg.addColorStop(0.5, '#b8902f'); gg.addColorStop(1, '#f1d98a'); ctx.strokeStyle = gg; ctx.lineWidth = 14; ctx.strokeRect(27, 27, W - 54, H - 54); ctx.strokeStyle = 'rgba(90,60,10,.5)'; ctx.lineWidth = 1.5; ctx.strokeRect(40, 40, W - 80, H - 80); }
+    else if (id === 'round') { ctx.strokeStyle = T.frame; ctx.lineWidth = 3; ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(34, 34, W - 68, H - 68, 54); else ctx.rect(34, 34, W - 68, H - 68); ctx.stroke(); }
+    else if (id === 'washi') {
+      ctx.fillStyle = 'rgba(' + k + ',' + (L ? 0.10 : 0.12) + ')';
+      var j = function () { return 26 + rnd() * 22; }, p;
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(W, 0); for (p = W; p >= 0; p -= 30) ctx.lineTo(p, j()); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(0, H); ctx.lineTo(W, H); for (p = W; p >= 0; p -= 30) ctx.lineTo(p, H - j()); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, H); for (p = H; p >= 0; p -= 30) ctx.lineTo(j(), p); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(W, 0); ctx.lineTo(W, H); for (p = H; p >= 0; p -= 30) ctx.lineTo(W - j(), p); ctx.closePath(); ctx.fill();
+    }
+    else if (id === 'tanzaku') {
+      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.28)'; ctx.shadowBlur = 26; ctx.shadowOffsetY = 10; ctx.fillStyle = L ? 'rgba(255,255,255,.55)' : 'rgba(255,255,255,.07)'; ctx.fillRect(330, 190, 560, 850); ctx.restore();
+      ctx.strokeStyle = T.frame; ctx.lineWidth = 2; ctx.strokeRect(330, 190, 560, 850);
+    }
+  }
+  /* 飾り（すみっこに。句の列・題・落款・タグの場所は、よける） */
+  function cardMotifDraw(ctx, id, W, H, T, L, rnd) {
+    var k = L ? '50,40,30' : '250,245,230', S = cardShapes(ctx), i;
+    function side() { var left = rnd() < 0.5; return [left ? 70 + rnd() * 220 : 930 + rnd() * 200, 290 + rnd() * 650]; }
+    if (id === 'neko') {
+      ctx.save(); ctx.fillStyle = 'rgba(' + k + ',.6)'; ctx.strokeStyle = 'rgba(' + k + ',.6)';
+      ctx.beginPath(); ctx.ellipse(200, 960, 78, 104, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(200, 830, 62, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(146, 808); ctx.lineTo(152, 742); ctx.lineTo(196, 782); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(254, 808); ctx.lineTo(248, 742); ctx.lineTo(204, 782); ctx.closePath(); ctx.fill();
+      ctx.lineWidth = 20; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(262, 1040); ctx.quadraticCurveTo(350, 1040, 336, 940); ctx.stroke();
+      ctx.fillStyle = T.bg[0]; ctx.beginPath(); ctx.ellipse(178, 826, 7, 10, 0, 0, Math.PI * 2); ctx.ellipse(222, 826, 7, 10, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(' + k + ',.38)';
+      [[86, 300], [130, 380], [80, 470], [128, 560]].forEach(function (p) { ctx.beginPath(); ctx.ellipse(p[0], p[1], 15, 13, 0, 0, Math.PI * 2); ctx.fill(); [[-15, -19], [-5, -26], [6, -26], [16, -19]].forEach(function (t) { ctx.beginPath(); ctx.arc(p[0] + t[0], p[1] + t[1], 5.5, 0, Math.PI * 2); ctx.fill(); }); });
+      ctx.restore();
+    } else if (id === 'haru') {
+      ctx.save(); ctx.strokeStyle = L ? 'rgba(90,60,45,.7)' : 'rgba(190,160,140,.75)'; ctx.lineCap = 'round'; ctx.lineWidth = 12; ctx.beginPath(); ctx.moveTo(W + 10, 330); ctx.quadraticCurveTo(1040, 380, 900, 520); ctx.stroke(); ctx.lineWidth = 7; ctx.beginPath(); ctx.moveTo(1040, 395); ctx.quadraticCurveTo(1060, 500, 1010, 600); ctx.stroke(); ctx.beginPath(); ctx.moveTo(960, 460); ctx.quadraticCurveTo(900, 440, 860, 400); ctx.stroke();
+      var pk2 = L ? 'rgba(235,140,170,.9)' : 'rgba(250,200,215,.92)';
+      [[1150, 345, 30], [1090, 372, 26], [1030, 410, 30], [975, 455, 24], [915, 510, 28], [1050, 480, 22], [1030, 560, 26], [1012, 612, 20], [900, 430, 22], [862, 396, 18]].forEach(function (b) { S.blossom(b[0], b[1], b[2], pk2); });
+      for (i = 0; i < 14; i++) { ctx.save(); ctx.translate(850 + rnd() * 300, 620 + rnd() * 330); ctx.rotate(rnd() * 3); ctx.fillStyle = pk2; ctx.globalAlpha = 0.7; ctx.beginPath(); ctx.ellipse(0, 0, 10, 6, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
+      ctx.restore();
+    } else if (id === 'natsu') {
+      var fish = function (x, y, s, col, flip) { ctx.save(); ctx.translate(x, y); ctx.scale(flip ? -s : s, s); ctx.fillStyle = col; ctx.beginPath(); ctx.ellipse(0, 0, 56, 30, 0, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.moveTo(-44, 0); ctx.quadraticCurveTo(-96, -52, -118, -34); ctx.quadraticCurveTo(-92, 0, -118, 34); ctx.quadraticCurveTo(-96, 52, -44, 0); ctx.fill(); ctx.beginPath(); ctx.moveTo(-6, -26); ctx.quadraticCurveTo(-20, -58, -40, -30); ctx.fill(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(30, -6, 8, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#222'; ctx.beginPath(); ctx.arc(32, -6, 4, 0, Math.PI * 2); ctx.fill(); ctx.restore(); };
+      ctx.strokeStyle = L ? 'rgba(70,130,170,.35)' : 'rgba(190,225,245,.35)'; ctx.lineWidth = 3; [[210, 880], [300, 1010]].forEach(function (p) { for (var q = 1; q <= 3; q++) { ctx.beginPath(); ctx.ellipse(p[0], p[1], q * 46, q * 15, 0, 0, Math.PI * 2); ctx.stroke(); } });
+      fish(215, 870, 1, 'rgba(225,70,50,.88)', false); fish(300, 1000, 0.72, 'rgba(240,140,50,.88)', true);
+    } else if (id === 'aki') {
+      var mg2 = ctx.createRadialGradient(1010, 430, 20, 1010, 430, 240); mg2.addColorStop(0, L ? 'rgba(235,195,95,.45)' : 'rgba(255,245,200,.4)'); mg2.addColorStop(1, 'rgba(255,245,200,0)'); ctx.fillStyle = mg2; ctx.fillRect(760, 190, 440, 480);
+      ctx.fillStyle = L ? 'rgba(238,205,115,.9)' : 'rgba(253,246,214,.92)'; ctx.beginPath(); ctx.arc(1010, 430, 96, 0, Math.PI * 2); ctx.fill();
+      ctx.save(); ctx.lineCap = 'round';
+      [[110, 1140, 250, 760], [170, 1140, 330, 800], [230, 1140, 360, 880], [70, 1140, 150, 840]].forEach(function (s) { ctx.strokeStyle = L ? 'rgba(150,120,70,.75)' : 'rgba(225,205,160,.75)'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(s[0], s[1]); ctx.quadraticCurveTo(s[0] + 10, (s[1] + s[3]) / 2, s[2], s[3]); ctx.stroke(); ctx.strokeStyle = L ? 'rgba(190,160,100,.6)' : 'rgba(240,225,185,.6)'; ctx.lineWidth = 3; for (var q = 0; q < 9; q++) { ctx.beginPath(); ctx.moveTo(s[2] - q * 5, s[3] + q * 13); ctx.quadraticCurveTo(s[2] + 26 - q * 3, s[3] + q * 13 + 6, s[2] + 46 - q * 4, s[3] + q * 13 + 30); ctx.stroke(); } });
+      ctx.restore();
+      [[900, 760, 26, '200,70,40'], [1080, 860, 22, '225,140,40'], [960, 930, 18, '180,40,30']].forEach(function (m) { S.star(m[0], m[1], m[2], 'rgba(' + m[3] + ',.8)', 7, 0.42, rnd() * 6); });
+    } else if (id === 'fuyu') {
+      ctx.save(); ctx.fillStyle = 'rgba(255,255,255,.94)'; ctx.strokeStyle = 'rgba(90,110,140,.45)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(210, 1000, 86, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.arc(210, 878, 58, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#333'; [[192, 868], [228, 868], [210, 960], [210, 1000], [210, 1040]].forEach(function (p) { ctx.beginPath(); ctx.arc(p[0], p[1], 6, 0, Math.PI * 2); ctx.fill(); });
+      ctx.fillStyle = '#e8862a'; ctx.beginPath(); ctx.moveTo(210, 882); ctx.lineTo(250, 890); ctx.lineTo(210, 896); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#c23a3a'; ctx.fillRect(160, 922, 100, 18); ctx.fillRect(238, 930, 18, 54);
+      for (i = 0; i < 46; i++) { var p2 = side(); ctx.fillStyle = (L ? 'rgba(150,175,205,' : 'rgba(255,255,255,') + (0.5 + rnd() * 0.4) + ')'; ctx.beginPath(); ctx.arc(p2[0], p2[1] - 40, 3 + rnd() * 6, 0, Math.PI * 2); ctx.fill(); }
+      ctx.restore();
+    } else if (id === 'hana') {
+      var hc = ['rgba(240,150,170,.85)', 'rgba(250,200,90,.85)', 'rgba(150,170,235,.85)', 'rgba(250,250,250,.9)', 'rgba(240,130,90,.85)'];
+      for (i = 0; i < 12; i++) { var p3 = side(); S.blossom(p3[0], p3[1], 18 + rnd() * 22, hc[Math.floor(rnd() * hc.length)]); }
+    } else if (id === 'heart') {
+      for (i = 0; i < 12; i++) { var p4 = side(); S.heart(p4[0], p4[1], 28 + rnd() * 44, (rnd() < 0.5 ? 'rgba(235,110,140,' : 'rgba(245,160,180,') + (0.5 + rnd() * 0.4) + ')'); }
+    } else if (id === 'hoshi') {
+      for (i = 0; i < 11; i++) { var p5 = side(); S.star(p5[0], p5[1], 18 + rnd() * 30, 'rgba(' + (L ? '225,180,50' : '255,230,140') + ',' + (0.6 + rnd() * 0.35) + ')', 5, 0.45, rnd()); }
+    } else if (id === 'tori') {
+      ctx.save(); ctx.strokeStyle = 'rgba(' + k + ',.65)'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+      [[130, 300, 1], [230, 250, 0.8], [330, 330, 0.9], [200, 400, 0.7], [370, 250, 0.6], [1010, 330, 0.8], [1090, 400, 0.6]].forEach(function (b) { var w = 34 * b[2]; ctx.beginPath(); ctx.moveTo(b[0] - w, b[1] - w * 0.3); ctx.quadraticCurveTo(b[0] - w * 0.5, b[1] - w * 0.7, b[0], b[1]); ctx.quadraticCurveTo(b[0] + w * 0.5, b[1] - w * 0.7, b[0] + w, b[1] - w * 0.3); ctx.stroke(); });
+      ctx.restore();
+    } else if (id === 'fuji') {
+      ctx.fillStyle = L ? 'rgba(70,100,150,.5)' : 'rgba(150,175,215,.42)'; ctx.beginPath(); ctx.moveTo(20, 1130); ctx.quadraticCurveTo(170, 1000, 235, 820); ctx.lineTo(300, 820); ctx.quadraticCurveTo(360, 1000, 520, 1130); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.92)'; ctx.beginPath(); ctx.moveTo(235, 820); ctx.lineTo(300, 820); ctx.lineTo(332, 900); ctx.lineTo(304, 880); ctx.lineTo(286, 908); ctx.lineTo(266, 880); ctx.lineTo(244, 906); ctx.lineTo(226, 884); ctx.lineTo(204, 900); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = L ? 'rgba(215,80,50,.8)' : 'rgba(245,150,110,.85)'; ctx.beginPath(); ctx.arc(1020, 400, 70, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  function drawCard(o, P) {
+    P = P || cardPref;
+    var W = 1200, H = 1200, cv = document.createElement('canvas'); cv.width = W; cv.height = H; var T = cardTheme(P), L = hexLight(T.bg[0]);
     var ctx = cv.getContext('2d'), g = ctx.createLinearGradient(0, 0, W, H);
     g.addColorStop(0, T.bg[0]); g.addColorStop(1, T.bg[1]); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-    // 裾野：なだらかな山すそ
-    function hill(base, amp, col, ph) { ctx.beginPath(); ctx.moveTo(0, H); for (var x = 0; x <= W; x += 20) ctx.lineTo(x, base - amp * Math.pow(Math.sin((x / W) * Math.PI * 0.9 + ph), 2) * (1 - x / W * 0.4)); ctx.lineTo(W, H); ctx.closePath(); ctx.fillStyle = col; ctx.fill(); }
-    hill(1090, 190, T.hills[0], 0.6); hill(1130, 150, T.hills[1], 0.2); hill(1170, 90, T.hills[2], 0.9);
-    ctx.strokeStyle = T.frame; ctx.lineWidth = 2; ctx.strokeRect(34, 34, W - 68, H - 68);
+    var rnd = (function (seed) { return function () { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }; })(hash(String(o.text || '') + 'c') % 1000 + 11);
+    try { cardPatternDraw(ctx, P.pattern || 'hills', W, H, T, L, rnd); } catch (_) {}
+    try { cardFrameDraw(ctx, P.frame || 'thin', W, H, T, L, rnd); } catch (_) {}
+    /* 点のバッジ（左下）があるときは、左下の飾りを少し上へ */
+    try { ctx.save(); if (o.badge) ctx.translate(0, -84); cardMotifDraw(ctx, P.motif || 'none', W, H, T, L, rnd); ctx.restore(); } catch (_) { try { ctx.restore(); } catch (e2) {} }
     // ブランド
     ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left'; ctx.fillStyle = T.brand;
     ctx.font = '50px ' + CARD_FONT; ctx.fillText('俳句の裾野', 84, 128);
@@ -6098,7 +6269,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     var cells = cardCells(String(o.text || '')), n = 0;
     cells.forEach(function (c) { n += /[　 ]/.test(c.c) ? 0.7 : 1; });
     var top = 215, avail = 800, s = Math.max(18, Math.min(72, Math.floor(avail / (Math.max(n, 1) * 1.12))));
-    KUHI_FONT_CUR = (WEB_FONTS[cardPref.font] || WEB_FONTS[0]).f;
+    KUHI_FONT_CUR = (WEB_FONTS[P.font] || WEB_FONTS[0]).f;
     var kx = W * 0.56, endY = drawVertical(ctx, cells, kx, top, s, T.ku);
     // 落款（俳号）
     var hg = Array.from(String(o.haigo || '').trim());
@@ -6106,9 +6277,11 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       var hs = Math.max(22, Math.round(s * 0.55)), hh = hg.length * hs * 1.12, hy = Math.max(top + 60, endY - hh);
       drawVertical(ctx, hg.map(function (c) { return { c: c }; }), W * 0.56 - s * 1.6 - hs * 0.5, hy, hs, T.haigo);
     }
+    // お題（兼題）：句の右に、小さく
+    if (o.dai && P.dai !== false) { var dsz = Math.max(22, Math.round(s * 0.4)); drawVertical(ctx, cardCells('兼題「' + String(o.dai).slice(0, 12) + '」'), kx + s * 1.75, top + 6, dsz, T.soft); }
     KUHI_FONT_CUR = null;
     // 朱印（じぶんの落款）
-    drawSeal(ctx, W - 190, 150, 78, '#f4efe2');
+    drawSeal(ctx, W - 190, 150, 78, '#f4efe2', P);
     // バッジ
     ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
     if (o.badge) {
@@ -6121,15 +6294,92 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     ctx.fillStyle = T.url; ctx.font = '22px ' + CARD_FONT; ctx.fillText('haikunosusono.web.app', W - 84, H - 112);
     return cv;
   }
-  function cardFontThen(cb, fi) { var o = cardSrc[cardKey] || {}; loadWebFont(fi != null ? fi : (cardPref.font || 0), plain(String(o.text || '')) + String(o.haigo || ''), cb); }
-  function cardPicker() {
-    return '<details class="cpick"><summary>🎴 じぶんの短冊にする（落款・色）</summary>' +
-      '<p class="cnote">落款の文字（1〜2文字。俳号の一字など）</p><div class="cbtns"><input type="text" class="cseal" data-f="card-seal" maxlength="2" value="' + esc(cardPref.seal || '') + '" placeholder="裾"></div>' +
-      '<p class="cnote">朱印の色</p><div class="cbtns">' + SEAL_COLS.map(function (c) { return '<button class="btn small' + (cardPref.sealCol === c[0] ? ' primary' : '') + '" data-act="card-sealcol" data-v="' + c[0] + '"><span class="cdot" style="background:' + c[0] + '"></span>' + c[1] + '</button>'; }).join('') + '</div>' +
-      '<p class="cnote">色合い</p><div class="cbtns">' + CARD_THEMES.map(function (t) { return '<button class="btn small' + (cardPref.theme === t[0] ? ' primary' : '') + '" data-act="card-theme" data-v="' + t[0] + '">' + t[1] + '</button>'; }).join('') + '</div>' +
-      '<p class="cnote">書体</p><div class="cbtns">' + WEB_FONTS.map(function (f, i) { return '<button class="btn small' + ((cardPref.font || 0) === i ? ' primary' : '') + '" data-act="card-font" data-v="' + i + '">' + esc(f.n) + '</button>'; }).join('') + '</div>' +
-      '<div class="cbtns"><button class="btn small" data-act="card-random">🎲 おまかせ（色と書体をランダムに）</button></div>' +
-      '<p class="cnote">「俳句の裾野」の題・句会の行・URLは、そのままです。選んだ落款と色は、この端末が覚えます。</p></details>';
+  function cardFontThen(cb, fi) { var o = cardSrc[cardKey] || {}; loadWebFont(fi != null ? fi : (cardPref.font || 0), plain(String(o.text || '')) + String(o.haigo || '') + '兼題「」' + String(o.dai || ''), function () { loadWebFont(cardPref.sealFont || 0, String(cardPref.seal || '裾'), cb); }); }
+  /* 句の季節（季語の表から）：春・夏・秋・冬・新年。見つからないときは '' */
+  function kuSeason(text) {
+    var t = plain(String(text || '')), best = null, i;
+    try { if (K5 && K5.w) for (i = 0; i < K5.w.length; i++) { var w = String(K5.w[i][0]); if (w.length >= 2 && t.indexOf(w) >= 0 && (!best || w.length > best.w.length)) best = { w: w, s: String(K5.k[K5.w[i][1]] || '').split('|')[0] }; } } catch (_) {}
+    if (!best) { try { Object.keys(KIGO).forEach(function (m) { KIGO[m].forEach(function (w2) { w2 = String(w2).replace(/(や|かな)$/, ''); if (w2.length >= 2 && t.indexOf(w2) >= 0 && (!best || w2.length > best.w.length)) best = { w: w2, s: (+m >= 2 && +m <= 4) ? '春' : (+m >= 5 && +m <= 7) ? '夏' : (+m >= 8 && +m <= 10) ? '秋' : '冬' }; }); }); } catch (_) {} }
+    return best;
+  }
+  function seasonNowJ() { var m = kigoMonth(); return (m >= 2 && m <= 4) ? '春' : (m >= 5 && m <= 7) ? '夏' : (m >= 8 && m <= 10) ? '秋' : '冬'; }
+  var SEASON_DESIGN = {
+    '春': { th: ['sakura', 'momo', 'wakakusa', 'yamabuki', 'hanafubuki', 'wakaba', 'fuji'], pt: ['sakura', 'kasumi', 'hills'], mo: ['haru', 'hana', 'tori'] },
+    '夏': { th: ['sora', 'mizu', 'asagi', 'ai', 'ruri', 'tanabata', 'hanabi'], pt: ['nami', 'ame', 'take', 'hoshi'], mo: ['natsu', 'tori', 'hoshi'] },
+    '秋': { th: ['kaki', 'cha', 'kinari', 'yamabuki', 'tsukimi', 'momijigari', 'murasaki'], pt: ['momiji', 'tsuki', 'kinpaku', 'kasumi'], mo: ['aki', 'none'] },
+    '冬': { th: ['shiro', 'usuzumi', 'sumi', 'yoru', 'yukigeshiki', 'nezu'], pt: ['yuki', 'hoshi', 'hills'], mo: ['fuyu', 'none', 'neko'] },
+    '新年': { th: ['kin', 'shiro', 'beni', 'kinbyobu'], pt: ['kinpaku', 'seigaiha'], mo: ['fuji', 'tori'] }
+  };
+  function fontsOf(cat) { var out = []; WEB_FONTS.forEach(function (f, i) { if (f.c === cat) out.push(i); }); return out; }
+  function pickFrom(arr, r) { return arr[Math.floor(r() * arr.length)]; }
+  /* 季節からデザインをひとそろい。r は乱数（きょうの短冊は、日づけで決まる乱数） */
+  function seasonDesign(se, r, mood) {
+    var D = SEASON_DESIGN[se] || SEASON_DESIGN[seasonNowJ()], th = D.th.filter(themeAvail);
+    if (mood) { var mth = th.filter(function (id) { return String(THEME_MOOD[id] || '').indexOf(mood) >= 0; }); if (mth.length) th = mth; }
+    var lim = th.filter(function (id) { return THEME_LIM[id]; }), out = { theme: lim.length && r() < 0.6 ? pickFrom(lim, r) : pickFrom(th, r), pattern: pickFrom(D.pt, r), motif: pickFrom(D.mo, r), frame: pickFrom(['thin', 'double', 'washi', 'round', 'none'], r), font: pickFrom(fontsOf(mood === 'かわいい' ? '丸・ポップ' : '筆・墨').concat(fontsOf('明朝')), r) };
+    if (mood === 'かわいい') out.motif = pickFrom(['neko', 'heart', 'hana', out.motif], r);
+    return out;
+  }
+  function todayDesign() { var seed = dayNum() * 7 + 3, r = function () { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }; r(); return seasonDesign(seasonNowJ(), r); }
+  function cardApply(d) { Object.keys(d).forEach(function (k) { cardPref[k] = d[k]; }); cardPrefSave(); cardFontThen(function () { openCard(cardKey); }); }
+  function cardAuto() {
+    var o = cardSrc[cardKey] || {}, hit = kuSeason(o.text), se = hit ? hit.s : seasonNowJ();
+    cardApply(seasonDesign(se, Math.random));
+    toast(hit ? '「' + hit.w + '」から、' + se + 'のデザインにしました。AIにも、句の雰囲気を聞いています…' : 'いまの季節（' + se + '）のデザインにしました。AIにも、句の雰囲気を聞いています…');
+    if (!SENSEI_API || o.own === false) return;
+    var key0 = cardKey;
+    senseiFetch({ ask: { ku: plain(String(o.text || '')), q: '【質問ではありません。この句の雰囲気を、次の六つから一語だけ選び、その一語だけを答えてください：おだやか／ふんわり／しずか／はげしい／すっきり／かわいい】' } }, 30000)
+      .then(function (r) {
+        var tx = r && r.ok ? String(r.text || '') : '', mood = ''; CARD_MOODS.forEach(function (m) { if (!mood && tx.indexOf(m) >= 0) mood = m; });
+        if (!mood || cardKey !== key0 || document.getElementById('cardv').hidden) return;
+        var d = seasonDesign(se, Math.random, mood); d.pattern = cardPref.pattern; cardMood = mood; cardApply(d);
+        toast('AIの読み：「' + mood + '」。色合いを合わせました');
+      });
+  }
+  /* 短冊の棚：保存・投稿した短冊を、この端末におぼえておく（60枚まで。句とデザインの設定だけ。画像は、見るときに描く） */
+  var cardTana = [];
+  try { cardTana = JSON.parse(localStorage.getItem('ikku-tana') || '[]') || []; } catch (_) { cardTana = []; }
+  function tanaSave() { try { localStorage.setItem('ikku-tana', JSON.stringify(cardTana.slice(0, 60))); } catch (_) {} }
+  function tanaAdd() {
+    var o = cardKey && cardSrc[cardKey]; if (!o || cardStyle !== 'card' || o.own === false) return;
+    var rec = { at: Date.now(), o: { text: o.text || '', haigo: o.haigo || '', sub: o.sub || '', badge: o.badge || '', dai: o.dai || '' }, p: Object.assign({}, cardPref) }, sig = JSON.stringify([rec.o, rec.p]);
+    cardTana = cardTana.filter(function (x) { return JSON.stringify([x.o, x.p]) !== sig; }); cardTana.unshift(rec); cardTana = cardTana.slice(0, 60); tanaSave();
+  }
+  var tanaThumbs = {};
+  function tanaThumb(x) {
+    var key = x.at + '|' + (WEB_FONTS[x.p.font] && webFontsLoaded[x.p.font] ? 1 : 0);
+    if (!tanaThumbs[key]) { try { var c = drawCard(x.o, x.p), t = document.createElement('canvas'); t.width = 300; t.height = 300; t.getContext('2d').drawImage(c, 0, 0, 300, 300); tanaThumbs[key] = t.toDataURL('image/jpeg', 0.8); } catch (_) { tanaThumbs[key] = ''; } }
+    return tanaThumbs[key];
+  }
+  function vTana() {
+    if (!cardTana.length) return '<h3 class="sec">短冊の棚<small>0枚</small></h3><p class="note">短冊を「画像を保存」か「Xに投稿」すると、ここに並びます（この端末の中だけに、60枚まで）。</p>';
+    return '<h3 class="sec">短冊の棚<small>' + cardTana.length + '枚</small></h3><div class="tana">' + cardTana.slice(0, tanaAll ? 60 : 8).map(function (x, i) {
+      return '<div class="tanai"><button class="tanab" data-act="tana-open" data-i="' + i + '" title="大きく見る"><img src="' + tanaThumb(x) + '" alt="' + esc(plain(x.o.text)) + '" loading="lazy"></button><div class="row"><button class="link" data-act="tana-use" data-i="' + i + '">このデザインを使う</button><button class="link" data-act="tana-del" data-i="' + i + '">外す</button></div></div>';
+    }).join('') + '</div>' + (cardTana.length > 8 && !tanaAll ? '<div class="actions"><button class="chip fit" data-act="tana-all">ぜんぶ見る（' + cardTana.length + '枚）</button></div>' : '') + '<p class="note">この端末の中だけに残ります。「このデザインを使う」で、色・模様・書体を、つぎの短冊にそのまま使えます。</p>';
+  }
+  var tanaAll = false;
+  function cardPicker(o) {
+    o = o || {};
+    var P = cardPref, td = todayDesign(), tdName = function () { var n = ''; CARD_THEMES.forEach(function (t) { if (t[0] === td.theme) n = t[1]; }); return n; };
+    function btn(k, v, label, on, extra) { return '<button class="btn small' + (on ? ' primary' : '') + '" data-act="card-set" data-k="' + k + '" data-v="' + esc(String(v)) + '">' + (extra || '') + esc(label) + '</button>'; }
+    var ths = CARD_THEMES.filter(function (t) { return themeAvail(t[0]) && (!cardMood || String(THEME_MOOD[t[0]] || '').indexOf(cardMood) >= 0); });
+    var cats = []; WEB_FONTS.forEach(function (f) { if (cats.indexOf(f.c) < 0) cats.push(f.c); });
+    return '<details class="cpick" open><summary>🎴 じぶんの短冊にする</summary>' +
+      '<div class="cbtns"><button class="btn small primary" data-act="card-random">🎲 おまかせ</button><button class="btn small primary" data-act="card-auto">🍃 句にあわせて</button><button class="btn small" data-act="card-today">📅 きょうの短冊（' + esc(tdName()) + '）</button></div>' +
+      '<div class="cbtns"><button class="btn small" data-act="card-base-load">⭐ 基本にもどす</button><button class="btn small" data-act="card-base-save">⭐ いまのを「基本」にする</button></div>' +
+      '<p class="cnote">「句にあわせて」は、季語の季節から色・模様・飾りを決めて、AI（松風主宰の頭脳）に句の雰囲気を聞いて色合いを合わせます。「きょうの短冊」は、日がわりのおすすめです。</p>' +
+      '<details class="csub" open><summary>色合い（紙の色）</summary><p class="cnote">雰囲気でさがす</p><div class="cbtns"><button class="btn small' + (!cardMood ? ' primary' : '') + '" data-act="card-mood" data-v="">ぜんぶ</button>' + CARD_MOODS.map(function (m) { return '<button class="btn small' + (cardMood === m ? ' primary' : '') + '" data-act="card-mood" data-v="' + m + '">' + m + '</button>'; }).join('') + '</div>' +
+      '<div class="cbtns">' + ths.map(function (t) { return btn('theme', t[0], t[1] + (THEME_LIM[t[0]] ? '（限定 ' + limLabel(t[0]) + '）' : ''), P.theme === t[0], '<span class="cdot" style="background:' + t[2].bg[0] + '"></span>'); }).join('') + '</div></details>' +
+      '<details class="csub"><summary>模様</summary><div class="cbtns">' + CARD_PATTERNS.map(function (x) { return btn('pattern', x[0], x[1], (P.pattern || 'hills') === x[0]); }).join('') + '</div></details>' +
+      '<details class="csub"><summary>枠</summary><div class="cbtns">' + CARD_FRAMES.map(function (x) { return btn('frame', x[0], x[1], (P.frame || 'thin') === x[0]); }).join('') + '</div></details>' +
+      '<details class="csub"><summary>飾り（猫・春夏秋冬・花…）</summary><div class="cbtns">' + CARD_MOTIFS.map(function (x) { return btn('motif', x[0], x[1], (P.motif || 'none') === x[0]); }).join('') + '</div></details>' +
+      '<details class="csub"><summary>書体（' + WEB_FONTS.length + '種）</summary>' + cats.map(function (c) { return '<p class="cnote">' + esc(c) + '</p><div class="cbtns">' + WEB_FONTS.map(function (f, i) { return f.c === c ? btn('font', i, f.n, (P.font || 0) === i) : ''; }).join('') + '</div>'; }).join('') + '</details>' +
+      '<details class="csub"><summary>落款（ハンコ）</summary><p class="cnote">文字（1〜2文字。俳号の一字など）</p><div class="cbtns"><input type="text" class="cseal" data-f="card-seal" maxlength="2" value="' + esc(P.seal || '') + '" placeholder="裾"></div>' +
+      '<p class="cnote">かたち</p><div class="cbtns">' + SEAL_SHAPES.map(function (x) { return btn('sealShape', x[0], x[1], (P.sealShape || 'sq') === x[0]); }).join('') + '</div>' +
+      '<p class="cnote">色（パレットから、すきな色も選べます）</p><div class="cbtns"><label class="cpal">🎨 パレット <input type="color" data-f="card-sealpick" value="' + esc(/^#[0-9a-f]{6}$/i.test(P.sealCol || '') ? P.sealCol : '#b8402f') + '"></label>' + SEAL_COLS.map(function (c) { return btn('sealCol', c[0], c[1], P.sealCol === c[0], '<span class="cdot" style="background:' + c[0] + '"></span>'); }).join('') + '</div>' +
+      '<p class="cnote">ハンコの書体</p><div class="cbtns">' + WEB_FONTS.map(function (f, i) { return f.sl ? btn('sealFont', i, f.n, (P.sealFont || 0) === i) : ''; }).join('') + '</div></details>' +
+      (o.dai ? '<div class="cbtns"><button class="btn small' + (P.dai !== false ? ' primary' : '') + '" data-act="card-set" data-k="dai" data-v="' + (P.dai !== false ? 'off' : 'on') + '">お題「' + esc(String(o.dai).slice(0, 12)) + '」を入れる：' + (P.dai !== false ? 'ON' : 'OFF') + '</button></div>' : '') +
+      '<p class="cnote">「俳句の裾野」の題・句会の行・タグ・URLは、そのままです。選んだものは、この端末が覚えます。保存・投稿した短冊は、マイページの「短冊の棚」に並びます。</p></details>';
   }
   /* 句碑：石に刻んだふうの画像（かたち・石・書体を、いろいろ選べる） */
   /* 句碑：場所（背景）・石・かたち・苔・書体を、べつべつに選べる。選ばなければ、句ごとにランダム */
@@ -6346,7 +6596,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (cardStyle === 'kuhi' && o.head) cardText = '#俳句の裾野 ' + o.head + (o.res ? '　' + o.res : '') + '\n「' + full + '」' + (o.haigo ? '　' + o.haigo : '') + '\n\n#俳句の裾野 #俳句 #haiku\nhttps://haikunosusono.web.app';
     markFirst('f_card');
     el.hidden = false;
-    el.innerHTML = '<img id="cardimg" alt="句のカード"' + (o.own === false ? ' class="noown" draggable="false"' : '') + '><div class="cbtns"><button class="btn small' + (cardStyle === 'card' ? ' primary' : '') + '" data-act="card-style" data-v="card">📱 デジタル短冊</button>' + (o.trophy ? '<button class="btn small' + (cardStyle === 'trophy' ? ' primary' : '') + '" data-act="card-style" data-v="trophy">🏆 トロフィー</button>' : '') + (canKuhi ? '<button class="btn small' + (cardStyle === 'kuhi' ? ' primary' : '') + '" data-act="card-style" data-v="kuhi">🪨 句碑</button>' : '') + (o.own === false ? '' : '<button class="btn small' + (cardStyle === 'photo' ? ' primary' : '') + '" data-act="card-style" data-v="photo">📷 写真俳句</button>') + '</div>' + (cardStyle === 'kuhi' ? kuhiPicker(o) : cardStyle === 'photo' ? photoPicker() : cardStyle === 'card' && o.own !== false ? cardPicker() : '') + (o.own === false ? '' : '<details class="cpick ctweet"><summary>✍️ 投稿の文を見る・直す</summary><p class="cnote">この文と、上の画像を、Xに投稿します。直してから投稿できます。</p><textarea class="ctext" data-f="card-text" rows="5">' + esc(cardText) + '</textarea></details>') + '<div class="cbtns">' + (o.own === false ? '' : '<button class="btn primary" data-act="card-share">Xに投稿</button><button class="btn" data-act="card-save">画像を保存</button>') + '<button class="btn" data-act="card-close">閉じる</button></div>' + (o.own === false ? '<p class="cnote">この句の投稿・保存は、作者ご本人だけができます。ほかの人の句を、本人の了解なしに公開しないでください。</p>' : '<p class="cnote">「Xに投稿」で、画像と文面がそのまま共有画面に渡ります。出ないときは、画像を保存して、Xの投稿に添付してください（画像を長押しでも保存できます）。</p><p class="cnote">自分の句だけを投稿してください。Xなどに公開した句は、大会によって「既発表」とされることがあります。大会に出す句は、募集のきまりを確かめてから。</p>');
+    el.innerHTML = '<img id="cardimg" alt="句のカード"' + (o.own === false ? ' class="noown" draggable="false"' : '') + '><div class="cbtns"><button class="btn small' + (cardStyle === 'card' ? ' primary' : '') + '" data-act="card-style" data-v="card">📱 デジタル短冊</button>' + (o.trophy ? '<button class="btn small' + (cardStyle === 'trophy' ? ' primary' : '') + '" data-act="card-style" data-v="trophy">🏆 トロフィー</button>' : '') + (canKuhi ? '<button class="btn small' + (cardStyle === 'kuhi' ? ' primary' : '') + '" data-act="card-style" data-v="kuhi">🪨 句碑</button>' : '') + (o.own === false ? '' : '<button class="btn small' + (cardStyle === 'photo' ? ' primary' : '') + '" data-act="card-style" data-v="photo">📷 写真俳句</button>') + '</div>' + (cardStyle === 'kuhi' ? kuhiPicker(o) : cardStyle === 'photo' ? photoPicker() : cardStyle === 'card' && o.own !== false ? cardPicker(o) : '') + (o.own === false ? '' : '<details class="cpick ctweet"><summary>✍️ 投稿の文を見る・直す</summary><p class="cnote">この文と、上の画像を、Xに投稿します。直してから投稿できます。</p><textarea class="ctext" data-f="card-text" rows="5">' + esc(cardText) + '</textarea></details>') + '<div class="cbtns">' + (o.own === false ? '' : '<button class="btn primary" data-act="card-share">Xに投稿</button><button class="btn" data-act="card-save">画像を保存</button>') + '<button class="btn" data-act="card-close">閉じる</button></div>' + (o.own === false ? '<p class="cnote">この句の投稿・保存は、作者ご本人だけができます。ほかの人の句を、本人の了解なしに公開しないでください。</p>' : '<p class="cnote">「Xに投稿」で、画像と文面がそのまま共有画面に渡ります。出ないときは、画像を保存して、Xの投稿に添付してください（画像を長押しでも保存できます）。</p><p class="cnote">自分の句だけを投稿してください。Xなどに公開した句は、大会によって「既発表」とされることがあります。大会に出す句は、募集のきまりを確かめてから。</p>');
     var im = document.getElementById('cardimg');
     try { cv.toBlob(function (b) { cardBlob = b; if (b) im.src = URL.createObjectURL(b); }, 'image/png'); } catch (_) { im.src = cv.toDataURL('image/png'); }
   }
@@ -6361,6 +6611,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function cardOwn() { var o = cardKey && cardSrc[cardKey]; return !(o && o.own === false); }
   function cardShare() {
     if (!cardOwn()) { toast('投稿は、作者ご本人だけができます'); return; }
+    try { tanaAdd(); } catch (_) {}
     var f = null; try { if (cardBlob) f = new File([cardBlob], 'haikunosusono.png', { type: 'image/png' }); } catch (_) {}
     var fallback = function () { try { window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(cardText), '_blank'); } catch (_) {} toast('画像は「画像を保存」で保存して、投稿に添付してください'); };
     try {
@@ -6371,6 +6622,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function cardSave() {
     if (!cardOwn()) { toast('保存は、作者ご本人だけができます'); return; }
     if (!cardBlob) return;
+    try { tanaAdd(); } catch (_) {}
     try { var a = document.createElement('a'); a.href = URL.createObjectURL(cardBlob); a.download = 'haikunosusono.png'; document.body.appendChild(a); a.click(); a.remove(); toast('画像を保存しました'); } catch (_) { toast('画像を長押しして保存してください'); }
   }
   /* ---- 句会で出した句を、ストッ句にも残す（出どころ付き）。一度残したら、消しても、二度とは入れない ---- */
@@ -7334,11 +7586,12 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       if (e.target === cvEl) { cvClose(); return; }
       var b = e.target.closest('[data-act]'); if (!b) return;
       var ac = b.getAttribute('data-act');
-      if (ac === 'card-share') cardShare(); else if (ac === 'card-save') cardSave(); else if (ac === 'card-close') cvClose(); else if (ac === 'card-style') openCard(cardKey, b.getAttribute('data-v')); else if (ac === 'kuhi-f') { kuhiPref.f = +b.getAttribute('data-v'); kuhiPrefSave(); cardFontThen(function () { openCard(cardKey); }, kuhiPref.f); } else if (ac === 'cp') { var ck = b.getAttribute('data-k'); cp[ck] = ck === 'dim' ? +b.getAttribute('data-v') : b.getAttribute('data-v'); openCard(cardKey); } else if (ac === 'card-sealcol') { cardPref.sealCol = b.getAttribute('data-v'); cardPrefSave(); openCard(cardKey); } else if (ac === 'card-theme') { cardPref.theme = b.getAttribute('data-v'); cardPrefSave(); openCard(cardKey); } else if (ac === 'card-font') { cardPref.font = +b.getAttribute('data-v') || 0; cardPrefSave(); cardFontThen(function () { openCard(cardKey); }); } else if (ac === 'card-random') { cardPref.theme = CARD_THEMES[Math.floor(Math.random() * CARD_THEMES.length)][0]; cardPref.sealCol = SEAL_COLS[Math.floor(Math.random() * SEAL_COLS.length)][0]; cardPref.font = Math.floor(Math.random() * WEB_FONTS.length); cardPrefSave(); cardFontThen(function () { openCard(cardKey); }); } else if (ac === 'kuhi-random') { kuhiPref = { sc: Math.floor(Math.random() * KUHI_SCENES.length), st: Math.floor(Math.random() * KUHI_STONES.length), sh: Math.floor(Math.random() * KUHI_SHAPES.length), moss: Math.floor(Math.random() * 4), f: Math.floor(Math.random() * WEB_FONTS.length) }; kuhiPrefSave(); cardFontThen(function () { openCard(cardKey); }, kuhiPref.f); } else if (ac === 'kuhi-sc' || ac === 'kuhi-st' || ac === 'kuhi-sh' || ac === 'kuhi-moss') { kuhiPref[ac.slice(5)] = +b.getAttribute('data-v'); kuhiPrefSave(); openCard(cardKey); }
+      if (ac === 'card-share') cardShare(); else if (ac === 'card-save') cardSave(); else if (ac === 'card-close') cvClose(); else if (ac === 'card-style') openCard(cardKey, b.getAttribute('data-v')); else if (ac === 'kuhi-f') { kuhiPref.f = +b.getAttribute('data-v'); kuhiPrefSave(); cardFontThen(function () { openCard(cardKey); }, kuhiPref.f); } else if (ac === 'cp') { var ck = b.getAttribute('data-k'); cp[ck] = ck === 'dim' ? +b.getAttribute('data-v') : b.getAttribute('data-v'); openCard(cardKey); } else if (ac === 'card-set') { var ck_ = b.getAttribute('data-k'), cv_ = b.getAttribute('data-v'); if (ck_ === 'font' || ck_ === 'sealFont') cv_ = +cv_ || 0; if (ck_ === 'dai') cv_ = cv_ === 'on'; if (/^(theme|pattern|frame|motif|font|sealFont|sealShape|sealCol|dai)$/.test(ck_)) { cardPref[ck_] = cv_; cardPrefSave(); cardFontThen(function () { openCard(cardKey); }); } } else if (ac === 'card-mood') { cardMood = b.getAttribute('data-v') || ''; openCard(cardKey); } else if (ac === 'card-random') { var av_ = CARD_THEMES.filter(function (t) { return themeAvail(t[0]); }); cardApply({ theme: av_[Math.floor(Math.random() * av_.length)][0], sealCol: SEAL_COLS[Math.floor(Math.random() * SEAL_COLS.length)][0], font: Math.floor(Math.random() * WEB_FONTS.length), pattern: CARD_PATTERNS[Math.floor(Math.random() * CARD_PATTERNS.length)][0], frame: CARD_FRAMES[Math.floor(Math.random() * CARD_FRAMES.length)][0], motif: Math.random() < 0.35 ? 'none' : CARD_MOTIFS[Math.floor(Math.random() * CARD_MOTIFS.length)][0] }); } else if (ac === 'card-auto') { if (K5) cardAuto(); else { try { k5Load(cardAuto); } catch (_) { cardAuto(); } } } else if (ac === 'card-today') { cardApply(todayDesign()); toast('きょうの短冊にしました'); } else if (ac === 'card-base-save') { try { localStorage.setItem('ikku-card-base', JSON.stringify(cardPref)); toast('いまのデザインを「基本」にしました'); } catch (_) {} } else if (ac === 'card-base-load') { var bs_ = null; try { bs_ = JSON.parse(localStorage.getItem('ikku-card-base') || 'null'); } catch (_) {} cardApply(Object.assign({}, CARD_DEF, bs_ || {}, bs_ ? {} : { seal: cardPref.seal })); toast(bs_ ? '「基本」のデザインにもどしました' : 'はじめのデザインにもどしました（「いまのを基本にする」で、自分の基本を決められます）'); } else if (ac === 'kuhi-random') { kuhiPref = { sc: Math.floor(Math.random() * KUHI_SCENES.length), st: Math.floor(Math.random() * KUHI_STONES.length), sh: Math.floor(Math.random() * KUHI_SHAPES.length), moss: Math.floor(Math.random() * 4), f: Math.floor(Math.random() * WEB_FONTS.length) }; kuhiPrefSave(); cardFontThen(function () { openCard(cardKey); }, kuhiPref.f); } else if (ac === 'kuhi-sc' || ac === 'kuhi-st' || ac === 'kuhi-sh' || ac === 'kuhi-moss') { kuhiPref[ac.slice(5)] = +b.getAttribute('data-v'); kuhiPrefSave(); openCard(cardKey); }
     });
     cvEl.addEventListener('input', function (e) {
       var t = e.target; if (!t || !t.dataset) return;
       if (t.dataset.f === 'card-text') { cardText = t.value; }
+      else if (t.dataset.f === 'card-sealpick') { cardPref.sealCol = String(t.value || '#b8402f'); cardPrefSave(); var im9 = document.getElementById('cardimg'), o9 = cardSrc[cardKey]; if (im9 && o9 && cardStyle === 'card') { var cv9 = drawCard(o9); try { cv9.toBlob(function (b) { cardBlob = b; if (b) im9.src = URL.createObjectURL(b); }, 'image/png'); } catch (_) { im9.src = cv9.toDataURL('image/png'); } } }
       else if (t.dataset.f === 'card-seal') { cardPref.seal = String(t.value || '').trim().slice(0, 2) || '裾'; cardPrefSave(); var im0 = document.getElementById('cardimg'), o0 = cardSrc[cardKey]; if (im0 && o0 && cardStyle === 'card') { var cv0 = drawCard(o0); try { cv0.toBlob(function (b) { cardBlob = b; if (b) im0.src = URL.createObjectURL(b); }, 'image/png'); } catch (_) { im0.src = cv0.toDataURL('image/png'); } } }
     });
     cvEl.addEventListener('change', function (e) {
@@ -7599,6 +7852,14 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
       try { navigator.clipboard.writeText(txt).then(function () { toast('コピーしました。LINEなどに貼ってください'); }, fb); } catch (_) { fb(); }
     }
     else if (act === 'card') { openCard(t.dataset.ck, t.dataset.style || 'card'); }
+    else if (act === 'tana-all') { tanaAll = true; render(); }
+    else if (act === 'tana-open' || act === 'tana-use') {
+      var tx_ = cardTana[+t.dataset.i]; if (!tx_) return;
+      Object.assign(cardPref, CARD_DEF, tx_.p || {}); cardPrefSave();
+      if (act === 'tana-use') { toast('このデザインを、つぎの短冊に使います'); }
+      else { ckSet('tana', Object.assign({}, tx_.o)); cardKey = 'tana'; cardFontThen(function () { openCard('tana', 'card'); }); }
+    }
+    else if (act === 'tana-del') { var ti_ = +t.dataset.i; if (cardTana[ti_]) { cardTana.splice(ti_, 1); tanaSave(); render(); toast('棚から外しました'); } }
     else if (act === 'card-share') { cardShare(); }
     else if (act === 'card-save') { cardSave(); }
     else if (act === 'card-close') { var cvv = document.getElementById('cardv'); if (cvv) { cvv.hidden = true; cvv.innerHTML = ''; } }
