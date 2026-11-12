@@ -1973,7 +1973,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       if (s.status === 'selecting' && myId) {
         var left = selSec(s) - (Date.now() - (s.selectStart || Date.now())) / 1000;
         if ((inEntry ? (allDone(s) || left <= 0) : left <= -20) && once('r' + s.id)) {
-          writeIf(s.id, function (c) { return c.status === 'selecting'; }, function (c) { return revealPatch(c); }).then(function (c) { try { senseiAI(c); setTimeout(function () { botAI(c); }, 8000); senseiJudge(c); } catch (_) {} });
+          writeIf(s.id, function (c) { return c.status === 'selecting'; }, function (c) { return revealPatch(c); }).then(function (c) { try { senseiAI(c); senseiJudge(c); } catch (_) {} /* ボットの感想は「かんたん」のまま（AIは先生だけ。混みあいを減らすため。戻すときは botAI(c) を足す） */ });
         }
       }
     });
