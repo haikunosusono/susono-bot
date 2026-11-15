@@ -58,6 +58,7 @@ window.G = (function () {
     c.fillStyle = SOFT; c.font = '400 21px ' + SANS; c.textAlign = 'right'; c.fillText('haikunosusono.web.app', 1150, 54); c.textAlign = 'left';
     c.fillStyle = INK; c.font = '700 46px ' + SERIF; c.fillText(title, 48, 112);
     if (sub) { c.fillStyle = SOFT; c.font = '400 25px ' + SANS; c.fillText(sub, 50, 152); }
+    c.fillStyle = SOFT; c.font = '400 19px ' + SANS; c.textAlign = 'right'; c.fillText('※ 画面の句と俳号は、紹介用の見本です', 1150, 152); c.textAlign = 'left';
     var W = 322, H = 644, y = 182, n = list.length, gap = n === 3 ? 56 : 44, x0 = n === 3 ? (1200 - W * 3 - gap * 2) / 2 : 60;
     list.forEach(function (t, i) {
       var x = x0 + i * (W + gap);
