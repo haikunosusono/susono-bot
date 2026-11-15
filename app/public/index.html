@@ -982,7 +982,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.12c';
+  var APP_VER = 'v2026.11.15a';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2287,6 +2287,8 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   }
   /* ==== 月例句会：1日に兼題発表 → 15日〆切 → 25日まで互選 → 26日に結果・句会報 ==== */
   var MON_ENTRY_END = 15, MON_SEL_END = 25, MON_MAX = 3;
+  /* 流会：投句しめきりの時点で、句が MON_MIN 句に満たない月は、その月の句会をひらかない（互選も結果もなし）。5句ちょうどは、ひらく */
+  var MON_MIN = 5, monLoaded = false; /* monLoaded：月例句会の記録が届いてから判定する（届く前に「流会」と出さない） */
   /* 月ごとの特別な日程（おためし月など）。ふつうは 15日〆切・25日まで互選 */
   var MON_SCHED = {}, MON_START = '2026-11'; /* はじまる月。それより前は「準備中」 */
   function monEnds(id) { var o = MON_SCHED[id] || {}; return { e: o.entryEnd || MON_ENTRY_END, s: o.selEnd || MON_SEL_END, note: o.note || '' }; }
@@ -2299,6 +2301,24 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (id < cur) return 'done'; if (id > cur) return 'soon';
     var day = now.getUTCDate(), en = monEnds(id);
     return day <= en.e ? 'entry' : day <= en.s ? 'select' : 'done';
+  }
+  function monFlow(id, d) { var ph = monPhase(id); return monLoaded && (ph === 'select' || ph === 'done') && monKus(d || monDoc(id)).length < MON_MIN; }
+  /* 流会のお知らせ（月例句会のページに出す文） */
+  function monFlowNotice(open) {
+    return '<details class="panel" id="mon-flow-rule"' + (open ? ' open' : '') + '><summary><b>📢 お知らせ：' + MON_MIN + '句に満たない月は「流会」です</b></summary>' +
+      '<p class="note">いつもご参加ありがとうございます。月例句会の進め方について、ひとつ決めごとをお知らせします。</p>' +
+      '<p class="note">締切の時点で投句が' + MON_MIN + '句に満たなかった月は、句会を「流会」とさせていただきます。</p>' +
+      '<ul class="note" style="margin:.4em 0 0 1.2em;padding:0"><li>流会になった場合は、締切後にこちらでお知らせします</li><li>出していただいた句は、そのまま次の月に回していただいても、別の投句先に使っていただいてもかまいません</li></ul>' +
+      '<p class="note">少人数でも気楽に続けていくための決めごとです。一句でも出していただけると句会が成り立ちやすくなりますので、どうぞ気軽にご投句ください。</p>' +
+      '<p class="note" style="text-align:right">俳句の裾野（管理人より）</p></details>';
+  }
+  /* 流会になった月の画面 */
+  function vMonthlyFlow(id, d) {
+    var kus = monKus(d), mine = myId && d.entries && d.entries[myId], mk = mine ? (mine.kus || []).filter(Boolean) : [];
+    return '<div class="panel"><b>' + esc(monLabel(id)) + 'は、流会です</b><p class="lead">投句が' + kus.length + '句で、' + MON_MIN + '句に満たなかったため、今月の句会はおやすみします。</p>' +
+      '<p class="note">互選と結果発表は、ありません。出していただいた句は、そのまま次の月に回していただいても、別の投句先に使っていただいてもかまいません。</p>' +
+      (mk.length ? '<p class="note">あなたの句：' + mk.map(function (k) { return '「' + esc(k) + '」'; }).join(' ') + '（ストッ句に残っています）</p>' : '') +
+      '<p class="note">来月も、1日に兼題が出ます。どうぞ気軽にご投句ください。</p></div>';
   }
   /* 兼題：ボットが、季語・テーマ・当季雑詠から、月ごとに決める（だれの画面でも同じ） */
   function monKendai(id) {
@@ -2339,7 +2359,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       '<a class="chip fit" href="' + monCalGoogle(id, en.e, '月例句会：投句しめきり') + '" target="_blank" rel="noopener">Googleカレンダー：投句しめきり</a>' +
       '<a class="chip fit" href="' + monCalGoogle(id, en.s, '月例句会：互選しめきり') + '" target="_blank" rel="noopener">Googleカレンダー：互選しめきり</a>' +
       '<button class="chip fit" data-act="calmon">📥 12か月ぶんをまとめて（.ics）</button></div><p class="note">.ics は、iPhoneのカレンダーやGoogleカレンダーで、ひらくと入ります。兼題の発表・投句しめきり・互選しめきり・結果の4つが、月ごとに入ります。</p></details>';
-    h += '<div class="howto"><b>ゆっくり流れる、月に一度の句会</b><span>毎月1日に、ボットが兼題を発表。15日まで投句（1〜3句）。16日から25日まで互選（特選1・並選3・予選はいくつでも）。26日に結果と「月例句会報」。登録した人はだれでも参加できます。見るだけもできます。</span></div>';
+    h += '<div class="howto"><b>ゆっくり流れる、月に一度の句会</b><span>毎月1日に、ボットが兼題を発表。15日まで投句（1〜3句）。16日から25日まで互選（特選1・並選3・予選はいくつでも）。26日に結果と「月例句会報」。投句しめきりの時点で' + MON_MIN + '句に満たない月は、流会（おやすみ）です。登録した人はだれでも参加できます。見るだけもできます。</span></div>';
     h += '<details class="panel" id="kansho-rule"' + (monKanshoOpen ? ' open' : '') + '><summary><b>🔍 鑑賞賞のルール</b></summary><ul class="note" style="margin:.4em 0 0 1.2em;padding:0"><li>月例句会で、その月にいちばん多く「評」を書いた人に贈る賞です。</li><li>同じ数の人が何人かいれば、全員に贈ります。</li><li>数えるのは、月例句会の評だけです。定例句会など、ほかの回の評は数えません。</li><li>受賞は、結果ページに出て、マイページにも残ります。</li><li>トロフィーの数には入りません。別の賞です。</li></ul></details>';
     /* 月の切りかえ */
     var months = Object.keys(monthly).concat([monId()]).filter(function (x, i, a) { return a.indexOf(x) === i; }).sort().reverse();
@@ -2349,9 +2369,12 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     if (en.note) h += '<p class="note">' + esc(monLabel(id)) + 'は「' + esc(en.note) + '」の月です。日程：' + MON_ENTRY_END + '日まで投句、' + MON_SEL_END + '日まで互選、' + (MON_SEL_END + 1) + '日に結果。</p>';
     h += '<div class="panel"><b>' + esc(monLabel(id)) + 'の兼題</b><p class="lead" style="font-size:1.4rem;margin:.3em 0">' + esc(kd.t) + '</p><p class="note">' + esc(kd.kind) + '　' + esc(kd.note) + '。1人1〜3句。' + MON_ENTRY_END + '日まで投句、' + MON_SEL_END + '日まで互選。</p>' +
       '<ol class="steps"><li class="' + (ph === 'entry' ? 'now' : 'past') + '">投句（〜' + MON_ENTRY_END + '日）</li><li class="' + (ph === 'select' ? 'now' : ph === 'done' ? 'past' : '') + '">互選（' + (MON_ENTRY_END + 1) + '〜' + MON_SEL_END + '日）</li><li class="' + (ph === 'done' ? 'now' : '') + '">結果・句会報（' + (MON_SEL_END + 1) + '日〜）</li></ol></div>';
+    var flow = monFlow(id, d);
+    if (flow) return h + vMonthlyFlow(id, d) + monFlowNotice(false);
     if (!myId) h += '<p class="note">登録すると、投句と互選ができます。結果は、どなたでも見られます。</p>';
     if (ph === 'entry') {
       h += '<div class="panel"><b>投句</b><p class="note">' + kus.length + '句・' + Object.keys(d.entries || {}).length + '人が出しています（作者は結果まで伏せられます）。' + MON_ENTRY_END + '日までなら、何度でも直せます。</p>';
+      if (monLoaded) h += '<p class="note">' + (kus.length >= MON_MIN ? '✓ ' + MON_MIN + '句そろいました。今月の句会は、ひらきます。' : '句会をひらくには、あと <b>' + (MON_MIN - kus.length) + '</b>句。しめきりの時点で' + MON_MIN + '句に満たないと、今月は流会です。') + '</p>';
       if (myId) {
         var cur = mine && mine.kus ? mine.kus : [];
         for (var i = 0; i < MON_MAX; i++) h += '<div class="field"><label for="mon-' + i + '">' + (i + 1) + '句目' + (i ? '（なくても可）' : '') + '</label><input type="text" id="mon-' + i + '" data-f="mon-' + i + '" maxlength="40" value="' + esc(monDraft[i] || cur[i] || '') + '" placeholder="五七五"></div>';
@@ -2376,11 +2399,13 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     } else {
       h += '<p class="note">まだ、はじまっていません。1日にどうぞ。</p>';
     }
+    if (ph === 'entry') h += monFlowNotice(monLoaded && kus.length < MON_MIN);
     return h;
   }
   /* 月例の殿堂：月ごとの成績だけ（句は、未発表の約束なので出さない）。だれでも見られる */
   function monMonthStat(id) {
     var d = monDoc(id), kus = monKus(d); if (!kus.length) return null;
+    if (monFlow(id, d)) return { id: id, flow: true, kus: kus.length, people: Object.keys(d.entries || {}).length };
     var T = monTally(d), max = 0; kus.forEach(function (k) { max = Math.max(max, T[k.id].pts); });
     var win = max > 0 ? kus.filter(function (k) { return T[k.id].pts === max; }) : [];
     var nv = Object.keys(d.votes || {}).filter(function (u) { return d.votes[u] && d.votes[u].fin; }).length;
@@ -2396,6 +2421,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var rows = months.map(monMonthStat).filter(Boolean);
     if (!rows.length) return h + '<div class="empty"><p>まだ、終わった月例句会がありません。' + esc(monLabel(MON_START)) + 'から、はじまります。</p></div>';
     h += '<div class="sttwrap"><table class="stt hall"><thead><tr><th>月</th><th>優勝</th><th>点</th><th>句・人</th><th>鑑賞賞</th></tr></thead><tbody>' + rows.map(function (r) {
+      if (r.flow) return '<tr><td class="d">' + esc(monLabel(r.id)) + '</td><td><small>流会</small></td><td>-</td><td>' + r.kus + '句<br><small>' + r.people + '人</small></td><td><small>-</small></td></tr>';
       return '<tr><td class="d">' + esc(monLabel(r.id)) + '</td><td>' + (r.win.length ? r.win.map(function (w) { return '🏆 ' + esc(w.haigo) + (w.me ? '（あなた）' : ''); }).join('<br>') + (r.win.length > 1 ? '<br><small>同点</small>' : '') : '<small>該当なし</small>') + '</td><td>' + (r.max || '-') + '<br><small>特' + (r.win[0] ? r.win[0].toku : 0) + '・並' + (r.win[0] ? r.win[0].nami : 0) + '</small></td><td>' + r.kus + '句<br><small>' + r.people + '人・互選' + r.voters + '人</small></td><td>' + (r.kansho.length ? '🔍 ' + r.kansho.map(esc).join('<br>') + '<br><small>評' + r.kmax + '句ぶん</small>' : '<small>-</small>') + '</td></tr>';
     }).join('') + '</tbody></table></div>';
     h += '<p class="note">称号は、優勝の回数で決まります：優勝3回で特待生 → さらに5回で名人 → さらに10回で天位。その先は……まだ、ひみつです。</p>';
@@ -2457,7 +2483,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   }
   function monVote(kind, kid) {
     if (!db || !myId) { toast('登録すると互選できます'); return; }
-    var id = monMonth || monId(); if (monPhase(id) !== 'select') return;
+    var id = monMonth || monId(); if (monPhase(id) !== 'select' || monFlow(id)) return;
     if (kid.indexOf(myId + ':') === 0) { toast('自分の句には入れられません'); return; }
     var d = monDoc(id), v = JSON.parse(JSON.stringify((d.votes || {})[myId] || { toku: '', nami: [], yo: [], fin: false }));
     v.nami = v.nami || []; v.yo = v.yo || [];
@@ -2472,13 +2498,13 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var p = { votes: {} }; p.votes[myId] = v; monWrite(id, p);
   }
   function monFin() {
-    var id = monMonth || monId(); if (!db || !myId || monPhase(id) !== 'select') return;
+    var id = monMonth || monId(); if (!db || !myId || monPhase(id) !== 'select' || monFlow(id)) return;
     var d = monDoc(id), v = (d.votes || {})[myId] || { toku: '', nami: [], yo: [] };
     if (!v.fin && !v.toku && !(v.nami || []).length && !(v.yo || []).length) { toast('ひとつは選んでから、終えてください'); return; }
     var p = { votes: {} }; p.votes[myId] = { fin: !v.fin }; monWrite(id, p).then(function () { toast(v.fin ? '取り消しました' : '選を終えました。ありがとうございます'); });
   }
   function monComment(kid) {
-    var id = monMonth || monId(); if (!db || !myId || monPhase(id) !== 'select') return;
+    var id = monMonth || monId(); if (!db || !myId || monPhase(id) !== 'select' || monFlow(id)) return;
     var t = String(monCmt[kid] || '').trim(); if (!t) return;
     var p = { cmts2: {} }; p.cmts2[myId] = {}; p.cmts2[myId][kid] = { haigo: haigo.trim() || '名無し', text: t.slice(0, 120), at: Date.now() };
     monWrite(id, p).then(function () { toast('選評を送りました'); });
@@ -6900,8 +6926,9 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   function vMonthlyLine() {
     var id = monId(), ph = monPhase(id); if (ph === 'closed' || ph === 'soon') return '';
     var day = new Date(Date.now() + 9 * 3600000).getUTCDate(), en = monEnds(id), kd = monKendai(id), d = monDoc(id), me = myId && d.entries && d.entries[myId];
-    var st, sub, btn;
-    if (ph === 'entry') { st = '投句、受付中'; sub = en.e + '日まで（あと <b>' + (en.e - day + 1) + '</b>日）・1人1〜3句'; btn = me ? '句を見直す ›' : '投句する ›'; }
+    var st, sub, btn, nk = monKus(d).length;
+    if (monFlow(id, d)) { st = '今月は、流会です'; sub = '投句が' + nk + '句で、' + MON_MIN + '句に満たなかったため、おやすみします'; btn = 'くわしく ›'; }
+    else if (ph === 'entry') { st = '投句、受付中'; sub = en.e + '日まで（あと <b>' + (en.e - day + 1) + '</b>日）・1人1〜3句' + (monLoaded && nk < MON_MIN ? '・ひらくまで、あと <b>' + (MON_MIN - nk) + '</b>句' : ''); btn = me ? '句を見直す ›' : '投句する ›'; }
     else if (ph === 'select') { st = '互選、受付中'; sub = en.s + '日まで（あと <b>' + (en.s - day + 1) + '</b>日）・特選1・並選3'; btn = '選ぶ ›'; }
     else { st = '結果が出ました'; sub = (en.s + 1) + '日に発表・開票をどうぞ'; btn = '結果を見る ›'; }
     return '<section class="monbig" aria-label="月例句会"><div class="mb-head"><span class="mb-lb">' + (id === MON_START ? '<em class="mb-new">新企画</em>' : '') + '📮 月例句会<small>' + esc(monLabel(id)) + '</small></span><span class="mb-st">' + st + '</span></div>' +
@@ -8173,7 +8200,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     subGohyo();
     try {
       unsubs.push(db.collection('monthly').orderBy('__name__', 'desc').limit(6).onSnapshot(function (sn) {
-        var o = {}; sn.docs.forEach(function (d) { var x = d.data() || {}; x.id = d.id; o[d.id] = x; }); monthly = o; if (!page && tab === 'monthly') render();
+        var o = {}; sn.docs.forEach(function (d) { var x = d.data() || {}; x.id = d.id; o[d.id] = x; }); var first = !monLoaded; monthly = o; monLoaded = true; if (!page && (tab === 'monthly' || first)) render();
       }, function () {}));
       unsubs.push(db.doc('lounge/main').onSnapshot(function (d) {
         var o = (d && d.exists && d.data()) || {}; var n0 = Object.keys(o).length;
