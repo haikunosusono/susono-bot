@@ -6,8 +6,26 @@
 //   KIND=auto（既定）|daily|feature|announce|start|thanks … どのつぶやきをするか。auto は、いまの時刻で決める
 //   TEI_POSTS=announce,thanks（既定）… すその句会（定例）のつぶやきの種類。start を足すと「はじまりました」も出す
 //   FORCE_NOW=2026-10-10T21:00:00+09:00 … テスト用に、いまの時刻を指定
+//   写真：機能紹介（昼12時すぎ feature2・19時 feature）は img/parts/、お礼は img/meiku/（名句で作った句碑の見本）を1枚つける
+//   TWEET_IMG=0 で写真なし（文だけ）。MEDIA_TEST=1 で、写真をXに送る試験だけ（投稿はしない）
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const menu = require('./menu.json');
+// 写真つきの機能紹介（ひとつずつ）と、お礼につける名句の句碑（季節ごと）。写真は tools/shashin の道具で作って、img/ に置いてある
+let PARTS = [], MEIKU = {};
+try { PARTS = require('./img/parts.json'); } catch (_) {}
+try { MEIKU = require('./img/meiku.json'); } catch (_) {}
+function imgOn() { return process.env.TWEET_IMG !== '0'; }
+function seasonOf(d) { const m = +String(d).slice(5, 7); return m >= 3 && m <= 5 ? 'haru' : m >= 6 && m <= 8 ? 'natsu' : m >= 9 && m <= 11 ? 'aki' : 'fuyu'; }
+function hashStr(t) { let h = 2166136261; for (let i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+// お礼につける1枚：その季節の名句で作った「句碑の見本」（2つならべて、ちがいを見せる）。回ごとに変わる
+function meikuFor(slot) { const L = MEIKU[seasonOf(slot.date)] || []; if (!L.length) return null; return L[hashStr(slot.sid) % L.length]; }
+const MEIKU_SHORT = '📷 写真は、名句で作った句碑の見本です。';
+function meikuLine(m) { return '📷 写真は、句碑の見本です（名句：' + m.by + '）。同じ句でも、' + m.what + 'で、こんなに変わります。'; }
+// 機能紹介：1日2回（昼・19時）。31個を、順にひとつずつ
+function partFor(dayN, second) { if (!PARTS.length) return null; return PARTS[(dayN * 2 + (second ? 0 : 1)) % PARTS.length]; }
+function partText(pt) { return '【俳句の裾野でできること】\n' + pt.t + '\n' + pt.x; }
 const URL_ = 'https://haikunosusono.web.app';
 const TAGS = '#俳句の裾野 #チームすその #俳句 #haiku #俳筋力 #俳句初心者';
 const TEI_TAGS = '#俳句の裾野 #チームすその #俳句 #句会 #当季雑詠';
@@ -122,15 +140,15 @@ function teiNextLines(slot) {
   const l3 = next[1] ? nm(next[1]) + 'の回にも、ぜひご参加を。' : '';
   return { l1, l2, l3 };
 }
-function noshowText(slot) {
-  const n = teiNextLines(slot), head = (slot.h < 12 ? 'けさ' : slot.h < 17 ? 'きょう昼' : '今夜') + hh(slot.h) + 'の「' + slotName(slot.h) + '」は、おやすみでした。';
-  return [[head, n.l1, n.l2, n.l3], [head, n.l1, n.l2], [head, n.l1, 'つぎの回の投句は、いまから受付中です。']].map(v => v.filter(Boolean).join('\n'));
+function noshowText(slot, ml) {
+  const ms = ml ? MEIKU_SHORT : '', n = teiNextLines(slot), head = (slot.h < 12 ? 'けさ' : slot.h < 17 ? 'きょう昼' : '今夜') + hh(slot.h) + 'の「' + slotName(slot.h) + '」は、おやすみでした。';
+  return [[head, n.l1, n.l2, ml], [head, n.l1, ml], [head, 'つぎの回の投句は、いまから受付中です。', ml], [head, 'つぎの回の投句は、いまから受付中です。', ms], [head, ms], [head, n.l1, n.l2, n.l3], [head, n.l1, n.l2], [head, n.l1, 'つぎの回の投句は、いまから受付中です。']].filter(v => ml ? true : (v.indexOf(ml) < 0 && v.indexOf(ms) < 0)).map(v => v.filter(Boolean).join('\n'));
 }
-function thanksText(slot, humans, bots) {
+function thanksText(slot, humans, bots, ml) {
   const who = bots ? humans + '人（ほかにボット' + bots + '名）' : humans + '人';
-  const n = teiNextLines(slot);
+  const n = teiNextLines(slot), ms = ml ? MEIKU_SHORT : '';
   const head = '【ありがとうございました】' + slotLabel(slot) + '「' + slotName(slot.h) + '」は、終了しました。参加は、' + who + 'でした。';
-  return [[head, n.l1, n.l2, n.l3], [head, n.l1, n.l2], [head, n.l1, 'つぎの回の投句は、いまから受付中です。'], [head, n.l1]].map(v => v.filter(Boolean).join('\n'));
+  return [[head, n.l1, n.l2, ml], [head, n.l1, ml], [head, 'つぎの回の投句は、いまから受付中です。', ml], [head, 'つぎの回の投句は、いまから受付中です。', ms], [head, ms], [head, n.l1, n.l2, n.l3], [head, n.l1, n.l2], [head, n.l1, 'つぎの回の投句は、いまから受付中です。'], [head, n.l1]].filter(v => ml ? true : (v.indexOf(ml) < 0 && v.indexOf(ms) < 0)).map(v => v.filter(Boolean).join('\n'));
 }
 async function fetchPub(sid) {
   const url = 'https://firestore.googleapis.com/v1/projects/' + PROJECT + '/databases/(default)/documents/pub/' + sid;
@@ -166,9 +184,11 @@ async function buildAny() {
   else if (want !== 'daily') slot = slotFor(want, t);
   if (kind === 'none') return { d: jstDate(), kind, text: '', skip: 'この時刻に合う定例句会がないので、投稿しません' };
   if (kind === 'daily') return Object.assign({ skip: '', key: 'daily-' + jstDate() }, build());
-  if (kind === 'feature') { // 19時：毎日ひとつ、機能紹介（30日でひとまわり）
-    const d = jstDate(), dayN = Math.floor(Date.parse(d + 'T00:00:00Z') / 86400000);
-    return { d, kind, text: fitTags([featureText(dayN)], process.env.INCLUDE_LINK === '1' ? '\n' + URL_ : '', TAGS), skip: '', key: 'feature-' + d };
+  if (kind === 'feature' || kind === 'feature2') { // 昼12時すぎ（feature2）と19時（feature）：できることを、ひとつずつ。写真つき
+    const d = jstDate(), dayN = Math.floor(Date.parse(d + 'T00:00:00Z') / 86400000), pt = partFor(dayN, kind === 'feature2');
+    const lk = process.env.INCLUDE_LINK === '1' ? '\n' + URL_ : '';
+    if (!pt) { if (kind === 'feature2') return { d, kind, text: '', skip: '写真つきの紹介の一覧（img/parts.json）がないので、投稿しません' }; return { d, kind, text: fitTags([featureText(dayN)], lk, TAGS), skip: '', key: 'feature-' + d }; }
+    return { d, kind, text: fitTags([partText(pt)], lk, TAGS), skip: '', key: kind + '-' + d, img: imgOn() ? 'img/parts/' + pt.id + '.jpg' : '', imgNote: pt.t };
   }
   const on = (process.env.TEI_POSTS || 'announce,thanks').split(',').map(x => x.trim());
   // 21時の実況（人が集まった回だけ・1回につき最大1つ）は、変数 TEI_LIVE=0 でとめられる（ふだんは出す）
@@ -176,7 +196,7 @@ async function buildAny() {
   if (!on.includes(kind) && !liveOn) return { d: jstDate(), kind, text: '', skip: kind + ' は TEI_POSTS に入っていないので、投稿しません' };
   if (!slot) return { d: jstDate(), kind, text: '', skip: '対象の定例句会が見つかりません' };
   const link = process.env.INCLUDE_LINK === '1' ? '\n' + URL_ + '/#' + slot.sid : '';
-  let body;
+  let body, mk = null;
   if (kind === 'announce') body = announceText(slot, t);
   else if (kind === 'start' && liveOn) {
     const pub = await fetchPub(slot.sid);
@@ -186,9 +206,12 @@ async function buildAny() {
   else if (kind === 'start') body = startText(slot);
   else {
     const pub = await fetchPub(slot.sid);
-    body = (!pub || !pub.humans) ? noshowText(slot) : thanksText(slot, pub.humans, pub.bots);
+    mk = imgOn() ? meikuFor(slot) : null;
+    const ml = mk ? meikuLine(mk) : '';
+    body = (!pub || !pub.humans) ? noshowText(slot, ml) : thanksText(slot, pub.humans, pub.bots, ml);
   }
-  return { d: slot.date, kind, text: fitTags(body, link, liveOn ? '#俳句の裾野 #俳句 #句会' : TEI_TAGS), skip: '', key: kind + '-' + slot.sid };
+  const text = fitTags(body, link, liveOn ? '#俳句の裾野 #俳句 #句会' : TEI_TAGS);
+  return { d: slot.date, kind, text, skip: '', key: kind + '-' + slot.sid, img: mk ? 'img/meiku/' + mk.f : '', imgNote: mk ? '句碑の見本（' + mk.what + '）' + mk.ku + '　' + mk.by : '' };
 }
 function build() {
   const d = jstDate(), m = menu[d];
@@ -210,8 +233,23 @@ function authHeader(method, url, key, secret, token, tokenSecret, extra, fixed) 
   p.oauth_signature = crypto.createHmac('sha1', enc(secret) + '&' + enc(tokenSecret)).update(base).digest('base64');
   return 'OAuth ' + Object.keys(p).sort().map(k => enc(k) + '="' + enc(p[k]) + '"').join(', ');
 }
+// 写真をXに送って、番号（media id）をもらう。うまくいかなければ ''（文だけで投稿する）
+async function uploadImage(file, keys) {
+  const url = 'https://api.x.com/2/media/upload', buf = fs.readFileSync(path.join(__dirname, file));
+  const tryOnce = async (how) => {
+    let r;
+    if (how === 'json') r = await fetch(url, { method: 'POST', headers: { Authorization: authHeader('POST', url, ...keys), 'Content-Type': 'application/json' }, body: JSON.stringify({ media: buf.toString('base64'), media_category: 'tweet_image' }) });
+    else { const fd = new FormData(); fd.append('media', new Blob([buf], { type: 'image/jpeg' }), path.basename(file)); fd.append('media_category', 'tweet_image'); r = await fetch(url, { method: 'POST', headers: { Authorization: authHeader('POST', url, ...keys) }, body: fd }); }
+    const t = await r.text(); let j = null; try { j = JSON.parse(t); } catch (_) {}
+    const id = j && j.data && (j.data.id || j.data.media_id_string || j.data.media_id) || (j && j.media_id_string) || '';
+    console.log('写真の送信（' + how + '）: ' + r.status + (id ? ' OK' : ' ' + t.replace(/\r?\n/g, ' ').slice(0, 300)));
+    return r.ok && id ? String(id) : '';
+  };
+  for (const how of ['json', 'form']) { try { const id = await tryOnce(how); if (id) return id; } catch (e) { console.log('写真の送信（' + how + '）でつまずき: ' + e.message); } }
+  return '';
+}
 async function main() {
-  const { d, kind, text, skip, key } = await buildAny();
+  const { d, kind, text, skip, key, img, imgNote } = await buildAny();
   if (skip) { console.log('（' + kind + '：' + skip + '）'); return; }
   // 投稿ずみの記録（Firestore の oplog/tweet-<種類-回>）。送り直し・念のための2回目で、二重に投稿しないため
   let fsa = null; try { fsa = require('./tools/fsauth.js'); } catch (_) {}
@@ -222,10 +260,29 @@ async function main() {
   }
   const markDone = async (how) => { if (!canLog) return; try { await fsa.withRetry(() => fsa.patch(logPath, { key, done: true, how: how || 'posted', at: new Date().toISOString() }), 3, '投稿記録の保存'); } catch (e) { console.log('投稿記録を保存できませんでした:', e.message); } };
   console.log('--- ' + d + ' (' + kind + ') / 重み付き文字数 ' + weighted(text) + ' ---\n' + text + '\n---');
+  const hasImg = !!(img && fs.existsSync(path.join(__dirname, img)));
+  console.log(img ? '写真: ' + img + (hasImg ? '（' + (imgNote || '') + '）' : '（ファイルが見つからないので、文だけ）') : '写真: なし');
   const e = process.env, keys = [e.X_API_KEY, e.X_API_SECRET, e.X_ACCESS_TOKEN, e.X_ACCESS_SECRET];
+  if (e.MEDIA_TEST === '1') { // 写真を送る試験だけ（投稿はしない・記録もしない）
+    if (keys.some(k => !k)) { console.log('（鍵が未設定なので、試験できません）'); return; }
+    const tf = hasImg ? img : (PARTS[0] ? 'img/parts/' + PARTS[0].id + '.jpg' : '');
+    if (!tf) { console.log('（試験に使う写真がありません）'); return; }
+    const tid = await uploadImage(tf, keys);
+    console.log(tid ? '::notice title=写真の試験::Xに写真を送れました（' + tf + '）。投稿はしていません' : '::error title=写真の試験::Xに写真を送れませんでした。上の記録を見てください');
+    if (!tid) process.exit(1);
+    return;
+  }
   if (e.DRY_RUN === '1' || keys.some(k => !k)) { console.log('（投稿はしていません：DRY_RUN または鍵が未設定）'); return; }
   const url = 'https://api.x.com/2/tweets';
-  const r = await fetch(url, { method: 'POST', headers: { Authorization: authHeader('POST', url, ...keys), 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) });
+  let mediaId = '';
+  if (hasImg) { mediaId = await uploadImage(img, keys); if (!mediaId) console.log('::warning title=写真::写真を送れなかったので、文だけで投稿します'); }
+  const payload = mediaId ? { text, media: { media_ids: [mediaId] } } : { text };
+  let r = await fetch(url, { method: 'POST', headers: { Authorization: authHeader('POST', url, ...keys), 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+  if (!r.ok && mediaId && r.status !== 429 && r.status < 500) { // 写真つきで断られたら、文だけでもう一度（同じ文の二重投稿にはならない：1回目は投稿されていない）
+    const j0 = await r.text(); console.log(r.status, j0);
+    if (!/duplicate/i.test(j0)) { console.log('::warning title=写真::写真つきの投稿が断られたので、文だけで投稿します'); mediaId = ''; r = await fetch(url, { method: 'POST', headers: { Authorization: authHeader('POST', url, ...keys), 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) }); }
+    else { console.log('::notice title=X::同じ文の投稿なので、Xに断られました（失敗あつかいにしません）'); await markDone('duplicate'); return; }
+  }
   const j = await r.text();
   console.log(r.status, j);
   if (!r.ok) {
@@ -235,7 +292,8 @@ async function main() {
     if (!dup) process.exit(1);
     return;
   }
-  await markDone('posted');
+  await markDone(mediaId ? 'posted+img:' + img : 'posted');
+  console.log(mediaId ? '::notice title=写真つき::' + kind + ' に ' + img + ' を付けました（' + (imgNote || '') + '）' : '（文だけで投稿しました）');
 }
 if (require.main === module) main().catch(err => { console.error(err); process.exit(1); });
-module.exports = { liveText, build, buildAny, autoKind, slotsAround, weighted, authHeader, announceText, thanksText };
+module.exports = { partFor, meikuFor, uploadImage, liveText, build, buildAny, autoKind, slotsAround, weighted, authHeader, announceText, thanksText };

@@ -1,0 +1,13 @@
+const pp=require('puppeteer-core');
+exports.open=async function(opt){opt=opt||{};
+ const b=await pp.launch({executablePath:'/usr/bin/google-chrome',args:['--no-sandbox','--allow-file-access-from-files','--hide-scrollbars'],headless:'new'});
+ const p=await b.newPage(); await p.setViewport({width:opt.w||390,height:opt.h||844,deviceScaleFactor:opt.dpr||2});
+ if(opt.now) await p.evaluateOnNewDocument((t)=>{const R=Date,off=t-R.now();const D=class extends R{constructor(...a){if(a.length)super(...a);else super(R.now()+off);}static now(){return R.now()+off;}};window.Date=D;},Date.parse(opt.now));
+ if(opt.ls) await p.evaluateOnNewDocument((ls)=>{try{Object.keys(ls).forEach(k=>localStorage.setItem(k,ls[k]));}catch(e){}},opt.ls);
+ p.on('pageerror',e=>console.log('PAGEERR',String(e).slice(0,300)));
+ await p.goto('http://127.0.0.1:8765/appcopy/index.html',{waitUntil:'domcontentloaded'});
+ await new Promise(r=>setTimeout(r,1200));
+ p.T=(c)=>p.evaluate((c)=>{const r=window.__T(c);return typeof r==='object'?JSON.stringify(r):r;},c);
+ p.wait=(ms)=>new Promise(r=>setTimeout(r,ms));
+ return {b,p};
+};
