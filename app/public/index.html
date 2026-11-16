@@ -982,7 +982,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.16d';
+  var APP_VER = 'v2026.11.16e';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2329,7 +2329,10 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
       (id === monId() ? '<p class="note">かわりに、' + esc(monLabel(monNext(id))) + 'の兼題を早めに出しました。もう投句できます。</p><div class="row"><button class="primary" data-act="mon-month" data-v="' + monNext(id) + '">' + esc(monLabel(monNext(id))) + 'の兼題で、投句する ›</button></div>' : '') + '</div>';
   }
   /* 兼題：ボットが、季語・テーマ・当季雑詠から、月ごとに決める（だれの画面でも同じ） */
+  /* 月ごとに、運営者が決めた兼題（あれば、こちらを使う） */
+  var MON_KD = { '2026-12': { kind: '季語・当季雑詠', t: '息白し、または当季雑詠', note: '季語「息白し」を詠みこむか、いまの季節を自由に（当季雑詠）' } };
   function monKendai(id) {
+    if (MON_KD[id]) return MON_KD[id];
     var h = hash('mon' + id), m = +id.split('-')[1], kg = (KIGO[m] || KIGO[1]), tp = (THEMES[h % THEMES.length] || {}).t || 'ラジオ';
     var kind = ['季語', 'テーマ', '当季雑詠'][h % 3];
     return kind === '季語' ? { kind: '季語', t: kg[(h >>> 3) % kg.length], note: 'この季語を詠みこんで' } : kind === 'テーマ' ? { kind: 'テーマ', t: tp, note: 'このテーマで（季語はご自由に）' } : { kind: '当季雑詠', t: '当季雑詠', note: 'いまの季節を、自由に' };
