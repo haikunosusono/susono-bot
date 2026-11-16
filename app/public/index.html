@@ -982,7 +982,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.16b';
+  var APP_VER = 'v2026.11.16c';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -2294,11 +2294,17 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function monEnds(id) { var o = MON_SCHED[id] || {}; return { e: o.entryEnd || MON_ENTRY_END, s: o.selEnd || MON_SEL_END, note: o.note || '' }; }
   var monthly = {}, monDraft = ['', '', ''], monSelView = 'vote', monCmt = {}, monMonth = null;
   function monId(d) { d = d || new Date(Date.now() + 9 * 3600000); return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2); }
+  function monNext(id) { var p = id.split('-'), y = +p[0], m = +p[1] + 1; if (m > 12) { m = 1; y++; } return y + '-' + ('0' + m).slice(-2); }
+  /* いま動いている月：ふつうは今月。今月が流会なら、来月（前倒しで投句を受付中） */
+  function monAct() { var cur = monId(); return monFlow(cur) ? monNext(cur) : cur; }
+  function monEarly(id) { var cur = monId(); return id === monNext(cur) && monFlow(cur); }
+  /* しめきりまでの日数（前倒しの月は、月をまたいで数える） */
+  function monDaysLeft(id, endDay) { var now = new Date(Date.now() + 9 * 3600000), p = id.split('-'); return Math.round((Date.UTC(+p[0], +p[1] - 1, endDay) - Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())) / 86400000) + 1; }
   function monLabel(id) { var p = id.split('-'); return p[0] + '年' + (+p[1]) + '月'; }
   function monPhase(id) {
     var now = new Date(Date.now() + 9 * 3600000), cur = monId(now);
     if (id < MON_START) return 'closed';
-    if (id < cur) return 'done'; if (id > cur) return 'soon';
+    if (id < cur) return 'done'; if (id > cur) return (id === monNext(cur) && monFlow(cur)) ? 'entry' : 'soon'; /* 今月が流会なら、来月の兼題を早めに出して、投句を受け付ける */
     var day = now.getUTCDate(), en = monEnds(id);
     return day <= en.e ? 'entry' : day <= en.s ? 'select' : 'done';
   }
@@ -2310,7 +2316,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     return '<details class="panel" id="mon-flow-rule"' + (open ? ' open' : '') + '><summary><b>📢 お知らせ：' + MON_MIN + '句に満たない月は「流会」です</b></summary>' +
       '<p class="note">いつもご参加ありがとうございます。月例句会の進め方について、ひとつ決めごとをお知らせします。</p>' +
       '<p class="note">締切の時点で投句が' + MON_MIN + '句に満たなかった月は、句会を「流会」とさせていただきます。</p>' +
-      '<ul class="note" style="margin:.4em 0 0 1.2em;padding:0"><li>流会になった場合は、締切後にこちらでお知らせします</li><li>出していただいた句は、そのまま次の月に回していただいても、別の投句先に使っていただいてもかまいません</li></ul>' +
+      '<ul class="note" style="margin:.4em 0 0 1.2em;padding:0"><li>流会になった場合は、締切後にこちらでお知らせします</li><li>流会になった月は、次の月の兼題を早めに出して、すぐ投句を受け付けます</li><li>出していただいた句は、別の投句先に使っていただいてかまいません</li></ul>' +
       '<p class="note">少人数でも気楽に続けていくための決めごとです。一句でも出していただけると句会が成り立ちやすくなりますので、どうぞ気軽にご投句ください。</p>' +
       '<p class="note" style="text-align:right">俳句の裾野（管理人より）</p></details>';
   }
@@ -2318,15 +2324,15 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function vMonthlyFlow(id, d) {
     var kus = monKus(d), mine = myId && d.entries && d.entries[myId], mk = mine ? (mine.kus || []).filter(Boolean) : [];
     return '<div class="panel"><b>' + esc(monLabel(id)) + 'の月例句会は、ありません（流会）</b><p class="lead">投句が' + kus.length + '句で、' + MON_MIN + '句に満たなかったため、今月はおやすみです。</p>' +
-      '<p class="note">互選と結果発表は、ありません。出していただいた句は、そのまま次の月に回していただいても、別の投句先に使っていただいてもかまいません。</p>' +
+      '<p class="note">互選と結果発表は、ありません。出していただいた句は、別の投句先に使っていただいてかまいません。</p>' +
       (mk.length ? '<p class="note">あなたの句：' + mk.map(function (k) { return '「' + esc(k) + '」'; }).join(' ') + '（ストッ句に残っています）</p>' : '') +
-      '<p class="note">来月も、1日に兼題が出ます。どうぞ気軽にご投句ください。</p></div>';
+      (id === monId() ? '<p class="note">かわりに、' + esc(monLabel(monNext(id))) + 'の兼題を早めに出しました。もう投句できます。</p><div class="row"><button class="primary" data-act="mon-month" data-v="' + monNext(id) + '">' + esc(monLabel(monNext(id))) + 'の兼題で、投句する ›</button></div>' : '') + '</div>';
   }
   /* 兼題：ボットが、季語・テーマ・当季雑詠から、月ごとに決める（だれの画面でも同じ） */
   function monKendai(id) {
     var h = hash('mon' + id), m = +id.split('-')[1], kg = (KIGO[m] || KIGO[1]), tp = (THEMES[h % THEMES.length] || {}).t || 'ラジオ';
     var kind = ['季語', 'テーマ', '当季雑詠'][h % 3];
-    return kind === '季語' ? { kind: '季語', t: kg[(h >> 3) % kg.length], note: 'この季語を詠みこんで' } : kind === 'テーマ' ? { kind: 'テーマ', t: tp, note: 'このテーマで（季語はご自由に）' } : { kind: '当季雑詠', t: '当季雑詠', note: 'いまの季節を、自由に' };
+    return kind === '季語' ? { kind: '季語', t: kg[(h >>> 3) % kg.length], note: 'この季語を詠みこんで' } : kind === 'テーマ' ? { kind: 'テーマ', t: tp, note: 'このテーマで（季語はご自由に）' } : { kind: '当季雑詠', t: '当季雑詠', note: 'いまの季節を、自由に' };
   }
   function monDoc(id) {
     var d = monthly[id]; if (!d) return { id: id, entries: {}, votes: {}, cmts: {} };
@@ -2354,20 +2360,21 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function monRank(n) { var r = ''; MON_RANKS.forEach(function (x) { if (n >= x[1]) r = x[0]; }); return r; }
   function monNextRank(n) { for (var i = 0; i < MON_RANKS.length; i++) if (n < MON_RANKS[i][1]) return MON_RANKS[i]; return null; }
   function vMonthly() {
-    var id = monMonth || monId(), d = monDoc(id), ph = monPhase(id), kd = monKendai(id), kus = monKus(d), mine = d.entries && d.entries[myId], h = '', en = monEnds(id), MON_ENTRY_END = en.e, MON_SEL_END = en.s;
+    var id = monMonth || monAct(), d = monDoc(id), ph = monPhase(id), kd = monKendai(id), kus = monKus(d), mine = d.entries && d.entries[myId], h = '', en = monEnds(id), MON_ENTRY_END = en.e, MON_SEL_END = en.s;
     h += '<h2 class="sec">月例句会<small>' + esc(monLabel(id)) + '</small></h2>';
     h += '<p class="row"><button class="chip fit" data-act="page" data-p="hall">🏛 殿堂（月ごとの成績）</button></p>';
     if (ph !== 'closed') h += '<details class="panel"><summary>📅 しめきりを、カレンダーに入れる</summary><p class="note">投句しめきり（' + en.e + '日）と互選しめきり（' + en.s + '日）を、うっかり過ぎないように。</p><div class="row">' +
       '<a class="chip fit" href="' + monCalGoogle(id, en.e, '月例句会：投句しめきり') + '" target="_blank" rel="noopener">Googleカレンダー：投句しめきり</a>' +
       '<a class="chip fit" href="' + monCalGoogle(id, en.s, '月例句会：互選しめきり') + '" target="_blank" rel="noopener">Googleカレンダー：互選しめきり</a>' +
       '<button class="chip fit" data-act="calmon">📥 12か月ぶんをまとめて（.ics）</button></div><p class="note">.ics は、iPhoneのカレンダーやGoogleカレンダーで、ひらくと入ります。兼題の発表・投句しめきり・互選しめきり・結果の4つが、月ごとに入ります。</p></details>';
-    h += '<div class="howto"><b>ゆっくり流れる、月に一度の句会</b><span>毎月1日に、ボットが兼題を発表。15日まで投句（1〜3句）。16日から25日まで互選（特選1・並選3・予選はいくつでも）。26日に結果と「月例句会報」。投句しめきりの時点で' + MON_MIN + '句に満たない月は、流会（おやすみ）です。登録した人はだれでも参加できます。見るだけもできます。</span></div>';
+    h += '<div class="howto"><b>ゆっくり流れる、月に一度の句会</b><span>毎月1日に、ボットが兼題を発表。15日まで投句（1〜3句）。16日から25日まで互選（特選1・並選3・予選はいくつでも）。26日に結果と「月例句会報」。投句しめきりの時点で' + MON_MIN + '句に満たない月は、流会（おやすみ）です。そのときは、次の月の兼題を早めに出して、すぐ投句を受け付けます。登録した人はだれでも参加できます。見るだけもできます。</span></div>';
     h += '<details class="panel" id="kansho-rule"' + (monKanshoOpen ? ' open' : '') + '><summary><b>🔍 鑑賞賞のルール</b></summary><ul class="note" style="margin:.4em 0 0 1.2em;padding:0"><li>月例句会で、その月にいちばん多く「評」を書いた人に贈る賞です。</li><li>同じ数の人が何人かいれば、全員に贈ります。</li><li>数えるのは、月例句会の評だけです。定例句会など、ほかの回の評は数えません。</li><li>受賞は、結果ページに出て、マイページにも残ります。</li><li>トロフィーの数には入りません。別の賞です。</li></ul></details>';
     /* 月の切りかえ */
-    var months = Object.keys(monthly).concat([monId()]).filter(function (x, i, a) { return a.indexOf(x) === i; }).sort().reverse();
+    var months = Object.keys(monthly).concat([monId(), monAct()]).filter(function (x, i, a) { return a.indexOf(x) === i; }).sort().reverse();
     if (months.length > 1) h += '<div class="row">' + months.map(function (m) { return '<button class="chip fit' + (m === id ? ' on' : '') + '" data-act="mon-month" data-v="' + m + '">' + esc(monLabel(m)) + '</button>'; }).join('') + '</div>';
     /* 兼題 */
     if (ph === 'closed') { return h + '<div class="panel"><b>準備中</b><p class="lead">' + esc(monLabel(MON_START)) + 'から、はじめます。</p><p class="note">' + esc(monLabel(MON_START)) + '1日に、ボットが兼題を発表します。それまで、しばらくお待ちください。</p></div>'; }
+    if (monEarly(id)) h += '<div class="panel"><b>' + esc(monLabel(monId())) + 'は、流会でした</b><p class="note">投句が' + MON_MIN + '句に満たなかったため、今月の月例句会はありません。かわりに、' + esc(monLabel(id)) + 'の兼題を早めに出しました。もう投句できます（しめきりは ' + (+id.split('-')[1]) + '月' + en.e + '日）。</p></div>';
     if (en.note) h += '<p class="note">' + esc(monLabel(id)) + 'は「' + esc(en.note) + '」の月です。日程：' + MON_ENTRY_END + '日まで投句、' + MON_SEL_END + '日まで互選、' + (MON_SEL_END + 1) + '日に結果。</p>';
     h += '<div class="panel"><b>' + esc(monLabel(id)) + 'の兼題</b><p class="lead" style="font-size:1.4rem;margin:.3em 0">' + esc(kd.t) + '</p><p class="note">' + esc(kd.kind) + '　' + esc(kd.note) + '。1人1〜3句。' + MON_ENTRY_END + '日まで投句、' + MON_SEL_END + '日まで互選。</p>' +
       '<ol class="steps"><li class="' + (ph === 'entry' ? 'now' : 'past') + '">投句（〜' + MON_ENTRY_END + '日）</li><li class="' + (ph === 'select' ? 'now' : ph === 'done' ? 'past' : '') + '">互選（' + (MON_ENTRY_END + 1) + '〜' + MON_SEL_END + '日）</li><li class="' + (ph === 'done' ? 'now' : '') + '">結果・句会報（' + (MON_SEL_END + 1) + '日〜）</li></ol></div>';
@@ -2476,7 +2483,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   var monReport = {}, monRev = {}, monKanshoOpen = false, foldOpen = {}; /* 登録前の人の、折りたたみの開閉（画面を描きなおしても、もどらないように） */
   function monSubmit() {
     if (!db || !myId) { toast('登録すると投句できます'); return; }
-    var id = monMonth || monId(); if (monPhase(id) !== 'entry') { toast('投句は' + monEnds(id).e + '日までです'); return; }
+    var id = monMonth || monAct(); if (monPhase(id) !== 'entry') { toast('投句は' + monEnds(id).e + '日までです'); return; }
     var d = monDoc(id), cur = (d.entries && d.entries[myId] && d.entries[myId].kus) || [], kus = [];
     for (var i = 0; i < MON_MAX; i++) kus.push(String(monDraft[i] != null && monDraft[i] !== '' ? monDraft[i] : (cur[i] || '')).trim().slice(0, 40));
     kus = kus.filter(Boolean); if (!kus.length) { toast('句を入れてください'); return; }
@@ -2486,7 +2493,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   }
   function monVote(kind, kid) {
     if (!db || !myId) { toast('登録すると互選できます'); return; }
-    var id = monMonth || monId(); if (monPhase(id) !== 'select' || monFlow(id)) return;
+    var id = monMonth || monAct(); if (monPhase(id) !== 'select' || monFlow(id)) return;
     if (kid.indexOf(myId + ':') === 0) { toast('自分の句には入れられません'); return; }
     var d = monDoc(id), v = JSON.parse(JSON.stringify((d.votes || {})[myId] || { toku: '', nami: [], yo: [], fin: false }));
     v.nami = v.nami || []; v.yo = v.yo || [];
@@ -2501,13 +2508,13 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
     var p = { votes: {} }; p.votes[myId] = v; monWrite(id, p);
   }
   function monFin() {
-    var id = monMonth || monId(); if (!db || !myId || monPhase(id) !== 'select' || monFlow(id)) return;
+    var id = monMonth || monAct(); if (!db || !myId || monPhase(id) !== 'select' || monFlow(id)) return;
     var d = monDoc(id), v = (d.votes || {})[myId] || { toku: '', nami: [], yo: [] };
     if (!v.fin && !v.toku && !(v.nami || []).length && !(v.yo || []).length) { toast('ひとつは選んでから、終えてください'); return; }
     var p = { votes: {} }; p.votes[myId] = { fin: !v.fin }; monWrite(id, p).then(function () { toast(v.fin ? '取り消しました' : '選を終えました。ありがとうございます'); });
   }
   function monComment(kid) {
-    var id = monMonth || monId(); if (!db || !myId || monPhase(id) !== 'select' || monFlow(id)) return;
+    var id = monMonth || monAct(); if (!db || !myId || monPhase(id) !== 'select' || monFlow(id)) return;
     var t = String(monCmt[kid] || '').trim(); if (!t) return;
     var p = { cmts2: {} }; p.cmts2[myId] = {}; p.cmts2[myId][kid] = { haigo: haigo.trim() || '名無し', text: t.slice(0, 120), at: Date.now() };
     monWrite(id, p).then(function () { toast('選評を送りました'); });
@@ -6927,12 +6934,12 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
   /* 月例句会の案内（1行）：いまの月の段階に合わせる */
   /* 月例句会の案内：定例句会の枠のすぐ下に、しっかり大きく。兼題・いまの段階・しめきりまでの日数・ボタン */
   function vMonthlyLine() {
-    var id = monId(), ph = monPhase(id); if (ph === 'closed' || ph === 'soon') return '';
+    var id = monAct(), ph = monPhase(id), early = monEarly(id); if (ph === 'closed' || ph === 'soon') return '';
     var day = new Date(Date.now() + 9 * 3600000).getUTCDate(), en = monEnds(id), kd = monKendai(id), d = monDoc(id), me = myId && d.entries && d.entries[myId];
     var st, sub, btn, nk = monKus(d).length;
-    if (monFlow(id, d)) { st = '今月は、ありません（流会）'; sub = '投句が' + MON_MIN + '句に満たなかったため、今月の月例句会は、おやすみです。次は、来月1日に兼題が出ます'; btn = 'くわしく ›'; }
+    if (monFlow(id, d)) { st = '今月は、ありません（流会）'; sub = '投句が' + MON_MIN + '句に満たなかったため、今月の月例句会は、おやすみです'; btn = 'くわしく ›'; }
     else if (monWait(id)) { st = 'たしかめています…'; sub = '今月の投句の数を、たしかめています'; btn = 'ひらく ›'; }
-    else if (ph === 'entry') { st = '投句、受付中'; sub = en.e + '日まで（あと <b>' + (en.e - day + 1) + '</b>日）・1人1〜3句' + (monLoaded && nk < MON_MIN ? '・ひらくまで、あと <b>' + (MON_MIN - nk) + '</b>句' : ''); btn = me ? '句を見直す ›' : '投句する ›'; }
+    else if (ph === 'entry') { st = '投句、受付中'; sub = (early ? (+monId().split('-')[1]) + '月は流会のため、' + (+id.split('-')[1]) + '月の兼題を早めに出しました。' + (+id.split('-')[1]) + '月' : '') + en.e + '日まで（あと <b>' + monDaysLeft(id, en.e) + '</b>日）・1人1〜3句' + (monLoaded && nk < MON_MIN ? '・ひらくまで、あと <b>' + (MON_MIN - nk) + '</b>句' : ''); btn = me ? '句を見直す ›' : '投句する ›'; }
     else if (ph === 'select') { st = '互選、受付中'; sub = en.s + '日まで（あと <b>' + (en.s - day + 1) + '</b>日）・特選1・並選3'; btn = '選ぶ ›'; }
     else { st = '結果が出ました'; sub = (en.s + 1) + '日に発表・開票をどうぞ'; btn = '結果を見る ›'; }
     return '<section class="monbig" aria-label="月例句会"><div class="mb-head"><span class="mb-lb">' + (id === MON_START ? '<em class="mb-new">新企画</em>' : '') + '📮 月例句会<small>' + esc(monLabel(id)) + '</small></span><span class="mb-st">' + st + '</span></div>' +
@@ -7637,7 +7644,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     if (act === 'copy-url') { try { navigator.clipboard.writeText('https://haikunosusono.web.app').then(function () { toast('URLをコピーしました'); }, function () { toast('コピーできませんでした'); }); } catch (_) { toast('コピーできませんでした'); } return; }
     if (act === 'mon-month') { monMonth = t.dataset.v; monDraft = ['', '', '']; render(); }
     else if (act === 'mon-submit') { monSubmit(); }
-    else if (act === 'mon-withdraw') { var mid0 = monMonth || monId(); if (monPhase(mid0) !== 'entry' || !db || !myId) return; if (!window.confirm('今月の投句を、取り消しますか？')) return; var FVm = window.firebase && window.firebase.firestore && window.firebase.firestore.FieldValue, mp = { entries: {} }; mp.entries[myId] = FVm && FVm.delete ? FVm.delete() : null; monWrite(mid0, mp).then(function () { toast('取り消しました'); }); }
+    else if (act === 'mon-withdraw') { var mid0 = monMonth || monAct(); if (monPhase(mid0) !== 'entry' || !db || !myId) return; if (!window.confirm('今月の投句を、取り消しますか？')) return; var FVm = window.firebase && window.firebase.firestore && window.firebase.firestore.FieldValue, mp = { entries: {} }; mp.entries[myId] = FVm && FVm.delete ? FVm.delete() : null; monWrite(mid0, mp).then(function () { toast('取り消しました'); }); }
     else if (act === 'mon-vote') { monVote(t.dataset.kind, t.dataset.id); }
     else if (act === 'mon-fin') { monFin(); }
     else if (act === 'mon-cm') { monComment(t.dataset.id); }
@@ -8209,7 +8216,7 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
         var o = {}; sn.docs.forEach(function (d) { var x = d.data() || {}; x.id = d.id; o[d.id] = x; }); monGot(o);
       }, function (e) { try { console.warn('月例句会の記録を読めませんでした（一覧）', e && e.message); } catch (_) {} }));
       /* 今月の分は、単独でも読む（一覧が読めなくても、流会かどうかを判定できるように） */
-      (function () { var mid = monId(); unsubs.push(db.doc('monthly/' + mid).onSnapshot(function (d) { var o = {}; Object.keys(monthly).forEach(function (k) { o[k] = monthly[k]; }); if (d && d.exists) { var x = d.data() || {}; x.id = mid; o[mid] = x; } else delete o[mid]; monGot(o); }, function (e2) { try { console.warn('月例句会の記録を読めませんでした（今月）', e2 && e2.message); } catch (_) {} })); })();
+      [monId(), monNext(monId())].forEach(function (mid, mi) { unsubs.push(db.doc('monthly/' + mid).onSnapshot(function (d) { var o = {}; Object.keys(monthly).forEach(function (k) { o[k] = monthly[k]; }); if (d && d.exists) { var x = d.data() || {}; x.id = mid; o[mid] = x; } else delete o[mid]; if (mi === 0) monGot(o); else { monthly = o; if (monLoaded && !page) render(); } }, function (e2) { try { console.warn('月例句会の記録を読めませんでした（今月）', e2 && e2.message); } catch (_) {} })); });
       unsubs.push(db.doc('lounge/main').onSnapshot(function (d) {
         var o = (d && d.exists && d.data()) || {}; var n0 = Object.keys(o).length;
         if (loungeSeen !== null && n0 > loungeSeen) { var lastL = Object.keys(o).map(function (k) { return o[k]; }).sort(function (a, b) { return (b.at || 0) - (a.at || 0); })[0]; if (lastL && lastL.uid !== myId) { pilon(); if (!loungeOpen) toast('談話室：' + (lastL.haigo || '') + '「' + String(lastL.text || '').slice(0, 20) + '」'); } }
