@@ -982,7 +982,7 @@ body[data-mine="light"] .cmi.own .cmtag{background:var(--tile2);color:inherit}
   function ds(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
   function dn(str) { var p = str.split('-'); return Math.floor(Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000); }
   /* 画面の日付の横に出る、版の名前。お渡しのたびに新しくします */
-  var APP_VER = 'v2026.11.15a';
+  var APP_VER = 'v2026.11.16a';
   /* 新しい版が公開されたら、上の「更新」ボタンを赤くして知らせる（10分ごと・画面にもどったときに確かめる） */
   var newVer = false, verChecked = false, verErr = '';
   function checkVer() {
@@ -8199,9 +8199,14 @@ var C={ph:'#3a3530',sc:'#fffdf6',bar:'#e8e0cc',ink:'#2b2620',sub:'#6b6254',ac:'#
     }, function () {}));
     subGohyo();
     try {
-      unsubs.push(db.collection('monthly').orderBy('__name__', 'desc').limit(6).onSnapshot(function (sn) {
-        var o = {}; sn.docs.forEach(function (d) { var x = d.data() || {}; x.id = d.id; o[d.id] = x; }); var first = !monLoaded; monthly = o; monLoaded = true; if (!page && (tab === 'monthly' || first)) render();
-      }, function () {}));
+      /* 月例句会の記録：並べかえの指定はしない（名前の降順は、索引がないと読めず、だまって失敗していた）。読めなかったときは、今月の分だけを読む */
+      var monGot = function (o) { var first = !monLoaded; monthly = o; monLoaded = true; if (!page && (tab === 'monthly' || first)) render(); };
+      unsubs.push(db.collection('monthly').onSnapshot(function (sn) {
+        var o = {}; sn.docs.forEach(function (d) { var x = d.data() || {}; x.id = d.id; o[d.id] = x; }); monGot(o);
+      }, function (e) {
+        try { console.warn('月例句会の記録を読めませんでした（一覧）', e && e.message); } catch (_) {}
+        try { var mid = monId(); unsubs.push(db.doc('monthly/' + mid).onSnapshot(function (d) { var o = {}; Object.keys(monthly).forEach(function (k) { o[k] = monthly[k]; }); if (d && d.exists) { var x = d.data() || {}; x.id = mid; o[mid] = x; } else delete o[mid]; monGot(o); }, function (e2) { try { console.warn('月例句会の記録を読めませんでした（今月）', e2 && e2.message); } catch (_) {} })); } catch (_) {}
+      }));
       unsubs.push(db.doc('lounge/main').onSnapshot(function (d) {
         var o = (d && d.exists && d.data()) || {}; var n0 = Object.keys(o).length;
         if (loungeSeen !== null && n0 > loungeSeen) { var lastL = Object.keys(o).map(function (k) { return o[k]; }).sort(function (a, b) { return (b.at || 0) - (a.at || 0); })[0]; if (lastL && lastL.uid !== myId) { pilon(); if (!loungeOpen) toast('談話室：' + (lastL.haigo || '') + '「' + String(lastL.text || '').slice(0, 20) + '」'); } }
